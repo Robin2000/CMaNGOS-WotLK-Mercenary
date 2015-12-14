@@ -4,8 +4,8 @@
 #
 
 if [ $# -lt 4 ]; then
-  echo "Usage: $0 [ROOT] [DEST] [USER] [OPTIMIZED]"
-  exit 0
+echo "Usage: $0 [ROOT] [DEST] [USER] [OPTIMIZED]"
+exit 0
 fi
 
 ROOT=$1
@@ -27,8 +27,8 @@ cd TAO/performance-tests/Memory/IORsize
 # the non-optimized version
 
 if test $OPT == 1
-    then ./server -ORBSvcConf server.conf &
-    else ./server &
+then ./server -ORBSvcConf server.conf &
+else ./server &
 fi
 
 s_id=$!;
@@ -40,31 +40,31 @@ sleep 2;
 # Check whether the server has started
 file="test.ior"
 if test -f $file
-    then
-    # start the client
-    ./client &
-    c_id=$!;
-    # Wait till all the invocations are done
-    sleep 30;
-    # Get the size once the client has made sufficient invocations.
-    s_invocations=`cat /proc/$s_id/status  | grep VmRSS | awk '{print $2}'`;
-    let "actual_server_growth=${s_invocations}-${server_start_size}";
-    if test $OPT == 1
-        then
-        echo $DATE $s_invocations >> $DEST/source/server_opt_ior_size.txt
-        echo $DATE $actual_server_growth >> $DEST/source/opt_ior_size.txt
-        else
-        echo $DATE $s_invocations >> $DEST/source/server_ior_size.txt
-        echo $DATE $actual_server_growth >> $DEST/source/actual_ior_size.txt
-    fi
-
-    # Kill the server and client. We will look at better ways of doing
-    # this later.
-    kill -9 $c_id;
-    kill -9 $s_id;
-    rm -f $file
+then
+# start the client
+./client &
+c_id=$!;
+# Wait till all the invocations are done
+sleep 30;
+# Get the size once the client has made sufficient invocations.
+s_invocations=`cat /proc/$s_id/status  | grep VmRSS | awk '{print $2}'`;
+let "actual_server_growth=${s_invocations}-${server_start_size}";
+if test $OPT == 1
+then
+echo $DATE $s_invocations >> $DEST/source/server_opt_ior_size.txt
+echo $DATE $actual_server_growth >> $DEST/source/opt_ior_size.txt
 else
-    echo $file doesnt exist
+echo $DATE $s_invocations >> $DEST/source/server_ior_size.txt
+echo $DATE $actual_server_growth >> $DEST/source/actual_ior_size.txt
+fi
+
+# Kill the server and client. We will look at better ways of doing
+# this later.
+kill -9 $c_id;
+kill -9 $s_id;
+rm -f $file
+else
+echo $file doesnt exist
 fi
 
 

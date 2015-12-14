@@ -12,13 +12,13 @@ commandline=$@
 # find the target and save it to a variable
 until [ -z "$1" ] # test all command line parameters
 do
-  if [ "-o" = "$1" ]
-  then
-    shift
-    target=$1
-    break
-  fi
-  shift
+if [ "-o" = "$1" ]
+then
+shift
+target=$1
+break
+fi
+shift
 done
 
 # echo out "(%x)", the return value from g++, so the script processes the output

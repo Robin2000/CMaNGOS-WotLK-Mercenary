@@ -18,23 +18,23 @@ MAILFROM="jwillemsen@remedy.nl"
 
 MAIL_ATTACHMENTS=
 for fn in `ls *Tests.txt`; do
-   MAIL_ATTACHMENTS=$MAIL_ATTACHMENTS+"-a $fn "
+MAIL_ATTACHMENTS=$MAIL_ATTACHMENTS+"-a $fn "
 done
 for fn in `ls *NoTestRev.txt`; do
-   MAIL_ATTACHMENTS=$MAIL_ATTACHMENTS+"-a $fn "
+MAIL_ATTACHMENTS=$MAIL_ATTACHMENTS+"-a $fn "
 done
 CURRENTDATE=`date -u +%Y_%m_%d`
 mailfile="/tmp/rsmailfile"
 {
-   echo "Sending test statistics for" $CURRENTDATE
-   echo
-   cat *NoTestRev.txt
-   echo
-   echo "Sending with revision number"
-   cat *Tests.txt
-   echo
-   echo "Sending results per build"
-   cat *Builds.txt
+echo "Sending test statistics for" $CURRENTDATE
+echo
+cat *NoTestRev.txt
+echo
+echo "Sending with revision number"
+cat *Tests.txt
+echo
+echo "Sending results per build"
+cat *Builds.txt
 } > $mailfile
 
 $MAIL -r $MAILFROM -s "ACE/TAO/CIAO test statistics for $CURRENTDATE" $MAILTO < $mailfile

@@ -28,15 +28,15 @@
 
 while getopts  "l:" flag #
 do #
-    if [ `uname` != 'Linux' ] ; then #
-        echo 'skip' #
-        exit #
-    fi #
-    LD_PRELOAD=$OPTARG #
-    shift `expr $OPTIND - 1` #
+if [ `uname` != 'Linux' ] ; then #
+echo 'skip' #
+exit #
+fi #
+LD_PRELOAD=$OPTARG #
+shift `expr $OPTIND - 1` #
 done #
 # Set stack limit
-ulimit -s 10240 # 
+ulimit -s 10240 #
 # Run the command line passed via parameters
 export LD_PRELOAD #
-./$* # 
+./$* #

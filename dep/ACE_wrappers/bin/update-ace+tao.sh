@@ -5,7 +5,7 @@
 # Define helper function to extract version number into tag format
 d='\([0-9]*\)'
 version() { sed -n -e "s,.*$1 version $d\.$d\.$d.*,$1-\1_\2_\3,p" \
-                   -e "s,.*$1 version $d\.$d.*,$1-\1_\2,p"; }
+-e "s,.*$1 version $d\.$d.*,$1-\1_\2,p"; }
 
 # Use ccvs instead of cvs since it supports SOCKS5, if that environment found.
 if [ ! -z "$SOCKS5_USER" ]; then cvs () { ccvs $*; } fi
@@ -31,9 +31,9 @@ echo New software version tags: $ace_version $tao_version
 
 # Conserve net bandwidth if no change was observed
 if [ $old_ace_version != $ace_version ] || [ x"$1"x = x"force"x ]; then
-  cvs -q update -Pd -r $ace_version `make -s show_controlled_files`
+cvs -q update -Pd -r $ace_version `make -s show_controlled_files`
 fi
 if [ $old_tao_version != $tao_version ] || [ x"$1"x = x"force"x ]; then
-  cvs -q update -Pd -r $tao_version TAO
+cvs -q update -Pd -r $tao_version TAO
 fi
 
