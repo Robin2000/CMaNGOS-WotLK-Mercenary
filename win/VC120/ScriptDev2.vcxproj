@@ -215,6 +215,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\myscript\pr_hearthstone.cpp" />
+    <ClCompile Include="..\..\src\myscript\pr_spirit_guide.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\escort_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\follower_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\guard_ai.cpp" />

@@ -8,6 +8,8 @@
 extern void AddSC_battleground();
 
 // custom
+extern void AddSC_hearthstone_script();
+extern void AddSC_PR_SPIRIT_GUIDE();
 
 // examples
 //extern void AddSC_example_creature();
@@ -476,7 +478,8 @@ void AddScripts()
     AddSC_battleground();
 
     // custom
-
+	AddSC_hearthstone_script();
+	AddSC_PR_SPIRIT_GUIDE();
     // examples
     //AddSC_example_creature();
     //AddSC_example_escort();
