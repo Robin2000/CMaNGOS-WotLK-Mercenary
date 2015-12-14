@@ -43,111 +43,111 @@ MAP_LIST_D3="530 593 594 596 597 605"
 
 badParam()
 {
-  echo "ERROR! Bad arguments!"
-  echo "You can (re)extract mmaps with this helper script,"
-  echo "or recreate only the tiles from the offmash file"
-  echo
-  echo "Call with number of processes (1 - 4) to create mmaps"
-  echo "Call with 'offmesh' to reextract the tiles from offmash file"
-  echo
-  echo "For further fine-tuning edit this helper script"
-  echo
+echo "ERROR! Bad arguments!"
+echo "You can (re)extract mmaps with this helper script,"
+echo "or recreate only the tiles from the offmash file"
+echo
+echo "Call with number of processes (1 - 4) to create mmaps"
+echo "Call with 'offmesh' to reextract the tiles from offmash file"
+echo
+echo "For further fine-tuning edit this helper script"
+echo
 }
 
 if [ "$#" = "3" ]
 then
-  LOG_FILE=$2
-  DETAIL_LOG_FILE=$3
+LOG_FILE=$2
+DETAIL_LOG_FILE=$3
 elif [ "$#" = "2" ]
 then
-  LOG_FILE=$2
+LOG_FILE=$2
 fi
 
 # Offmesh file provided?
 OFFMESH=""
 if [ "$OFFMESH_FILE" != "" ]
 then
-  if [ ! -f "$OFFMESH_FILE" ]
-  then
-    echo "ERROR! Offmesh file $OFFMESH_FILE could not be found."
-    echo "Provide valid file or none. You need to edit the script"
-    exit 1
-  else
-    OFFMESH="--offMeshInput $OFFMESH_FILE"
-  fi
+if [ ! -f "$OFFMESH_FILE" ]
+then
+echo "ERROR! Offmesh file $OFFMESH_FILE could not be found."
+echo "Provide valid file or none. You need to edit the script"
+exit 1
+else
+OFFMESH="--offMeshInput $OFFMESH_FILE"
+fi
 fi
 
 # Function to process a list
 createMMaps()
 {
-  for i in $@
-  do
-    for j in $EXCLUDE_MAPS
-    do
-      if [ "$i" = "$j" ]
-      then
-        continue 2
-      fi
-    done
-    ./MoveMapGen $PARAMS $OFFMESH $i | tee -a $DETAIL_LOG_FILE
-    echo "`date`: (Re)created map $i" | tee -a $LOG_FILE
-  done
+for i in $@
+do
+for j in $EXCLUDE_MAPS
+do
+if [ "$i" = "$j" ]
+then
+continue 2
+fi
+done
+./MoveMapGen $PARAMS $OFFMESH $i | tee -a $DETAIL_LOG_FILE
+echo "`date`: (Re)created map $i" | tee -a $LOG_FILE
+done
 }
 
 createHeader()
 {
-  echo "`date`: Start creating MoveMaps" | tee -a $LOG_FILE
-  echo "Used params: $PARAMS $OFFMESH" | tee -a $LOG_FILE
-  echo "Detailed log can be found in $DETAIL_LOG_FILE" | tee -a $LOG_FILE
-  echo "Start creating MoveMaps" | tee -a $DETAIL_LOG_FILE
-  echo
-  echo "Be PATIENT - This will take a long time and might also have gaps between visible changes on the console."
-  echo "WAIT until you are informed that 'creating MoveMaps' is 'finished'!"
+echo "`date`: Start creating MoveMaps" | tee -a $LOG_FILE
+echo "Used params: $PARAMS $OFFMESH" | tee -a $LOG_FILE
+echo "Detailed log can be found in $DETAIL_LOG_FILE" | tee -a $LOG_FILE
+echo "Start creating MoveMaps" | tee -a $DETAIL_LOG_FILE
+echo
+echo "Be PATIENT - This will take a long time and might also have gaps between visible changes on the console."
+echo "WAIT until you are informed that 'creating MoveMaps' is 'finished'!"
 }
 
 # Create mmaps directory if not exist
 if [ ! -d mmaps ]
 then
-  mkdir mmaps
+mkdir mmaps
 fi
 
 # Param control
 case "$1" in
-  "1" )
-    createHeader $1
-    createMMaps $MAP_LIST_A $MAP_LIST_B $MAP_LIST_C $MAP_LIST_D &
-    ;;
-  "2" )
-    createHeader $1
-    createMMaps $MAP_LIST_A $MAP_LIST_D &
-    createMMaps $MAP_LIST_B $MAP_LIST_C &
-    ;;
-  "3" )
-    createHeader $1
-    createMMaps $MAP_LIST_A $MAP_LIST_D1&
-    createMMaps $MAP_LIST_B $MAP_LIST_D2&
-    createMMaps $MAP_LIST_C $MAP_LIST_D3&
-    ;;
-  "4" )
-    createHeader $1
-    createMMaps $MAP_LIST_A &
-    createMMaps $MAP_LIST_B &
-    createMMaps $MAP_LIST_C &
-    createMMaps $MAP_LIST_D &
-    ;;
-  "offmesh" )
-    echo "`date`: Recreate offmeshs from file $OFFMESH_FILE" | tee -a $LOG_FILE
-    echo "Recreate offmeshs from file $OFFMESH_FILE" | tee -a $DETAIL_LOG_FILE
-    while read map tile line
-    do
-      ./MoveMapGen $PARAMS $OFFMESH $map --tile $tile | tee -a $DETAIL_LOG_FILE
-      echo "`date`: Recreated $map $tile from $OFFMESH_FILE" | tee -a $LOG_FILE
-    done < $OFFMESH_FILE &
-    ;;
-  * )
-    badParam
-    exit 1
-    ;;
+"1" )
+createHeader $1
+createMMaps $MAP_LIST_A $MAP_LIST_B $MAP_LIST_C $MAP_LIST_D &
+;;
+"2" )
+createHeader $1
+createMMaps $MAP_LIST_A $MAP_LIST_D &
+createMMaps $MAP_LIST_B $MAP_LIST_C &
+;;
+"3" )
+createHeader $1
+createMMaps $MAP_LIST_A $MAP_LIST_D1&
+createMMaps $MAP_LIST_B $MAP_LIST_D2&
+createMMaps $MAP_LIST_C $MAP_LIST_D3&
+;;
+"4" )
+createHeader $1
+createMMaps $MAP_LIST_A &
+createMMaps $MAP_LIST_B &
+createMMaps $MAP_LIST_C &
+createMMaps $MAP_LIST_D &
+;;
+"offmesh" )
+echo "`date`: Recreate offmeshs from file $OFFMESH_FILE" | tee -a $LOG_FILE
+echo "Recreate offmeshs from file $OFFMESH_FILE" | tee -a $DETAIL_LOG_FILE
+while read map tile line
+do
+./MoveMapGen $PARAMS $OFFMESH $map --tile $tile | tee -a $DETAIL_LOG_FILE
+echo "`date`: Recreated $map $tile from $OFFMESH_FILE" | tee -a $LOG_FILE
+done < $OFFMESH_FILE &
+;;
+* )
+badParam
+exit 1
+;;
 esac
 
 wait

@@ -23,28 +23,28 @@
 # Helper function   ###########################################################
 # Optional param: line of prompt
 function read_yes_no {
-  while true; do
-    if [ "$1" = "" ]; then
-      read -p"(y/n) "line
-    else
-      read -p"$1 " line
-    fi
+while true; do
+if [ "$1" = "" ]; then
+read -p"(y/n) "line
+else
+read -p"$1 " line
+fi
 
-    case "$line" in
-      y|Y|yes|Yes|YES)
-        return 1
-        ;;
-      n|N|no|No|NO)
-        return 2
-        ;;
-      "")
-        return 0
-        ;;
-      *)
-        echo "Unknown answer, please retry"
-        ;;
-    esac
-  done
+case "$line" in
+y|Y|yes|Yes|YES)
+return 1
+;;
+n|N|no|No|NO)
+return 2
+;;
+"")
+return 0
+;;
+*)
+echo "Unknown answer, please retry"
+;;
+esac
+done
 }
 # #############################################################################
 
@@ -57,27 +57,27 @@ echo
 # Must have Git available
 git rev-parse --git-dir 1>/dev/null 2>&1
 if [[ $? -ne 0 ]]; then
-  echo "ERROR: Cannot find Git directory"
-  echo "Try to start from your main cmangos directory by using"
-  echo "  \"contrib/CreateTopicBranch.sh\""
-  read -p"Press [RETURN] to exit"
-  exit 1
+echo "ERROR: Cannot find Git directory"
+echo "Try to start from your main cmangos directory by using"
+echo "  \"contrib/CreateTopicBranch.sh\""
+read -p"Press [RETURN] to exit"
+exit 1
 fi
 
 checkout_from_current=0
 # is the index clean?
 if [[ ! -z $(git diff-index HEAD) ]]
 then
-  echo "Your current working dir is not clean."
-  echo "Do you want to take your changes over to your development project? (y/n)"
-  read_yes_no "Move current changes? (y/n)"
-  if [[ $? -eq 1 ]]
-  then
-    checkout_from_current=1
-  else
-    echo "ERROR: dirty index, run mixed/hard reset first"
-    exit 1
-  fi
+echo "Your current working dir is not clean."
+echo "Do you want to take your changes over to your development project? (y/n)"
+read_yes_no "Move current changes? (y/n)"
+if [[ $? -eq 1 ]]
+then
+checkout_from_current=1
+else
+echo "ERROR: dirty index, run mixed/hard reset first"
+exit 1
+fi
 fi
 
 echo
@@ -87,9 +87,9 @@ read project_name
 pr_name_clean=`echo $project_name | sed 's/ /_/g' `
 if [ "$pr_name_clean" != "$project_name" ]
 then
-  echo "You entered a name with blanks, these were substituted to $pr_name_clean"
-  read_yes_no "Is this ok for you? (y/n)"
-  if [ $? -eq 2 ]; then exit 1; fi
+echo "You entered a name with blanks, these were substituted to $pr_name_clean"
+read_yes_no "Is this ok for you? (y/n)"
+if [ $? -eq 2 ]; then exit 1; fi
 fi
 project_name="$pr_name_clean"
 if [ "$project_name" = "" ]; then echo "ERROR: You must enter a name for your project"; exit 1; fi
@@ -100,10 +100,10 @@ read project_type
 pr_type_clean=`echo $project_type | sed 's/ /_/g' `
 if [ "$pr_type_clean" != "$project_type" ]
 then
-  echo "You entered a type with blanks, these were substituted to $pr_type_clean"
-  echo "Is this ok for you? (y/n)"
-  read line
-  if [ "$line" = "n" ]; then exit 1; fi
+echo "You entered a type with blanks, these were substituted to $pr_type_clean"
+echo "Is this ok for you? (y/n)"
+read line
+if [ "$line" = "n" ]; then exit 1; fi
 fi
 project_type="$pr_type_clean"
 if [ "$project_type" = "" ]; then echo "ERROR: You must enter a type for your project"; exit 1; fi
@@ -123,16 +123,16 @@ remote_address="https://github.com/${remote_address}"
 echo
 if [[ $checkout_from_current -eq 1 ]]
 then
-  git checkout -b ${project_type}_${project_name}
+git checkout -b ${project_type}_${project_name}
 else
-  echo "From where do you want to checkout to your development branch?"
-  echo "Default: origin/master - Use \"HEAD\" for current branch"
-  read checkout_point
-  if [[ "$checkout_point" = "" ]]
-  then
-    checkout_point="origin/master"
-  fi
-  git checkout -b ${project_type}_${project_name} $checkout_point
+echo "From where do you want to checkout to your development branch?"
+echo "Default: origin/master - Use \"HEAD\" for current branch"
+read checkout_point
+if [[ "$checkout_point" = "" ]]
+then
+checkout_point="origin/master"
+fi
+git checkout -b ${project_type}_${project_name} $checkout_point
 fi
 echo
 echo "You will now asked to edit some initial commit message"
@@ -151,13 +151,13 @@ git commit -ae --allow-empty -m"Initial commit for development of $RP_TYPE $proj
 
 Development branch for $project_type
 
-        $project_name
+$project_name
 
 to do:
-    $project_desc
+$project_desc
 
 This development project is published at:
-    ${remote_address}/commits/${project_type}_${project_name}
+${remote_address}/commits/${project_type}_${project_name}
 
 # Please fill in some description about your project, these points might
 # help you to get some structure to your detailed description:
@@ -176,23 +176,23 @@ echo "Do you want to directly publish this development branch (suggested)? (y/n)
 read_yes_no "Directly push? (y/n)"
 if [[ $? -le 1 ]]
 then
-  HASH=`git log HEAD ^HEAD^ --pretty=format:"%hn"`
-  # Push now
-  git push $remote ${project_type}_${project_name}
-  echo
-  echo "Please link to your started project on our forum!"
-  echo
-  echo "Here is some suggested content for publishing on the http://cmangos.net forums at:"
-  echo "    <LINK>"
-  echo "or for a custom project:    <LINK2>"
-  echo
-  echo "Development of $project_type $project_name - see [URL=${remote_address}/commit/$HASH]Initial commit[/URL]"
-  echo "to develop: $project_desc"
-  echo
-  echo "In case of some contribution for official development, please open a pull request"
-  echo
-  echo "Note: On Windows you can use Copy&Paste from git-bash by clicking on the top-left corner, select \"Edit\" and then \"mark\""
-  echo
+HASH=`git log HEAD ^HEAD^ --pretty=format:"%hn"`
+# Push now
+git push $remote ${project_type}_${project_name}
+echo
+echo "Please link to your started project on our forum!"
+echo
+echo "Here is some suggested content for publishing on the http://cmangos.net forums at:"
+echo "    <LINK>"
+echo "or for a custom project:    <LINK2>"
+echo
+echo "Development of $project_type $project_name - see [URL=${remote_address}/commit/$HASH]Initial commit[/URL]"
+echo "to develop: $project_desc"
+echo
+echo "In case of some contribution for official development, please open a pull request"
+echo
+echo "Note: On Windows you can use Copy&Paste from git-bash by clicking on the top-left corner, select \"Edit\" and then \"mark\""
+echo
 fi
 echo
 echo "Have fun developing your feature!"
