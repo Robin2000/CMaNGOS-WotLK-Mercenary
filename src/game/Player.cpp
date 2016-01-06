@@ -13796,7 +13796,7 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
 
     // remove auras from spells with quest reward state limitations
     // Some spells applied at quest reward
-    uint32 zone, area;
+    /*uint32 zone, area;
     GetZoneAndAreaId(zone, area);
     SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(zone);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
@@ -13809,9 +13809,38 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
     }
     saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(0);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        itr->second->ApplyOrRemoveSpellIfCan(this, zone, area, false);
-}
+        itr->second->ApplyOrRemoveSpellIfCan(this, zone, area, false);*/
+	SendQuestUpdate(quest_id);
 
+}
+void Player::SendQuestUpdate(uint32 questId)
+{
+	uint32 zone = 0, area = 0;
+
+	SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForQuestMapBounds(questId);
+	if (saBounds.first != saBounds.second)
+	{
+		GetZoneAndAreaId(zone, area);
+
+		for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+		if (itr->second->autocast && itr->second->IsFitToRequirements(this, zone, area))
+		if (!HasAura(itr->second->spellId))
+			CastSpell(this, itr->second->spellId, true);
+	}
+
+	saBounds = sSpellMgr.GetSpellAreaForQuestEndMapBounds(questId);
+	if (saBounds.first != saBounds.second)
+	{
+		if (!zone || !area)
+			GetZoneAndAreaId(zone, area);
+
+		for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+		if (!itr->second->IsFitToRequirements(this, zone, area))
+			RemoveAurasDueToSpell(itr->second->spellId);
+	}
+
+	UpdateForQuestWorldObjects();
+}
 void Player::FailQuest(uint32 questId)
 {
     if (Quest const* pQuest = sObjectMgr.GetQuestTemplate(questId))

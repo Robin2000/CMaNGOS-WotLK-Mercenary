@@ -804,9 +804,11 @@ struct SpellArea
 };
 
 typedef std::multimap<uint32 /*applySpellId*/, SpellArea> SpellAreaMap;
+typedef std::multimap<uint32, SpellArea const*> SpellAreaForQuestMap;
 typedef std::multimap<uint32 /*auraSpellId*/, SpellArea const*> SpellAreaForAuraMap;
 typedef std::multimap<uint32 /*areaOrZoneId*/, SpellArea const*> SpellAreaForAreaMap;
 typedef std::pair<SpellAreaMap::const_iterator, SpellAreaMap::const_iterator> SpellAreaMapBounds;
+typedef std::pair<SpellAreaForQuestMap::const_iterator, SpellAreaForQuestMap::const_iterator> SpellAreaForQuestMapBounds;
 typedef std::pair<SpellAreaForAuraMap::const_iterator, SpellAreaForAuraMap::const_iterator>  SpellAreaForAuraMapBounds;
 typedef std::pair<SpellAreaForAreaMap::const_iterator, SpellAreaForAreaMap::const_iterator>  SpellAreaForAreaMapBounds;
 
@@ -1149,6 +1151,16 @@ class SpellMgr
             return mSpellAreaForAreaMap.equal_range(area_id);
         }
 
+		SpellAreaForQuestMapBounds GetSpellAreaForQuestMapBounds(uint32 quest_id) const
+		{
+			return mSpellAreaForQuestMap.equal_range(quest_id);
+		}
+
+		SpellAreaForQuestMapBounds GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const
+		{
+			return mSpellAreaForQuestEndMap.equal_range(quest_id);
+		}
+
         // Modifiers
     public:
         static SpellMgr& Instance();
@@ -1194,6 +1206,8 @@ class SpellMgr
         SpellAreaMap         mSpellAreaMap;
         SpellAreaForAuraMap  mSpellAreaForAuraMap;
         SpellAreaForAreaMap  mSpellAreaForAreaMap;
+		SpellAreaForQuestMap       mSpellAreaForQuestMap;
+		SpellAreaForQuestMap       mSpellAreaForQuestEndMap;
 };
 
 #define sSpellMgr SpellMgr::Instance()
