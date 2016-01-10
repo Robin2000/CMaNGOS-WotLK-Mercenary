@@ -1079,10 +1079,10 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
     float viewDist = GetVisibilityDistance();
     int cell_range = (int)ceilf(viewDist / SIZE_OF_GRID_CELL) + 1;
 
-    cell_min << cell_range;
-    cell_min -= cell_range;
-    cell_max >> cell_range;
-    cell_max += cell_range;
+	cell_min.dec_x(cell_range);
+	cell_min.dec_y(cell_range);
+	cell_max.inc_x(cell_range);
+	cell_max.inc_y(cell_range);
 
     for (MapRefManager::const_iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
     {
