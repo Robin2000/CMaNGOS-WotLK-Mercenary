@@ -612,10 +612,14 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang, TempSummonType spwtype, uint32 despwtime, bool asActiveObject = false);
 
+		Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+
         bool isActiveObject() const { return m_isActiveObject || m_viewPoint.hasViewers(); }
         void SetActiveObjectState(bool active);
 
         ViewPoint& GetViewPoint() { return m_viewPoint; }
+
+		template<class NOTIFIER> void VisitNearbyObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
 
         // ASSERT print helper
         bool PrintCoordinatesError(float x, float y, float z, char const* descr) const;

@@ -1892,6 +1892,16 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float& x, float& y, 
         UpdateGroundPositionZ(x, y, z);
 }
 
+Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive) const
+{
+	Creature* creature = NULL;
+	//WorldObject const& obj, uint32 entry, bool onlyAlive, bool onlyDead, float range, bool excludeSelf = false
+	MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck checker(*this, entry, alive, false, range, false);
+	MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(creature, checker);
+	VisitNearbyObject(range, searcher);
+	return creature;
+}
+
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 {
     m_phaseMask = newPhaseMask;
