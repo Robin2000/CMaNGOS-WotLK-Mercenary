@@ -33,7 +33,7 @@ go_lab_work_reagents
 EndContentData */
 
 #include "precompiled.h"
-
+#include <random>
 /*######
 ## go_ethereum_prison
 ######*/
@@ -179,6 +179,7 @@ bool GOUse_go_tele_to_dalaran_crystal(Player* pPlayer, GameObject* /*pGo*/)
     if (pPlayer->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
         return false;
 
+	pPlayer->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
     // TODO: must send error message (what kind of message? On-screen?)
     return true;
 }
@@ -294,6 +295,61 @@ bool GOUse_go_lab_work_reagents(Player* pPlayer, GameObject* pGo)
 
     return false;
 }
+/*######
+## Quest 11560: Oh Noes, the Tadpoles!
+## go_tadpole_cage
+######*/
+
+enum Tadpoles
+{
+	QUEST_OH_NOES_THE_TADPOLES = 11560,
+	NPC_WINTERFIN_TADPOLE = 25201
+};
+
+bool GOUse_go_tadpole_cage(Player* pPlayer, GameObject* pGo)
+{
+	if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
+	{	
+		if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_WINTERFIN_TADPOLE, 1.0f))//mangos风格的查找
+		{
+			float x = pCreature->GetPositionX();
+			float y = pCreature->GetPositionY();
+			float z = pCreature->GetPositionZ();
+			float a=pCreature->GetAngle(pPlayer);
+			
+			int dist = 1 + rand() % 5;  /*1-4*/
+			int angle = 3.1415926*2*(1 + rand() % 11)/10; /*(1-10)/10*/
+
+			pCreature->SetDeathState(JUST_DIED);//GM off
+			pCreature->SetCreateHealth(0);
+			pCreature->RemoveCorpse();
+
+			if (Creature* newCreature = pPlayer->SummonCreature(NPC_WINTERFIN_TADPOLE,
+				x,y,z,a, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3000000))
+			{
+				newCreature->GetMotionMaster()->MoveFollow(pPlayer, dist, angle);
+				
+			}
+			pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE);
+
+			
+		}
+
+		//Creature* pTadpole = pGo->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f, true); //trinity风格的查找
+		//if (pTadpole)
+		//{
+			//pTadpole->ForcedDespawn(2000);
+			//pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE);
+			//FIX: Summon minion tadpole
+			//pGo->DestroyForPlayer(pPlayer, true);
+
+		//}
+
+	}
+
+	return false;
+}
+
 
 void AddSC_go_scripts()
 {
@@ -336,11 +392,16 @@ void AddSC_go_scripts()
 
     pNewScript = new Script;
     pNewScript->Name = "go_scourge_enclosure";
-    pNewScript->pGOUse =          &GOUse_go_scourge_enclosure;
+	pNewScript->pGOUse = &GOUse_go_scourge_enclosure;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
     pNewScript->Name = "go_lab_work_reagents";
     pNewScript->pGOUse =          &GOUse_go_lab_work_reagents;
     pNewScript->RegisterSelf();
+
+	pNewScript = new Script;
+	pNewScript->Name = "go_tadpole_cage";
+	pNewScript->pGOUse = &GOUse_go_tadpole_cage;
+	pNewScript->RegisterSelf();
 }

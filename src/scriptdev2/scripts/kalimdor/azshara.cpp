@@ -67,7 +67,6 @@ enum
     SPELL_GIVE_MOONSTONE        = 39886
 };
 
-#define GOSSIP_ITEM_MOONSTONE   "Hand over the Southfury moonstone and I'll let you go."
 
 struct npc_rizzle_sprysprocketAI : public npc_escortAI
 {
@@ -125,7 +124,7 @@ struct npc_rizzle_sprysprocketAI : public npc_escortAI
     // this may be wrong (and doesn't work)
     void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell) override
     {
-        if (pTarget->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_FROST_GRENADE)
+		if (pTarget->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_FROST_GRENADE)
             DoScriptText(SAY_WHISPER_CHILL, m_creature, pTarget);
     }
 
@@ -158,9 +157,9 @@ struct npc_rizzle_sprysprocketAI : public npc_escortAI
                     m_creature->CastSpell(m_creature, SPELL_ESCAPE, false);
                     break;
                 case 2:
-                    m_creature->CastSpell(m_creature, SPELL_SWIM_SPEED, false);
+                    //m_creature->CastSpell(m_creature, SPELL_SWIM_SPEED, false);不让加速
                     m_bIsIntro = false;
-                    Start(true);
+					Start(false); //不启动跑路
                     break;
             }
 
@@ -188,7 +187,7 @@ CreatureAI* GetAI_npc_rizzle_sprysprocket(Creature* pCreature)
 bool GossipHello_npc_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+		pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
     return true;
