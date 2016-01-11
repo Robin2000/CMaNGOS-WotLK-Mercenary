@@ -215,8 +215,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\myscript\pr_hearthstone.cpp" />
-    <ClCompile Include="..\..\src\myscript\pr_spirit_guide.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\escort_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\follower_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\guard_ai.cpp" />
@@ -431,6 +429,8 @@
     <ClCompile Include="..\..\src\scriptdev2\scripts\kalimdor\zulfarrak\boss_zumrah.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\kalimdor\zulfarrak\instance_zulfarrak.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\kalimdor\zulfarrak\zulfarrak.cpp" />
+    <ClCompile Include="..\..\src\scriptdev2\scripts\myscript\pr_hearthstone.cpp" />
+    <ClCompile Include="..\..\src\scriptdev2\scripts\myscript\pr_spirit_guide.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\northrend\borean_tundra.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\northrend\dalaran.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\northrend\dragonblight.cpp" />
@@ -686,6 +686,7 @@
     <ClInclude Include="..\..\src\scriptdev2\base\follower_ai.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\guard_ai.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\pet_ai.h" />
+    <ClInclude Include="..\..\src\scriptdev2\include\pr_hh.h" />
     <ClInclude Include="..\..\src\scriptdev2\scripts\eastern_kingdoms\blackrock_depths\blackrock_depths.h" />
     <ClInclude Include="..\..\src\scriptdev2\scripts\eastern_kingdoms\blackrock_spire\blackrock_spire.h" />
     <ClInclude Include="..\..\src\scriptdev2\scripts\eastern_kingdoms\blackwing_lair\blackwing_lair.h" />
