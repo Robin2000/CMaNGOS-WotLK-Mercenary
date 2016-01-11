@@ -202,7 +202,7 @@ void SQLStorageLoaderBase<DerivedLoader, StorageClass>::Load(StorageClass& store
         return;
     }
 
-    if (store.GetSrcFieldCount() != result->GetFieldCount())
+    if (store.GetSrcFieldCount() > result->GetFieldCount())
     {
         recordCount = 0;
         sLog.outError("Error in %s table, probably sql file format was updated (there should be %d fields in sql).\n", store.GetTableName(), store.GetSrcFieldCount());
