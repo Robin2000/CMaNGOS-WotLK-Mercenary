@@ -215,6 +215,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\myscript\pr_hearthstone.cpp" />
+    <ClCompile Include="..\..\src\myscript\pr_hh.cpp" />
+    <ClCompile Include="..\..\src\myscript\pr_spirit_guide.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\escort_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\follower_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\guard_ai.cpp" />
@@ -429,8 +432,6 @@
     <ClCompile Include="..\..\src\scriptdev2\scripts\kalimdor\zulfarrak\boss_zumrah.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\kalimdor\zulfarrak\instance_zulfarrak.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\kalimdor\zulfarrak\zulfarrak.cpp" />
-    <ClCompile Include="..\..\src\scriptdev2\scripts\myscript\pr_hearthstone.cpp" />
-    <ClCompile Include="..\..\src\scriptdev2\scripts\myscript\pr_spirit_guide.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\northrend\borean_tundra.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\northrend\dalaran.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\scripts\northrend\dragonblight.cpp" />
