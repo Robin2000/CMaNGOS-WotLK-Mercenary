@@ -179,7 +179,22 @@ enum PrStrings
 	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR7 = -2800156, //"Of course, Warchief!"
 
 	//D:\workspace.github\wow\cmangos\mangos-wotlk\src\scriptdev2\scripts\kalimdor\the_barrens.cpp
-	ADD_GOSSIP_ITEM_THE_BARRENS1 = -2800157  //"Examine corpse in detail..."
+	ADD_GOSSIP_ITEM_THE_BARRENS1 = -2800157,  //"Examine corpse in detail..."
+
+	//D:\workspace.github\wow\cmangos\mangos-wotlk\src\scriptdev2\scripts\eastern_kingdoms\blasted_lands.cpp
+	ADD_GOSSIP_ITEM_blasted_lands1 = -2800158, //	Why are you here ?
+	ADD_GOSSIP_ITEM_blasted_lands2 = -2800159, //	Continue story... ?
+	ADD_GOSSIP_ITEM_blasted_lands3 = -2800160, //    Why are you here ?
+
+	//  D:\workspace.github\wow\cmangos\mangos-wotlk\src\scriptdev2\scripts\kalimdor\azshara.cpp
+	ADD_GOSSIP_ITEM_azshara1 = -2800161, //    Can you help me?
+	ADD_GOSSIP_ITEM_azshara2 = -2800162, //    Tell me your story
+	ADD_GOSSIP_ITEM_azshara3 = -2800163, //    Please continue
+	ADD_GOSSIP_ITEM_azshara4 = -2800164, //    I do not understand
+	ADD_GOSSIP_ITEM_azshara5 = -2800165, //    Indeed
+	ADD_GOSSIP_ITEM_azshara6 = -2800166, //    I will do this with or your help, Loramus
+	ADD_GOSSIP_ITEM_azshara7 = -2800167 //    Yes
+	
 };
 
 #endif
