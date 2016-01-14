@@ -175,7 +175,7 @@ enum PrStrings
 	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR3 = -2800152, // "Usurper?"
 	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR4 = -2800153, // "With all due respect, Warchief - why not allow them to be destroyed? Does this not strengthen our position?"
 	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR5 = -2800154, //"I... I did not think of it that way, Warchief."
-	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR6 = -2800159, //"I live only to serve, Warchief! My life is empty and meaningless without your guidance."
+	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR6 = -2800155, //"I live only to serve, Warchief! My life is empty and meaningless without your guidance."
 	ADD_GOSSIP_ITEM_LOCH_ORGRIMMAR7 = -2800156, //"Of course, Warchief!"
 
 	//D:\workspace.github\wow\cmangos\mangos-wotlk\src\scriptdev2\scripts\kalimdor\the_barrens.cpp
