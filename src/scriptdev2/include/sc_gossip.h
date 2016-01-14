@@ -10,6 +10,7 @@
 #include "QuestDef.h"
 
 // Gossip Item Text
+/*
 #define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
 #define GOSSIP_TEXT_TRAIN               "Train me!"
 
@@ -69,7 +70,7 @@
 #define GOSSIP_TEXT_SKINNING            "Skinning"
 #define GOSSIP_TEXT_JEWELCRAFTING       "Jewelcrafting"
 #define GOSSIP_TEXT_INSCRIPTION         "Inscription"
-
+*/
 enum
 {
     // Skill defines
@@ -139,6 +140,7 @@ extern uint32 GetSkillLevel(Player* pPlayer, uint32 uiSkill);
 #define ADD_GOSSIP_ITEM(uiIcon, chrText, uiSender, uiOptionId)   PlayerTalkClass->GetGossipMenu().AddMenuItem(uiIcon, chrText, uiSender, uiOptionId, "", 0)
 #define ADD_GOSSIP_ITEM_ID(uiIcon, iTextId, uiSender, uiOptionId)   PlayerTalkClass->GetGossipMenu().AddMenuItem(uiIcon, iTextId, uiSender, uiOptionId, 0, 0)
 #define ADD_GOSSIP_ITEM_EXTENDED(uiIcon, chrText, uiSender, uiOptionId, chrBoxMessage, uiBoxMoney, bCode)   PlayerTalkClass->GetGossipMenu().AddMenuItem(uiIcon, chrText, uiSender, uiOptionId, chrBoxMessage, uiBoxMoney, bCode)
+#define ADD_GOSSIP_ITEM_EXTENDED_ID(uiIcon, iTextId, uiSender, uiOptionId, chrBoxMessage, uiBoxMoney, bCode)   PlayerTalkClass->GetGossipMenu().AddMenuItem(uiIcon, iTextId, uiSender, uiOptionId, chrBoxMessage, uiBoxMoney, bCode)
 
 // This fuction Sends the current menu to show to client
 // uiTextId - NPCTEXTID (uint32)

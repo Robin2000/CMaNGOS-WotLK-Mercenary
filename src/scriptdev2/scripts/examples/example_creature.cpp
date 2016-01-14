@@ -67,7 +67,7 @@ enum
 // List of gossip item texts. Items will appear in the gossip window.
 // Actually such gossip can already be handled in normal World-Database
 // If (and only if) a gossip must be handled within SD2, then it should be moved to SD2-database!
-#define GOSSIP_ITEM     "I'm looking for a fight"
+//#define GOSSIP_ITEM     "I'm looking for a fight"
 
 struct example_creatureAI : public ScriptedAI
 {
@@ -255,7 +255,7 @@ CreatureAI* GetAI_example_creature(Creature* pCreature)
 // In this case as there is nothing special about this gossip dialogue, it should be moved to world-DB
 bool GossipHello_example_creature(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     pPlayer->SEND_GOSSIP_MENU(TEXT_ID_GREET, pCreature->GetObjectGuid());
 
     return true;

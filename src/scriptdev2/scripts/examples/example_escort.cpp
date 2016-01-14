@@ -46,9 +46,9 @@ enum
     SAY_RAND_2                  = -1999921
 };
 
-#define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"
-#define GOSSIP_ITEM_2   "Click to Test Escort(NoAttack, Walk)"
-#define GOSSIP_ITEM_3   "Click to Test Escort(NoAttack, Run)"
+//#define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"
+//#define GOSSIP_ITEM_2   "Click to Test Escort(NoAttack, Walk)"
+//#define GOSSIP_ITEM_3   "Click to Test Escort(NoAttack, Run)"
 
 struct example_escortAI : public npc_escortAI
 {
@@ -182,9 +182,9 @@ bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetObjectGuid());
     pPlayer->PrepareGossipMenu(pCreature, pPlayer->GetDefaultGossipMenuForSource(pCreature));
 
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+	pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_escor_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+	pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_escor_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+	pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_escor_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
     pPlayer->SendPreparedGossip(pCreature);
 

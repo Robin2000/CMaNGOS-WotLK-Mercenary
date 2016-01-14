@@ -185,7 +185,7 @@ CreatureAI* GetAI_npc_ancestral_wolf(Creature* pCreature)
 ## npc_demoniac_scryer
 ######*/
 
-#define GOSSIP_ITEM_ATTUNE          "Yes, Scryer. You may possess me."
+//#define GOSSIP_ITEM_ATTUNE          "Yes, Scryer. You may possess me."
 
 enum
 {
@@ -333,7 +333,7 @@ bool GossipHello_npc_demoniac_scryer(Player* pPlayer, Creature* pCreature)
         if (pScryerAI->m_bIsComplete)
         {
             if (pPlayer->GetQuestStatus(QUEST_DEMONIAC) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ATTUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ATTUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ATTUNED, pCreature->GetObjectGuid());
             return true;
