@@ -169,6 +169,7 @@ class MANGOS_DLL_SPEC GossipMenu
         void AddMenuItem(uint8 Icon, char const* Message, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded = false);
 
         void AddMenuItem(uint8 Icon, int32 itemText, uint32 dtSender, uint32 dtAction, int32 boxText, uint32 BoxMoney, bool Coded = false);
+		void AddMenuItem(uint8 Icon, int32 itemText, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded = false);
 
         void SetMenuId(uint32 menu_id) { m_gMenuId = menu_id; }
         uint32 GetMenuId() { return m_gMenuId; }
