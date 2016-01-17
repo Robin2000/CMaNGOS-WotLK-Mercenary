@@ -29,8 +29,9 @@
 #include "AuctionHouseMgr.h"
 #include "Item.h"
 
-#include <deque>
+//#include <deque>
 #include <mutex>
+#include <boost/lockfree/queue.hpp>
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -925,8 +926,9 @@ class MANGOS_DLL_SPEC WorldSession
         TutorialDataState m_tutorialState;
         AddonsList m_addonsList;
 
-        std::mutex m_recvQueueLock;
-        std::deque<WorldPacket *> m_recvQueue;
+        //std::mutex m_recvQueueLock;修改包接收队列为不加锁
+        //std::deque<WorldPacket *> m_recvQueue;
+		boost::lockfree::queue<WorldPacket *, boost::lockfree::fixed_sized<false>> m_recvQueue;
 };
 #endif
 /// @}

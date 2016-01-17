@@ -89,7 +89,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_muteTime(mute_time), _player(nullptr), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion), _logoutTime(0),
     m_inQueue(false), m_playerLoading(false), m_playerLogout(false), m_playerRecentlyLogout(false), m_playerSave(false),
     m_sessionDbcLocale(sWorld.GetAvailableDbcLocale(locale)), m_sessionDbLocaleIndex(sObjectMgr.GetIndexForLocale(locale)),
-    m_latency(0), m_clientTimeDelay(0), m_tutorialState(TUTORIALDATA_UNCHANGED)
+	m_latency(0), m_clientTimeDelay(0), m_tutorialState(TUTORIALDATA_UNCHANGED), m_recvQueue(0)
 {
     if (sock)
     {
@@ -114,7 +114,8 @@ WorldSession::~WorldSession()
     }
 
     ///- empty incoming packet queue
-    std::for_each(m_recvQueue.begin(), m_recvQueue.end(), [](const WorldPacket *packet) { delete packet; });
+    //std::for_each(m_recvQueue.begin(), m_recvQueue.end(), [](const WorldPacket *packet) { delete packet; });修改为不加锁
+	WorldPacket * packet = NULL; while (m_recvQueue.pop(packet)){ delete packet; };
 }
 
 void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const
@@ -178,8 +179,9 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 /// Add an incoming packet to the queue
 void WorldSession::QueuePacket(WorldPacket* new_packet)
 {
-    std::lock_guard<std::mutex> guard(m_recvQueueLock);
-    m_recvQueue.push_back(new_packet);
+    //std::lock_guard<std::mutex> guard(m_recvQueueLock);不加锁
+    //m_recvQueue.push_back(new_packet);
+	m_recvQueue.push(new_packet);
 }
 
 /// Logging helper for unexpected opcodes
@@ -203,7 +205,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(PacketFilter& updater)
 {
-    std::lock_guard<std::mutex> guard(m_recvQueueLock);
+    //std::lock_guard<std::mutex> guard(m_recvQueueLock);不加锁
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
@@ -215,8 +217,10 @@ bool WorldSession::Update(PacketFilter& updater)
                         packet->GetOpcode());
         #endif*/
 
-        WorldPacket* packet = m_recvQueue.front();
-        m_recvQueue.pop_front();
+        //WorldPacket* packet = m_recvQueue.pop();修改为不加锁
+        //m_recvQueue.pop_front();
+		WorldPacket* packet = NULL;
+		m_recvQueue.pop(packet);
 
         OpcodeHandler const& opHandle = opcodeTable[packet->GetOpcode()];
         try
