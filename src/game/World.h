@@ -32,8 +32,8 @@
 #include <map>
 #include <set>
 #include <list>
-#include <deque>
-#include <mutex>
+//#include <deque>
+//#include <mutex>
 
 class Object;
 class ObjectGuid;
@@ -580,7 +580,8 @@ class World
         static uint32 GetRelocationAINotifyDelay()          { return m_relocation_ai_notify_delay; }
 
         void ProcessCliCommands();
-        void QueueCliCommand(CliCommandHolder* commandHolder) { std::lock_guard<std::mutex> guard(m_cliCommandQueueLock); m_cliCommandQueue.push_back(commandHolder); }
+        //void QueueCliCommand(CliCommandHolder* commandHolder) { std::lock_guard<std::mutex> guard(m_cliCommandQueueLock); m_cliCommandQueue.push_back(commandHolder); }改为lockfree
+		void QueueCliCommand(CliCommandHolder* commandHolder) { m_cliCommandQueue.push(commandHolder); }
 
         void UpdateResultQueue();
         void InitResultQueue();
@@ -677,8 +678,9 @@ class World
         static uint32 m_relocation_ai_notify_delay;
 
         // CLI command holder to be thread safe
-        std::mutex m_cliCommandQueueLock;
-        std::deque<CliCommandHolder *> m_cliCommandQueue;
+        //std::mutex m_cliCommandQueueLock; 改为不加锁
+        //std::deque<CliCommandHolder *> m_cliCommandQueue;
+		boost::lockfree::queue<CliCommandHolder *, boost::lockfree::fixed_sized<false>> m_cliCommandQueue;
 
         // next daily quests reset time
         time_t m_NextDailyQuestReset;

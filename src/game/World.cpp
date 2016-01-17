@@ -91,7 +91,7 @@ float  World::m_relocation_lower_limit_sq     = 10.f * 10.f;
 uint32 World::m_relocation_ai_notify_delay    = 1000u;
 
 /// World constructor
-World::World() :m_sessionAddQueue(0)
+World::World() :m_sessionAddQueue(0),m_cliCommandQueue(0)
 {
     m_playerLimit = 0;
     m_allowMovement = true;
@@ -131,8 +131,9 @@ World::~World()
     std::for_each(m_sessions.begin(), m_sessions.end(), [](const SessionMap::value_type &p) { delete p.second; });
     m_sessions.clear();
 
-    std::for_each(m_cliCommandQueue.begin(), m_cliCommandQueue.end(), [](const CliCommandHolder *p) { delete p; });
-    m_cliCommandQueue.clear();
+    //std::for_each(m_cliCommandQueue.begin(), m_cliCommandQueue.end(), [](const CliCommandHolder *p) { delete p; });改为loockfree
+    //m_cliCommandQueue.clear();
+	CliCommandHolder * p = NULL; while (m_cliCommandQueue.pop(p)){ delete p; };
 
     //std::for_each(m_sessionAddQueue.begin(), m_sessionAddQueue.end(), [](const WorldSession *s) { delete s; });改为loockfree
 	//m_sessionAddQueue.clear();
@@ -1939,12 +1940,14 @@ void World::UpdateSessions(uint32 /*diff*/)
 // This handles the issued and queued CLI/RA commands
 void World::ProcessCliCommands()
 {
-    std::lock_guard<std::mutex> guard(m_cliCommandQueueLock);
+    //std::lock_guard<std::mutex> guard(m_cliCommandQueueLock);
 
     while (!m_cliCommandQueue.empty())
     {
-        CliCommandHolder* command = m_cliCommandQueue.front();
-        m_cliCommandQueue.pop_front();
+        //CliCommandHolder* command = m_cliCommandQueue.front(); 改为lockfree
+        //m_cliCommandQueue.pop_front();
+		CliCommandHolder* command = NULL; m_cliCommandQueue.pop(command);
+
 
         DEBUG_LOG("CLI command under processing...");
         CliCommandHolder::Print* zprint = command->m_print;
