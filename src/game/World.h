@@ -27,6 +27,7 @@
 #include "Timer.h"
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
+#include <boost/lockfree/queue.hpp>
 
 #include <map>
 #include <set>
@@ -690,8 +691,9 @@ class World
         // sessions that are added async
         void AddSession_(WorldSession* s);
 
-        std::mutex m_sessionAddQueueLock;
-        std::deque<WorldSession *> m_sessionAddQueue;
+        //std::mutex m_sessionAddQueueLock;改为不加锁
+        //std::deque<WorldSession *> m_sessionAddQueue;改为无需加锁的队列
+		boost::lockfree::queue<WorldSession *, boost::lockfree::fixed_sized<false>> m_sessionAddQueue;
 
         // used versions
         std::string m_DBVersion;

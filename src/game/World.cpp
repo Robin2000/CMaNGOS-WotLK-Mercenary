@@ -91,7 +91,7 @@ float  World::m_relocation_lower_limit_sq     = 10.f * 10.f;
 uint32 World::m_relocation_ai_notify_delay    = 1000u;
 
 /// World constructor
-World::World()
+World::World() :m_sessionAddQueue(0)
 {
     m_playerLimit = 0;
     m_allowMovement = true;
@@ -134,8 +134,10 @@ World::~World()
     std::for_each(m_cliCommandQueue.begin(), m_cliCommandQueue.end(), [](const CliCommandHolder *p) { delete p; });
     m_cliCommandQueue.clear();
 
-    std::for_each(m_sessionAddQueue.begin(), m_sessionAddQueue.end(), [](const WorldSession *s) { delete s; });
-    m_sessionAddQueue.clear();
+    //std::for_each(m_sessionAddQueue.begin(), m_sessionAddQueue.end(), [](const WorldSession *s) { delete s; });改为loockfree
+	//m_sessionAddQueue.clear();
+	WorldSession * ws = NULL; while (m_sessionAddQueue.pop(ws)){ delete ws; };
+	
 
     VMAP::VMapFactory::clear();
     MMAP::MMapFactory::clear();
@@ -180,9 +182,9 @@ bool World::RemoveSession(uint32 id)
 
 void World::AddSession(WorldSession* s)
 {
-    std::lock_guard<std::mutex> guard(m_sessionAddQueueLock);
+    //std::lock_guard<std::mutex> guard(m_sessionAddQueueLock);
 
-    m_sessionAddQueue.push_back(s);
+    m_sessionAddQueue.push(s);
 }
 
 void
@@ -1909,11 +1911,11 @@ void World::UpdateSessions(uint32 /*diff*/)
 {
     ///- Add new sessions
     {
-        std::lock_guard<std::mutex> guard(m_sessionAddQueueLock);
+        //std::lock_guard<std::mutex> guard(m_sessionAddQueueLock);
 
-        std::for_each(m_sessionAddQueue.begin(), m_sessionAddQueue.end(), [&](WorldSession *session) { AddSession_(session); });
-
-        m_sessionAddQueue.clear();
+        //std::for_each(m_sessionAddQueue.begin(), m_sessionAddQueue.end(), [&](WorldSession *session) { AddSession_(session); }); 改为lockfree
+        //m_sessionAddQueue.clear();
+		WorldSession * ws = NULL; while (m_sessionAddQueue.pop(ws)){ AddSession_(ws); };
     }
 
     ///- Then send an update signal to remaining ones
