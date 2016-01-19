@@ -194,20 +194,24 @@ ObjectMgr::~ObjectMgr()
 
 Group* ObjectMgr::GetGroupById(uint32 id) const
 {
-    GroupMap::const_iterator itr = mGroupMap.find(id);
-    if (itr != mGroupMap.end())
-        return itr->second;
-
-    return nullptr;
+    //GroupMap::const_iterator itr = mGroupMap.find(id);
+    //if (itr != mGroupMap.end())
+    //    return itr->second;
+    //return nullptr;
+	GroupMap::accessor itr;
+	if (!mGroupMap.find(itr, id)) return nullptr;
+	return itr->second;
 }
 
 ArenaTeam* ObjectMgr::GetArenaTeamById(uint32 arenateamid) const
 {
-    ArenaTeamMap::const_iterator itr = mArenaTeamMap.find(arenateamid);
-    if (itr != mArenaTeamMap.end())
-        return itr->second;
-
-    return nullptr;
+    //ArenaTeamMap::const_iterator itr = mArenaTeamMap.find(arenateamid);
+    //if (itr != mArenaTeamMap.end())
+    //    return itr->second;
+    //return nullptr;
+	ArenaTeamMap::accessor itr;
+	if (!mArenaTeamMap.find(itr, arenateamid)) return nullptr;
+	return itr->second;
 }
 
 ArenaTeam* ObjectMgr::GetArenaTeamByName(const std::string& arenateamname) const
@@ -257,7 +261,10 @@ void ObjectMgr::LoadCreatureLocales()
             continue;
         }
 
-        CreatureLocale& data = mCreatureLocaleMap[entry];
+        //CreatureLocale& data = mCreatureLocaleMap[entry];
+		CreatureLocaleMap::accessor iter;
+		mCreatureLocaleMap.find(iter, entry);
+		CreatureLocale&	data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -345,7 +352,10 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
             continue;
         }
 
-        GossipMenuItemsLocale& data = mGossipMenuItemsLocaleMap[MAKE_PAIR32(menuId, id)];
+        //GossipMenuItemsLocale& data = mGossipMenuItemsLocaleMap[MAKE_PAIR32(menuId, id)];
+		GossipMenuItemsLocaleMap::accessor iter;
+		mGossipMenuItemsLocaleMap.find(iter, MAKE_PAIR32(menuId, id));
+		GossipMenuItemsLocale&	data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -412,7 +422,10 @@ void ObjectMgr::LoadPointOfInterestLocales()
             continue;
         }
 
-        PointOfInterestLocale& data = mPointOfInterestLocaleMap[entry];
+        //PointOfInterestLocale& data = mPointOfInterestLocaleMap[entry];
+		PointOfInterestLocaleMap::accessor iter;
+		mPointOfInterestLocaleMap.find(iter, entry);
+		PointOfInterestLocale&	data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -875,9 +888,14 @@ void ObjectMgr::LoadCreatureAddons()
 
     // check entry ids
     for (uint32 i = 1; i < sCreatureDataAddonStorage.GetMaxEntry(); ++i)
-        if (CreatureDataAddon const* addon = sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(i))
-            if (mCreatureDataMap.find(addon->guidOrEntry) == mCreatureDataMap.end())
-                sLog.outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`", addon->guidOrEntry);
+	if (CreatureDataAddon const* addon = sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(i))
+	{
+
+		//if (mCreatureDataMap.find(addon->guidOrEntry) == mCreatureDataMap.end())
+		CreatureDataMap::accessor itr;
+		if (!mCreatureDataMap.find(itr, addon->guidOrEntry))
+			sLog.outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`", addon->guidOrEntry);
+	}
 }
 
 void ObjectMgr::LoadCreatureClassLvlStats()
@@ -1357,7 +1375,15 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
-        CreatureData& data = mCreatureDataMap[guid];
+        //CreatureData& data = mCreatureDataMap[guid];
+		
+		CreatureDataMap::accessor itr;
+		if (!mCreatureDataMap.find(itr, guid))
+		{
+			sLog.outErrorDb("Table `creature` error!");
+			return;
+		}
+		CreatureData& data = itr->second;
 
         data.id                 = entry;
         data.mapid              = fields[ 2].GetUInt32();
@@ -1500,8 +1526,16 @@ void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
             CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
             uint32 cell_id = (cell_pair.y_coord * TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
-            cell_guids.creatures.insert(guid);
+            //CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            //cell_guids.creatures.insert(guid);
+			MapObjectGuids::accessor itr;
+			if (mMapObjectGuids.find(itr, MAKE_PAIR32(data->mapid, i)))
+			{
+				CellObjectGuidsMap::accessor itr2;
+				if (itr->second.find(itr2, cell_id))
+					itr2->second.creatures.insert(guid);
+			}
+            
         }
     }
 }
@@ -1516,8 +1550,16 @@ void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
             CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
             uint32 cell_id = (cell_pair.y_coord * TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
-            cell_guids.creatures.erase(guid);
+            //CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            //cell_guids.creatures.erase(guid);
+
+			MapObjectGuids::accessor itr;
+			if (mMapObjectGuids.find(itr, MAKE_PAIR32(data->mapid, i)))
+			{
+				CellObjectGuidsMap::accessor itr2;
+				if (itr->second.find(itr2, cell_id))
+					itr2->second.creatures.erase(guid);
+			}
         }
     }
 }
@@ -1590,7 +1632,14 @@ void ObjectMgr::LoadGameObjects()
             continue;
         }
 
-        GameObjectData& data = mGameObjectDataMap[guid];
+        //GameObjectData& data = mGameObjectDataMap[guid];
+		GameObjectDataMap::accessor itr;
+		if(!mGameObjectDataMap.find(itr, guid))
+		{
+			sLog.outErrorDb("Gameobject error!");
+			return;
+		}	
+		GameObjectData& data=itr->second;
 
         data.id             = entry;
         data.mapid          = fields[ 2].GetUInt32();
@@ -1723,8 +1772,15 @@ void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
             CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
             uint32 cell_id = (cell_pair.y_coord * TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
-            cell_guids.gameobjects.insert(guid);
+            //CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            //cell_guids.gameobjects.insert(guid);
+			MapObjectGuids::accessor itr;
+			if (mMapObjectGuids.find(itr, MAKE_PAIR32(data->mapid, i)))
+			{
+				CellObjectGuidsMap::accessor itr2;
+				if (itr->second.find(itr2, cell_id))
+					itr2->second.creatures.insert(guid);
+			}
         }
     }
 }
@@ -1739,8 +1795,15 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
             CellPair cell_pair = MaNGOS::ComputeCellPair(data->posX, data->posY);
             uint32 cell_id = (cell_pair.y_coord * TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
-            cell_guids.gameobjects.erase(guid);
+            //CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            //cell_guids.gameobjects.erase(guid);
+			MapObjectGuids::accessor itr;
+			if (mMapObjectGuids.find(itr, MAKE_PAIR32(data->mapid, i)))
+			{
+				CellObjectGuidsMap::accessor itr2;
+				if (itr->second.find(itr2, cell_id))
+					itr2->second.creatures.erase(guid);
+			}
         }
     }
 }
@@ -1871,7 +1934,10 @@ void ObjectMgr::LoadItemLocales()
             continue;
         }
 
-        ItemLocale& data = mItemLocaleMap[entry];
+        //ItemLocale& data = mItemLocaleMap[entry];
+		ItemLocaleMap::accessor iter;
+		mItemLocaleMap.find(iter, entry);
+		ItemLocale&	data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -2558,7 +2624,8 @@ void ObjectMgr::LoadItemConverts()
             continue;
         }
 
-        m_ItemConvert[itemEntry] = itemTargetId;
+        //m_ItemConvert[itemEntry] = itemTargetId;
+		m_ItemConvert.insert(std::make_pair(itemEntry, itemTargetId));
 
         ++count;
     }
@@ -2618,7 +2685,8 @@ void ObjectMgr::LoadItemExpireConverts()
             continue;
         }
 
-        m_ItemExpireConvert[itemEntry] = itemTargetId;
+       // m_ItemExpireConvert[itemEntry] = itemTargetId;
+		m_ItemExpireConvert.insert(std::make_pair(itemEntry, itemTargetId));
 
         ++count;
     }
@@ -3679,7 +3747,9 @@ void ObjectMgr::LoadGroups()
         {
             itr->second->Disband();
             delete itr->second;
-            mGroupMap.erase(itr++);
+			// mGroupMap.erase(itr++);
+            mGroupMap.erase(itr->first);
+			itr++;
         }
         else
             ++itr;
@@ -3830,7 +3900,8 @@ void ObjectMgr::LoadQuests()
         Field* fields = result->Fetch();
 
         Quest* newQuest = new Quest(fields);
-        mQuestTemplates[newQuest->GetQuestId()] = newQuest;
+        //mQuestTemplates[newQuest->GetQuestId()] = newQuest;
+		mQuestTemplates.insert(std::make_pair(newQuest->GetQuestId(), newQuest));
     }
     while (result->NextRow());
 
@@ -4358,8 +4429,11 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->NextQuestInChain)
         {
-            QuestMap::iterator qNextItr = mQuestTemplates.find(qinfo->NextQuestInChain);
-            if (qNextItr == mQuestTemplates.end())
+            //QuestMap::iterator qNextItr = mQuestTemplates.find(qinfo->NextQuestInChain);
+			QuestMap::accessor qNextItr; 
+
+            //if (qNextItr == mQuestTemplates.end())
+			if (!mQuestTemplates.find(qNextItr, qinfo->NextQuestInChain))
             {
                 sLog.outErrorDb("Quest %u has `NextQuestInChain` = %u but quest %u does not exist, quest chain will not work.",
                                 qinfo->GetQuestId(), qinfo->NextQuestInChain , qinfo->NextQuestInChain);
@@ -4372,7 +4446,9 @@ void ObjectMgr::LoadQuests()
         // fill additional data stores
         if (qinfo->PrevQuestId)
         {
-            if (mQuestTemplates.find(abs(qinfo->GetPrevQuestId())) == mQuestTemplates.end())
+			QuestMap::accessor preQuestItr;
+            //if (mQuestTemplates.find(abs(qinfo->GetPrevQuestId())) == mQuestTemplates.end())
+			if (!mQuestTemplates.find(preQuestItr,abs(qinfo->GetPrevQuestId())))
             {
                 sLog.outErrorDb("Quest %d has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
             }
@@ -4384,8 +4460,10 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->NextQuestId)
         {
-            QuestMap::iterator qNextItr = mQuestTemplates.find(abs(qinfo->GetNextQuestId()));
-            if (qNextItr == mQuestTemplates.end())
+			QuestMap::accessor qNextItr;
+            //QuestMap::iterator qNextItr = mQuestTemplates.find(abs(qinfo->GetNextQuestId()));
+            //if (qNextItr == mQuestTemplates.end())
+			if (!mQuestTemplates.find(qNextItr, abs(qinfo->GetNextQuestId())))
             {
                 sLog.outErrorDb("Quest %d has NextQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetNextQuestId());
             }
@@ -4477,7 +4555,10 @@ void ObjectMgr::LoadQuestLocales()
             continue;
         }
 
-        QuestLocale& data = mQuestLocaleMap[entry];
+        //QuestLocale& data = mQuestLocaleMap[entry];
+		QuestLocaleMap::accessor iter;
+		mQuestLocaleMap.find(iter, entry);
+		QuestLocale& data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -4661,7 +4742,10 @@ void ObjectMgr::LoadPageTextLocales()
             continue;
         }
 
-        PageTextLocale& data = mPageTextLocaleMap[entry];
+        //PageTextLocale& data = mPageTextLocaleMap[entry];
+		PageTextLocaleMap::accessor iter;
+		mPageTextLocaleMap.find(iter, entry);
+		PageTextLocale& data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -4884,10 +4968,13 @@ void ObjectMgr::LoadConditions()
 
 GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
 {
-    GossipTextMap::const_iterator itr = mGossipText.find(Text_ID);
-    if (itr != mGossipText.end())
-        return &itr->second;
-    return nullptr;
+    //GossipTextMap::const_iterator itr = mGossipText.find(Text_ID);
+    //if (itr != mGossipText.end())
+    //    return &itr->second;
+    //return nullptr;
+	GossipTextMap::accessor itr;
+	if (!mGossipText.find(itr, Text_ID)) return nullptr;
+	return &itr->second;
 }
 
 void ObjectMgr::LoadGossipText()
@@ -4922,8 +5009,12 @@ void ObjectMgr::LoadGossipText()
             sLog.outErrorDb("Table `npc_text` has record wit reserved id 0, ignore.");
             continue;
         }
-
-        GossipText& gText = mGossipText[Text_ID];
+		//typedef tbb::concurrent_hash_map<uint32, GossipText, PRMaNGOS::PR_Uint32HashCompare> GossipTextMap;
+        //GossipText& gText = mGossipText[Text_ID];
+		GossipText& gText = GossipText();
+		GossipTextMap::accessor itr;
+		if (mGossipText.find(itr, Text_ID))
+			gText= itr->second;
 
         for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
@@ -4985,7 +5076,10 @@ void ObjectMgr::LoadGossipTextLocales()
             continue;
         }
 
-        NpcTextLocale& data = mNpcTextLocaleMap[entry];
+        //NpcTextLocale& data = mNpcTextLocaleMap[entry];
+		NpcTextLocaleMap::accessor iter;
+		mNpcTextLocaleMap.find(iter, entry);
+		NpcTextLocale& data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -5190,7 +5284,8 @@ void ObjectMgr::LoadQuestAreaTriggers()
             // continue; - quest modified to required objective and trigger can be allowed.
         }
 
-        mQuestAreaTriggerMap[trigger_ID] = quest_ID;
+        //mQuestAreaTriggerMap[trigger_ID] = quest_ID;
+		mQuestAreaTriggerMap.insert(std::make_pair(trigger_ID, quest_ID));
     }
     while (result->NextRow());
 
@@ -5672,8 +5767,10 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         if (at.requiredQuest)
         {
-            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuest);
-            if (qReqItr == mQuestTemplates.end())
+            //QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuest);
+			QuestMap::accessor qReqItr;
+			if (!mQuestTemplates.find(qReqItr, at.requiredQuest))
+            //if (qReqItr == mQuestTemplates.end())
             {
                 sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required quest %u for trigger %u, remove quest done requirement.", at.requiredQuest, Trigger_ID);
                 at.requiredQuest = 0;
@@ -5682,8 +5779,10 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         if (at.requiredQuestHeroic)
         {
-            QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestHeroic);
-            if (qReqItr == mQuestTemplates.end())
+            //QuestMap::iterator qReqItr = mQuestTemplates.find(at.requiredQuestHeroic);
+            //if (qReqItr == mQuestTemplates.end())
+			QuestMap::accessor qReqItr;
+			if (!mQuestTemplates.find(qReqItr, at.requiredQuestHeroic))
             {
                 sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent required heroic quest %u for trigger %u, remove quest done requirement.", at.requiredQuestHeroic, Trigger_ID);
                 at.requiredQuestHeroic = 0;
@@ -5703,7 +5802,8 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             continue;
         }
 
-        mAreaTriggers[Trigger_ID] = at;
+        //mAreaTriggers[Trigger_ID] = at;
+		mAreaTriggers.insert(std::make_pair(Trigger_ID, at));
     }
     while (result->NextRow());
 
@@ -5982,7 +6082,10 @@ void ObjectMgr::LoadGameObjectLocales()
             continue;
         }
 
-        GameObjectLocale& data = mGameObjectLocaleMap[entry];
+        //GameObjectLocale& data = mGameObjectLocaleMap[entry];
+		GameObjectLocaleMap::accessor iter;
+		mGameObjectLocaleMap.find(iter, entry);
+		GameObjectLocale& data = iter->second;
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
@@ -6505,7 +6608,8 @@ void ObjectMgr::LoadReputationRewardRate()
             continue;
         }
 
-        m_RepRewardRateMap[factionId] = repRate;
+        //m_RepRewardRateMap[factionId] = repRate;
+		m_RepRewardRateMap.insert(std::make_pair(factionId, repRate));
 
         ++count;
     }
@@ -6582,9 +6686,10 @@ void ObjectMgr::LoadReputationOnKill()
             }
         }
 
-        mRepOnKill[creature_id] = repOnKill;
-
-        ++count;
+        //mRepOnKill[creature_id] = repOnKill;
+		mRepOnKill.insert(std::make_pair(creature_id, repOnKill));
+        
+		++count;
     }
     while (result->NextRow());
 
@@ -6700,7 +6805,8 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
             continue;
         }
 
-        m_RepSpilloverTemplateMap[factionId] = repTemplate;
+        //m_RepSpilloverTemplateMap[factionId] = repTemplate;
+		m_RepSpilloverTemplateMap.insert(std::make_pair(factionId, repTemplate));
 
         ++count;
     }
@@ -6753,9 +6859,10 @@ void ObjectMgr::LoadPointsOfInterest()
             continue;
         }
 
-        mPointsOfInterest[point_id] = POI;
-
-        ++count;
+        //mPointsOfInterest[point_id] = POI;
+		mPointsOfInterest.insert(std::make_pair(point_id, POI));
+        
+		++count;
     }
     while (result->NextRow());
 
@@ -6801,9 +6908,14 @@ void ObjectMgr::LoadQuestPOI()
 
         QuestPOI POI(poiId, objIndex, mapId, mapAreaId, floorId, unk3, unk4);
 
-        mQuestPOIMap[questId].push_back(POI);
+		//typedef tbb::concurrent_hash_map<uint32, QuestPOIVector, PRMaNGOS::PR_Uint32HashCompare> QuestPOIMap;
+        //mQuestPOIMap[questId].push_back(POI);
+		
+		QuestPOIMap::accessor itr;
+		if (mQuestPOIMap.find(itr, questId))
+			itr->second.push_back(POI);
 
-        ++count;
+		++count;
     }
     while (result->NextRow());
 
@@ -6822,7 +6934,11 @@ void ObjectMgr::LoadQuestPOI()
             int32  x            = pointFields[2].GetInt32();
             int32  y            = pointFields[3].GetInt32();
 
-            QuestPOIVector& vect = mQuestPOIMap[questId];
+            //QuestPOIVector& vect = mQuestPOIMap[questId];
+			QuestPOIVector & vect = QuestPOIVector();
+			QuestPOIMap::accessor itr;
+			if (mQuestPOIMap.find(itr, questId))
+				vect = itr->second;
 
             for (QuestPOIVector::iterator itr = vect.begin(); itr != vect.end(); ++itr)
             {
@@ -6902,14 +7018,18 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         else if (!info.conditionId)                         // TODO Drop block after finished converting
         {
             // quest might be 0 to enable spellclick independent of any quest
-            if (info.questStart && mQuestTemplates.find(info.questStart) == mQuestTemplates.end())
+			QuestMap::accessor qReqItr;
+			if (info.questStart &&!mQuestTemplates.find(qReqItr, info.questStart))
+            //if (info.questStart && mQuestTemplates.find(info.questStart) == mQuestTemplates.end())
             {
                 sLog.outErrorDb("Table npc_spellclick_spells references unknown start quest %u. Skipping entry.", info.questStart);
                 continue;
             }
 
             // quest might be 0 to enable spellclick active infinity after start quest
-            if (info.questEnd && mQuestTemplates.find(info.questEnd) == mQuestTemplates.end())
+			QuestMap::accessor qReqItr2;
+			if (info.questStart &&!mQuestTemplates.find(qReqItr2, info.questEnd))
+			//if (info.questEnd && mQuestTemplates.find(info.questEnd) == mQuestTemplates.end())
             {
                 sLog.outErrorDb("Table npc_spellclick_spells references unknown end quest %u. Skipping entry.", info.questEnd);
                 continue;
@@ -7007,14 +7127,41 @@ void ObjectMgr::DeleteGOData(uint32 guid)
 void ObjectMgr::AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance)
 {
     // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(mapid, 0)][cellid];
+    //CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(mapid, 0)][cellid];
+	MapObjectGuids::accessor itr;
+	if (!mMapObjectGuids.find(itr, MAKE_PAIR32(mapid, 0)))
+    {
+      sLog.outErrorDb("AddCorpseCellData error");
+      return;
+	}
+	CellObjectGuidsMap::accessor itr2;
+	if (!itr->second.find(itr2, cellid))
+	{
+      sLog.outErrorDb("AddCorpseCellData error");
+      return;
+	}
+	CellObjectGuids& cell_guids=itr2->second;
     cell_guids.corpses[player_guid] = instance;
 }
 
 void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid)
 {
     // corpses are always added to spawn mode 0 and they are spawned by their instance id
-    CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(mapid, 0)][cellid];
+    //CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(mapid, 0)][cellid];
+	
+	MapObjectGuids::accessor itr;
+	if (!mMapObjectGuids.find(itr, MAKE_PAIR32(mapid, 0)))
+	{
+	    sLog.outErrorDb("DeleteCorpseCellData error");
+		return;
+	}
+	CellObjectGuidsMap::accessor itr2;
+	if (!itr->second.find(itr2, cellid))
+	{
+		sLog.outErrorDb("DeleteCorpseCellData error");
+		return;
+	}
+	CellObjectGuids& cell_guids=itr2->second;
     cell_guids.corpses.erase(player_guid);
 }
 
@@ -7047,7 +7194,9 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelationsMap& map, char const* tab
         uint32 id    = fields[0].GetUInt32();
         uint32 quest = fields[1].GetUInt32();
 
-        if (mQuestTemplates.find(quest) == mQuestTemplates.end())
+		QuestMap::accessor qReqItr;
+		if (!mQuestTemplates.find(qReqItr, quest))
+        //if (mQuestTemplates.find(quest) == mQuestTemplates.end())
         {
             sLog.outErrorDb("Table `%s: Quest %u listed for entry %u does not exist.", table, quest, id);
             continue;
@@ -7472,13 +7621,14 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min
     }
 
     // cleanup affected map part for reloading case
-    for (MangosStringLocaleMap::iterator itr = mMangosStringLocaleMap.begin(); itr != mMangosStringLocaleMap.end();)
-    {
-        if (itr->first >= start_value && itr->first < end_value)
-            mMangosStringLocaleMap.erase(itr++);
-        else
-            ++itr;
-    }
+    //for (MangosStringLocaleMap::iterator itr = mMangosStringLocaleMap.begin(); itr != mMangosStringLocaleMap.end();)
+    //{
+    //    if (itr->first >= start_value && itr->first < end_value)
+    //        mMangosStringLocaleMap.erase(itr++);
+    //    else
+    //        ++itr;
+    //}
+	mMangosStringLocaleMap.clear();
 
     sLog.outString("Loading texts from %s%s", table, extra_content ? ", with additional data" : "");
 
@@ -7521,7 +7671,10 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min
             continue;
         }
 
-        MangosStringLocale& data = mMangosStringLocaleMap[entry];
+        //MangosStringLocale& data = mMangosStringLocaleMap[entry];
+		MangosStringLocaleMap::accessor iter;
+		mMangosStringLocaleMap.find(iter, entry);
+		MangosStringLocale&	data = iter->second;
 
         if (!data.Content.empty())
         {
@@ -8608,7 +8761,8 @@ void ObjectMgr::LoadGameTele()
 
         wstrToLower(gt.wnameLow);
 
-        m_GameTeleMap[id] = gt;
+        //m_GameTeleMap[id] = gt;
+		m_GameTeleMap.insert(std::make_pair(id, gt));
 
         ++count;
     }
@@ -8656,7 +8810,9 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     wstrToLower(tele.wnameLow);
 
-    m_GameTeleMap[new_id] = tele;
+   // m_GameTeleMap[new_id] = tele;
+	m_GameTeleMap.insert(std::make_pair(new_id, tele));
+
     std::string safeName(tele.name);
     WorldDatabase.escape_string(safeName);
 
@@ -8682,7 +8838,8 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
         if (itr->second.wnameLow == wname)
         {
             WorldDatabase.PExecuteLog("DELETE FROM game_tele WHERE name = '%s'", itr->second.name.c_str());
-            m_GameTeleMap.erase(itr);
+            //m_GameTeleMap.erase(itr);
+			m_GameTeleMap.erase(itr->first);
             return true;
         }
     }
@@ -8742,8 +8899,10 @@ void ObjectMgr::LoadMailLevelRewards()
             sLog.outErrorDb("Table `mail_level_reward` have nonexistent sender creature entry (%u) for level %u that invalid not include any player races, ignoring.", senderEntry, level);
             continue;
         }
-
-        m_mailLevelRewardMap[level].push_back(MailLevelReward(raceMask, mailTemplateId, senderEntry));
+		//m_mailLevelRewardMap[level].push_back(MailLevelReward(raceMask, mailTemplateId, senderEntry));
+		MailLevelRewardMap::accessor itr;
+		if (m_mailLevelRewardMap.find(itr, level))
+			itr->second.push_back(MailLevelReward(raceMask, mailTemplateId, senderEntry));
 
         ++count;
     }
@@ -8835,7 +8994,10 @@ void ObjectMgr::LoadTrainers(char const* tableName, bool isTemplates)
 
             if (TrainerSpellData const* tSpells = cInfo->TrainerTemplateId ? GetNpcTrainerTemplateSpells(cInfo->TrainerTemplateId) : nullptr)
             {
-                if (tSpells->spellList.find(spell) != tSpells->spellList.end())
+				TrainerSpellMap::accessor itr;
+				
+                //if (tSpells->spellList.find(spell) != tSpells->spellList.end())
+				if (tSpells->spellList.find(itr, spell))
                 {
                     sLog.outErrorDb("Table `%s` (Entry: %u) has spell %u listed in trainer template %u, ignore", tableName, entry, spell, cInfo->TrainerTemplateId);
                     continue;
@@ -8843,9 +9005,24 @@ void ObjectMgr::LoadTrainers(char const* tableName, bool isTemplates)
             }
         }
 
-        TrainerSpellData& data = trainerList[entry];
+        //TrainerSpellData& data = trainerList[entry];
+		//typedef tbb::concurrent_hash_map<uint32, TrainerSpellData, PRMaNGOS::PR_Uint32HashCompare> CacheTrainerSpellMap;
+		CacheTrainerSpellMap::accessor itr;
+		if (!trainerList.find(itr, entry))
+		{
+			sLog.outErrorDb("LoadTrainers error");
+			return;
+		}
+		TrainerSpellData& data=itr->second;
+        //TrainerSpell& trainerSpell = data.spellList[spell];
+		TrainerSpellMap::accessor itr2;
+		if (data.spellList.find(itr2, spell))
+		{
+			sLog.outErrorDb("LoadTrainers error");
+			continue;
+		}
+		TrainerSpell& trainerSpell = itr2->second;
 
-        TrainerSpell& trainerSpell = data.spellList[spell];
         trainerSpell.spell         = spell;
         trainerSpell.spellCost     = fields[2].GetUInt32();
         trainerSpell.reqSkill      = fields[3].GetUInt32();
@@ -8930,7 +9107,10 @@ void ObjectMgr::LoadTrainerTemplates()
         {
             if (cInfo->TrainerTemplateId)
             {
-                if (m_mCacheTrainerTemplateSpellMap.find(cInfo->TrainerTemplateId) != m_mCacheTrainerTemplateSpellMap.end())
+                //if (m_mCacheTrainerTemplateSpellMap.find(cInfo->TrainerTemplateId) != m_mCacheTrainerTemplateSpellMap.end())
+
+				CacheTrainerSpellMap::accessor itr;
+				if (m_mCacheTrainerTemplateSpellMap.find(itr, cInfo->TrainerTemplateId))
                     trainer_ids.erase(cInfo->TrainerTemplateId);
                 else
                 {
@@ -8989,8 +9169,14 @@ void ObjectMgr::LoadVendors(char const* tableName, bool isTemplates)
         if (!IsVendorItemValid(isTemplates, tableName, entry, item_id, maxcount, incrtime, ExtendedCost, conditionId, nullptr, &skip_vendors))
             continue;
 
-        VendorItemData& vList = vendorList[entry];
+        //VendorItemData& vList = vendorList[entry];
+		//typedef tbb::concurrent_hash_map<uint32, VendorItemData, PRMaNGOS::PR_Uint32HashCompare> CacheVendorItemMap;
+		
+		CacheVendorItemMap::accessor itr;
+		if (!vendorList.find(itr, entry))
+			continue;
 
+		VendorItemData& vList =itr->second;
         vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, conditionId);
         ++count;
     }
@@ -9018,7 +9204,9 @@ void ObjectMgr::LoadVendorTemplates()
         {
             if (cInfo->VendorTemplateId)
             {
-                if (m_mCacheVendorTemplateItemMap.find(cInfo->VendorTemplateId) !=  m_mCacheVendorTemplateItemMap.end())
+                //if (m_mCacheVendorTemplateItemMap.find(cInfo->VendorTemplateId) !=  m_mCacheVendorTemplateItemMap.end())
+				CacheVendorItemMap::accessor itr;
+				if (m_mCacheVendorTemplateItemMap.find(itr, cInfo->VendorTemplateId))
                     vendor_ids.erase(cInfo->VendorTemplateId);
                 else
                     sLog.outErrorDb("Creature (Entry: %u) has VendorTemplateId = %u for nonexistent vendor template", cInfo->Entry, cInfo->VendorTemplateId);
@@ -9073,7 +9261,13 @@ void ObjectMgr::LoadActiveEntities(Map* _map)
         std::pair<ActiveCreatureGuidsOnMap::const_iterator, ActiveCreatureGuidsOnMap::const_iterator> bounds = m_activeCreatures.equal_range(_map->GetId());
         for (ActiveCreatureGuidsOnMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
         {
-            CreatureData const& data = mCreatureDataMap[itr->second];
+            //CreatureData const& data = mCreatureDataMap[itr->second];
+			
+			CreatureDataMap::accessor itr2;
+			if (!mCreatureDataMap.find(itr2, itr->second))
+				continue;
+			CreatureData & data =itr2->second;
+
             _map->ForceLoadGrid(data.posX, data.posY);
         }
     }
@@ -9119,7 +9313,9 @@ void ObjectMgr::LoadNpcGossips()
             continue;
         }
 
-        m_mCacheNpcTextIdMap[guid] = textid ;
+        //m_mCacheNpcTextIdMap[guid] = textid ;
+		m_mCacheNpcTextIdMap.insert(std::make_pair(guid, textid));
+
         ++count;
     }
     while (result->NextRow());
@@ -9412,16 +9608,26 @@ void ObjectMgr::LoadGossipMenus()
 
 void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, uint32 maxcount, uint32 incrtime, uint32 extendedcost)
 {
-    VendorItemData& vList = m_mCacheVendorItemMap[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedcost, 0);
+    //VendorItemData& vList = m_mCacheVendorItemMap[entry];
+	
+	CacheVendorItemMap::accessor itr2;
+	if (!m_mCacheVendorItemMap.find(itr2, entry))
+	{
+		sLog.outString("AddVendorItem error!");
+		return;
+	}
+	VendorItemData& vList = itr2->second;
+
+	vList.AddItem(item, maxcount, incrtime, extendedcost, 0);
 
     WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')", entry, item, maxcount, incrtime, extendedcost);
 }
 
 bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item)
 {
-    CacheVendorItemMap::iterator  iter = m_mCacheVendorItemMap.find(entry);
-    if (iter == m_mCacheVendorItemMap.end())
+	CacheVendorItemMap::accessor iter;
+	//if (iter == m_mCacheVendorItemMap.end())
+	if (!m_mCacheVendorTemplateItemMap.find(iter, entry))
         return false;
 
     if (!iter->second.RemoveItem(item))
@@ -9562,7 +9768,8 @@ bool ObjectMgr::IsVendorItemValid(bool isTemplate, char const* tableName, uint32
 
 void ObjectMgr::AddGroup(Group* group)
 {
-    mGroupMap[group->GetId()] = group ;
+    //mGroupMap[group->GetId()] = group ;
+	mGroupMap.insert(std::make_pair(group->GetId(), group));
 }
 
 void ObjectMgr::RemoveGroup(Group* group)
@@ -9572,7 +9779,8 @@ void ObjectMgr::RemoveGroup(Group* group)
 
 void ObjectMgr::AddArenaTeam(ArenaTeam* arenaTeam)
 {
-    mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
+    //mArenaTeamMap[arenaTeam->GetId()] = arenaTeam;
+	mArenaTeamMap.insert(std::make_pair(arenaTeam->GetId(), arenaTeam));
 }
 
 void ObjectMgr::RemoveArenaTeam(uint32 Id)
