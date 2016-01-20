@@ -302,7 +302,7 @@ namespace MMAP
         }
         else
         {
-            mmap->mmapLoadedTiles.erase(packedGridPos);
+			mmap->mmapLoadedTiles.unsafe_erase(packedGridPos);
             --loadedTiles;
             DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
             return true;
@@ -337,7 +337,7 @@ namespace MMAP
         }
 
         delete mmap;
-        loadedMMaps.erase(mapId);
+		loadedMMaps.unsafe_erase(mapId);
         DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMap: Unloaded %03i.mmap", mapId);
 
         return true;
@@ -363,7 +363,7 @@ namespace MMAP
         dtNavMeshQuery* query = mmap->navMeshQueries[instanceId];
 
         dtFreeNavMeshQuery(query);
-        mmap->navMeshQueries.erase(instanceId);
+		mmap->navMeshQueries.unsafe_erase(instanceId);
         DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMapInstance: Unloaded mapId %03u instanceId %u", mapId, instanceId);
 
         return true;

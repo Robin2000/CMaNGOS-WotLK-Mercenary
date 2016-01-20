@@ -1282,7 +1282,7 @@ void TerrainManager::UnloadTerrain(const uint32 mapId)
         // lets check if this object can be actually freed
         if (ptr->IsReferenced() == false)
         {
-            i_TerrainMap.erase(iter);
+			i_TerrainMap.unsafe_erase(iter);
             delete ptr;
         }
     }

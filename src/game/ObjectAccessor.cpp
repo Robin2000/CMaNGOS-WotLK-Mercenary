@@ -147,7 +147,7 @@ ObjectAccessor::RemoveCorpse(Corpse* corpse)
     sObjectMgr.DeleteCorpseCellData(corpse->GetMapId(), cell_id, corpse->GetOwnerGuid().GetCounter());
     corpse->RemoveFromWorld();
 
-    i_player2corpse.erase(iter);
+	i_player2corpse.unsafe_erase(iter);
 }
 
 void

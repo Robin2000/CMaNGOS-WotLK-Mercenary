@@ -26,6 +26,7 @@
 #include "Item.h"
 #include "ObjectAccessor.h"
 #include "SharedDefines.h"
+#include "pr_threadpool.hpp"
 
 class Item;
 
@@ -304,7 +305,8 @@ class Guild
         void Disband();
 
         void DeleteGuildBankItems(bool alsoInDB = false);
-        typedef std::unordered_map<uint32, MemberSlot> MemberList;
+        //typedef std::unordered_map<uint32, MemberSlot> MemberList;
+		typedef MaNGOS::pr_unordered_map<uint32, MemberSlot> MemberList;
         typedef std::vector<RankInfo> RankList;
 
         uint32 GetId() { return m_Id; }

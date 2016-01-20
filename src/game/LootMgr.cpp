@@ -1385,7 +1385,7 @@ void Loot::GroupCheck()
                 if (itemProto->Quality >= uint32(m_threshold) && !lootItem->freeForAll)
                 {
                     if (!m_roll[itemSlot].TryToStart(*this, itemSlot))      // Create and try to start a roll
-                        m_roll.erase(m_roll.find(itemSlot));                // Cannot start roll so we have to delete it (find will not fail as the item was just created)
+						m_roll.unsafe_erase(m_roll.find(itemSlot));                // Cannot start roll so we have to delete it (find will not fail as the item was just created)
                 }
                 else
                     lootItem->isUnderThreshold = true;
@@ -1942,7 +1942,7 @@ void Loot::Update()
     while (itr != m_roll.end())
     {
         if (itr->second.UpdateRoll())
-            m_roll.erase(itr++);
+			m_roll.unsafe_erase(itr++);
         else
             ++itr;
     }

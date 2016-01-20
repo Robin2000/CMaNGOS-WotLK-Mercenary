@@ -3046,7 +3046,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                     return false;
                 case PLAYERSPELL_REMOVED:                   // re-learning removed not saved spell
                 {
-                    m_spells.erase(itr);
+                    m_spells.unsafe_erase(itr);
                     state = PLAYERSPELL_CHANGED;
                     break;                                  // need re-add
                 }
@@ -3378,7 +3378,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank, bo
     else
     {
         if (playerSpell.state == PLAYERSPELL_NEW)
-            m_spells.erase(itr);
+			m_spells.unsafe_erase(itr);
         else
             playerSpell.state = PLAYERSPELL_REMOVED;
     }
@@ -3400,7 +3400,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank, bo
             if ((*iter).second.state != PLAYERSPELL_NEW)
                 (*iter).second.state = PLAYERSPELL_REMOVED;
             else
-                m_talents[m_activeSpec].erase(iter);
+				m_talents[m_activeSpec].unsafe_erase(iter);
         }
         else
             sLog.outError("removeSpell: Player (GUID: %u) has talent spell (id: %u) but doesn't have talent", GetGUIDLow(), spell_id);
@@ -3758,7 +3758,7 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
         TalentEntry const* talentInfo = iter->second.talentEntry;
         if (!talentInfo)
         {
-            m_talents[m_activeSpec].erase(iter++);
+			m_talents[m_activeSpec].unsafe_erase(iter++);
             continue;
         }
 
@@ -3766,7 +3766,7 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
 
         if (!talentTabInfo)
         {
-            m_talents[m_activeSpec].erase(iter++);
+			m_talents[m_activeSpec].unsafe_erase(iter++);
             continue;
         }
 
@@ -3802,7 +3802,7 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
                         ++iter;
                         break;
                     case PLAYERSPELL_NEW:
-                        m_talents[spec].erase(iter++);
+						m_talents[spec].unsafe_erase(iter++);
                         break;
                     default:
                         iter->second.state = PLAYERSPELL_REMOVED;
@@ -5800,7 +5800,7 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
             if (skillStatus.uState != SKILL_NEW)
                 skillStatus.uState = SKILL_DELETED;
             else
-                mSkillStatus.erase(itr);
+				mSkillStatus.unsafe_erase(itr);
 
             // remove all spells that related to this skill
             for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
@@ -17608,7 +17608,7 @@ void Player::_SaveSkills()
         {
             SqlStatement stmt = CharacterDatabase.CreateStatement(delSkills, "DELETE FROM character_skills WHERE guid = ? AND skill = ?");
             stmt.PExecute(GetGUIDLow(), itr->first);
-            mSkillStatus.erase(itr++);
+			mSkillStatus.unsafe_erase(itr++);
             continue;
         }
 
@@ -17665,7 +17665,7 @@ void Player::_SaveSpells()
         }
 
         if (playerSpell.state == PLAYERSPELL_REMOVED)
-            m_spells.erase(itr++);
+			m_spells.unsafe_erase(itr++);
         else
         {
             playerSpell.state = PLAYERSPELL_UNCHANGED;
@@ -17695,7 +17695,7 @@ void Player::_SaveTalents()
                 stmtIns.PExecute(GetGUIDLow(), itr->first, playerTalent.currentRank, i);
 
             if (playerTalent.state == PLAYERSPELL_REMOVED)
-                m_talents[i].erase(itr++);
+				m_talents[i].unsafe_erase(itr++);
             else
             {
                 playerTalent.state = PLAYERSPELL_UNCHANGED;

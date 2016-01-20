@@ -115,7 +115,7 @@ namespace VMAP
             if (instanceTree->second->numLoadedTiles() == 0)
             {
                 delete instanceTree->second;
-                iInstanceMapTrees.erase(pMapId);
+				iInstanceMapTrees.unsafe_erase(pMapId);
             }
         }
     }
@@ -131,7 +131,7 @@ namespace VMAP
             if (instanceTree->second->numLoadedTiles() == 0)
             {
                 delete instanceTree->second;
-                iInstanceMapTrees.erase(pMapId);
+				iInstanceMapTrees.unsafe_erase(pMapId);
             }
         }
     }
@@ -277,7 +277,7 @@ namespace VMAP
         {
             DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "VMapManager2: unloading file '%s'", filename.c_str());
             delete model->second.getModel();
-            iLoadedModelFiles.erase(model);
+			iLoadedModelFiles.unsafe_erase(model);
         }
     }
     //=========================================================

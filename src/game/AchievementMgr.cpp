@@ -790,7 +790,7 @@ void AchievementMgr::DoFailedTimedAchievementCriterias()
             SendCriteriaUpdate(criteria->ID, progress);
 
             // Remove failed progress
-            m_criteriaProgress.erase(pro_iter);
+			m_criteriaProgress.unsafe_erase(pro_iter);
         }
 
         m_criteriaFailTimes.erase(iter++);
@@ -2182,7 +2182,7 @@ void AchievementMgr::IncompletedAchievement(AchievementEntry const* achievement)
         CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE guid = %u AND achievement = %u",
                                    GetPlayer()->GetGUIDLow(), achievement->ID);
 
-    m_completedAchievements.erase(achievement->ID);
+	m_completedAchievements.unsafe_erase(achievement->ID);
 
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr.GetAchievementReward(achievement, GetPlayer()->getGender());

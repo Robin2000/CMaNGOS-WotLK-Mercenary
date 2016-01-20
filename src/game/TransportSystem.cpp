@@ -180,7 +180,7 @@ void TransportBase::UnBoardPassenger(WorldObject* passenger)
     delete itr->second;
 
     // Unboard finally
-    m_passengers.erase(itr);
+	m_passengers.unsafe_erase(itr);
 }
 
 /* **************************************** TransportInfo ****************************************/

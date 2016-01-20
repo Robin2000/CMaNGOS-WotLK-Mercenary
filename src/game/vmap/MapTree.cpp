@@ -453,13 +453,13 @@ namespace VMAP
                         else if (--iLoadedSpawns[referencedNode] == 0)
                         {
                             iTreeValues[referencedNode].setUnloaded();
-                            iLoadedSpawns.erase(referencedNode);
+							iLoadedSpawns.unsafe_erase(referencedNode);
                         }
                     }
                 }
                 fclose(tf);
             }
         }
-        iLoadedTiles.erase(tile);
+		iLoadedTiles.unsafe_erase(tile);
     }
 }

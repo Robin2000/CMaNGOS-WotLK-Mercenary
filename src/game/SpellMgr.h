@@ -26,7 +26,7 @@
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "DBCStructure.h"
-
+#include "pr_threadpool.hpp"
 #include <map>
 
 class Player;
@@ -678,8 +678,10 @@ struct SpellBonusEntry
     float  ap_dot_bonus;
 };
 
-typedef std::unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
-typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
+//typedef std::unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
+typedef MaNGOS::pr_unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
+//typedef std::unordered_map<uint32, SpellBonusEntry>     SpellBonusMap;
+typedef MaNGOS::pr_unordered_map<uint32, SpellBonusEntry> SpellBonusMap;
 
 #define ELIXIR_BATTLE_MASK    0x01
 #define ELIXIR_GUARDIAN_MASK  0x02
@@ -730,7 +732,8 @@ struct SpellTargetPosition
     float  target_Orientation;
 };
 
-typedef std::unordered_map<uint32, SpellTargetPosition> SpellTargetPositionMap;
+//typedef std::unordered_map<uint32, SpellTargetPosition> SpellTargetPositionMap;
+typedef MaNGOS::pr_unordered_map<uint32, SpellTargetPosition> SpellTargetPositionMap;
 
 // Spell pet auras
 class PetAura
@@ -821,8 +824,10 @@ struct SpellChainNode
     uint8  rank;
 };
 
-typedef std::unordered_map<uint32, SpellChainNode> SpellChainMap;
+//typedef std::unordered_map<uint32, SpellChainNode> SpellChainMap;
+typedef MaNGOS::pr_unordered_map<uint32, SpellChainNode> SpellChainMap;
 typedef std::multimap<uint32, uint32> SpellChainMapNext;
+
 
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode

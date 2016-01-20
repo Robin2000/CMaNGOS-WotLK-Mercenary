@@ -22,6 +22,7 @@
 #include "IVMapManager.h"
 #include "Common.h"
 #include <G3D/Vector3.h>
+#include "pr_threadpool.hpp"
 
 //===========================================================
 
@@ -57,8 +58,10 @@ namespace VMAP
             int iRefCount;
     };
 
-    typedef std::unordered_map<uint32 , StaticMapTree*> InstanceTreeMap;
-    typedef std::unordered_map<std::string, ManagedModel> ModelFileMap;
+    //typedef std::unordered_map<uint32 , StaticMapTree*> InstanceTreeMap;
+	typedef MaNGOS::pr_unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
+    //typedef std::unordered_map<std::string, ManagedModel> ModelFileMap;
+	typedef MaNGOS::pr_unordered_map<std::string, ManagedModel> ModelFileMap;
 
     class VMapManager2 : public IVMapManager
     {

@@ -44,7 +44,7 @@ void GuildMgr::AddGuild(Guild* guild)
 
 void GuildMgr::RemoveGuild(uint32 guildId)
 {
-    m_GuildMap.erase(guildId);
+	m_GuildMap.unsafe_erase(guildId);
 }
 
 Guild* GuildMgr::GetGuildById(uint32 guildId) const

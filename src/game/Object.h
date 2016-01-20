@@ -25,7 +25,7 @@
 #include "UpdateData.h"
 #include "ObjectGuid.h"
 #include "Camera.h"
-
+#include "pr_threadpool.hpp"
 #include <set>
 #include <string>
 
@@ -79,7 +79,8 @@ class TransportInfo;
 struct MangosStringLocale;
 class Loot;
 
-typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+//typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+typedef MaNGOS::pr_unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 struct Position
 {
@@ -169,7 +170,7 @@ class MANGOS_DLL_SPEC Object
         // must be overwrite in appropriate subclasses (WorldObject, Item currently), or will crash
         virtual void AddToClientUpdateList();
         virtual void RemoveFromClientUpdateList();
-        virtual void BuildUpdateData(UpdateDataMapType& update_players);
+        /*virtual*/ void BuildUpdateData(UpdateDataMapType& update_players);
         void MarkForClientUpdate();
         void SendForcedObjectUpdate();
 
@@ -608,7 +609,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         void AddToClientUpdateList() override;
         void RemoveFromClientUpdateList() override;
-        void BuildUpdateData(UpdateDataMapType&) override;
+		void BuildUpdateData(UpdateDataMapType& update_players) /*override*/;
 
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang, TempSummonType spwtype, uint32 despwtime, bool asActiveObject = false);
 

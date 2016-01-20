@@ -473,7 +473,7 @@ bool AuctionHouseMgr::RemoveAItem(uint32 id)
     {
         return false;
     }
-    mAitems.erase(i);
+	mAitems.unsafe_erase(i);
     return true;
 }
 

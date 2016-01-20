@@ -26,7 +26,7 @@
 #include "DBCStores.h"
 #include "ObjectGuid.h"
 #include "PoolManager.h"
-
+#include "pr_threadpool.hpp"
 #include <list>
 #include <map>
 #include <mutex>
@@ -49,7 +49,8 @@ struct MapCellObjectGuids
     CellGuidSet gameobjects;
 };
 
-typedef std::unordered_map<uint32/*cell_id*/, MapCellObjectGuids> MapCellObjectGuidsMap;
+//typedef std::unordered_map<uint32/*cell_id*/, MapCellObjectGuids> MapCellObjectGuidsMap;
+typedef MaNGOS::pr_unordered_map<uint32, MapCellObjectGuids> MapCellObjectGuidsMap;
 
 class MapPersistentStateManager;
 
@@ -125,7 +126,8 @@ class MapPersistentState
         void SetGORespawnTime(uint32 loguid, time_t t);
 
     private:
-        typedef std::unordered_map<uint32, time_t> RespawnTimes;
+        //typedef std::unordered_map<uint32, time_t> RespawnTimes;
+		typedef MaNGOS::pr_unordered_map<uint32, time_t> RespawnTimes;
 
         uint32 m_instanceid;
         uint32 m_mapid;
@@ -326,7 +328,8 @@ class DungeonResetScheduler
         MapPersistentStateManager& m_InstanceSaves;
 
         // fast lookup for reset times (always use existing functions for access/set)
-        typedef std::unordered_map<uint32 /*PAIR32(map,difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
+        //typedef std::unordered_map<uint32 /*PAIR32(map,difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
+		typedef MaNGOS::pr_unordered_map<uint32, time_t> ResetTimeByMapDifficultyMap;
         ResetTimeByMapDifficultyMap m_resetTimeByMapDifficulty;
 
         typedef std::multimap < time_t /*resetTime*/, DungeonResetEvent > ResetTimeQueue;
@@ -371,7 +374,8 @@ class MapPersistentStateManager : public MaNGOS::Singleton<MapPersistentStateMan
 
         void Update() { m_Scheduler.Update(); }
     private:
-        typedef std::unordered_map<uint32 /*InstanceId or MapId*/, MapPersistentState*> PersistentStateMap;
+        //typedef std::unordered_map<uint32 /*InstanceId or MapId*/, MapPersistentState*> PersistentStateMap;
+		typedef MaNGOS::pr_unordered_map<uint32, MapPersistentState*> PersistentStateMap;
 
         //  called by scheduler for DungeonPersistentStates
         void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);

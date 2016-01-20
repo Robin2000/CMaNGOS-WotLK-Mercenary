@@ -23,7 +23,7 @@
 #include "../../dep/recastnavigation/Detour/Include/DetourAlloc.h"
 #include "../../dep/recastnavigation/Detour/Include/DetourNavMesh.h"
 #include "../../dep/recastnavigation/Detour/Include/DetourNavMeshQuery.h"
-
+#include "pr_threadpool.hpp"
 class Unit;
 
 //  memory management
@@ -40,8 +40,10 @@ inline void dtCustomFree(void* ptr)
 //  move map related classes
 namespace MMAP
 {
-    typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
-    typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
+    //typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
+	typedef MaNGOS::pr_unordered_map<uint32, dtTileRef> MMapTileSet;
+    //typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
+	typedef MaNGOS::pr_unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
 
     // dummy struct to hold map's mmap data
     struct MMapData
@@ -63,7 +65,8 @@ namespace MMAP
         MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
     };
 
-    typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
+    //typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
+	typedef MaNGOS::pr_unordered_map<uint32, MMapData*> MMapDataSet;
 
     // singelton class
     // holds all all access to mmap loading unloading and meshes

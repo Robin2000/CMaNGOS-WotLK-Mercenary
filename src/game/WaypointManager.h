@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include "Policies/Singleton.h"
+#include "pr_threadpool.hpp"
 
 enum WaypointPathOrigin
 {
@@ -181,7 +182,8 @@ class WaypointManager
 
         void _clearPath(WaypointPath& path);
 
-        typedef std::unordered_map<uint32 /*guidOrEntry*/, WaypointPath> WaypointPathMap;
+        //typedef std::unordered_map<uint32 /*guidOrEntry*/, WaypointPath> WaypointPathMap;
+		typedef MaNGOS::pr_unordered_map<uint32, WaypointPath> WaypointPathMap;
         WaypointPathMap m_pathMap;
         WaypointPathMap m_pathTemplateMap;
         WaypointPathMap m_externalPathTemplateMap;

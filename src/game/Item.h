@@ -378,7 +378,7 @@ class MANGOS_DLL_SPEC Item : public Object
 
         void AddToClientUpdateList() override;
         void RemoveFromClientUpdateList() override;
-        void BuildUpdateData(UpdateDataMapType& update_players) override;
+        void BuildUpdateData(UpdateDataMapType& update_players) /*override*/;
     private:
         std::string m_text;
         uint8 m_slot;

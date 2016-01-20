@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "DBCFileLoader.h"
+#include "pr_threadpool.hpp"
 
 class SQLStorageBase
 {
@@ -168,7 +169,8 @@ class SQLHashStorage : public SQLStorageBase
         void Free() override;
 
     private:
-        typedef std::unordered_map<uint32 /*recordId*/, char* /*record*/> RecordMap;
+        //typedef std::unordered_map<uint32 /*recordId*/, char* /*record*/> RecordMap;
+		typedef MaNGOS::pr_unordered_map<uint32, char*> RecordMap;
         RecordMap m_indexMap;
 };
 

@@ -129,7 +129,7 @@ void MapPersistentState::SetCreatureRespawnTime(uint32 loguid, time_t t)
         m_creatureRespawnTimes[loguid] = t;
     else
     {
-        m_creatureRespawnTimes.erase(loguid);
+		m_creatureRespawnTimes.unsafe_erase(loguid);
         UnloadIfEmpty();
     }
 }
@@ -140,7 +140,7 @@ void MapPersistentState::SetGORespawnTime(uint32 loguid, time_t t)
         m_goRespawnTimes[loguid] = t;
     else
     {
-        m_goRespawnTimes.erase(loguid);
+		m_goRespawnTimes.unsafe_erase(loguid);
         UnloadIfEmpty();
     }
 }
@@ -859,7 +859,7 @@ void MapPersistentStateManager::_ResetSave(PersistentStateMap& holder, Persisten
     // do not allow UnbindInstance to automatically unload the InstanceSaves
     lock_instLists = true;
     delete itr->second;
-    holder.erase(itr++);
+	holder.unsafe_erase(itr++);
     lock_instLists = false;
 }
 

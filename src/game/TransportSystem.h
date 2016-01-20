@@ -38,10 +38,12 @@
 
 #include "Common.h"
 #include "Object.h"
+#include "pr_threadpool.hpp"
 
 class TransportInfo;
 
-typedef std::unordered_map<WorldObject* /*passenger*/, TransportInfo* /*passengerInfo*/> PassengerMap;
+//typedef std::unordered_map<WorldObject* /*passenger*/, TransportInfo* /*passengerInfo*/> PassengerMap;
+typedef MaNGOS::pr_unordered_map<WorldObject*, TransportInfo*> PassengerMap;
 
 /**
  * A class to provide basic support for each transporter. This includes

@@ -44,10 +44,11 @@ class GameObjectModel
         float iScale;
         VMAP::WorldModel* iModel;
 
-        GameObjectModel() : phasemask(0), iModel(nullptr) {}
+        
         bool initialize(const GameObject* const pGo, const GameObjectDisplayInfoEntry* info);
 
     public:
+		GameObjectModel() : phasemask(0), iModel(nullptr) {}
         std::string name;
 
         const G3D::AABox& getBounds() const { return iBound; }

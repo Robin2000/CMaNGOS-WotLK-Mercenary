@@ -26,9 +26,11 @@
 #include "GameObjectModel.h"
 #include "../DBCStores.h"
 #include "../Creature.h"
+#include "pr_threadpool.hpp"
 
 struct GameobjectModelData
 {
+	GameobjectModelData(){}
     GameobjectModelData(const std::string& name_, const G3D::AABox& box) :
         name(name_), bound(box) {}
 
@@ -36,7 +38,9 @@ struct GameobjectModelData
     G3D::AABox bound;
 };
 
-typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
+//typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
+typedef MaNGOS::pr_unordered_map<uint32, GameobjectModelData> ModelList;
+
 ModelList model_list;
 
 void LoadGameObjectModelList()

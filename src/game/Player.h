@@ -38,6 +38,7 @@
 #include "BattleGround/BattleGround.h"
 #include "SharedDefines.h"
 #include "Chat.h"
+#include "pr_threadpool.hpp"
 
 #include<string>
 #include<vector>
@@ -113,8 +114,10 @@ struct PlayerTalent
     PlayerSpellState state;
 };
 
-typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
-typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
+//typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
+typedef MaNGOS::pr_unordered_map<uint32, PlayerSpell> PlayerSpellMap;
+//typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
+typedef MaNGOS::pr_unordered_map<uint32, PlayerTalent> PlayerTalentMap;
 
 struct SpellCooldown
 {
@@ -563,14 +566,14 @@ enum SkillUpdateState
 
 struct SkillStatusData
 {
-    SkillStatusData(uint8 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState)
-    {
-    }
+	SkillStatusData(){}
+    SkillStatusData(uint8 _pos, SkillUpdateState _uState) : pos(_pos), uState(_uState){}
     uint8 pos;
     SkillUpdateState uState;
 };
 
-typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
+//typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
+typedef MaNGOS::pr_unordered_map<uint32, SkillStatusData> SkillStatusMap;
 
 enum PlayerSlots
 {
@@ -1537,7 +1540,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint8 unReadMails;
         time_t m_nextMailDelivereTime;
 
-        typedef std::unordered_map<uint32, Item*> ItemMap;
+        //typedef std::unordered_map<uint32, Item*> ItemMap;
+		typedef MaNGOS::pr_unordered_map<uint32, Item*> ItemMap;
 
         ItemMap mMitems;                                    // template defined in objectmgr.cpp
 
@@ -1556,7 +1560,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool RemoveMItem(uint32 id)
         {
-            return mMitems.erase(id) ? true : false;
+			return mMitems.unsafe_erase(id) ? true : false;
         }
 
         void PetSpellInitialize();

@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "Policies/Singleton.h"
 #include "DBCStructure.h"
+#include "pr_threadpool.hpp"
 
 class Item;
 class Player;
@@ -161,7 +162,8 @@ class AuctionHouseMgr
         AuctionHouseMgr();
         ~AuctionHouseMgr();
 
-        typedef std::unordered_map<uint32, Item*> ItemMap;
+        //typedef std::unordered_map<uint32, Item*> ItemMap;
+		typedef MaNGOS::pr_unordered_map<uint32, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(AuctionHouseType houseType) { return &mAuctions[houseType]; }
         AuctionHouseObject* GetAuctionsMap(AuctionHouseEntry const* house);

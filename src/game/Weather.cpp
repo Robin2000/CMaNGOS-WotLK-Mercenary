@@ -372,7 +372,7 @@ void WeatherSystem::UpdateWeathers(uint32 diff)
         if (!itr->second->Update(diff, m_map))
         {
             delete itr->second;
-            m_weathers.erase(itr++);
+			m_weathers.unsafe_erase(itr++);
         }
         else
             ++itr;

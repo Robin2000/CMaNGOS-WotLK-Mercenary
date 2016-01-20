@@ -1931,7 +1931,7 @@ void World::UpdateSessions(uint32 /*diff*/)
         if (!pSession->Update(updater))
         {
             RemoveQueuedSession(pSession);
-            m_sessions.erase(itr);
+			m_sessions.unsafe_erase(itr);
             delete pSession;
         }
     }

@@ -1200,7 +1200,7 @@ void Pet::_SaveSpells()
             {
                 SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? and spell = ?");
                 stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);
-                m_spells.erase(itr);
+				m_spells.unsafe_erase(itr);
             }
             continue;
             case PETSPELL_CHANGED:
@@ -1417,7 +1417,7 @@ bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpe
     {
         if (itr->second.state == PETSPELL_REMOVED)
         {
-            m_spells.erase(itr);
+			m_spells.unsafe_erase(itr);
             state = PETSPELL_CHANGED;
         }
         else if (state == PETSPELL_UNCHANGED && itr->second.state != PETSPELL_UNCHANGED)
@@ -1608,7 +1608,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         return false;
 
     if (itr->second.state == PETSPELL_NEW)
-        m_spells.erase(itr);
+		m_spells.unsafe_erase(itr);
     else
         itr->second.state = PETSPELL_REMOVED;
 

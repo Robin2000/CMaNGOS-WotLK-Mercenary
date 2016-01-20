@@ -30,11 +30,13 @@
 #include "Common.h"
 #include "Utilities/TypeList.h"
 #include "GameSystem/GridRefManager.h"
+#include "pr_threadpool.hpp"
 
 template<class OBJECT, class KEY_TYPE>
 struct ContainerUnorderedMap
 {
-    std::unordered_map<KEY_TYPE, OBJECT*> _element;
+    //std::unordered_map<KEY_TYPE, OBJECT*> _element;
+	MaNGOS::pr_unordered_map<KEY_TYPE, OBJECT*> _element;
 };
 
 template<class KEY_TYPE>
@@ -63,7 +65,7 @@ class TypeUnorderedMapContainer
         template<class SPECIFIC_TYPE>
         bool erase(KEY_TYPE handle, SPECIFIC_TYPE* /*obj*/)
         {
-            return TypeUnorderedMapContainer::erase(i_elements, handle, (SPECIFIC_TYPE*)nullptr);
+			return TypeUnorderedMapContainer::erase(i_elements, handle, (SPECIFIC_TYPE*)nullptr);
         }
 
         template<class SPECIFIC_TYPE>
@@ -81,7 +83,8 @@ class TypeUnorderedMapContainer
         template<class SPECIFIC_TYPE>
         static bool insert(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE handle, SPECIFIC_TYPE* obj)
         {
-            typename std::unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(handle);
+            //typename std::unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(handle);
+			typename MaNGOS::pr_unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(handle);
             if (i == elements._element.end())
             {
                 elements._element[handle] = obj;
@@ -117,7 +120,8 @@ class TypeUnorderedMapContainer
         template<class SPECIFIC_TYPE>
         static SPECIFIC_TYPE* find(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE hdl, SPECIFIC_TYPE* /*obj*/)
         {
-            typename std::unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(hdl);
+            //typename std::unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(hdl);
+			typename MaNGOS::pr_unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(hdl);
             if (i == elements._element.end())
                 return nullptr;
             else
@@ -147,7 +151,7 @@ class TypeUnorderedMapContainer
         template<class SPECIFIC_TYPE>
         static bool erase(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE handle, SPECIFIC_TYPE* /*obj*/)
         {
-            elements._element.erase(handle);
+			elements._element.unsafe_erase(handle);
 
             return true;
         }
@@ -167,8 +171,8 @@ class TypeUnorderedMapContainer
         template<class SPECIFIC_TYPE, class H, class T>
         static bool erase(ContainerUnorderedMap< TypeList<H, T>, KEY_TYPE >& elements, KEY_TYPE handle, SPECIFIC_TYPE* /*obj*/)
         {
-            bool ret = TypeUnorderedMapContainer::erase(elements._elements, handle, (SPECIFIC_TYPE*)nullptr);
-            return ret ? ret : TypeUnorderedMapContainer::erase(elements._TailElements, handle, (SPECIFIC_TYPE*)nullptr);
+			bool ret = TypeUnorderedMapContainer::erase(elements._elements, handle, (SPECIFIC_TYPE*)nullptr);
+			return ret ? ret : TypeUnorderedMapContainer::erase(elements._TailElements, handle, (SPECIFIC_TYPE*)nullptr);
         }
 };
 

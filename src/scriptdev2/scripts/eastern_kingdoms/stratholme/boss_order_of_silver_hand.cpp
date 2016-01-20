@@ -85,11 +85,13 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
 
     instance_stratholme* m_pInstance;
 
-    std::unordered_map<uint8, uint32> m_mSpellTimers;
+    //std::unordered_map<uint8, uint32> m_mSpellTimers;
+	MaNGOS::pr_unordered_map<uint8, uint32> m_mSpellTimers;
 
     void Reset() override
     {
-        for (std::unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
+        //for (std::unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
+		for (MaNGOS::pr_unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
             itr->second = m_aSilverHandAbility[itr->first].m_uiInitialTimer;
     }
 
@@ -147,7 +149,8 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        for (std::unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
+        //for (std::unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
+		for (MaNGOS::pr_unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
         {
             if (itr->second < uiDiff)
             {

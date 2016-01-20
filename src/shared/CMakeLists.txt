@@ -87,6 +87,7 @@ set(SRC_GRP_UTIL
     Util.cpp
     Util.h
     WorldPacket.h
+	pr_threadpool.hpp
 )
 
 

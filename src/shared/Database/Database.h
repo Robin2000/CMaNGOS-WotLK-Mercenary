@@ -25,7 +25,7 @@
 #include "Policies/ThreadingModel.h"
 #include <ace/TSS_T.h>
 #include "SqlPreparedStatement.h"
-
+#include "pr_threadpool.hpp"
 #include <atomic>
 
 class SqlTransaction;
@@ -297,7 +297,8 @@ class MANGOS_DLL_SPEC Database
 
         mutable LOCK_TYPE m_stmtGuard;
 
-        typedef std::unordered_map<std::string, int> PreparedStmtRegistry;
+        //typedef std::unordered_map<std::string, int> PreparedStmtRegistry;
+		typedef MaNGOS::pr_unordered_map<std::string, int> PreparedStmtRegistry;
         PreparedStmtRegistry m_stmtRegistry;                ///<
 
         int m_iStmtIndex;

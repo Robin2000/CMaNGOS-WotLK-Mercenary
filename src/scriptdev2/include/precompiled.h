@@ -17,6 +17,7 @@
 #include "sc_instance.h"
 #include "SpellAuras.h"
 #include "pr_hh.h"
+#include "pr_threadpool.hpp"
 
 #ifdef WIN32
 #  include <windows.h>

@@ -544,7 +544,7 @@ bool Guild::DelMember(ObjectGuid guid, bool isDisbanding)
         }
     }
 
-    members.erase(lowguid);
+	members.unsafe_erase(lowguid);
 
     Player* player = sObjectMgr.GetPlayer(guid);
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
