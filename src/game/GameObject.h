@@ -816,5 +816,18 @@ class MANGOS_DLL_SPEC GameObject : public WorldObject
 
         GridReference<GameObject> m_gridRef;
 };
-
+namespace tbb {
+	template<>
+	class tbb_hash<GameObject>	{
+	public:
+		size_t operator()(GameObject const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<GameObject> {
+		static size_t hash(const GameObject& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const GameObject& x, const GameObject& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

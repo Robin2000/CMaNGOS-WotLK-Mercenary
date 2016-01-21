@@ -23,7 +23,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 class Player;
 class WorldObject;
@@ -587,7 +587,7 @@ struct CreatureEventAI_Event
 // Event_Map
 typedef std::vector<CreatureEventAI_Event> CreatureEventAI_Event_Vec;
 //typedef std::unordered_map<uint32, CreatureEventAI_Event_Vec > CreatureEventAI_Event_Map;
-typedef MaNGOS::pr_unordered_map<uint32, CreatureEventAI_Event_Vec> CreatureEventAI_Event_Map;
+typedef tbb::concurrent_unordered_map<uint32, CreatureEventAI_Event_Vec> CreatureEventAI_Event_Map;
 
 struct CreatureEventAI_Summon
 {
@@ -602,7 +602,7 @@ struct CreatureEventAI_Summon
 
 // EventSummon_Map
 //typedef std::unordered_map<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map;
-typedef MaNGOS::pr_unordered_map<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map;
+typedef tbb::concurrent_unordered_map<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map;
 
 struct CreatureEventAIHolder
 {

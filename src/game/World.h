@@ -28,7 +28,7 @@
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
 #include <boost/lockfree/queue.hpp>
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <map>
 #include <set>
 #include <list>
@@ -648,7 +648,7 @@ class World
         uint32 mail_timer_expires;
 
         //typedef std::unordered_map<uint32, WorldSession*> SessionMap;
-		typedef MaNGOS::pr_unordered_map<uint32, WorldSession*> SessionMap;
+		typedef tbb::concurrent_unordered_map<uint32, WorldSession*> SessionMap;
         SessionMap m_sessions;
         uint32 m_maxActiveSessionCount;
         uint32 m_maxQueuedSessionCount;

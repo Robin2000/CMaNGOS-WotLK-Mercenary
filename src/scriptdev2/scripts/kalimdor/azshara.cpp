@@ -309,13 +309,13 @@ struct mobs_spitelashesAI : public ScriptedAI
     uint32 m_uiMorphTimer;
 
     //std::unordered_map<uint8, uint32> m_mSpellTimers;
-	MaNGOS::pr_unordered_map<uint8, uint32> m_mSpellTimers;
+	tbb::concurrent_unordered_map<uint8, uint32> m_mSpellTimers;
 
     void Reset() override
     {
         m_uiMorphTimer = 0;
 
-		for (MaNGOS::pr_unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
+		for (tbb::concurrent_unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
             itr->second = m_aSpitelashAbility[itr->first].m_uiInitialTimer;
     }
 
@@ -380,7 +380,7 @@ struct mobs_spitelashesAI : public ScriptedAI
         }
 
 		//for (std::unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
-		for (MaNGOS::pr_unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
+		for (tbb::concurrent_unordered_map<uint8, uint32>::iterator itr = m_mSpellTimers.begin(); itr != m_mSpellTimers.end(); ++itr)
         {
             if (itr->second < uiDiff)
             {

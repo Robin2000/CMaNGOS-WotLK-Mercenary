@@ -64,5 +64,33 @@ class TemporarySummonWaypoint : public TemporarySummon
         int32 m_path_id;
         uint32 m_pathOrigin;
 };
+namespace tbb {
+	template<>
+	class tbb_hash<TemporarySummon>	{
+	public:
+		size_t operator()(TemporarySummon const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<TemporarySummon> {
+		static size_t hash(const TemporarySummon& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const TemporarySummon& x, const TemporarySummon& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
+namespace tbb {
+	template<>
+	class tbb_hash<TemporarySummonWaypoint>	{
+	public:
+		size_t operator()(TemporarySummonWaypoint const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<TemporarySummonWaypoint> {
+		static size_t hash(const TemporarySummonWaypoint& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const TemporarySummonWaypoint& x, const TemporarySummonWaypoint& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 
 #endif

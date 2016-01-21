@@ -26,7 +26,7 @@
 #include <list>
 #include <vector>
 #include "Util.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 struct EnchStoreItem
 {
@@ -42,7 +42,7 @@ struct EnchStoreItem
 
 typedef std::vector<EnchStoreItem> EnchStoreList;
 //typedef std::unordered_map<uint32, EnchStoreList> EnchantmentStore;
-typedef MaNGOS::pr_unordered_map<uint32, EnchStoreList> EnchantmentStore;
+typedef tbb::concurrent_unordered_map<uint32, EnchStoreList> EnchantmentStore;
 
 static EnchantmentStore RandomItemEnch;
 

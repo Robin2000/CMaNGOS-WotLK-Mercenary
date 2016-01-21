@@ -25,7 +25,7 @@
 #include "SharedDefines.h"
 #include "DBCEnums.h"
 #include "BattleGround.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <mutex>
 
 typedef std::map<uint32, BattleGround*> BattleGroundSet;
@@ -34,11 +34,11 @@ typedef std::map<uint32, BattleGround*> BattleGroundSet;
 typedef std::list<BattleGround*> BGFreeSlotQueueType;
 
 //typedef std::unordered_map<uint32, BattleGroundTypeId> BattleMastersMap;
-typedef MaNGOS::pr_unordered_map<uint32, BattleGroundTypeId> BattleMastersMap;
+typedef tbb::concurrent_unordered_map<uint32, BattleGroundTypeId> BattleMastersMap;
 //typedef std::unordered_map<uint32, BattleGroundEventIdx> CreatureBattleEventIndexesMap;
-typedef MaNGOS::pr_unordered_map<uint32, BattleGroundEventIdx> CreatureBattleEventIndexesMap;
+typedef tbb::concurrent_unordered_map<uint32, BattleGroundEventIdx> CreatureBattleEventIndexesMap;
 //typedef std::unordered_map<uint32, BattleGroundEventIdx> GameObjectBattleEventIndexesMap;
-typedef MaNGOS::pr_unordered_map<uint32, BattleGroundEventIdx> GameObjectBattleEventIndexesMap;
+typedef tbb::concurrent_unordered_map<uint32, BattleGroundEventIdx> GameObjectBattleEventIndexesMap;
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10

@@ -21,7 +21,8 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
-
+#include "boost/functional/hash.hpp"
+#include "tbb/concurrent_unordered_map.h"
 #include <functional>
 
 enum TypeID
@@ -77,6 +78,7 @@ enum HighGuid
 };
 
 class ObjectGuid;
+
 class PackedGuid;
 
 struct PackedGuidReader
@@ -271,5 +273,20 @@ namespace std {
         }
     };
 }
-
+namespace tbb {
+	template<>
+	class tbb_hash<ObjectGuid>
+	{
+	public:
+		size_t operator()(ObjectGuid const& x) const
+		{
+			return std::hash<uint64>()(x.GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<ObjectGuid> {
+		static size_t hash(const ObjectGuid& x) { return std::hash<uint64>()(x.GetRawValue()); }
+		static bool equal(const ObjectGuid& x, const ObjectGuid& y) { return x.GetRawValue() == y.GetRawValue(); }
+	};
+}
 #endif

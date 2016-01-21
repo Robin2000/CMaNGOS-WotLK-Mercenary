@@ -25,7 +25,7 @@
 #include "GridDefines.h"
 #include "Object.h"
 #include "SharedDefines.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <atomic>
 #include <bitset>
 #include <list>
@@ -282,7 +282,7 @@ class MANGOS_DLL_SPEC TerrainInfo : public Referencable<std::atomic_long>
 class TerrainManager : public MaNGOS::Singleton<TerrainManager, MaNGOS::ClassLevelLockable<TerrainManager, std::mutex> >
 {
         //typedef std::unordered_map<uint32,  TerrainInfo*> TerrainDataMap;
-		typedef MaNGOS::pr_unordered_map<uint32, TerrainInfo*> TerrainDataMap;
+		typedef tbb::concurrent_unordered_map<uint32, TerrainInfo*> TerrainDataMap;
         friend class MaNGOS::OperatorNew<TerrainManager>;
 
     public:

@@ -26,7 +26,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Timer.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 class Player;
 class Map;
@@ -121,7 +121,7 @@ class WeatherSystem
         Map const* const m_map;
 
         //typedef std::unordered_map<uint32 /*zoneId*/, Weather*> WeatherMap;
-		typedef MaNGOS::pr_unordered_map<uint32, Weather*> WeatherMap;
+		typedef tbb::concurrent_unordered_map<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
 };
 
@@ -161,7 +161,7 @@ class WeatherMgr
 
     private:
         //typedef std::unordered_map<uint32 /*zoneId*/, WeatherZoneChances> WeatherZoneMap;
-		typedef MaNGOS::pr_unordered_map<uint32, WeatherZoneChances> WeatherZoneMap;
+		typedef tbb::concurrent_unordered_map<uint32, WeatherZoneChances> WeatherZoneMap;
         WeatherZoneMap      mWeatherZoneMap;
 };
 

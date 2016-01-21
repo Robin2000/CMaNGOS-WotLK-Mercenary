@@ -23,7 +23,7 @@
 #include "ObjectGuid.h"
 #include "Creature.h"
 #include "Unit.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 enum PetType
 {
@@ -123,7 +123,7 @@ enum PetNameInvalidReason
 };
 
 //typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
-typedef MaNGOS::pr_unordered_map<uint32, PetSpell> PetSpellMap;
+typedef tbb::concurrent_unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
 #define HAPPINESS_LEVEL_SIZE        333000
@@ -283,4 +283,18 @@ class MANGOS_DLL_SPEC Pet : public Creature
             MANGOS_ASSERT(false);
         }
 };
+namespace tbb {
+	template<>
+	class tbb_hash<Pet>	{
+	public:
+		size_t operator()(Pet const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Pet> {
+		static size_t hash(const Pet& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Pet& x, const Pet& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

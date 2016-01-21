@@ -26,7 +26,7 @@
 #include "GameObjectModel.h"
 #include "../DBCStores.h"
 #include "../Creature.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 struct GameobjectModelData
 {
@@ -39,7 +39,7 @@ struct GameobjectModelData
 };
 
 //typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
-typedef MaNGOS::pr_unordered_map<uint32, GameobjectModelData> ModelList;
+typedef tbb::concurrent_unordered_map<uint32, GameobjectModelData> ModelList;
 
 ModelList model_list;
 

@@ -40,7 +40,7 @@
 #include <string>
 #include <map>
 #include <limits>
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 class Group;
 class ArenaTeam;
@@ -59,7 +59,7 @@ struct GameTele
 };
 
 //typedef std::unordered_map<uint32, GameTele > GameTeleMap;
-typedef MaNGOS::pr_unordered_map<uint32, GameTele> GameTeleMap;
+typedef tbb::concurrent_unordered_map<uint32, GameTele> GameTeleMap;
 
 
 struct SpellClickInfo
@@ -116,10 +116,10 @@ struct CellObjectGuids
     CellCorpseSet corpses;
 };
 //typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
-typedef MaNGOS::pr_unordered_map<uint32, CellObjectGuids> CellObjectGuidsMap;
+typedef tbb::concurrent_unordered_map<uint32, CellObjectGuids> CellObjectGuidsMap;
 
 //typedef std::unordered_map<uint32/*(mapid,spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
-typedef MaNGOS::pr_unordered_map<uint32, CellObjectGuidsMap> MapObjectGuids;
+typedef tbb::concurrent_unordered_map<uint32, CellObjectGuidsMap> MapObjectGuids;
 
 // mangos string ranges
 #define MIN_MANGOS_STRING_ID           1                    // 'mangos_string'
@@ -144,7 +144,7 @@ struct MangosStringLocale
 };
 
 //typedef std::unordered_map<uint32 /*guid*/, CreatureData> CreatureDataMap;
-typedef MaNGOS::pr_unordered_map<uint32, CreatureData> CreatureDataMap;
+typedef tbb::concurrent_unordered_map<uint32, CreatureData> CreatureDataMap;
 
 typedef CreatureDataMap::value_type CreatureDataPair;
 
@@ -169,7 +169,7 @@ class FindCreatureData
 };
 
 //typedef std::unordered_map<uint32, GameObjectData> GameObjectDataMap;
-typedef MaNGOS::pr_unordered_map<uint32, GameObjectData> GameObjectDataMap;
+typedef tbb::concurrent_unordered_map<uint32, GameObjectData> GameObjectDataMap;
 
 typedef GameObjectDataMap::value_type GameObjectDataPair;
 
@@ -204,16 +204,16 @@ class FindGOData
 //typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleMap;
 //typedef std::unordered_map<uint32, uint32> ItemConvertMap;
 
-typedef MaNGOS::pr_unordered_map<uint32, CreatureLocale> CreatureLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, GameObjectLocale> GameObjectLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, ItemLocale> ItemLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, QuestLocale> QuestLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, NpcTextLocale> NpcTextLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, PageTextLocale> PageTextLocaleMap;
-typedef MaNGOS::pr_unordered_map<int32, MangosStringLocale> MangosStringLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleMap;
-typedef MaNGOS::pr_unordered_map<uint32, uint32> ItemConvertMap;
+typedef tbb::concurrent_unordered_map<uint32, CreatureLocale> CreatureLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, GameObjectLocale> GameObjectLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, ItemLocale> ItemLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, QuestLocale> QuestLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, NpcTextLocale> NpcTextLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, PageTextLocale> PageTextLocaleMap;
+typedef tbb::concurrent_unordered_map<int32, MangosStringLocale> MangosStringLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleMap;
+typedef tbb::concurrent_unordered_map<uint32, uint32> ItemConvertMap;
 
 typedef std::multimap<int32, uint32> ExclusiveQuestGroupsMap;
 typedef std::multimap<uint32, ItemRequiredTarget> ItemRequiredTargetMap;
@@ -244,7 +244,7 @@ struct MailLevelReward
 
 typedef std::list<MailLevelReward> MailLevelRewardList;
 //typedef std::unordered_map<uint8, MailLevelRewardList> MailLevelRewardMap;
-typedef MaNGOS::pr_unordered_map<uint8, MailLevelRewardList> MailLevelRewardMap;
+typedef tbb::concurrent_unordered_map<uint8, MailLevelRewardList> MailLevelRewardMap;
 
 // We assume the rate is in general the same for all three types below, but chose to keep three for scalability and customization
 struct RepRewardRate
@@ -341,7 +341,7 @@ struct QuestPOI
 
 typedef std::vector<QuestPOI> QuestPOIVector;
 //typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIMap;
-typedef MaNGOS::pr_unordered_map<uint32, QuestPOIVector> QuestPOIMap;
+typedef tbb::concurrent_unordered_map<uint32, QuestPOIVector> QuestPOIMap;
 
 struct DungeonEncounter
 {
@@ -458,13 +458,13 @@ class PlayerCondition
 
 // NPC gossip text id
 //typedef std::unordered_map<uint32, uint32> CacheNpcTextIdMap;
-typedef MaNGOS::pr_unordered_map<uint32, uint32> CacheNpcTextIdMap;
+typedef tbb::concurrent_unordered_map<uint32, uint32> CacheNpcTextIdMap;
 
 //typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemMap;
-typedef MaNGOS::pr_unordered_map<uint32, VendorItemData> CacheVendorItemMap;
+typedef tbb::concurrent_unordered_map<uint32, VendorItemData> CacheVendorItemMap;
 
 //typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
-typedef MaNGOS::pr_unordered_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
+typedef tbb::concurrent_unordered_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
 
 enum SkillRangeType
 {
@@ -523,31 +523,31 @@ class ObjectMgr
         ~ObjectMgr();
 
         //typedef std::unordered_map<uint32, Item*> ItemMap;
-		typedef MaNGOS::pr_unordered_map<uint32, Item*> ItemMap;
+		typedef tbb::concurrent_unordered_map<uint32, Item*> ItemMap;
 
         //typedef std::unordered_map<uint32, Group*> GroupMap;
-		typedef MaNGOS::pr_unordered_map<uint32, Group*> GroupMap;
+		typedef tbb::concurrent_unordered_map<uint32, Group*> GroupMap;
 
         //typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamMap;
-		typedef MaNGOS::pr_unordered_map<uint32, ArenaTeam*> ArenaTeamMap;
+		typedef tbb::concurrent_unordered_map<uint32, ArenaTeam*> ArenaTeamMap;
 
         //typedef std::unordered_map<uint32, Quest*> QuestMap;
-		typedef MaNGOS::pr_unordered_map<uint32, Quest*> QuestMap;
+		typedef tbb::concurrent_unordered_map<uint32, Quest*> QuestMap;
 
         //typedef std::unordered_map<uint32, AreaTrigger> AreaTriggerMap;
-		typedef MaNGOS::pr_unordered_map<uint32, AreaTrigger> AreaTriggerMap;
+		typedef tbb::concurrent_unordered_map<uint32, AreaTrigger> AreaTriggerMap;
 
         //typedef std::unordered_map<uint32, RepRewardRate > RepRewardRateMap;
-		typedef MaNGOS::pr_unordered_map<uint32, RepRewardRate> RepRewardRateMap;
+		typedef tbb::concurrent_unordered_map<uint32, RepRewardRate> RepRewardRateMap;
 
         //typedef std::unordered_map<uint32, ReputationOnKillEntry> RepOnKillMap;
-		typedef MaNGOS::pr_unordered_map<uint32, ReputationOnKillEntry> RepOnKillMap;
+		typedef tbb::concurrent_unordered_map<uint32, ReputationOnKillEntry> RepOnKillMap;
 
         //typedef std::unordered_map<uint32, RepSpilloverTemplate> RepSpilloverTemplateMap;
-		typedef MaNGOS::pr_unordered_map<uint32, RepSpilloverTemplate> RepSpilloverTemplateMap;
+		typedef tbb::concurrent_unordered_map<uint32, RepSpilloverTemplate> RepSpilloverTemplateMap;
 
         //typedef std::unordered_map<uint32, PointOfInterest> PointOfInterestMap;
-		typedef MaNGOS::pr_unordered_map<uint32, PointOfInterest> PointOfInterestMap;
+		typedef tbb::concurrent_unordered_map<uint32, PointOfInterest> PointOfInterestMap;
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo* goinfo);
 
@@ -1171,10 +1171,10 @@ class ObjectMgr
         QuestMap            mQuestTemplates;
 
         //typedef std::unordered_map<uint32, GossipText> GossipTextMap;
-		typedef MaNGOS::pr_unordered_map<uint32, GossipText> GossipTextMap;
+		typedef tbb::concurrent_unordered_map<uint32, GossipText> GossipTextMap;
 
         //typedef std::unordered_map<uint32, uint32> QuestAreaTriggerMap;
-		typedef MaNGOS::pr_unordered_map<uint32, uint32> QuestAreaTriggerMap;
+		typedef tbb::concurrent_unordered_map<uint32, uint32> QuestAreaTriggerMap;
 
 		typedef std::set<uint32> TavernAreaTriggerSet;
         typedef std::set<uint32> GameObjectForQuestSet;

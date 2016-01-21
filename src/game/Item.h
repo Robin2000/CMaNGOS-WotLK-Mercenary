@@ -388,5 +388,18 @@ class MANGOS_DLL_SPEC Item : public Object
         bool mb_in_trade;                                   // true if item is currently in trade-window
         ItemLootUpdateState m_lootState;
 };
-
+namespace tbb {
+	template<>
+	class tbb_hash<Item>{
+	public:
+		size_t operator()(Item const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Item> {
+		static size_t hash(const Item& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Item& x, const Item& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

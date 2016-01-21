@@ -81,5 +81,18 @@ inline Item* NewItemOrBag(ItemPrototype const* proto)
 
     return new Item;
 }
-
+namespace tbb {
+	template<>
+	class tbb_hash<Bag>	{
+	public:
+		size_t operator()(Bag const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Bag> {
+		static size_t hash(const Bag& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Bag& x, const Bag& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

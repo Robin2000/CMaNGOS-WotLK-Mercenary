@@ -23,6 +23,7 @@
 #include "Object.h"
 #include "Database/DatabaseEnv.h"
 #include "GridDefines.h"
+#include "pr_threadpool.h"
 
 enum CorpseType
 {
@@ -91,4 +92,18 @@ class Corpse : public WorldObject
         time_t m_time;
         GridPair m_grid;                                    // gride for corpse position for fast search
 };
+namespace tbb {
+	template<>
+	class tbb_hash<Corpse>	{
+	public:
+		size_t operator()(Corpse const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Corpse> {
+		static size_t hash(const Corpse& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Corpse& x, const Corpse& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

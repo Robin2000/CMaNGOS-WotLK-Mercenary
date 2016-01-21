@@ -28,7 +28,7 @@
 #include "BattleGround/BattleGroundMgr.h"
 #include "MapManager.h"
 #include "Unit.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -2762,7 +2762,7 @@ SpellEntry const* SpellMgr::SelectAuraRankForLevel(SpellEntry const* spellInfo, 
 }
 
 //typedef std::unordered_map<uint32, uint32> AbilitySpellPrevMap;
-typedef MaNGOS::pr_unordered_map<uint32, uint32> AbilitySpellPrevMap;
+typedef tbb::concurrent_unordered_map<uint32, uint32> AbilitySpellPrevMap;
 
 static void LoadSpellChains_AbilityHelper(SpellChainMap& chainMap, AbilitySpellPrevMap const& prevRanks, uint32 spell_id, uint32 prev_id, uint32 deep = 30)
 {

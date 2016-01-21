@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "GridDefines.h"
+#include "pr_threadpool.h"
 
 class ViewPoint;
 class WorldObject;

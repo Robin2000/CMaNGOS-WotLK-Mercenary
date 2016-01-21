@@ -2291,5 +2291,18 @@ bool Unit::CheckAllControlledUnits(Func const& func, uint32 controlledMask) cons
 }
 
 /** @} */
-
+namespace tbb {
+	template<>
+	class tbb_hash<Unit>	{
+	public:
+		size_t operator()(Unit const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Unit> {
+		static size_t hash(const Unit& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Unit& x, const Unit& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

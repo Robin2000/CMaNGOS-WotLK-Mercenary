@@ -24,7 +24,7 @@
 #include "DBCEnums.h"
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <map>
 #include <string>
 
@@ -248,9 +248,9 @@ struct CompletedAchievementData
 };
 
 //typedef std::unordered_map<uint32, CriteriaProgress> CriteriaProgressMap;
-typedef MaNGOS::pr_unordered_map<uint32, CriteriaProgress> CriteriaProgressMap;
+typedef tbb::concurrent_unordered_map<uint32, CriteriaProgress> CriteriaProgressMap;
 //typedef std::unordered_map<uint32, CompletedAchievementData> CompletedAchievementMap;
-typedef MaNGOS::pr_unordered_map<uint32, CompletedAchievementData> CompletedAchievementMap;
+typedef tbb::concurrent_unordered_map<uint32, CompletedAchievementData> CompletedAchievementMap;
 
 class Unit;
 class Player;

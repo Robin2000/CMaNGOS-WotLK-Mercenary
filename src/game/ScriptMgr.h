@@ -23,7 +23,7 @@
 #include "Policies/Singleton.h"
 #include "ObjectGuid.h"
 #include "DBCEnums.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <atomic>
 
 struct AreaTriggerEntry;
@@ -605,9 +605,9 @@ class ScriptMgr
 
         typedef std::vector<std::string> ScriptNameMap;
         //typedef std::unordered_map<uint32, uint32> AreaTriggerScriptMap;
-		typedef MaNGOS::pr_unordered_map<uint32, uint32> AreaTriggerScriptMap;
+		typedef tbb::concurrent_unordered_map<uint32, uint32> AreaTriggerScriptMap;
         //typedef std::unordered_map<uint32, uint32> EventIdScriptMap;
-		typedef MaNGOS::pr_unordered_map<uint32, uint32> EventIdScriptMap;
+		typedef tbb::concurrent_unordered_map<uint32, uint32> EventIdScriptMap;
 
         AreaTriggerScriptMap    m_AreaTriggerScripts;
         EventIdScriptMap        m_EventIdScripts;

@@ -26,7 +26,7 @@
 #include "DBCStores.h"
 #include "ObjectGuid.h"
 #include "PoolManager.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <list>
 #include <map>
 #include <mutex>
@@ -50,7 +50,7 @@ struct MapCellObjectGuids
 };
 
 //typedef std::unordered_map<uint32/*cell_id*/, MapCellObjectGuids> MapCellObjectGuidsMap;
-typedef MaNGOS::pr_unordered_map<uint32, MapCellObjectGuids> MapCellObjectGuidsMap;
+typedef tbb::concurrent_unordered_map<uint32, MapCellObjectGuids> MapCellObjectGuidsMap;
 
 class MapPersistentStateManager;
 
@@ -127,7 +127,7 @@ class MapPersistentState
 
     private:
         //typedef std::unordered_map<uint32, time_t> RespawnTimes;
-		typedef MaNGOS::pr_unordered_map<uint32, time_t> RespawnTimes;
+		typedef tbb::concurrent_unordered_map<uint32, time_t> RespawnTimes;
 
         uint32 m_instanceid;
         uint32 m_mapid;
@@ -329,7 +329,7 @@ class DungeonResetScheduler
 
         // fast lookup for reset times (always use existing functions for access/set)
         //typedef std::unordered_map<uint32 /*PAIR32(map,difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
-		typedef MaNGOS::pr_unordered_map<uint32, time_t> ResetTimeByMapDifficultyMap;
+		typedef tbb::concurrent_unordered_map<uint32, time_t> ResetTimeByMapDifficultyMap;
         ResetTimeByMapDifficultyMap m_resetTimeByMapDifficulty;
 
         typedef std::multimap < time_t /*resetTime*/, DungeonResetEvent > ResetTimeQueue;
@@ -375,7 +375,7 @@ class MapPersistentStateManager : public MaNGOS::Singleton<MapPersistentStateMan
         void Update() { m_Scheduler.Update(); }
     private:
         //typedef std::unordered_map<uint32 /*InstanceId or MapId*/, MapPersistentState*> PersistentStateMap;
-		typedef MaNGOS::pr_unordered_map<uint32, MapPersistentState*> PersistentStateMap;
+		typedef tbb::concurrent_unordered_map<uint32, MapPersistentState*> PersistentStateMap;
 
         //  called by scheduler for DungeonPersistentStates
         void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);

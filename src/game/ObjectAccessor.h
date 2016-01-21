@@ -30,7 +30,7 @@
 #include "Object.h"
 #include "Player.h"
 #include "Corpse.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <set>
 #include <list>
 #include <mutex>
@@ -45,7 +45,7 @@ class HashMapHolder
     public:
 
         //typedef std::unordered_map<ObjectGuid, T*>   MapType;
-		typedef MaNGOS::pr_unordered_map<ObjectGuid, T*> MapType;
+		typedef tbb::concurrent_unordered_map<ObjectGuid, T*> MapType;
 
         typedef std::mutex LockType;
         typedef std::lock_guard<std::mutex> ReadGuard;
@@ -94,7 +94,7 @@ class ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, MaNGOS::ClassLev
 
     public:
         //typedef std::unordered_map<ObjectGuid, Corpse*> Player2CorpsesMapType;
-		typedef MaNGOS::pr_unordered_map<ObjectGuid, Corpse*> Player2CorpsesMapType;
+		typedef tbb::concurrent_unordered_map<ObjectGuid, Corpse*> Player2CorpsesMapType;
 
         // Search player at any map in world and other objects at same map with `obj`
         // Note: recommended use Map::GetUnit version if player also expected at same map only

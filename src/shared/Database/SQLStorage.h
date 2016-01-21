@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "DBCFileLoader.h"
-#include "pr_threadpool.hpp"
+#include "tbb/concurrent_unordered_map.h"
 
 class SQLStorageBase
 {
@@ -170,7 +170,7 @@ class SQLHashStorage : public SQLStorageBase
 
     private:
         //typedef std::unordered_map<uint32 /*recordId*/, char* /*record*/> RecordMap;
-		typedef MaNGOS::pr_unordered_map<uint32, char*> RecordMap;
+		typedef tbb::concurrent_unordered_map<uint32, char*> RecordMap;
         RecordMap m_indexMap;
 };
 

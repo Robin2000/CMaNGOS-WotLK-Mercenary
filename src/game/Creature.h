@@ -803,5 +803,18 @@ class ForcedDespawnDelayEvent : public BasicEvent
     private:
         Creature& m_owner;
 };
-
+namespace tbb {
+	template<>
+	class tbb_hash<Creature>	{
+	public:
+		size_t operator()(Creature const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Creature> {
+		static size_t hash(const Creature& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Creature& x, const Creature& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

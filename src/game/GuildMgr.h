@@ -21,14 +21,14 @@
 
 #include "Common.h"
 #include "Policies/Singleton.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 class Guild;
 class ObjectGuid;
 
 class GuildMgr
 {
         //typedef std::unordered_map<uint32, Guild*> GuildMap;
-		typedef MaNGOS::pr_unordered_map<uint32, Guild*> GuildMap;
+		typedef tbb::concurrent_unordered_map<uint32, Guild*> GuildMap;
         GuildMap m_GuildMap;
     public:
         GuildMgr();

@@ -30,13 +30,14 @@
 #include "Common.h"
 #include "Utilities/TypeList.h"
 #include "GameSystem/GridRefManager.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
+
 
 template<class OBJECT, class KEY_TYPE>
 struct ContainerUnorderedMap
 {
     //std::unordered_map<KEY_TYPE, OBJECT*> _element;
-	MaNGOS::pr_unordered_map<KEY_TYPE, OBJECT*> _element;
+	tbb::concurrent_unordered_map<KEY_TYPE, OBJECT*> _element;
 };
 
 template<class KEY_TYPE>
@@ -84,7 +85,7 @@ class TypeUnorderedMapContainer
         static bool insert(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE handle, SPECIFIC_TYPE* obj)
         {
             //typename std::unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(handle);
-			typename MaNGOS::pr_unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(handle);
+			typename tbb::concurrent_unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(handle);
             if (i == elements._element.end())
             {
                 elements._element[handle] = obj;
@@ -121,7 +122,7 @@ class TypeUnorderedMapContainer
         static SPECIFIC_TYPE* find(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE hdl, SPECIFIC_TYPE* /*obj*/)
         {
             //typename std::unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(hdl);
-			typename MaNGOS::pr_unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(hdl);
+			typename tbb::concurrent_unordered_map<KEY_TYPE, SPECIFIC_TYPE*>::iterator i = elements._element.find(hdl);
             if (i == elements._element.end())
                 return nullptr;
             else

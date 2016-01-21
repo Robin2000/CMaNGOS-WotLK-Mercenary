@@ -25,9 +25,9 @@
 #include "UpdateData.h"
 #include "ObjectGuid.h"
 #include "Camera.h"
-#include "pr_threadpool.hpp"
 #include <set>
 #include <string>
+#include "pr_threadpool.h"
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -80,7 +80,7 @@ struct MangosStringLocale;
 class Loot;
 
 //typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
-typedef MaNGOS::pr_unordered_map<Player*, UpdateData> UpdateDataMapType;
+typedef tbb::concurrent_unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 struct Position
 {
@@ -125,6 +125,7 @@ class WorldUpdateCounter
 
 class MANGOS_DLL_SPEC Object
 {
+	
     public:
         virtual ~Object();
 
@@ -147,6 +148,11 @@ class MANGOS_DLL_SPEC Object
         }
 
         ObjectGuid const& GetObjectGuid() const { return GetGuidValue(OBJECT_FIELD_GUID); }
+
+		bool operator== (ObjectGuid const& guid) const { return GetObjectGuid().GetRawValue() == GetObjectGuid().GetRawValue(); }
+		bool operator!= (ObjectGuid const& guid) const { return GetObjectGuid().GetRawValue() != GetObjectGuid().GetRawValue(); }
+		bool operator< (ObjectGuid const& guid) const { return GetObjectGuid().GetRawValue() < GetObjectGuid().GetRawValue(); }
+
         uint32 GetGUIDLow() const { return GetObjectGuid().GetCounter(); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         std::string GetGuidStr() const { return GetObjectGuid().GetString(); }
@@ -170,7 +176,7 @@ class MANGOS_DLL_SPEC Object
         // must be overwrite in appropriate subclasses (WorldObject, Item currently), or will crash
         virtual void AddToClientUpdateList();
         virtual void RemoveFromClientUpdateList();
-        /*virtual*/ void BuildUpdateData(UpdateDataMapType& update_players);
+        virtual void BuildUpdateData(UpdateDataMapType& update_players)=0;
         void MarkForClientUpdate();
         void SendForcedObjectUpdate();
 
@@ -219,7 +225,7 @@ class MANGOS_DLL_SPEC Object
         }
 
         ObjectGuid const& GetGuidValue(uint16 index) const { return *reinterpret_cast<ObjectGuid const*>(&GetUInt64Value(index)); }
-
+		
         void SetInt32Value(uint16 index,        int32  value);
         void SetUInt32Value(uint16 index,       uint32  value);
         void SetUInt64Value(uint16 index, const uint64& value);
@@ -609,7 +615,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         void AddToClientUpdateList() override;
         void RemoveFromClientUpdateList() override;
-		void BuildUpdateData(UpdateDataMapType& update_players) /*override*/;
+		void BuildUpdateData(UpdateDataMapType& update_players) override;
 
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang, TempSummonType spwtype, uint32 despwtime, bool asActiveObject = false);
 
@@ -650,5 +656,32 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         WorldUpdateCounter m_updateTracker;
         bool m_isActiveObject;
 };
-
+namespace tbb {
+	template<>
+	class tbb_hash<Object>{
+	public:
+		size_t operator()(Object const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Object> {
+		static size_t hash(const Object& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Object& x, const Object& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
+namespace tbb {
+	template<>
+	class tbb_hash<WorldObject>	{
+	public:
+		size_t operator()(WorldObject const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<WorldObject> {
+		static size_t hash(const WorldObject& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const WorldObject& x, const WorldObject& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

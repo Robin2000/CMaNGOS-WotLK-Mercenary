@@ -60,4 +60,18 @@ class Totem : public Creature
         TotemType m_type;
         uint32 m_duration;
 };
+namespace tbb {
+	template<>
+	class tbb_hash<Totem>	{
+	public:
+		size_t operator()(Totem const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Totem> {
+		static size_t hash(const Totem& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Totem& x, const Totem& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

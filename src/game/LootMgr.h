@@ -23,7 +23,7 @@
 #include "ByteBuffer.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 #include <map>
 #include <vector>
 #include "Bag.h"
@@ -111,7 +111,7 @@ class GroupLootRoll
 {
 public:
     //typedef std::unordered_map<ObjectGuid, PlayerRollVote> RollVoteMap;
-	typedef MaNGOS::pr_unordered_map<ObjectGuid, PlayerRollVote> RollVoteMap;
+	typedef tbb::concurrent_unordered_map<ObjectGuid, PlayerRollVote> RollVoteMap;
 
     GroupLootRoll() : m_voteMask(ROLL_VOTE_MASK_ALL), m_isStarted(false), m_lootItem(nullptr), m_loot(nullptr) {}
     ~GroupLootRoll();
@@ -136,7 +136,7 @@ private:
     time_t                m_endTime;
 };
 //typedef std::unordered_map<uint32, GroupLootRoll> GroupLootRollMap;
-typedef MaNGOS::pr_unordered_map<uint32, GroupLootRoll> GroupLootRollMap;
+typedef tbb::concurrent_unordered_map<uint32, GroupLootRoll> GroupLootRollMap;
 
 struct LootStoreItem
 {
@@ -194,7 +194,7 @@ struct LootItem
 typedef std::vector<LootItem*> LootItemList;
 typedef std::vector<LootStoreItem> LootStoreItemList;
 //typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
-typedef MaNGOS::pr_unordered_map<uint32, LootTemplate*> LootTemplateMap;
+typedef tbb::concurrent_unordered_map<uint32, LootTemplate*> LootTemplateMap;
 typedef std::set<uint32> LootIdSet;
 
 class LootStore

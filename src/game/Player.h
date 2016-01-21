@@ -38,7 +38,7 @@
 #include "BattleGround/BattleGround.h"
 #include "SharedDefines.h"
 #include "Chat.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 #include<string>
 #include<vector>
@@ -115,9 +115,9 @@ struct PlayerTalent
 };
 
 //typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
-typedef MaNGOS::pr_unordered_map<uint32, PlayerSpell> PlayerSpellMap;
+typedef tbb::concurrent_unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 //typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
-typedef MaNGOS::pr_unordered_map<uint32, PlayerTalent> PlayerTalentMap;
+typedef tbb::concurrent_unordered_map<uint32, PlayerTalent> PlayerTalentMap;
 
 struct SpellCooldown
 {
@@ -573,7 +573,7 @@ struct SkillStatusData
 };
 
 //typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
-typedef MaNGOS::pr_unordered_map<uint32, SkillStatusData> SkillStatusMap;
+typedef tbb::concurrent_unordered_map<uint32, SkillStatusData> SkillStatusMap;
 
 enum PlayerSlots
 {
@@ -1541,7 +1541,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         time_t m_nextMailDelivereTime;
 
         //typedef std::unordered_map<uint32, Item*> ItemMap;
-		typedef MaNGOS::pr_unordered_map<uint32, Item*> ItemMap;
+		typedef tbb::concurrent_unordered_map<uint32, Item*> ItemMap;
 
         ItemMap mMitems;                                    // template defined in objectmgr.cpp
 
@@ -2658,5 +2658,18 @@ class MANGOS_DLL_SPEC Player : public Unit
 
 void AddItemsSetItem(Player* player, Item* item);
 void RemoveItemsSetItem(Player* player, ItemPrototype const* proto);
-
+namespace tbb {
+	template<>
+	class tbb_hash<Player>	{
+	public:
+		size_t operator()(Player const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<Player> {
+		static size_t hash(const Player& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const Player& x, const Player& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

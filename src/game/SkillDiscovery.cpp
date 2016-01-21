@@ -27,7 +27,7 @@
 #include "Player.h"
 #include "DBCStores.h"
 #include <map>
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 struct SkillDiscoveryEntry
 {
@@ -44,7 +44,7 @@ struct SkillDiscoveryEntry
 
 typedef std::list<SkillDiscoveryEntry> SkillDiscoveryList;
 //typedef std::unordered_map<int32, SkillDiscoveryList> SkillDiscoveryMap;
-typedef MaNGOS::pr_unordered_map<int32, SkillDiscoveryList> SkillDiscoveryMap;
+typedef tbb::concurrent_unordered_map<int32, SkillDiscoveryList> SkillDiscoveryMap;
 
 static SkillDiscoveryMap SkillDiscoveryStore;
 

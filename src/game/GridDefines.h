@@ -57,9 +57,9 @@ class Camera;
 
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
 // Cameras in world list just because linked with Player objects
-typedef TYPELIST_5(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/, Camera)           AllWorldObjectTypes;
+typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, Camera)           AllWorldObjectTypes;
 typedef TYPELIST_4(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/) AllGridObjectTypes;
-typedef TYPELIST_5(Creature, Pet, GameObject, DynamicObject, Corpse)                            AllMapStoredObjectTypes;
+typedef TYPELIST_4(Creature, Pet, GameObject, DynamicObject)                            AllMapStoredObjectTypes;
 
 typedef GridRefManager<Camera>          CameraMapType;
 typedef GridRefManager<Corpse>          CorpseMapType;
@@ -89,7 +89,7 @@ struct CoordPair
         return *this;
     }
 
-   /* void operator<<(const uint32 val)
+    void operator<<(const uint32 val)
     {
         if (x_coord > val)
             x_coord -= val;
@@ -119,7 +119,7 @@ struct CoordPair
             y_coord += val;
         else
             y_coord = LIMIT - 1;
-    }*/
+    }
 	void dec_x(uint32 val)
 	{
 		if (x_coord > val)

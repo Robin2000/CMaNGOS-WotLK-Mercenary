@@ -77,4 +77,18 @@ class DynamicObject : public WorldObject
     private:
         GridReference<DynamicObject> m_gridRef;
 };
+namespace tbb {
+	template<>
+	class tbb_hash<DynamicObject>	{
+	public:
+		size_t operator()(DynamicObject const& x) const{
+			return std::hash<uint64>()(x.GetObjectGuid().GetRawValue());
+		}
+	};
+	template<>
+	struct tbb_hash_compare<DynamicObject> {
+		static size_t hash(const DynamicObject& x) { return std::hash<uint64>()(x.GetObjectGuid().GetRawValue()); }
+		static bool equal(const DynamicObject& x, const DynamicObject& y) { return x.GetObjectGuid().GetRawValue() == y.GetObjectGuid().GetRawValue(); }
+	};
+}
 #endif

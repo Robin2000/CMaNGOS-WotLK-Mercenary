@@ -4,7 +4,7 @@
 
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
-
+#include "pr_threadpool.h"
 enum
 {
     MAX_ENCOUNTER               = 16,
@@ -261,7 +261,7 @@ class instance_naxxramas : public ScriptedInstance
         GuidList m_lGothTriggerList;
 
         //std::unordered_map<ObjectGuid, GothTrigger> m_mGothTriggerMap;
-		MaNGOS::pr_unordered_map<ObjectGuid, GothTrigger> m_mGothTriggerMap;
+		tbb::concurrent_unordered_map<ObjectGuid, GothTrigger> m_mGothTriggerMap;
         GuidList m_alHeiganTrapGuids[MAX_HEIGAN_TRAP_AREAS];
 
         float m_fChamberCenterX;

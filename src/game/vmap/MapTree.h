@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include "BIH.h"
-#include "pr_threadpool.hpp"
+#include "pr_threadpool.h"
 
 namespace VMAP
 {
@@ -40,9 +40,9 @@ namespace VMAP
     class StaticMapTree
     {
             //typedef std::unordered_map<uint32, bool> loadedTileMap;
-		typedef MaNGOS::pr_unordered_map<uint32, bool> loadedTileMap;
+		typedef tbb::concurrent_unordered_map<uint32, bool> loadedTileMap;
             //typedef std::unordered_map<uint32, uint32> loadedSpawnMap;
-		typedef MaNGOS::pr_unordered_map<uint32, uint32> loadedSpawnMap;
+		typedef tbb::concurrent_unordered_map<uint32, uint32> loadedSpawnMap;
         private:
             uint32 iMapID;
             bool iIsTiled;
