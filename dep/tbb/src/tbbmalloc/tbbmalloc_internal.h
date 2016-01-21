@@ -959,7 +959,7 @@ struct ExtMemoryPool {
     void freeLargeObject(LargeMemoryBlock *lmb);
     void freeLargeObjectList(LargeMemoryBlock *head);
     // use granulatity as marker for pool validity
-    bool isPoolValid() const { return granularity; }
+    bool isPoolValid() const { return granularity==0?false:true; }
 };
 
 inline bool Backend::inUserPool() const { return extMemPool->userPool(); }
