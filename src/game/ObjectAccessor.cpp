@@ -88,7 +88,7 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid guid, bool inWorld /*= true*/)
 
 Player* ObjectAccessor::FindPlayerByName(const char* name)
 {
-    HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
+    //HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());读无需锁 
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if (iter->second->IsInWorld() && (::strcmp(name, iter->second->GetName()) == 0))
@@ -100,7 +100,7 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
 void
 ObjectAccessor::SaveAllPlayers()
 {
-    HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());
+    //HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());写无需锁 
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();

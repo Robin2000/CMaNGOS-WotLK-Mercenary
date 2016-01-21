@@ -48,31 +48,34 @@ class HashMapHolder
 		typedef tbb::concurrent_unordered_map<ObjectGuid, T*> MapType;
 
         typedef std::mutex LockType;
-        typedef std::lock_guard<std::mutex> ReadGuard;
-        typedef std::lock_guard<std::mutex> WriteGuard;
+        //typedef std::lock_guard<std::mutex> ReadGuard;
+        //typedef std::lock_guard<std::mutex> WriteGuard;
+		typedef std::lock_guard<std::mutex> UnsafeEraseGuard;
 
         static void Insert(T* o)
         {
-            WriteGuard guard(i_lock);
+            //WriteGuard guard(i_lock);
             m_objectMap[o->GetObjectGuid()] = o;
         }
 
         static void Remove(T* o)
         {
-            WriteGuard guard(i_lock);
+            //WriteGuard guard(i_lock);
+			UnsafeEraseGuard guard(i_lock);
+			
 			m_objectMap.unsafe_erase(o->GetObjectGuid());
         }
 
         static T* Find(ObjectGuid guid)
         {
-            ReadGuard guard(i_lock);
+            //ReadGuard guard(i_lock);
             typename MapType::iterator itr = m_objectMap.find(guid);
             return (itr != m_objectMap.end()) ? itr->second : nullptr;
         }
 
         static MapType& GetContainer() { return m_objectMap; }
 
-        static LockType& GetLock() { return i_lock; }
+        //static LockType& GetLock() { return i_lock; }
 
     private:
 
