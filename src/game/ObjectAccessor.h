@@ -50,18 +50,19 @@ class HashMapHolder
         typedef std::mutex LockType;
         //typedef std::lock_guard<std::mutex> ReadGuard;
         //typedef std::lock_guard<std::mutex> WriteGuard;
-		typedef std::lock_guard<std::mutex> UnsafeEraseGuard;
+		typedef tbb::spin_rw_mutex UnsafeEraseGuard;
 
         static void Insert(T* o)
         {
             //WriteGuard guard(i_lock);
+            //tbb::lock(i_lock,/*is_writer=*/false); //插入线程安全
             m_objectMap[o->GetObjectGuid()] = o;
         }
 
         static void Remove(T* o)
         {
             //WriteGuard guard(i_lock);
-			UnsafeEraseGuard guard(i_lock);
+			//tbb::lock(i_lock,/*is_writer=*/true); //删除线程不安全
 			
 			m_objectMap.unsafe_erase(o->GetObjectGuid());
         }
@@ -69,20 +70,22 @@ class HashMapHolder
         static T* Find(ObjectGuid guid)
         {
             //ReadGuard guard(i_lock);
+            //tbb::lock(i_lock,/*is_writer=*/false); //读线程安全
             typename MapType::iterator itr = m_objectMap.find(guid);
             return (itr != m_objectMap.end()) ? itr->second : nullptr;
         }
 
         static MapType& GetContainer() { return m_objectMap; }
 
-        //static LockType& GetLock() { return i_lock; }
+       // static LockType& GetLock() { return i_lock; }
 
     private:
 
         // Non instanceable only static
         HashMapHolder() {}
 
-        static LockType i_lock;
+        //static LockType i_lock;
+		//static UnsafeEraseGuard i_lock;
         static MapType  m_objectMap;
 };
 

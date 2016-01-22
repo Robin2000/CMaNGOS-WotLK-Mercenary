@@ -30,7 +30,7 @@
 #include "GridNotifiersImpl.h"
 #include "ObjectGuid.h"
 #include "World.h"
-
+#include "pr_threadpool.h"
 #include <cmath>
 #include <mutex>
 
@@ -89,6 +89,7 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid guid, bool inWorld /*= true*/)
 Player* ObjectAccessor::FindPlayerByName(const char* name)
 {
     //HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());读无需锁 
+	//tbb::lock(i_lock,/*is_writer=*/false); //读线程安全
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if (iter->second->IsInWorld() && (::strcmp(name, iter->second->GetName()) == 0))
@@ -101,6 +102,7 @@ void
 ObjectAccessor::SaveAllPlayers()
 {
     //HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());写无需锁 
+	//tbb::lock(i_lock,/*is_writer=*/false); //写线程安全
     HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
@@ -273,7 +275,7 @@ void ObjectAccessor::RemoveOldCorpses()
 /// Define the static member of HashMapHolder
 
 template <class T> typename HashMapHolder<T>::MapType HashMapHolder<T>::m_objectMap;
-template <class T> std::mutex HashMapHolder<T>::i_lock;
+//template <class T> std::mutex HashMapHolder<T>::i_lock;
 
 /// Global definitions for the hashmap storage
 

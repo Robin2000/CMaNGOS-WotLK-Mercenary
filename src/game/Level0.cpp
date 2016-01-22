@@ -166,6 +166,7 @@ bool ChatHandler::HandleGMListIngameCommand(char* /*args*/)
 
     {
         //HashMapHolder<Player>::ReadGuard g(HashMapHolder<Player>::GetLock());读无需锁 
+        //tbb::lock(HashMapHolder<Player>::GetLock(),/*is_writer=*/false); //插入线程安全
         HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
