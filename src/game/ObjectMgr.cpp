@@ -3671,19 +3671,28 @@ void ObjectMgr::LoadGroups()
         delete result;
     }
 
+	GroupMap delmap;
     // clean groups
     // TODO: maybe delete from the DB before loading in this case
     for (GroupMap::iterator itr = mGroupMap.begin(); itr != mGroupMap.end();)
     {
         if (itr->second->GetMembersCount() < 2)
         {
-            itr->second->Disband();
-            delete itr->second;
-            mGroupMap.unsafe_erase(itr++);
+            //itr->second->Disband();
+            //delete itr->second;
+            //mGroupMap.unsafe_erase(itr++); //改为增加一个临时表用于删除
+			delmap.insert(*itr);
+			itr++;
         }
         else
             ++itr;
     }
+	for (GroupMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	{
+		itr->second->Disband();
+		delete itr->second;
+		mGroupMap.unsafe_erase(itr->first);
+	}
 
     // -- loading instances --
     count = 0;
@@ -7471,14 +7480,17 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min
         }
     }
 
+	MangosStringLocaleMap delmap;
     // cleanup affected map part for reloading case
-    for (MangosStringLocaleMap::iterator itr = mMangosStringLocaleMap.begin(); itr != mMangosStringLocaleMap.end();)
+	for (MangosStringLocaleMap::iterator itr = mMangosStringLocaleMap.begin(); itr != mMangosStringLocaleMap.end(); itr++)
     {
-        if (itr->first >= start_value && itr->first < end_value)
-			mMangosStringLocaleMap.unsafe_erase(itr++);
-        else
-            ++itr;
+		if (itr->first >= start_value && itr->first < end_value)
+			//mMangosStringLocaleMap.unsafe_erase(itr++);//改为增加一个临时表用于删除
+			delmap.insert(*itr);
+
     }
+	for (MangosStringLocaleMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		mMangosStringLocaleMap.unsafe_erase(itr->first);
 
     sLog.outString("Loading texts from %s%s", table, extra_content ? ", with additional data" : "");
 
@@ -8676,16 +8688,19 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
 
     // converting string that we try to find to lower case
     wstrToLower(wname);
-
+	GameTeleMap delmap;
     for (GameTeleMap::iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
     {
         if (itr->second.wnameLow == wname)
         {
             WorldDatabase.PExecuteLog("DELETE FROM game_tele WHERE name = '%s'", itr->second.name.c_str());
-			m_GameTeleMap.unsafe_erase(itr);
+			//m_GameTeleMap.unsafe_erase(itr);//改为增加一个临时表用于删除
+			delmap.insert(*itr);
             return true;
         }
     }
+	for (GameTeleMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		m_GameTeleMap.unsafe_erase(itr->first);
 
     return false;
 }

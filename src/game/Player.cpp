@@ -3746,7 +3746,7 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
             return false;
         }
     }
-
+	PlayerTalentMap delmap;
     for (PlayerTalentMap::iterator iter = m_talents[m_activeSpec].begin(); iter != m_talents[m_activeSpec].end();)
     {
         if (iter->second.state == PLAYERSPELL_REMOVED)
@@ -3758,7 +3758,9 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
         TalentEntry const* talentInfo = iter->second.talentEntry;
         if (!talentInfo)
         {
-			m_talents[m_activeSpec].unsafe_erase(iter++);
+			//m_talents[m_activeSpec].unsafe_erase(iter++);//改为增加一个临时表用于删除
+			delmap.insert(*iter);
+			iter++;
             continue;
         }
 
@@ -3766,7 +3768,9 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
 
         if (!talentTabInfo)
         {
-			m_talents[m_activeSpec].unsafe_erase(iter++);
+			//m_talents[m_activeSpec].unsafe_erase(iter++);//改为增加一个临时表用于删除
+			delmap.insert(*iter);
+			iter++;
             continue;
         }
 
@@ -3785,6 +3789,9 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
 
         iter = m_talents[m_activeSpec].begin();
     }
+	for (PlayerTalentMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		m_talents[m_activeSpec].unsafe_erase(itr->first);
+	delmap.clear();//清空，后面继续使用
 
     // for not current spec just mark removed all saved to DB case and drop not saved
     if (all_specs)
@@ -3802,7 +3809,9 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
                         ++iter;
                         break;
                     case PLAYERSPELL_NEW:
-						m_talents[spec].unsafe_erase(iter++);
+						//m_talents[spec].unsafe_erase(iter++);//改为增加一个临时表用于删除
+						delmap.insert(*iter);
+						iter++;
                         break;
                     default:
                         iter->second.state = PLAYERSPELL_REMOVED;
@@ -3810,8 +3819,14 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
                         break;
                 }
             }
+
+			for (PlayerTalentMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+				m_talents[spec].unsafe_erase(itr->first);
+			delmap.clear();//清空，循环后继续使用
+
         }
     }
+
 
     UpdateFreeTalentPoints(false);
 
@@ -17595,6 +17610,7 @@ void Player::_SaveSkills()
     static SqlStatementID insSkills ;
     static SqlStatementID updSkills ;
 
+	SkillStatusMap delmap;
     // we don't need transactions here.
     for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end();)
     {
@@ -17608,7 +17624,9 @@ void Player::_SaveSkills()
         {
             SqlStatement stmt = CharacterDatabase.CreateStatement(delSkills, "DELETE FROM character_skills WHERE guid = ? AND skill = ?");
             stmt.PExecute(GetGUIDLow(), itr->first);
-			mSkillStatus.unsafe_erase(itr++);
+			//mSkillStatus.unsafe_erase(itr++);
+			delmap.insert(*itr);
+			itr++;
             continue;
         }
 
@@ -17639,6 +17657,9 @@ void Player::_SaveSkills()
 
         ++itr;
     }
+
+	for (SkillStatusMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		mSkillStatus.unsafe_erase(itr->first);
 }
 
 void Player::_SaveSpells()
@@ -17649,6 +17670,7 @@ void Player::_SaveSpells()
     SqlStatement stmtDel = CharacterDatabase.CreateStatement(delSpells, "DELETE FROM character_spell WHERE guid = ? and spell = ?");
     SqlStatement stmtIns = CharacterDatabase.CreateStatement(insSpells, "INSERT INTO character_spell (guid,spell,active,disabled) VALUES (?, ?, ?, ?)");
 
+	PlayerSpellMap delmap;
     for (PlayerSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end();)
     {
         uint32 talentCosts = GetTalentSpellCost(itr->first);
@@ -17664,14 +17686,19 @@ void Player::_SaveSpells()
                 stmtIns.PExecute(GetGUIDLow(), itr->first, uint8(playerSpell.active ? 1 : 0), uint8(playerSpell.disabled ? 1 : 0));
         }
 
-        if (playerSpell.state == PLAYERSPELL_REMOVED)
-			m_spells.unsafe_erase(itr++);
+		if (playerSpell.state == PLAYERSPELL_REMOVED)
+		{	//m_spells.unsafe_erase(itr++);//改为增加一个临时表用于删除
+			delmap.insert(*itr);
+			itr++;
+		}
         else
         {
             playerSpell.state = PLAYERSPELL_UNCHANGED;
             ++itr;
         }
     }
+	for (PlayerSpellMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		m_spells.unsafe_erase(itr->first);
 }
 
 void Player::_SaveTalents()
@@ -17684,6 +17711,7 @@ void Player::_SaveTalents()
 
     for (uint32 i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)
     {
+		PlayerTalentMap delmap;
         for (PlayerTalentMap::iterator itr = m_talents[i].begin(); itr != m_talents[i].end();)
         {
             PlayerTalent& playerTalent = itr->second;
@@ -17694,14 +17722,21 @@ void Player::_SaveTalents()
             if (playerTalent.state == PLAYERSPELL_NEW || playerTalent.state == PLAYERSPELL_CHANGED)
                 stmtIns.PExecute(GetGUIDLow(), itr->first, playerTalent.currentRank, i);
 
-            if (playerTalent.state == PLAYERSPELL_REMOVED)
-				m_talents[i].unsafe_erase(itr++);
+			if (playerTalent.state == PLAYERSPELL_REMOVED)
+			{
+				//m_talents[i].unsafe_erase(itr++);
+				delmap.insert(*itr);
+				itr++;
+			}
             else
             {
                 playerTalent.state = PLAYERSPELL_UNCHANGED;
                 ++itr;
             }
         }
+		for (PlayerTalentMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+			m_talents[i].unsafe_erase(itr->first);
+		delmap.clear();//清空循环使用
     }
 }
 

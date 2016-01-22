@@ -1937,15 +1937,20 @@ bool Loot::AutoStore(Player* player, bool broadcast /*= false*/, uint32 bag /*= 
 
 void Loot::Update()
 {
+	GroupLootRollMap delmap;
     m_isChanged = false;
     GroupLootRollMap::iterator itr = m_roll.begin();
     while (itr != m_roll.end())
     {
-        if (itr->second.UpdateRoll())
-			m_roll.unsafe_erase(itr++);
+		if (itr->second.UpdateRoll())
+			//m_roll.unsafe_erase(itr++);//改为增加一个临时表用于删除
+			delmap.insert(*itr);
         else
             ++itr;
     }
+	for (GroupLootRollMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		m_roll.unsafe_erase(itr->first);
+
 }
 
 void Loot::ForceLootAnimationCLientUpdate()

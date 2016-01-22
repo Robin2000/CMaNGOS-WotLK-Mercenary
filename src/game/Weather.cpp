@@ -364,19 +364,21 @@ Weather* WeatherSystem::FindOrCreateWeather(uint32 zoneId)
 /// Update Weathers for the different zones
 void WeatherSystem::UpdateWeathers(uint32 diff)
 {
+	WeatherMap delmap;
     ///- Send an update signal to Weather objects
-    for (WeatherMap::iterator itr = m_weathers.begin(); itr != m_weathers.end();)
+	for (WeatherMap::iterator itr = m_weathers.begin(); itr != m_weathers.end(); itr++)
     {
         ///- and remove Weather objects for zones with no player
         // As interval > WorldTick
         if (!itr->second->Update(diff, m_map))
         {
             delete itr->second;
-			m_weathers.unsafe_erase(itr++);
+			//m_weathers.unsafe_erase(itr++);//改为增加一个临时表用于删除
+			delmap.insert(*itr);
         }
-        else
-            ++itr;
     }
+	for (WeatherMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		m_weathers.unsafe_erase(itr->first);
 }
 
 /// Load Weather chanced from table game_weather

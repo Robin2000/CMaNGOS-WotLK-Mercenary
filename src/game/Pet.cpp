@@ -1186,6 +1186,7 @@ void Pet::_SaveSpells()
     static SqlStatementID delSpell ;
     static SqlStatementID insSpell ;
 
+	PetSpellMap delmap;
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
         ++next;
@@ -1200,7 +1201,8 @@ void Pet::_SaveSpells()
             {
                 SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? and spell = ?");
                 stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);
-				m_spells.unsafe_erase(itr);
+				//m_spells.unsafe_erase(itr);//改为增加一个临时表用于删除
+				delmap.insert(*itr);
             }
             continue;
             case PETSPELL_CHANGED:
@@ -1224,6 +1226,9 @@ void Pet::_SaveSpells()
 
         itr->second.state = PETSPELL_UNCHANGED;
     }
+
+	for (PetSpellMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		m_spells.unsafe_erase(itr->first);
 }
 
 void Pet::_LoadAuras(uint32 timediff)
