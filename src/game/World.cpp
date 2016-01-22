@@ -67,6 +67,7 @@
 #include "CreatureLinkingMgr.h"
 #include "Calendar.h"
 #include "Weather.h"
+#include "tbb/parallel_for.h"
 
 #include <algorithm>
 #include <mutex>
@@ -1918,9 +1919,9 @@ void World::UpdateSessions(uint32 /*diff*/)
         //m_sessionAddQueue.clear();
 		WorldSession * ws = NULL; while (m_sessionAddQueue.pop(ws)){ AddSession_(ws); };
     }
-
+	
     ///- Then send an update signal to remaining ones
-    for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
+   /* for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)//这个循环该为TBB任务
     {
         next = itr;
         ++next;
@@ -1934,7 +1935,23 @@ void World::UpdateSessions(uint32 /*diff*/)
 			m_sessions.unsafe_erase(itr);
             delete pSession;
         }
-    }
+    }*/
+	SessionMap delete_sessions; //定义一个map用于删除无效session
+	tbb::parallel_for(m_sessions.range(), [&](const SessionMap::range_type &r) {   //使用TBB的并行遍历，方括号中的&表示采用引用方式
+		for (SessionMap::iterator itr = r.begin(); itr != r.end(); itr++){
+			///- and remove not active sessions from the list
+			WorldSession* pSession = itr->second;
+			WorldSessionFilter updater(pSession);
+			if (!pSession->Update(updater))
+				delete_sessions.insert(*itr);
+		}
+	});
+	for (SessionMap::iterator itr = delete_sessions.begin(); itr != delete_sessions.end(); itr++){
+		RemoveQueuedSession(itr->second);
+		m_sessions.unsafe_erase(itr->first); //从原始列表删除
+		delete itr->second; //删除引用
+	}
+	delete_sessions.clear(); //彻底清空
 }
 
 // This handles the issued and queued CLI/RA commands
