@@ -377,7 +377,7 @@ void WeatherSystem::UpdateWeathers(uint32 diff)
 			delmap.insert(*itr);
         }
     }
-	for (WeatherMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (WeatherMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		m_weathers.unsafe_erase(itr->first);
 }
 

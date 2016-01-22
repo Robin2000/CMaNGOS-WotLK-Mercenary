@@ -3687,7 +3687,7 @@ void ObjectMgr::LoadGroups()
         else
             ++itr;
     }
-	for (GroupMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (GroupMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 	{
 		itr->second->Disband();
 		delete itr->second;
@@ -7489,7 +7489,7 @@ bool ObjectMgr::LoadMangosStrings(DatabaseType& db, char const* table, int32 min
 			delmap.insert(*itr);
 
     }
-	for (MangosStringLocaleMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (MangosStringLocaleMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		mMangosStringLocaleMap.unsafe_erase(itr->first);
 
     sLog.outString("Loading texts from %s%s", table, extra_content ? ", with additional data" : "");
@@ -8699,7 +8699,7 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
             return true;
         }
     }
-	for (GameTeleMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (GameTeleMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		m_GameTeleMap.unsafe_erase(itr->first);
 
     return false;

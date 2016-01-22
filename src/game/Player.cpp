@@ -3789,7 +3789,7 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
 
         iter = m_talents[m_activeSpec].begin();
     }
-	for (PlayerTalentMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (PlayerTalentMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		m_talents[m_activeSpec].unsafe_erase(itr->first);
 	delmap.clear();//清空，后面继续使用
 
@@ -3820,7 +3820,7 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
                 }
             }
 
-			for (PlayerTalentMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+			for (PlayerTalentMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 				m_talents[spec].unsafe_erase(itr->first);
 			delmap.clear();//清空，循环后继续使用
 
@@ -17658,7 +17658,7 @@ void Player::_SaveSkills()
         ++itr;
     }
 
-	for (SkillStatusMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (SkillStatusMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		mSkillStatus.unsafe_erase(itr->first);
 }
 
@@ -17697,7 +17697,7 @@ void Player::_SaveSpells()
             ++itr;
         }
     }
-	for (PlayerSpellMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (PlayerSpellMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		m_spells.unsafe_erase(itr->first);
 }
 
@@ -17734,7 +17734,7 @@ void Player::_SaveTalents()
                 ++itr;
             }
         }
-		for (PlayerTalentMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+		for (PlayerTalentMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 			m_talents[i].unsafe_erase(itr->first);
 		delmap.clear();//清空循环使用
     }

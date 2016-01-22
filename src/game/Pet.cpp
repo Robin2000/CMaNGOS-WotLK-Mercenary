@@ -1227,7 +1227,7 @@ void Pet::_SaveSpells()
         itr->second.state = PETSPELL_UNCHANGED;
     }
 
-	for (PetSpellMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (PetSpellMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		m_spells.unsafe_erase(itr->first);
 }
 

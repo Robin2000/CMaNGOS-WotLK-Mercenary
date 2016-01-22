@@ -1948,7 +1948,7 @@ void Loot::Update()
         else
             ++itr;
     }
-	for (GroupLootRollMap::iterator itr = delmap.begin; itr != delmap.end; itr++)//改为增加一个临时表用于删除
+	for (GroupLootRollMap::iterator itr = delmap.begin(); itr != delmap.end(); itr++)//改为增加一个临时表用于删除
 		m_roll.unsafe_erase(itr->first);
 
 }
