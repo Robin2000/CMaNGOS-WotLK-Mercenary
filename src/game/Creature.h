@@ -278,19 +278,19 @@ struct CreatureModelRace
 
 struct CreatureLocale
 {
-    std::vector<std::string> Name;
-    std::vector<std::string> SubName;
+	tbb::concurrent_vector<std::string> Name;
+    tbb::concurrent_vector<std::string> SubName;
 };
 
 struct GossipMenuItemsLocale
 {
-    std::vector<std::string> OptionText;
-    std::vector<std::string> BoxText;
+    tbb::concurrent_vector<std::string> OptionText;
+    tbb::concurrent_vector<std::string> BoxText;
 };
 
 struct PointOfInterestLocale
 {
-    std::vector<std::string> IconName;
+    tbb::concurrent_vector<std::string> IconName;
 };
 
 enum InhabitTypeValues

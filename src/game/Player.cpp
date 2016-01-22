@@ -7094,7 +7094,7 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->initiator->RemoveGameObject(obj, true);
 
     /* remove auras */
-    std::vector<uint32> auras2remove;
+    tbb::concurrent_vector<uint32> auras2remove;
     SpellAuraHolderMap const& vAuras = duel->opponent->GetSpellAuraHolderMap();
     for (SpellAuraHolderMap::const_iterator i = vAuras.begin(); i != vAuras.end(); ++i)
     {
@@ -17441,7 +17441,7 @@ void Player::_SaveMail()
             {
                 stmt = CharacterDatabase.CreateStatement(deleteMailItems, "DELETE FROM mail_items WHERE item_guid = ?");
 
-                for (std::vector<uint32>::const_iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
+                for (tbb::concurrent_vector<uint32>::const_iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
                     stmt.PExecute(*itr2);
 
                 m->removedItems.clear();
@@ -18528,7 +18528,7 @@ void Player::HandleStealthedUnitsDetection()
     }
 }
 
-bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/)
+bool Player::ActivateTaxiPathTo(tbb::concurrent_vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/)
 {
     if (nodes.size() < 2)
         return false;
@@ -18704,7 +18704,7 @@ bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/)
     if (!entry)
         return false;
 
-    std::vector<uint32> nodes;
+    tbb::concurrent_vector<uint32> nodes;
 
     nodes.resize(2);
     nodes[0] = entry->from;
@@ -20989,7 +20989,7 @@ Player* Player::GetNextRandomRaidMember(float radius)
     if (!pGroup)
         return nullptr;
 
-    std::vector<Player*> nearMembers;
+    tbb::concurrent_vector<Player*> nearMembers;
     nearMembers.reserve(pGroup->GetMembersCount());
 
     for (GroupReference* itr = pGroup->GetFirstMember(); itr != nullptr; itr = itr->next())

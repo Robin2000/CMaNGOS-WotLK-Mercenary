@@ -211,7 +211,7 @@ uint32 instance_zulgurub::GetData(uint32 uiType) const
 Creature* instance_zulgurub::SelectRandomPantherTrigger(bool bIsLeft)
 {
     GuidList* plTempList = bIsLeft ? &m_lLeftPantherTriggerGUIDList : &m_lRightPantherTriggerGUIDList;
-    std::vector<Creature*> vTriggers;
+    tbb::concurrent_vector<Creature*> vTriggers;
     vTriggers.reserve(plTempList->size());
 
     for (GuidList::const_iterator itr = plTempList->begin(); itr != plTempList->end(); ++itr)

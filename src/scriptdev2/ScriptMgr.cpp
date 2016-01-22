@@ -13,7 +13,7 @@
 #include "../system/system.h"
 #include "../../game/ScriptMgr.h"
 
-typedef std::vector<Script*> SDScriptVec;
+typedef tbb::concurrent_vector<Script*> SDScriptVec;
 int num_sc_scripts;
 SDScriptVec m_scripts;
 

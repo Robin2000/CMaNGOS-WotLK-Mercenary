@@ -222,7 +222,7 @@ struct boss_freyaAI : public ScriptedAI
     ObjectGuid m_stormLasherGuid;
     ObjectGuid m_snaplasherGuid;
 
-    std::vector<uint32> spawnSpellsVector;
+    tbb::concurrent_vector<uint32> spawnSpellsVector;
 
     void Reset() override
     {

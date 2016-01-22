@@ -29,7 +29,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recv_data)
 
     uint8 dungeonsCount, counter2;
     std::string comment;
-    std::vector<uint32> dungeons;
+    tbb::concurrent_vector<uint32> dungeons;
 
     recv_data >> Unused<uint32>();                          // lfg roles
     recv_data >> Unused<uint8>();                           // lua: GetLFGInfoLocal

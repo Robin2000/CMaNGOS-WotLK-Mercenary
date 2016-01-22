@@ -66,7 +66,7 @@ class MANGOS_DLL_SPEC MotionMaster : private std::stack<MovementGenerator*>
 {
     private:
         typedef std::stack<MovementGenerator*> Impl;
-        typedef std::vector<MovementGenerator*> ExpireList;
+        typedef tbb::concurrent_vector<MovementGenerator*> ExpireList;
 
     public:
         explicit MotionMaster(Unit* unit) : m_owner(unit), m_expList(nullptr), m_cleanFlag(MMCF_NONE) {}

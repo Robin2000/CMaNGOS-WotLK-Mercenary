@@ -219,7 +219,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32>& mapids)
 
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathid];
 
-    std::vector<keyFrame> keyFrames;
+    tbb::concurrent_vector<keyFrame> keyFrames;
     int mapChange = 0;
     mapids.clear();
     for (size_t i = 1; i < path.size() - 1; ++i)

@@ -465,7 +465,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
     PvpTeamIndex teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
     // Is there any occupied node for this team?
-    std::vector<uint8> nodes;
+    tbb::concurrent_vector<uint8> nodes;
     for (uint8 i = 0; i < BG_AB_NODES_MAX; ++i)
         if (m_Nodes[i] == teamIndex + 3)
             nodes.push_back(i);

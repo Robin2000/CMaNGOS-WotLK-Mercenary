@@ -136,7 +136,7 @@ struct boss_ymironAI : public ScriptedAI
 
     ObjectGuid m_uiCurrentSpiritGuid;
 
-    std::vector<uint8> m_vuiBoatPhases;
+    tbb::concurrent_vector<uint8> m_vuiBoatPhases;
 
     void Reset() override
     {

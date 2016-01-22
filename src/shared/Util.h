@@ -23,8 +23,9 @@
 
 #include <string>
 #include <vector>
+#include "tbb/concurrent_vector.h"
 
-typedef std::vector<std::string> Tokens;
+typedef tbb::concurrent_vector<std::string> Tokens;
 
 Tokens StrSplit(const std::string& src, const std::string& sep);
 uint32 GetUInt32ValueFromArray(Tokens const& data, uint16 index);

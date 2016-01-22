@@ -65,7 +65,7 @@ struct boss_warp_splinterAI : public ScriptedAI
     uint32 m_uiSummonTreantsTimer;
     uint32 m_uiArcaneVolleyTimer;
 
-    std::vector<uint32> m_vSummonSpells;
+    tbb::concurrent_vector<uint32> m_vSummonSpells;
 
     void Reset() override
     {

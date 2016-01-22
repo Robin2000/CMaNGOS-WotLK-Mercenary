@@ -339,7 +339,7 @@ void instance_ahnkahet::HandleInsanitySwitch(Player* pPhasedPlayer)
     uint32 uiPhaseAura = (*lAuraList.begin())->GetId();
 
     std::list<Player*> lSamePhasePlayers;
-    std::vector<Player*> vOtherPhasePlayers;
+    tbb::concurrent_vector<Player*> vOtherPhasePlayers;
 
     // Sort the insanity players, into those which have same phase and others
     for (GuidList::const_iterator itr = m_lInsanityPlayersGuidList.begin(); itr != m_lInsanityPlayersGuidList.end(); ++itr)

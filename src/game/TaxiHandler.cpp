@@ -174,7 +174,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode(WorldPacket& recv_data)
         DEBUG_LOG("WORLD: HandleActivateTaxiExpressOpcode - %s not found or you can't interact with it.", guid.GetString().c_str());
         return;
     }
-    std::vector<uint32> nodes;
+    tbb::concurrent_vector<uint32> nodes;
 
     for (uint32 i = 0; i < node_count; ++i)
     {
@@ -276,7 +276,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recv_data)
     DEBUG_LOG("WORLD: Received opcode CMSG_ACTIVATETAXI");
 
     ObjectGuid guid;
-    std::vector<uint32> nodes;
+    tbb::concurrent_vector<uint32> nodes;
     nodes.resize(2);
 
     recv_data >> guid >> nodes[0] >> nodes[1];

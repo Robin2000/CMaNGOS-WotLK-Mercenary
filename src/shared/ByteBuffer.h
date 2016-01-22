@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "Utilities/ByteConverter.h"
+#include "tbb/concurrent_vector.h"
 
 class ByteBufferException
 {
@@ -417,14 +418,14 @@ class ByteBuffer
 
     protected:
         size_t _rpos, _wpos;
-        std::vector<uint8> _storage;
+        tbb::concurrent_vector<uint8> _storage;
 };
 
 template <typename T>
-inline ByteBuffer& operator<<(ByteBuffer& b, std::vector<T> const& v)
+inline ByteBuffer& operator<<(ByteBuffer& b, tbb::concurrent_vector<T> const& v)
 {
     b << (uint32)v.size();
-    for (typename std::vector<T>::iterator i = v.begin(); i != v.end(); ++i)
+    for (typename tbb::concurrent_vector<T>::iterator i = v.begin(); i != v.end(); ++i)
     {
         b << *i;
     }
@@ -432,7 +433,7 @@ inline ByteBuffer& operator<<(ByteBuffer& b, std::vector<T> const& v)
 }
 
 template <typename T>
-inline ByteBuffer& operator>>(ByteBuffer& b, std::vector<T>& v)
+inline ByteBuffer& operator>>(ByteBuffer& b, tbb::concurrent_vector<T>& v)
 {
     uint32 vsize;
     b >> vsize;

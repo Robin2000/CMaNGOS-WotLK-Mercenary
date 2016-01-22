@@ -1402,7 +1402,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         return;
 
                     uint32 possibleSpells[] = {36693, 36694, 36695, 36696, 36697, 36698, 36699, 36700} ;
-                    std::vector<uint32> spellPool(possibleSpells, possibleSpells + countof(possibleSpells));
+                    tbb::concurrent_vector<uint32> spellPool(possibleSpells, possibleSpells + countof(possibleSpells));
                     std::random_shuffle(spellPool.begin(), spellPool.end());
 
                     for (uint8 i = 0; i < (m_caster->GetMap()->IsRegularDifficulty() ? 2 : 4); ++i)
@@ -1682,7 +1682,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (!unitTarget || m_UniqueTargetInfo.rbegin()->targetGUID != unitTarget->GetObjectGuid())
                         return;
 
-                    std::vector<Unit*> possibleTargets;
+                    tbb::concurrent_vector<Unit*> possibleTargets;
                     possibleTargets.reserve(m_UniqueTargetInfo.size());
                     for (TargetList::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); ++itr)
                     {
@@ -5072,7 +5072,7 @@ void Spell::EffectEnergize(SpellEffectIndex eff_idx)
         elixir_mask = (elixir_mask & ELIXIR_FLASK_MASK) ^ ELIXIR_FLASK_MASK;
 
         // get all available elixirs by mask and spell level
-        std::vector<uint32> elixirs;
+        tbb::concurrent_vector<uint32> elixirs;
         SpellElixirMap const& m_spellElixirs = sSpellMgr.GetSpellElixirMap();
         for (SpellElixirMap::const_iterator itr = m_spellElixirs.begin(); itr != m_spellElixirs.end(); ++itr)
         {

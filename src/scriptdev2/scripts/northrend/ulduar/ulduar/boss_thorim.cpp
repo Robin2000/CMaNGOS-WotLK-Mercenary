@@ -469,7 +469,7 @@ struct boss_thorimAI : public ScriptedAI, private DialogueHelper
         if (!pTrigger)
             return NULL;
 
-        std::vector<Unit*> suitableTargets;
+        tbb::concurrent_vector<Unit*> suitableTargets;
         ThreatList const& threatList = m_creature->getThreatManager().getThreatList();
 
         for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
@@ -499,7 +499,7 @@ struct boss_thorimAI : public ScriptedAI, private DialogueHelper
         {
             case 0:                     // commoners (always in groups of 6-7)
             {
-                std::vector<Creature*> vBunnies;
+                tbb::concurrent_vector<Creature*> vBunnies;
                 for (GuidList::const_iterator itr = m_lUpperBunniesGuids.begin(); itr != m_lUpperBunniesGuids.end(); ++itr)
                 {
                     if (Creature* pBunny = m_creature->GetMap()->GetCreature(*itr))

@@ -24,7 +24,7 @@
 #include "LockedQueue.h"
 #include <queue>
 #include "Utilities/Callback.h"
-
+#include "tbb/concurrent_vector.h"
 /// ---- BASE ---
 
 class Database;
@@ -112,7 +112,7 @@ class SqlQueryHolder
         friend class SqlQueryHolderEx;
     private:
         typedef std::pair<const char*, QueryResult*> SqlResultPair;
-        std::vector<SqlResultPair> m_queries;
+        tbb::concurrent_vector<SqlResultPair> m_queries;
     public:
         SqlQueryHolder() {}
         ~SqlQueryHolder();

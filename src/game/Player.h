@@ -685,11 +685,11 @@ typedef std::map<uint32, EquipmentSet> EquipmentSets;
 struct ItemPosCount
 {
     ItemPosCount(uint16 _pos, uint32 _count) : pos(_pos), count(_count) {}
-    bool isContainedIn(std::vector<ItemPosCount> const& vec) const;
+    bool isContainedIn(tbb::concurrent_vector<ItemPosCount> const& vec) const;
     uint16 pos;
     uint32 count;
 };
-typedef std::vector<ItemPosCount> ItemPosCountVec;
+typedef tbb::concurrent_vector<ItemPosCount> ItemPosCountVec;
 
 enum TradeSlots
 {
@@ -1071,7 +1071,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
-        bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
+        bool ActivateTaxiPathTo(tbb::concurrent_vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         // mount_id can be used in scripting calls
         void ContinueTaxiFlight();
@@ -1166,7 +1166,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool nonbroken, bool useable) const;
         Item* GetShield(bool useable = false) const;
         static uint32 GetAttackBySlot(uint8 slot);          // MAX_ATTACK if not weapon slot
-        std::vector<Item*>& GetItemUpdateQueue() { return m_itemUpdateQueue; }
+        tbb::concurrent_vector<Item*>& GetItemUpdateQueue() { return m_itemUpdateQueue; }
         static bool IsInventoryPos(uint16 pos) { return IsInventoryPos(pos >> 8, pos & 255); }
         static bool IsInventoryPos(uint8 bag, uint8 slot);
         static bool IsEquipmentPos(uint16 pos) { return IsEquipmentPos(pos >> 8, pos & 255); }
@@ -2030,7 +2030,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SendAurasForTarget(Unit* target);
 
         PlayerMenu* PlayerTalkClass;
-        std::vector<ItemSetEffect*> ItemSetEff;
+        tbb::concurrent_vector<ItemSetEffect*> ItemSetEff;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/
@@ -2450,7 +2450,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         Item* m_items[PLAYER_SLOTS_COUNT];
         uint32 m_currentBuybackSlot;
 
-        std::vector<Item*> m_itemUpdateQueue;
+        tbb::concurrent_vector<Item*> m_itemUpdateQueue;
         bool m_itemUpdateQueueBlocked;
 
         uint32 m_ExtraFlags;

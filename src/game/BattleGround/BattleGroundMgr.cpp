@@ -1160,12 +1160,12 @@ void BattleGroundMgr::Update(uint32 diff)
     // update scheduled queues
     if (!m_QueueUpdateScheduler.empty())
     {
-        std::vector<uint64> scheduled;
+        tbb::concurrent_vector<uint64> scheduled;
         {
             // create mutex
             // std::lock_guard<std::mutex> guard(SchedulerLock);
             // copy vector and clear the other
-            scheduled = std::vector<uint64>(m_QueueUpdateScheduler);
+            scheduled = tbb::concurrent_vector<uint64>(m_QueueUpdateScheduler);
             m_QueueUpdateScheduler.clear();
             // release lock
         }
@@ -1461,7 +1461,7 @@ uint32 BattleGroundMgr::CreateClientVisibleInstanceId(BattleGroundTypeId bgTypeI
     // the client-instanceIds are unique for each battleground-type
     // the instance-id just needs to be as low as possible, beginning with 1
     // the following works, because std::set is default ordered with "<"
-    // the optimalization would be to use as bitmask std::vector<uint32> - but that would only make code unreadable
+    // the optimalization would be to use as bitmask tbb::concurrent_vector<uint32> - but that would only make code unreadable
     uint32 lastId = 0;
     ClientBattleGroundIdSet& ids = m_ClientBattleGroundIds[bgTypeId][bracket_id];
     for (ClientBattleGroundIdSet::const_iterator itr = ids.begin(); itr != ids.end();)

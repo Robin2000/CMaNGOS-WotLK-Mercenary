@@ -501,7 +501,7 @@ struct npc_simon_game_bunnyAI : public ScriptedAI
     uint32 m_uiLevelStage;
     uint32 m_uiPlayerStage;
 
-    std::vector<uint8> m_vColors;
+    tbb::concurrent_vector<uint8> m_vColors;
     bool m_bIsLargeEvent;
     bool m_bIsEventStarted;
 

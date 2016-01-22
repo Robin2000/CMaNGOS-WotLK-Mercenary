@@ -511,7 +511,7 @@ void WorldSession::HandleQuestPOIQueryOpcode(WorldPacket& recv_data)
                     data << uint32(itr->Unk4);              // unknown
                     data << uint32(itr->points.size());     // POI points count
 
-                    for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
+                    for (tbb::concurrent_vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
                     {
                         data << int32(itr2->x);             // POI point x
                         data << int32(itr2->y);             // POI point y

@@ -136,7 +136,7 @@ struct MangosStringLocale
 {
     MangosStringLocale() : SoundId(0), Type(0), LanguageId(LANG_UNIVERSAL), Emote(0) { }
 
-    std::vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index
+    tbb::concurrent_vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index
     uint32 SoundId;
     uint8  Type;
     Language LanguageId;
@@ -333,13 +333,13 @@ struct QuestPOI
     uint32 FloorId;
     uint32 Unk3;
     uint32 Unk4;
-    std::vector<QuestPOIPoint> points;
+    tbb::concurrent_vector<QuestPOIPoint> points;
 
     QuestPOI() : PoiId(0), ObjectiveIndex(0), MapId(0), MapAreaId(0), FloorId(0), Unk3(0), Unk4(0) {}
     QuestPOI(uint32 poiId, int32 objIndex, uint32 mapId, uint32 mapAreaId, uint32 floorId, uint32 unk3, uint32 unk4) : PoiId(poiId), ObjectiveIndex(objIndex), MapId(mapId), MapAreaId(mapAreaId), FloorId(floorId), Unk3(unk3), Unk4(unk4) {}
 };
 
-typedef std::vector<QuestPOI> QuestPOIVector;
+typedef tbb::concurrent_vector<QuestPOI> QuestPOIVector;
 //typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIMap;
 typedef tbb::concurrent_unordered_map<uint32, QuestPOIVector> QuestPOIMap;
 
@@ -1215,7 +1215,7 @@ class ObjectMgr
         ItemConvertMap        m_ItemExpireConvert;
         ItemRequiredTargetMap m_ItemRequiredTarget;
 
-        typedef             std::vector<LocaleConstant> LocalForIndex;
+        typedef             tbb::concurrent_vector<LocaleConstant> LocalForIndex;
         LocalForIndex        m_LocalForIndex;
 
         ExclusiveQuestGroupsMap m_ExclusiveQuestGroups;
@@ -1248,7 +1248,7 @@ class ObjectMgr
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
         PlayerInfo playerInfo[MAX_RACES][MAX_CLASSES];
 
-        typedef std::vector<uint32> PlayerXPperLevel;       // [level]
+        typedef tbb::concurrent_vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel mPlayerXPperLevel;
 
         typedef std::map<uint32, uint32> BaseXPMap;         // [area level][base xp]
@@ -1257,7 +1257,7 @@ class ObjectMgr
         typedef std::map<uint32, int32> FishingBaseSkillMap;// [areaId][base skill level]
         FishingBaseSkillMap mFishingBaseForArea;
 
-        typedef std::map<uint32, std::vector<std::string> > HalfNameMap;
+        typedef std::map<uint32, tbb::concurrent_vector<std::string> > HalfNameMap;
         HalfNameMap PetHalfName0;
         HalfNameMap PetHalfName1;
 

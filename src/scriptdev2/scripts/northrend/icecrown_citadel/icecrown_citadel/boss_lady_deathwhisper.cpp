@@ -229,7 +229,7 @@ struct boss_lady_deathwhisperAI : public ScriptedAI
     // Wrapper to select a random cultist
     Creature* DoSelectRandomCultist(uint32 uiEntry = 0)
     {
-        std::vector<Creature*> vCultists;
+        tbb::concurrent_vector<Creature*> vCultists;
         vCultists.reserve(m_lCultistSpawnedGuidList.size());
 
         for (GuidList::const_iterator itr = m_lCultistSpawnedGuidList.begin(); itr != m_lCultistSpawnedGuidList.end(); ++itr)

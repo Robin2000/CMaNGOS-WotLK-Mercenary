@@ -26,7 +26,7 @@ class Unit;
 
 namespace Movement
 {
-    typedef std::vector<Vector3> PointsArray;
+    typedef tbb::concurrent_vector<Vector3> PointsArray;
 
     union FacingInfo
     {

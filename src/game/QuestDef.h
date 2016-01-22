@@ -181,14 +181,14 @@ struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
 
-    std::vector<std::string> Title;
-    std::vector<std::string> Details;
-    std::vector<std::string> Objectives;
-    std::vector<std::string> OfferRewardText;
-    std::vector<std::string> RequestItemsText;
-    std::vector<std::string> EndText;
-    std::vector<std::string> CompletedText;
-    std::vector< std::vector<std::string> > ObjectiveText;
+    tbb::concurrent_vector<std::string> Title;
+    tbb::concurrent_vector<std::string> Details;
+    tbb::concurrent_vector<std::string> Objectives;
+    tbb::concurrent_vector<std::string> OfferRewardText;
+    tbb::concurrent_vector<std::string> RequestItemsText;
+    tbb::concurrent_vector<std::string> EndText;
+    tbb::concurrent_vector<std::string> CompletedText;
+    tbb::concurrent_vector< tbb::concurrent_vector<std::string> > ObjectiveText;
 };
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
@@ -302,9 +302,9 @@ class Quest
         uint32 GetRewChoiceItemsCount() const { return m_rewchoiceitemscount; }
         uint32 GetRewItemsCount() const { return m_rewitemscount; }
 
-        typedef std::vector<int32> PrevQuests;
+        typedef tbb::concurrent_vector<int32> PrevQuests;
         PrevQuests prevQuests;
-        typedef std::vector<uint32> PrevChainQuests;
+        typedef tbb::concurrent_vector<uint32> PrevChainQuests;
         PrevChainQuests prevChainQuests;
 
         // cached data

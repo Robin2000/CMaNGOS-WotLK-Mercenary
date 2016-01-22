@@ -180,7 +180,7 @@ class PoolManager
 
         void RemoveAutoSpawnForPool(uint16 pool_id) { mPoolTemplate[pool_id].AutoSpawn = false; }
 
-        typedef std::vector<PoolTemplateData> PoolTemplateDataMap;
+        typedef tbb::concurrent_vector<PoolTemplateData> PoolTemplateDataMap;
         PoolTemplateData const& GetPoolTemplate(uint16 pool_id) const { return mPoolTemplate[pool_id]; }
         PoolGroup<Creature> const& GetPoolCreatures(uint16 pool_id) const  { return mPoolCreatureGroups[pool_id]; }
         PoolGroup<GameObject> const& GetPoolGameObjects(uint16 pool_id) const  { return mPoolGameobjectGroups[pool_id]; }
@@ -191,9 +191,9 @@ class PoolManager
 
         uint16 max_pool_id;
 
-        typedef std::vector<PoolGroup<Creature> >   PoolGroupCreatureMap;
-        typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
-        typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
+        typedef tbb::concurrent_vector<PoolGroup<Creature> >   PoolGroupCreatureMap;
+        typedef tbb::concurrent_vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
+        typedef tbb::concurrent_vector<PoolGroup<Pool> >       PoolGroupPoolMap;
         typedef std::pair<uint32, uint16> SearchPair;
         typedef std::map<uint32, uint16> SearchMap;
 

@@ -72,7 +72,7 @@ struct boss_moroesAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
 
-    std::vector<uint32> m_vGuestsEntryList;
+    tbb::concurrent_vector<uint32> m_vGuestsEntryList;
 
     uint32 m_uiVanishTimer;
     uint32 m_uiBlindTimer;

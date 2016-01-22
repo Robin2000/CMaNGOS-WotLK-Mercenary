@@ -245,12 +245,12 @@ struct GuildItemPosCount
 {
     GuildItemPosCount(uint8 _slot, uint32 _count) : Slot(_slot), Count(_count) {}
 
-    bool isContainedIn(std::vector<GuildItemPosCount> const& vec) const;
+    bool isContainedIn(tbb::concurrent_vector<GuildItemPosCount> const& vec) const;
 
     uint8 Slot;
     uint32 Count;
 };
-typedef std::vector<GuildItemPosCount> GuildItemPosCountVec;
+typedef tbb::concurrent_vector<GuildItemPosCount> GuildItemPosCountVec;
 
 struct MemberSlot
 {
@@ -468,7 +468,7 @@ class Guild
 
         MemberList members;
 
-        typedef std::vector<GuildBankTab*> TabListMap;
+        typedef tbb::concurrent_vector<GuildBankTab*> TabListMap;
         TabListMap m_TabListMap;
 
         /** These are actually ordered lists. The first element is the oldest entry.*/

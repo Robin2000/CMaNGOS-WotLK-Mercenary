@@ -322,7 +322,7 @@ class instance_trial_of_the_crusader : public ScriptedInstance, private Dialogue
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        std::vector<uint32> m_vCrusadersEntries;
+        tbb::concurrent_vector<uint32> m_vCrusadersEntries;
 
         GuidVector m_vCrusadersGuidsVector;
         GuidVector m_vStalkersGuidsVector;

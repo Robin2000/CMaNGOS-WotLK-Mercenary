@@ -71,7 +71,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
 
-    std::vector<uint32> m_vuiLackeyEnties;
+    tbb::concurrent_vector<uint32> m_vuiLackeyEnties;
 
     uint32 m_uiHealTimer;
     uint32 m_uiRenewTimer;

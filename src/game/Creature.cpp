@@ -2180,7 +2180,7 @@ Unit* Creature::SelectAttackingTarget(AttackingTarget target, uint32 position, S
     {
         case ATTACKING_TARGET_RANDOM:
         {
-            std::vector<Unit*> suitableUnits;
+            tbb::concurrent_vector<Unit*> suitableUnits;
             suitableUnits.reserve(threatlist.size() - position);
             advance(itr, position);
             for (; itr != threatlist.end(); ++itr)
