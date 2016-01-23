@@ -275,7 +275,7 @@ struct trial_crusader_commonAI : public ScriptedAI
 
     uint32 m_uiAbilityTimer;
     uint32 m_uiMaxAbilities;
-    tbb::concurrent_vector<uint32> m_uiSpellTimer;
+    std::vector<uint32> m_uiSpellTimer;
 
     void Reset() override
     {

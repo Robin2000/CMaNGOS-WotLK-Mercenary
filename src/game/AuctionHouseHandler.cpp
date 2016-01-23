@@ -238,7 +238,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recv_data)
     ObjectGuid auctioneerGuid;
     uint32 etime, bid, buyout, itemCount;
     GuidVector guids;
-    tbb::concurrent_vector<uint32> stackSizes;
+    std::vector<uint32> stackSizes;
 
     recv_data >> auctioneerGuid;
     recv_data >> itemCount;
@@ -659,7 +659,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recv_data)
 
     // Sort
     AuctionHouseObject::AuctionEntryMap const& aucs = auctionHouse->GetAuctions();
-    tbb::concurrent_vector<AuctionEntry*> auctions;
+    std::vector<AuctionEntry*> auctions;
     auctions.reserve(aucs.size());
 
     for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = aucs.begin(); itr != aucs.end(); ++itr)

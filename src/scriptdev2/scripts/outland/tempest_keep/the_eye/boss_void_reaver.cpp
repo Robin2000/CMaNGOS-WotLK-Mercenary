@@ -127,7 +127,7 @@ struct boss_void_reaverAI : public ScriptedAI
         if (m_uiArcaneOrbTimer < uiDiff)
         {
             // Search only for players which are not within 18 yards of the boss
-            tbb::concurrent_vector<Unit*> suitableTargets;
+            std::vector<Unit*> suitableTargets;
             ThreatList const& threatList = m_creature->getThreatManager().getThreatList();
 
             for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)

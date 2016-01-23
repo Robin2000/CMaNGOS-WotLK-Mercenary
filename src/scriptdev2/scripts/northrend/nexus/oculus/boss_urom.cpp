@@ -104,7 +104,7 @@ struct boss_uromAI : public ScriptedAI
 
     ObjectGuid m_attackTarget;
 
-    tbb::concurrent_vector<uint32> m_vuiTrashPacksIds;
+    std::vector<uint32> m_vuiTrashPacksIds;
 
     void Reset() override
     {

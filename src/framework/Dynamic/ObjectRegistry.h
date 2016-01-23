@@ -76,7 +76,7 @@ class ObjectRegistry
         }
 
         /// Inefficiently return a vector of registered items
-        unsigned int GetRegisteredItems(tbb::concurrent_vector<Key>& l) const
+        unsigned int GetRegisteredItems(std::vector<Key>& l) const
         {
             unsigned int sz = l.size();
             l.resize(sz + i_registeredObjects.size());

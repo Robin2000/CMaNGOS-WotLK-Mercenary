@@ -186,7 +186,7 @@ class WorldSocket : protected WorldHandler
         AuthCrypt m_Crypt;
 
         /// Mutex lock to protect m_Session
-        //LockType m_SessionLock;
+        LockType m_SessionLock;
 
         /// Session to which received packets are routed
         WorldSession* m_Session;

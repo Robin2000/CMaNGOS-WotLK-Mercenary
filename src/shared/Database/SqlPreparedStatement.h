@@ -23,7 +23,6 @@
 #include <ace/TSS_T.h>
 #include <vector>
 #include <stdexcept>
-#include "tbb/concurrent_vector.h"
 
 class Database;
 class SqlConnection;
@@ -143,7 +142,7 @@ class SqlStatement;
 class MANGOS_DLL_SPEC SqlStmtParameters
 {
     public:
-        typedef tbb::concurrent_vector<SqlStmtFieldData> ParameterContainer;
+        typedef std::vector<SqlStmtFieldData> ParameterContainer;
 
         // reserve memory to contain all input parameters of stmt
         explicit SqlStmtParameters(uint32 nParams);

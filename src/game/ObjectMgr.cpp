@@ -750,7 +750,7 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
 {
     // Now add the auras, format "spell1 spell2 ..."
     char* p, *s;
-    tbb::concurrent_vector<int> val;
+    std::vector<int> val;
     s = p = (char*)reinterpret_cast<char const*>(addon->auras);
     if (p)
     {
@@ -6395,8 +6395,8 @@ void ObjectMgr::LoadPetNumber()
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
 {
-    tbb::concurrent_vector<std::string>& list0 = PetHalfName0[entry];
-    tbb::concurrent_vector<std::string>& list1 = PetHalfName1[entry];
+    std::vector<std::string>& list0 = PetHalfName0[entry];
+    std::vector<std::string>& list1 = PetHalfName1[entry];
 
     if (list0.empty() || list1.empty())
     {

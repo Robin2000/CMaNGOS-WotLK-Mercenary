@@ -399,7 +399,7 @@ class MANGOS_DLL_SPEC Object
             float*  m_floatValues;
         };
 
-        tbb::concurrent_vector<bool> m_changedValues;
+        std::vector<bool> m_changedValues;
 
         uint16 m_valuesCount;
 

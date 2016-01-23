@@ -1248,7 +1248,7 @@ namespace MaNGOS
 
         private:
             Builder& i_builder;
-            tbb::concurrent_vector<WorldPacket*> i_data_cache;         // 0 = default, i => i-1 locale index
+            std::vector<WorldPacket*> i_data_cache;         // 0 = default, i => i-1 locale index
     };
 
     // Prepare using Builder localized packets with caching and send to player
@@ -1256,7 +1256,7 @@ namespace MaNGOS
     class LocalizedPacketListDo
     {
         public:
-            typedef tbb::concurrent_vector<WorldPacket*> WorldPacketList;
+            typedef std::vector<WorldPacket*> WorldPacketList;
             explicit LocalizedPacketListDo(Builder& builder) : i_builder(builder) {}
 
             ~LocalizedPacketListDo()
@@ -1269,7 +1269,7 @@ namespace MaNGOS
 
         private:
             Builder& i_builder;
-            tbb::concurrent_vector<WorldPacketList> i_data_cache;
+            std::vector<WorldPacketList> i_data_cache;
             // 0 = default, i => i-1 locale index
     };
 

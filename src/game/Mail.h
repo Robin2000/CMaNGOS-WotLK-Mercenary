@@ -305,7 +305,7 @@ struct Mail
     /// A vector containing Information about the items in this mail.
     MailItemInfoVec items;
     /// A vector containing Information about the items that where already take from this mail.
-    tbb::concurrent_vector<uint32> removedItems;
+    std::vector<uint32> removedItems;
     /// The time at which this mail will expire
     time_t expire_time;
     /// The time at which this mail (was/will be) delivered

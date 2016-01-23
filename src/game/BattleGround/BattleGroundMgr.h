@@ -288,7 +288,7 @@ class BattleGroundMgr
 
         /* Battlegrounds */
         BattleGroundSet m_BattleGrounds[MAX_BATTLEGROUND_TYPE_ID];
-        tbb::concurrent_vector<uint64> m_QueueUpdateScheduler;
+        std::vector<uint64> m_QueueUpdateScheduler;
         typedef std::set<uint32> ClientBattleGroundIdSet;
         ClientBattleGroundIdSet m_ClientBattleGroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; // the instanceids just visible for the client
         uint32 m_NextRatingDiscardUpdate;

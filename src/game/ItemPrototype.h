@@ -675,8 +675,8 @@ struct ItemPrototype
 
 struct ItemLocale
 {
-    tbb::concurrent_vector<std::string> Name;
-    tbb::concurrent_vector<std::string> Description;
+    std::vector<std::string> Name;
+    std::vector<std::string> Description;
 };
 
 #endif

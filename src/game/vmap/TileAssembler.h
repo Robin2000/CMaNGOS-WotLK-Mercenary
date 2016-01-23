@@ -70,8 +70,8 @@ namespace VMAP
 
         G3D::AABox bounds;
         uint32 liquidflags;
-        tbb::concurrent_vector<MeshTriangle> triangles;
-        tbb::concurrent_vector<G3D::Vector3> vertexArray;
+        std::vector<MeshTriangle> triangles;
+        std::vector<G3D::Vector3> vertexArray;
         class WmoLiquid* liquid;
 
         GroupModel_Raw() : liquid(0) {}
@@ -83,7 +83,7 @@ namespace VMAP
     struct WorldModel_Raw
     {
         uint32 RootWMOID;
-        tbb::concurrent_vector<GroupModel_Raw> groupsArray;
+        std::vector<GroupModel_Raw> groupsArray;
 
         bool Read(const char* path);
     };

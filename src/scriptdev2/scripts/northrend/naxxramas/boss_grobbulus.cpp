@@ -99,7 +99,7 @@ struct boss_grobbulusAI : public ScriptedAI
         if (m_creature->IsNonMeleeSpellCasted(true))
             return false;
 
-        tbb::concurrent_vector<Unit*> suitableTargets;
+        std::vector<Unit*> suitableTargets;
         ThreatList const& threatList = m_creature->getThreatManager().getThreatList();
 
         for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)

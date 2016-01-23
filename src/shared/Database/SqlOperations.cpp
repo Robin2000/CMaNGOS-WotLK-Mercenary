@@ -21,7 +21,6 @@
 #include "DatabaseEnv.h"
 #include "DatabaseImpl.h"
 
-
 #define LOCK_DB_CONN(conn) SqlConnection::Lock guard(conn)
 
 /// ---- ASYNC STATEMENTS / TRANSACTIONS ----
@@ -214,7 +213,7 @@ bool SqlQueryHolderEx::Execute(SqlConnection* conn)
 
     LOCK_DB_CONN(conn);
     /// we can do this, we are friends
-    tbb::concurrent_vector<SqlQueryHolder::SqlResultPair>& queries = m_holder->m_queries;
+    std::vector<SqlQueryHolder::SqlResultPair>& queries = m_holder->m_queries;
     for (size_t i = 0; i < queries.size(); ++i)
     {
         /// execute all queries in the holder and pass the results

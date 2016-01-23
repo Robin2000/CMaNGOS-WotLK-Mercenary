@@ -22,7 +22,6 @@
 #include "Common.h"
 #include "Errors.h"
 #include "Field.h"
-#include "tbb/concurrent_vector.h"
 
 class MANGOS_DLL_SPEC QueryResult
 {
@@ -47,7 +46,7 @@ class MANGOS_DLL_SPEC QueryResult
         uint64 mRowCount;
 };
 
-typedef tbb::concurrent_vector<std::string> QueryFieldNames;
+typedef std::vector<std::string> QueryFieldNames;
 
 class MANGOS_DLL_SPEC QueryNamedResult
 {

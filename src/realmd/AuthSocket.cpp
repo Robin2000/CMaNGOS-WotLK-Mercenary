@@ -35,7 +35,6 @@
 #include <ace/OS_NS_unistd.h>
 #include <ace/OS_NS_fcntl.h>
 #include <ace/OS_NS_sys_stat.h>
-#include "tbb/concurrent_vector.h"
 
 extern DatabaseType LoginDatabase;
 
@@ -325,7 +324,7 @@ bool AuthSocket::_HandleLogonChallenge()
         return false;
 
     ///- Read the first 4 bytes (header) to get the length of the remaining of the packet
-    tbb::concurrent_vector<uint8> buf;
+    std::vector<uint8> buf;
     buf.resize(4);
 
     recv((char*)&buf[0], 4);
@@ -752,7 +751,7 @@ bool AuthSocket::_HandleReconnectChallenge()
         return false;
 
     ///- Read the first 4 bytes (header) to get the length of the remaining of the packet
-    tbb::concurrent_vector<uint8> buf;
+    std::vector<uint8> buf;
     buf.resize(4);
 
     recv((char*)&buf[0], 4);

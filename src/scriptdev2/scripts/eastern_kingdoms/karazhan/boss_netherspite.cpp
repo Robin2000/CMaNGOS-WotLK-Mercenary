@@ -137,7 +137,7 @@ struct boss_netherspiteAI : public ScriptedAI
     uint32 m_uiNetherbreathTimer;
     uint32 m_uiEmpowermentTimer;
 
-    tbb::concurrent_vector<uint32> m_vPortalEntryList;
+    std::vector<uint32> m_vPortalEntryList;
 
     void Reset() override
     {

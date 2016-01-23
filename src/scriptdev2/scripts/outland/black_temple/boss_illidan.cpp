@@ -1525,7 +1525,7 @@ struct npc_flame_of_azzinothAI : public ScriptedAI
         // Try to find a suitable target to charge
         if (m_uiChargeTimer < uiDiff)
         {
-            tbb::concurrent_vector<Unit*> suitableTargets;
+            std::vector<Unit*> suitableTargets;
             ThreatList const& threatList = m_creature->getThreatManager().getThreatList();
 
             for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)

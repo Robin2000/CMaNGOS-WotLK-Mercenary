@@ -341,7 +341,7 @@ class instance_trial_of_the_champion : public ScriptedInstance, private Dialogue
         ObjectGuid m_ArenaChampionsGuids[MAX_CHAMPIONS_ARENA];
         ObjectGuid m_ArenaMountsGuids[MAX_CHAMPIONS_ARENA];
 
-        tbb::concurrent_vector<uint8> m_vChampionsIndex;
+        std::vector<uint8> m_vChampionsIndex;
 
         GuidVector m_vAllianceTriggersGuids;
         GuidVector m_vHordeTriggersGuids;

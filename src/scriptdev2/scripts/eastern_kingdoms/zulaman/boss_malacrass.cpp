@@ -231,8 +231,8 @@ struct boss_malacrassAI : public ScriptedAI
 
     bool m_bCanUsePlayerSpell;
 
-    tbb::concurrent_vector<uint32> m_vAddsEntryList;
-    tbb::concurrent_vector<uint32> m_vPlayerSpellTimer;
+    std::vector<uint32> m_vAddsEntryList;
+    std::vector<uint32> m_vPlayerSpellTimer;
 
     void Reset() override
     {

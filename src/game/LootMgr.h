@@ -191,8 +191,8 @@ struct LootItem
     bool IsLootedFor(ObjectGuid const& playerGuid) const { return lootedBy.find(playerGuid) != lootedBy.end(); }
 };
 
-typedef tbb::concurrent_vector<LootItem*> LootItemList;
-typedef tbb::concurrent_vector<LootStoreItem> LootStoreItemList;
+typedef std::vector<LootItem*> LootItemList;
+typedef std::vector<LootStoreItem> LootStoreItemList;
 //typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
 typedef tbb::concurrent_unordered_map<uint32, LootTemplate*> LootTemplateMap;
 typedef std::set<uint32> LootIdSet;
@@ -233,7 +233,7 @@ class LootStore
 class LootTemplate
 {
         class  LootGroup;                                   // A set of loot definitions for items (refs are not allowed inside)
-        typedef tbb::concurrent_vector<LootGroup> LootGroups;
+        typedef std::vector<LootGroup> LootGroups;
 
     public:
         // Adds an entry to the group (at loading stage)

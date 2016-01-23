@@ -72,7 +72,7 @@ class GameEventMgr
         GameEventMgr();
         ~GameEventMgr() {};
         typedef std::set<uint16> ActiveEvents;
-        typedef tbb::concurrent_vector<GameEventData> GameEventDataMap;
+        typedef std::vector<GameEventData> GameEventDataMap;
         ActiveEvents const& GetActiveEventList() const { return m_ActiveEvents; }
         GameEventDataMap const& GetEventMap() const { return mGameEvent; }
         bool CheckOneGameEvent(uint16 entry, time_t currenttime) const;
@@ -102,22 +102,22 @@ class GameEventMgr
     protected:
         typedef std::list<uint32> GuidList;
         typedef std::list<uint16> IdList;
-        typedef tbb::concurrent_vector<GuidList> GameEventGuidMap;
-        typedef tbb::concurrent_vector<IdList> GameEventIdMap;
+        typedef std::vector<GuidList> GameEventGuidMap;
+        typedef std::vector<IdList> GameEventIdMap;
         typedef std::list<GameEventCreatureDataPair> GameEventCreatureDataList;
-        typedef tbb::concurrent_vector<GameEventCreatureDataList> GameEventCreatureDataMap;
+        typedef std::vector<GameEventCreatureDataList> GameEventCreatureDataMap;
         typedef std::multimap<uint32, uint32> GameEventCreatureDataPerGuidMap;
         typedef std::pair<GameEventCreatureDataPerGuidMap::const_iterator, GameEventCreatureDataPerGuidMap::const_iterator> GameEventCreatureDataPerGuidBounds;
 
         typedef std::list<uint32> QuestList;
-        typedef tbb::concurrent_vector<QuestList> GameEventQuestMap;
+        typedef std::vector<QuestList> GameEventQuestMap;
         GameEventQuestMap mGameEventQuests;                 // events size, only positive event case
 
         GameEventCreatureDataMap mGameEventCreatureData;    // events size, only positive event case
         GameEventCreatureDataPerGuidMap mGameEventCreatureDataPerGuid;
 
         typedef std::list<GameEventMail> MailList;
-        typedef tbb::concurrent_vector<MailList> GameEventMailMap;
+        typedef std::vector<MailList> GameEventMailMap;
         GameEventMailMap  mGameEventMails;                  // events*2-1
 
         GameEventGuidMap  mGameEventCreatureGuids;          // events*2-1

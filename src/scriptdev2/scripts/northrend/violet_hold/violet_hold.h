@@ -292,9 +292,9 @@ class instance_violet_hold : public ScriptedInstance
         GuidList m_lErekemGuardList;
         GuidList m_lArakkoaGuardList;
         GuidList m_lIchoronTargetsList;
-        tbb::concurrent_vector<uint32> m_vRandomBossList;
+        std::vector<uint32> m_vRandomBossList;
 
-        tbb::concurrent_vector<BossSpawn*> m_vRandomBosses;
+        std::vector<BossSpawn*> m_vRandomBosses;
 };
 
 #endif

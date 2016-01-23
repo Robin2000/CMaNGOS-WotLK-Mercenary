@@ -24,7 +24,6 @@
 #include "Path.h"
 #include "Platform/Define.h"
 #include "SharedDefines.h"
-#include "pr_threadpool.h"
 
 #include <map>
 #include <set>
@@ -2216,7 +2215,7 @@ struct TaxiPathNodePtr
 };
 
 typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
-typedef tbb::concurrent_vector<TaxiPathNodeList> TaxiPathNodesByPath;
+typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 14
 typedef uint32 TaxiMask[TaxiMaskSize];

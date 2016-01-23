@@ -1212,7 +1212,7 @@ bool ScriptAction::HandleScriptStep()
             if (LogIfNotUnit(pSource))
                 break;
 
-            tbb::concurrent_vector<uint32> emotes;
+            std::vector<uint32> emotes;
             emotes.push_back(m_script->emote.emoteId);
             for (int i = 0; i < MAX_TEXT_ID; ++i)
             {

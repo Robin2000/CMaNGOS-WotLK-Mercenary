@@ -64,7 +64,7 @@ void instance_violet_hold::ResetAll()
     SetIntroPortals(false);
     // ToDo: reset the activation crystals when implemented
 
-    for (tbb::concurrent_vector<BossSpawn*>::const_iterator itr = m_vRandomBosses.begin(); itr != m_vRandomBosses.end(); ++itr)
+    for (std::vector<BossSpawn*>::const_iterator itr = m_vRandomBosses.begin(); itr != m_vRandomBosses.end(); ++itr)
     {
         const BossInformation* pData = GetBossInformation((*itr)->uiEntry);
         if (pData && m_auiEncounter[pData->uiType] == DONE)
@@ -489,7 +489,7 @@ void instance_violet_hold::SetRandomBosses()
             m_vRandomBossList.resize(2);
 
         // Fill up some random bosses
-        for (tbb::concurrent_vector<uint32>::const_iterator itr = m_vRandomBossList.begin(); itr != m_vRandomBossList.end(); ++itr)
+        for (std::vector<uint32>::const_iterator itr = m_vRandomBossList.begin(); itr != m_vRandomBossList.end(); ++itr)
         {
             if (m_vRandomBosses.empty() || m_vRandomBosses[0]->uiEntry != *itr)
                 m_vRandomBosses.push_back(CreateBossSpawnByEntry(*itr));
@@ -750,8 +750,8 @@ BossInformation const* instance_violet_hold::GetBossInformation(uint32 uiEntry/*
 
 instance_violet_hold::~instance_violet_hold()
 {
-    // Need to free tbb::concurrent_vector<sBossSpawn*> m_vRandomBosses;
-    for (tbb::concurrent_vector<BossSpawn*>::const_iterator itr = m_vRandomBosses.begin(); itr != m_vRandomBosses.end(); ++itr)
+    // Need to free std::vector<sBossSpawn*> m_vRandomBosses;
+    for (std::vector<BossSpawn*>::const_iterator itr = m_vRandomBosses.begin(); itr != m_vRandomBosses.end(); ++itr)
     {
         if (*itr)
             delete(*itr);

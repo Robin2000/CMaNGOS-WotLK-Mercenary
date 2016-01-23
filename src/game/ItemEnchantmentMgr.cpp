@@ -40,7 +40,7 @@ struct EnchStoreItem
         : ench(_ench), chance(_chance) {}
 };
 
-typedef tbb::concurrent_vector<EnchStoreItem> EnchStoreList;
+typedef std::vector<EnchStoreItem> EnchStoreList;
 //typedef std::unordered_map<uint32, EnchStoreList> EnchantmentStore;
 typedef tbb::concurrent_unordered_map<uint32, EnchStoreList> EnchantmentStore;
 

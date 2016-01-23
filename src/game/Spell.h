@@ -675,7 +675,7 @@ class Spell
             float x, y, z;
             Creature* creature;
         };
-        typedef tbb::concurrent_vector<CreaturePosition> CreatureSummonPositions;
+        typedef std::vector<CreaturePosition> CreatureSummonPositions;
 
         // return true IFF further processing required
         bool DoSummonPet(SpellEffectIndex eff_idx);

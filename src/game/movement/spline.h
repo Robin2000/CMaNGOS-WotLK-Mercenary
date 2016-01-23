@@ -28,7 +28,7 @@ namespace Movement
     {
         public:
             typedef int index_type;
-            typedef tbb::concurrent_vector<Vector3> ControlArray;
+            typedef std::vector<Vector3> ControlArray;
 
             enum EvaluationMode
             {
@@ -136,7 +136,7 @@ namespace Movement
     {
         public:
             typedef length_type LengthType;
-            typedef tbb::concurrent_vector<length_type> LengthArray;
+            typedef std::vector<length_type> LengthArray;
         protected:
 
             LengthArray lengths;

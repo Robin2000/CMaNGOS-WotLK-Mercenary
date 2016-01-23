@@ -207,7 +207,7 @@ struct AchievementCriteriaRequirement
 struct AchievementCriteriaRequirementSet
 {
         AchievementCriteriaRequirementSet() : criteria_id(0) {}
-        typedef tbb::concurrent_vector<AchievementCriteriaRequirement> Storage;
+        typedef std::vector<AchievementCriteriaRequirement> Storage;
         void Add(AchievementCriteriaRequirement const& data) { storage.push_back(data); }
         bool Meets(Player const* source, Unit const* target, uint32 miscvalue = 0) const;
         void SetCriteriaId(uint32 id) {criteria_id = id;}
@@ -234,8 +234,8 @@ typedef std::pair<AchievementRewardsMap::const_iterator, AchievementRewardsMap::
 struct AchievementRewardLocale
 {
     Gender gender;
-    tbb::concurrent_vector<std::string> subject;
-    tbb::concurrent_vector<std::string> text;
+    std::vector<std::string> subject;
+    std::vector<std::string> text;
 };
 
 typedef std::multimap<uint32, AchievementRewardLocale> AchievementRewardLocalesMap;

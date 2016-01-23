@@ -23,7 +23,6 @@
 #include "AuctionHouseMgr.h"
 #include "SystemConfig.h"
 #include "SQLStorages.h"
-#include "pr_threadpool.h"
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
@@ -83,7 +82,7 @@ struct RandomArrayEntry
     uint32 itemclass;
 };
 
-typedef tbb::concurrent_vector<RandomArrayEntry> RandomArray;
+typedef std::vector<RandomArrayEntry> RandomArray;
 
 struct SellerItemClassInfo
 {
@@ -198,7 +197,7 @@ class AuctionBotBuyer : public AuctionBotAgent
 class AuctionBotSeller : public AuctionBotAgent
 {
     public:
-        typedef tbb::concurrent_vector<uint32> ItemPool;
+        typedef std::vector<uint32> ItemPool;
 
         AuctionBotSeller();
         ~AuctionBotSeller();
@@ -220,7 +219,7 @@ class AuctionBotSeller : public AuctionBotAgent
 
         void        LoadSellerValues(AHB_Seller_Config& config);
         uint32      SetStat(AHB_Seller_Config& config);
-        bool        getRandomArray(AHB_Seller_Config& config, RandomArray& ra, const tbb::concurrent_vector<tbb::concurrent_vector<uint32> >& addedItem);
+        bool        getRandomArray(AHB_Seller_Config& config, RandomArray& ra, const std::vector<std::vector<uint32> >& addedItem);
         void        SetPricesOfItem(AHB_Seller_Config& config, uint32& buyp, uint32& bidp, uint32 stackcnt, ItemQualities itemQuality);
         void        LoadItemsQuantity(AHB_Seller_Config& config);
 };
@@ -896,10 +895,10 @@ AuctionBotSeller::~AuctionBotSeller()
 
 bool AuctionBotSeller::Initialize()
 {
-    tbb::concurrent_vector<uint32> npcItems;
-    tbb::concurrent_vector<uint32> lootItems;
-    tbb::concurrent_vector<uint32> includeItems;
-    tbb::concurrent_vector<uint32> excludeItems;
+    std::vector<uint32> npcItems;
+    std::vector<uint32> lootItems;
+    std::vector<uint32> includeItems;
+    std::vector<uint32> excludeItems;
 
     sLog.outString("AHBot seller filters:");
     sLog.outString();
@@ -1434,7 +1433,7 @@ void AuctionBotSeller::LoadSellerValues(AHB_Seller_Config& config)
 // Fill ItemInfos object with real content of AH.
 uint32 AuctionBotSeller::SetStat(AHB_Seller_Config& config)
 {
-    tbb::concurrent_vector<tbb::concurrent_vector<uint32> > ItemsInAH(MAX_AUCTION_QUALITY, tbb::concurrent_vector< uint32 > (MAX_ITEM_CLASS));
+    std::vector<std::vector<uint32> > ItemsInAH(MAX_AUCTION_QUALITY, std::vector< uint32 > (MAX_ITEM_CLASS));
 
     AuctionHouseObject::AuctionEntryMapBounds bounds = sAuctionMgr.GetAuctionsMap(config.GetHouseType())->GetAuctionsBounds();
     for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
@@ -1481,7 +1480,7 @@ uint32 AuctionBotSeller::SetStat(AHB_Seller_Config& config)
 }
 
 // getRandomArray is used to make aviable the possibility to add any of missed item in place of first one to last one.
-bool AuctionBotSeller::getRandomArray(AHB_Seller_Config& config, RandomArray& ra, const tbb::concurrent_vector<tbb::concurrent_vector<uint32> >& addedItem)
+bool AuctionBotSeller::getRandomArray(AHB_Seller_Config& config, RandomArray& ra, const std::vector<std::vector<uint32> >& addedItem)
 {
     ra.clear();
     bool Ok = false;
@@ -1599,7 +1598,7 @@ void AuctionBotSeller::addNewAuctions(AHB_Seller_Config& config)
     AuctionHouseObject* auctionHouse = sAuctionMgr.GetAuctionsMap(config.GetHouseType());
 
     RandomArray randArray;
-    tbb::concurrent_vector<tbb::concurrent_vector<uint32> > ItemsAdded(MAX_AUCTION_QUALITY, tbb::concurrent_vector<uint32> (MAX_ITEM_CLASS));
+    std::vector<std::vector<uint32> > ItemsAdded(MAX_AUCTION_QUALITY, std::vector<uint32> (MAX_ITEM_CLASS));
     // Main loop
     // getRandomArray will give what categories of items should be added (return true if there is at least 1 items missed)
     while (getRandomArray(config, randArray, ItemsAdded) && (items > 0))

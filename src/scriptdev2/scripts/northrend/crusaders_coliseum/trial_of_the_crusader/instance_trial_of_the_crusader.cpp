@@ -626,7 +626,7 @@ void instance_trial_of_the_crusader::DoOpenMainGate(uint32 uiResetTimer)
 void instance_trial_of_the_crusader::DoSelectCrusaders()
 {
     std::vector<uint32> vCrusaderHealers;
-	std::vector<uint32> vCrusaderOthers;
+    std::vector<uint32> vCrusaderOthers;
 
     // add all the healers and dps crusaders to vector
     for (uint8 i = 0; i < MAX_CRUSADERS_HEALERS; ++i)

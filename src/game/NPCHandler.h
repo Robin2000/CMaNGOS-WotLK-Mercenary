@@ -43,15 +43,15 @@ struct PageText
 
 struct PageTextLocale
 {
-    tbb::concurrent_vector<std::string> Text;
+    std::vector<std::string> Text;
 };
 
 struct NpcTextLocale
 {
     NpcTextLocale() { Text_0.resize(8); Text_1.resize(8); }
 
-    tbb::concurrent_vector<tbb::concurrent_vector<std::string> > Text_0;
-    tbb::concurrent_vector<tbb::concurrent_vector<std::string> > Text_1;
+    std::vector<std::vector<std::string> > Text_0;
+    std::vector<std::vector<std::string> > Text_1;
 };
 
 struct QEmote

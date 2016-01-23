@@ -771,7 +771,7 @@ struct npc_voice_yogg_saronAI : public Scripted_NoMovementAI
     uint32 m_uiMadnessTimer;
     uint32 m_uiGuardianTimer;
 
-    tbb::concurrent_vector<uint8> m_vuiMadnessPhases;
+    std::vector<uint8> m_vuiMadnessPhases;
 
     void Reset() override
     {

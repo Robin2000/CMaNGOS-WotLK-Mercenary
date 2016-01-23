@@ -585,7 +585,7 @@ struct CreatureEventAI_Event
 #define AIEVENT_DEFAULT_THROW_RADIUS    30.0f
 
 // Event_Map
-typedef tbb::concurrent_vector<CreatureEventAI_Event> CreatureEventAI_Event_Vec;
+typedef std::vector<CreatureEventAI_Event> CreatureEventAI_Event_Vec;
 //typedef std::unordered_map<uint32, CreatureEventAI_Event_Vec > CreatureEventAI_Event_Map;
 typedef tbb::concurrent_unordered_map<uint32, CreatureEventAI_Event_Vec> CreatureEventAI_Event_Map;
 
@@ -667,7 +667,7 @@ class MANGOS_DLL_SPEC CreatureEventAI : public CreatureAI
         uint32 m_EventDiff;                                 // Time between the last event call
 
         // Variables used by Events themselves
-        typedef tbb::concurrent_vector<CreatureEventAIHolder> CreatureEventAIList;
+        typedef std::vector<CreatureEventAIHolder> CreatureEventAIList;
         CreatureEventAIList m_CreatureEventAIList;          // Holder for events (stores enabled, time, and eventid)
 
         uint8  m_Phase;                                     // Current phase, max 32 phases

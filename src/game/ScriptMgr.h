@@ -603,7 +603,7 @@ class ScriptMgr
             ptr = (T)MANGOS_GET_PROC_ADDR(m_hScriptLib, name);
         }
 
-        typedef tbb::concurrent_vector<std::string> ScriptNameMap;
+        typedef std::vector<std::string> ScriptNameMap;
         //typedef std::unordered_map<uint32, uint32> AreaTriggerScriptMap;
 		typedef tbb::concurrent_unordered_map<uint32, uint32> AreaTriggerScriptMap;
         //typedef std::unordered_map<uint32, uint32> EventIdScriptMap;

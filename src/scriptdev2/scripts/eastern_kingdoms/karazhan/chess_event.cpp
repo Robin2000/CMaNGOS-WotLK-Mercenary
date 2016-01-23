@@ -410,7 +410,7 @@ struct npc_chess_piece_genericAI : public ScriptedAI
 
         // Get the list of enemies
         GuidList lTempList;
-        tbb::concurrent_vector<Creature*> vTargets;
+        std::vector<Creature*> vTargets;
         vTargets.reserve(lTempList.size());
 
         m_pInstance->GetChessPiecesByFaction(lTempList, uiTeam);

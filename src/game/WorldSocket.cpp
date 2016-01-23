@@ -148,7 +148,7 @@ void WorldSocket::CloseSocket(void)
     }
 
     {
-        //std::lock_guard<std::mutex> guard(m_SessionLock);
+        std::lock_guard<std::mutex> guard(m_SessionLock);
 
         m_Session = nullptr;
     }
@@ -442,7 +442,7 @@ int WorldSocket::handle_close(ACE_HANDLE h, ACE_Reactor_Mask)
 
     // Critical section
     {
-        //GUARD_RETURN(m_SessionLock, -1);
+        GUARD_RETURN(m_SessionLock, -1);
 
         m_Session = nullptr;
     }
@@ -704,7 +704,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 return 0;
             default:
             {
-                //GUARD_RETURN(m_SessionLock, -1);
+                GUARD_RETURN(m_SessionLock, -1);
 
                 if (m_Session != nullptr)
                 {
@@ -988,7 +988,7 @@ int WorldSocket::HandlePing(WorldPacket& recvPacket)
 
             if (max_count && m_OverSpeedPings > max_count)
             {
-                //GUARD_RETURN(m_SessionLock, -1);
+                GUARD_RETURN(m_SessionLock, -1);
 
                 if (m_Session && m_Session->GetSecurity() == SEC_PLAYER)
                 {
@@ -1006,7 +1006,7 @@ int WorldSocket::HandlePing(WorldPacket& recvPacket)
 
     // critical section
     {
-        //GUARD_RETURN(m_SessionLock, -1);
+        GUARD_RETURN(m_SessionLock, -1);
 
         if (m_Session)
         {

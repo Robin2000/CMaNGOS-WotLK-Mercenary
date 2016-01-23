@@ -523,8 +523,8 @@ struct GameObjectInfo
 
 struct GameObjectLocale
 {
-    tbb::concurrent_vector<std::string> Name;
-    tbb::concurrent_vector<std::string> CastBarCaption;
+    std::vector<std::string> Name;
+    std::vector<std::string> CastBarCaption;
 };
 
 // client side GO show states

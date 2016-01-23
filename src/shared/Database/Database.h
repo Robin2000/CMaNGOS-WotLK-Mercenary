@@ -27,7 +27,6 @@
 #include "SqlPreparedStatement.h"
 #include <atomic>
 #include "tbb/concurrent_unordered_map.h"
-#include "tbb/concurrent_vector.h"
 
 class SqlTransaction;
 class SqlResultQueue;
@@ -96,7 +95,7 @@ class MANGOS_DLL_SPEC SqlConnection
     private:
         std::recursive_mutex m_mutex;
 
-        typedef tbb::concurrent_vector<SqlPreparedStatement* > StmtHolder;
+        typedef std::vector<SqlPreparedStatement* > StmtHolder;
         StmtHolder m_holder;
 };
 
@@ -280,7 +279,7 @@ class MANGOS_DLL_SPEC Database
         std::atomic_long m_nQueryCounter;  // counter for connection selection
 
         // lets use pool of connections for sync queries
-        typedef tbb::concurrent_vector< SqlConnection* > SqlConnectionContainer;
+        typedef std::vector< SqlConnection* > SqlConnectionContainer;
         SqlConnectionContainer m_pQueryConnections;
 
         // only one single DB connection for transactions

@@ -136,7 +136,7 @@ struct GossipMenuItem
     uint32      m_gBoxMoney;
 };
 
-typedef tbb::concurrent_vector<GossipMenuItem> GossipMenuItemList;
+typedef std::vector<GossipMenuItem> GossipMenuItemList;
 
 struct GossipMenuItemData
 {
@@ -145,7 +145,7 @@ struct GossipMenuItemData
     uint32 m_gAction_script;
 };
 
-typedef tbb::concurrent_vector<GossipMenuItemData> GossipMenuItemDataList;
+typedef std::vector<GossipMenuItemData> GossipMenuItemDataList;
 
 struct QuestMenuItem
 {
@@ -153,7 +153,7 @@ struct QuestMenuItem
     uint8       m_qIcon;
 };
 
-typedef tbb::concurrent_vector<QuestMenuItem> QuestMenuItemList;
+typedef std::vector<QuestMenuItem> QuestMenuItemList;
 
 class MANGOS_DLL_SPEC GossipMenu
 {
