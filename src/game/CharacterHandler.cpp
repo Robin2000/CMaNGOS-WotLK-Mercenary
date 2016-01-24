@@ -106,6 +106,10 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADMAILS,           "SELECT id,messageType,sender,receiver,subject,body,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId,has_items FROM mail WHERE receiver = '%u' ORDER BY id DESC", m_guid.GetCounter());
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,     "SELECT data, text, mail_id, item_guid, item_template FROM mail_items JOIN item_instance ON item_guid = guid WHERE receiver = '%u'", m_guid.GetCounter());
 
+	//»ý·Ö
+	res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE, "SELECT totalmoney, consumemoney FROM jf_account_balance WHERE guid = '%u'", m_guid.GetCounter());
+	res &= SetPQuery(PLAYER_LOGIN_QUERY_CHARACTEREXT, "SELECT onlinetime FROM jf_character_ext WHERE guid = '%u'", m_guid.GetCounter());
+
     return res;
 }
 

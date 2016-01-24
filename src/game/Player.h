@@ -42,6 +42,7 @@
 
 #include<string>
 #include<vector>
+#include "GamePointMgr.h"
 
 struct Mail;
 class Channel;
@@ -816,6 +817,10 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS,
     PLAYER_LOGIN_QUERY_LOADMONTHLYQUESTSTATUS,
 
+	//积分
+	PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE,
+	PLAYER_LOGIN_QUERY_CHARACTEREXT,
+
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1070,6 +1075,14 @@ class MANGOS_DLL_SPEC Player : public Unit
         PlayerSocial* GetSocial() { return m_social; }
 
         PlayerTaxi m_taxi;
+		
+		//积分
+
+		GamePointMgr gamePointMgr;
+		GamePointMgr GetGamePointMgr(){ return gamePointMgr; };
+		
+		//积分
+
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);

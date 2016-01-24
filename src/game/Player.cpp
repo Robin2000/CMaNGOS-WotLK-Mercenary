@@ -67,6 +67,7 @@
 #include "Vehicle.h"
 #include "Calendar.h"
 #include "LootMgr.h"
+#include "LootMgr.h"
 
 #include <cmath>
 
@@ -392,7 +393,7 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
 UpdateMask Player::updateVisualBits;
 
-Player::Player(WorldSession* session): Unit(), m_mover(this), m_camera(this), m_achievementMgr(this), m_reputationMgr(this)
+Player::Player(WorldSession* session) : Unit(), m_mover(this), m_camera(this), m_achievementMgr(this), m_reputationMgr(this),gamePointMgr(this)
 {
     m_transport = 0;
 
@@ -15540,6 +15541,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 
+	// »ý·Ö
+	gamePointMgr._LoadAccountBalance(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE));
+	gamePointMgr._LoadCharacterExt(holder->GetResult(PLAYER_LOGIN_QUERY_CHARACTEREXT));
+
     // Mail
     _LoadMails(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILS));
     _LoadMailedItems(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS));
@@ -17111,6 +17116,7 @@ void Player::SaveToDB()
     GetSession()->SaveTutorialsData();                      // changed only while character in game
     _SaveGlyphs();
     _SaveTalents();
+	gamePointMgr._SaveGamePoint();
 
     CharacterDatabase.CommitTransaction();
 
