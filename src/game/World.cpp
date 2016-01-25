@@ -1412,6 +1412,9 @@ void World::SetInitialWorldSettings()
     uint32 uStartInterval = WorldTimer::getMSTimeDiff(uStartTime, WorldTimer::getMSTime());
     sLog.outString("SERVER STARTUP TIME: %i minutes %i seconds", uStartInterval / 60000, (uStartInterval % 60000) / 1000);
     sLog.outString();
+
+	SetMotd(sObjectMgr.GetMangosString(-2800168, sObjectMgr.GetIndexForLocale(LOCALE_zhCN)));
+	sLog.outString("Set motd: %s", m_motd);
 }
 
 void World::DetectDBCLang()
