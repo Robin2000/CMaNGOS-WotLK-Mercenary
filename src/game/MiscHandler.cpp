@@ -1077,6 +1077,10 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 {
     ObjectGuid guid;
     recv_data >> guid;
+	
+	if (_player->GetSelectionGuid() == guid)
+		return;//已经选择，不必重复
+
     DEBUG_LOG("Inspected guid is %s", guid.GetString().c_str());
 
     _player->SetSelectionGuid(guid);

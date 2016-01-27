@@ -53,12 +53,12 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
         init.SetWalk(true);
         init.Launch();
         if (roll_chance_i(MOVEMENT_RANDOM_MMGEN_CHANCE_NO_BREAK))
-            i_nextMoveTime.Reset(50);
+            i_nextMoveTime.Reset(1000);//50改为1000 ，如果之前设置了随机点，至少让它走1秒。
         else
             i_nextMoveTime.Reset(urand(3000, 10000));       // Keep a short wait time
     }
     else
-        i_nextMoveTime.Reset(50);                           // Retry later
+        i_nextMoveTime.Reset(50); //取随机点失败，那尽快重来，保持50不变       // Retry later
     return;
 }
 
@@ -104,7 +104,7 @@ bool RandomMovementGenerator<Creature>::Update(Creature& creature, const uint32&
         return true;
     }
 
-    if (creature.movespline->Finalized())
+    if (creature.movespline->Finalized())//如果creature自身的movespline还未结束，则不做任何处理
     {
         i_nextMoveTime.Update(diff);
         if (i_nextMoveTime.Passed())

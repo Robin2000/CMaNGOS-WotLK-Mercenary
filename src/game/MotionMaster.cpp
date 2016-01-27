@@ -76,13 +76,17 @@ MotionMaster::~MotionMaster()
 
 void MotionMaster::UpdateMotion(uint32 diff)
 {
+	//添加逻辑，如果当前地图没有玩家，则什么也不做
+	if (!(*m_owner).GetMap()->HavePlayers())
+		return;
+	//添加逻辑，如果当前地图没有玩家，则什么也不做
     if (m_owner->hasUnitState(UNIT_STAT_CAN_NOT_MOVE))
         return;
 
     MANGOS_ASSERT(!empty());
     m_cleanFlag |= MMCF_UPDATE;
 
-    if (!top()->Update(*m_owner, diff))
+    if (!top()->Update(*m_owner, diff))//本方法重心
     {
         m_cleanFlag &= ~MMCF_UPDATE;
         MovementExpired();

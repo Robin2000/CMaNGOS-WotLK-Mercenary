@@ -2007,7 +2007,7 @@ bool Map::GetHitPosition(float srcX, float srcY, float srcZ, float& destX, float
     bool result0 = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetId(), srcX, srcY, srcZ, destX, destY, destZ, tempX, tempY, tempZ, modifyDist);
     if (result0)
     {
-        DEBUG_LOG("Map::GetHitPosition vmaps corrects gained with static objects! new dest coords are X:%f Y:%f Z:%f", destX, destY, destZ);
+       //DEBUG_LOG("Map::GetHitPosition vmaps corrects gained with static objects! new dest coords are X:%f Y:%f Z:%f", destX, destY, destZ);//²»¸ú×Ù×²»÷µã
         destX = tempX;
         destY = tempY;
         destZ = tempZ;
@@ -2016,7 +2016,7 @@ bool Map::GetHitPosition(float srcX, float srcY, float srcZ, float& destX, float
     bool result1 = m_dyn_tree.getObjectHitPos(phasemask, srcX, srcY, srcZ, destX, destY, destZ, tempX, tempY, tempZ, modifyDist);
     if (result1)
     {
-        DEBUG_LOG("Map::GetHitPosition vmaps corrects gained with dynamic objects! new dest coords are X:%f Y:%f Z:%f", destX, destY, destZ);
+        DEBUG_LOG("Map::GetHitPosition vmaps corrects gained with dynamic objects! new dest coords are X:%f Y:%f Z:%f", destX, destY, destZ);//¸ú×Ùdynamic×²»÷µã
         destX = tempX;
         destY = tempY;
         destZ = tempZ;
