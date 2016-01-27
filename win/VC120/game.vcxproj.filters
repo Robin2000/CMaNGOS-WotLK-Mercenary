@@ -37,6 +37,9 @@
     <Filter Include="BattleGround">
       <UniqueIdentifier>{0af4d063-6d01-4546-a429-59bd828ab270}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PR">
+      <UniqueIdentifier>{144c9a70-ceeb-4a36-a374-4cf3bca6a706}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\game\AccountMgr.cpp">
@@ -556,6 +559,15 @@
     <ClCompile Include="..\..\src\game\BattleGround\BattleGroundWS.cpp">
       <Filter>BattleGround</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\game\GamePointMgr.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\pr_cache.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\md5lib.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\game\AccountMgr.h">
@@ -1056,6 +1068,18 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\BattleGround\BattleGroundSA.h">
       <Filter>BattleGround</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\GamePointMgr.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\pr_cache.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\pr_threadpool.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\md5lib.h">
+      <Filter>PR</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

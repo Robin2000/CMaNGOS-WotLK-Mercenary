@@ -306,7 +306,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\dep\include\gsoap;..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game;..\..\src\mangosd;..\..\dep\ACE_wrappers;$(BOOST_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\dep\include\gsoap;..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game;..\..\src\mangosd;..\..\dep\ACE_wrappers;$(BOOST_ROOT);..\..\dep\tbb\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>VERSION="0.18";WIN32;_DEBUG;MANGOS_DEBUG;_CONSOLE;ENABLE_CLI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -487,6 +487,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\dep\recastnavigation\Detour\win\VC120\Detour.vcxproj">
       <Project>{72bdf975-4d4a-42c7-b2c4-f9ed90a2abb6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\dep\tbb\build\vs2010\tbb.vcxproj">
+      <Project>{f62787dd-1327-448b-9818-030062bcfaa5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\dep\tbb\build\vs2010\tbbmalloc.vcxproj">
+      <Project>{b15f131e-328a-4d42-adc2-9ff4ca6306d8}</Project>
     </ProjectReference>
     <ProjectReference Include="game.vcxproj">
       <Project>{1dc6c4da-a028-41f3-877d-d5400c594f88}</Project>

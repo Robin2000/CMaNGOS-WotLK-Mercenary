@@ -186,7 +186,7 @@
     <ClCompile>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game\vmap;..\..\dep\ACE_wrappers;..\..\dep\include\g3dlite;..\..\src\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\game\vmap;..\..\dep\ACE_wrappers;..\..\dep\include\g3dlite;..\..\src\game;..\..\dep\tbb\include;$(BOOST_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;MANGOS_DEBUG;_LIB;DT_POLYREF64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -390,6 +390,7 @@
     <ClCompile Include="..\..\src\game\FollowerReference.cpp" />
     <ClCompile Include="..\..\src\game\GameEventMgr.cpp" />
     <ClCompile Include="..\..\src\game\GameObject.cpp" />
+    <ClCompile Include="..\..\src\game\GamePointMgr.cpp" />
     <ClCompile Include="..\..\src\game\GMTicketHandler.cpp" />
     <ClCompile Include="..\..\src\game\GMTicketMgr.cpp" />
     <ClCompile Include="..\..\src\game\GossipDef.cpp" />
@@ -423,6 +424,7 @@
     <ClCompile Include="..\..\src\game\MapManager.cpp" />
     <ClCompile Include="..\..\src\game\MapPersistentStateMgr.cpp" />
     <ClCompile Include="..\..\src\game\MassMailMgr.cpp" />
+    <ClCompile Include="..\..\src\game\md5lib.cpp" />
     <ClCompile Include="..\..\src\game\MiscHandler.cpp" />
     <ClCompile Include="..\..\src\game\MotionMaster.cpp" />
     <ClCompile Include="..\..\src\game\MoveMap.cpp" />
@@ -457,6 +459,7 @@
     <ClCompile Include="..\..\src\game\PlayerDump.cpp" />
     <ClCompile Include="..\..\src\game\PointMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\PoolManager.cpp" />
+    <ClCompile Include="..\..\src\game\pr_cache.cpp" />
     <ClCompile Include="..\..\src\game\QueryHandler.cpp" />
     <ClCompile Include="..\..\src\game\QuestDef.cpp" />
     <ClCompile Include="..\..\src\game\QuestHandler.cpp" />
@@ -568,6 +571,7 @@
     <ClInclude Include="..\..\src\game\Formulas.h" />
     <ClInclude Include="..\..\src\game\GameEventMgr.h" />
     <ClInclude Include="..\..\src\game\GameObject.h" />
+    <ClInclude Include="..\..\src\game\GamePointMgr.h" />
     <ClInclude Include="..\..\src\game\GMTicketMgr.h" />
     <ClInclude Include="..\..\src\game\GossipDef.h" />
     <ClInclude Include="..\..\src\game\GridDefines.h" />
@@ -597,6 +601,7 @@
     <ClInclude Include="..\..\src\game\MapReference.h" />
     <ClInclude Include="..\..\src\game\MapRefManager.h" />
     <ClInclude Include="..\..\src\game\MassMailMgr.h" />
+    <ClInclude Include="..\..\src\game\md5lib.h" />
     <ClInclude Include="..\..\src\game\MotionMaster.h" />
     <ClInclude Include="..\..\src\game\MoveMap.h" />
     <ClInclude Include="..\..\src\game\MoveMapSharedDefines.h" />
@@ -627,6 +632,8 @@
     <ClInclude Include="..\..\src\game\PlayerDump.h" />
     <ClInclude Include="..\..\src\game\PointMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\PoolManager.h" />
+    <ClInclude Include="..\..\src\game\pr_cache.h" />
+    <ClInclude Include="..\..\src\game\pr_threadpool.h" />
     <ClInclude Include="..\..\src\game\QuestDef.h" />
     <ClInclude Include="..\..\src\game\RandomMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\ReactorAI.h" />
