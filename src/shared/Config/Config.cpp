@@ -15,34 +15,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <algorithm>
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
 
 #include "Config.h"
-#include "ace/Configuration_Import_Export.h"
+//#include "ace/Configuration_Import_Export.h"
+
 
 #include "Policies/Singleton.h"
 
 INSTANTIATE_SINGLETON_1(Config);
 
-static bool GetValueHelper(ACE_Configuration_Heap* mConf, const char* name, ACE_TString& result)
-{
-    if (!mConf)
-        return false;
-
-    ACE_TString section_name;
-    ACE_Configuration_Section_Key section_key;
-    ACE_Configuration_Section_Key root_key = mConf->root_section();
-
-    int i = 0;
-    while (mConf->enumerate_sections(root_key, i, section_name) == 0)
-    {
-        mConf->open_section(root_key, section_name.c_str(), 0, section_key);
-        if (mConf->get_string_value(section_key, name, result) == 0)
-            return true;
-        ++i;
-    }
-
-    return false;
-}
 
 Config::Config()
     : mConf(nullptr)
@@ -64,49 +50,125 @@ bool Config::SetSource(const char* file)
 bool Config::Reload()
 {
     delete mConf;
-    mConf = new ACE_Configuration_Heap;
+    mConf = new ConfigMgr;
+	std::string configError;
+	if (!mConf->LoadInitial(mFilename, configError))
+	{
+		printf("Error in config file: %s\n", configError.c_str());
+		return false;
+	}
 
-    if (mConf->open() == 0)
-    {
-        ACE_Ini_ImpExp config_importer(*mConf);
-        if (config_importer.import_config(mFilename.c_str()) == 0)
-            return true;
-    }
-
-    delete mConf;
-    mConf = nullptr;
-    return false;
+    return true;
 }
 
 std::string Config::GetStringDefault(const char* name, const char* def)
 {
-    ACE_TString val;
-    return GetValueHelper(mConf, name, val) ? val.c_str() : def;
+	return mConf->GetStringDefault(name, def);
 }
 
 bool Config::GetBoolDefault(const char* name, bool def)
 {
-    ACE_TString val;
-    if (!GetValueHelper(mConf, name, val))
-        return def;
-
-    const char* str = val.c_str();
-    if (strcmp(str, "true") == 0 || strcmp(str, "TRUE") == 0 ||
-            strcmp(str, "yes") == 0 || strcmp(str, "YES") == 0 ||
-            strcmp(str, "1") == 0)
-        return true;
-    else
-        return false;
+	return mConf->GetBoolDefault(name, def);
 }
 
 int32 Config::GetIntDefault(const char* name, int32 def)
 {
-    ACE_TString val;
-    return GetValueHelper(mConf, name, val) ? atoi(val.c_str()) : def;
+	return mConf->GetIntDefault(name, def);
 }
 
 float Config::GetFloatDefault(const char* name, float def)
 {
-    ACE_TString val;
-    return GetValueHelper(mConf, name, val) ? (float)atof(val.c_str()) : def;
+	return mConf->GetFloatDefault(name, def);
+}
+
+
+using namespace boost::property_tree;
+
+bool ConfigMgr::LoadInitial(std::string const& file, std::string& error)
+{
+	std::lock_guard<std::mutex> lock(_configLock);
+
+	_filename = file;
+
+	try
+	{
+		ptree fullTree;
+		ini_parser::read_ini(file, fullTree);
+
+		if (fullTree.empty())
+		{
+			error = "empty file (" + file + ")";
+			return false;
+		}
+
+		// Since we're using only one section per config file, we skip the section and have direct property access
+		_config = fullTree.begin()->second;
+	}
+	catch (ini_parser::ini_parser_error const& e)
+	{
+		if (e.line() == 0)
+			error = e.message() + " (" + e.filename() + ")";
+		else
+			error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
+		return false;
+	}
+
+	return true;
+}
+
+bool ConfigMgr::Reload(std::string& error)
+{
+	return LoadInitial(_filename, error);
+}
+
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def)
+{
+	std::string value = _config.get<std::string>(ptree::path_type(name, '/'), def);
+
+	value.erase(std::remove(value.begin(), value.end(), '"'), value.end());
+
+	return value;
+}
+
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def)
+{
+	try
+	{
+		std::string val = _config.get<std::string>(ptree::path_type(name, '/'));
+		val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
+		return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" || val == "1");
+	}
+	catch (std::exception const&  /*ex*/)
+	{
+		return def;
+	}
+}
+
+int ConfigMgr::GetIntDefault(std::string const& name, int def)
+{
+	return _config.get<int>(ptree::path_type(name, '/'), def);
+}
+
+float ConfigMgr::GetFloatDefault(std::string const& name, float def)
+{
+	return _config.get<float>(ptree::path_type(name, '/'), def);
+}
+
+std::string const& ConfigMgr::GetFilename()
+{
+	std::lock_guard<std::mutex> lock(_configLock);
+	return _filename;
+}
+
+std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
+{
+	std::lock_guard<std::mutex> lock(_configLock);
+
+	std::list<std::string> keys;
+
+	for (const ptree::value_type& child : _config)
+	if (child.first.compare(0, name.length(), name) == 0)
+		keys.push_back(child.first);
+
+	return keys;
 }

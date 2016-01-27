@@ -19,11 +19,43 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <string>
+#include <list>
+#include <mutex>
+#include <boost/property_tree/ptree.hpp>
+
 #include "Common.h"
 #include <Policies/Singleton.h>
 #include "Platform/Define.h"
 
-class ACE_Configuration_Heap;
+class ConfigMgr
+{
+
+
+public:
+	ConfigMgr() { }
+	~ConfigMgr() { }
+
+	bool LoadInitial(std::string const& file, std::string& error);
+
+	bool Reload(std::string& error);
+
+	std::string GetStringDefault(std::string const& name, const std::string& def);
+	bool GetBoolDefault(std::string const& name, bool def);
+	int GetIntDefault(std::string const& name, int def);
+	float GetFloatDefault(std::string const& name, float def);
+
+	std::string const& GetFilename();
+	std::list<std::string> GetKeysByString(std::string const& name);
+
+private:
+	std::string _filename;
+	boost::property_tree::ptree _config;
+	std::mutex _configLock;
+
+	ConfigMgr(ConfigMgr const&);
+	ConfigMgr& operator=(ConfigMgr const&);
+};
 
 class MANGOS_DLL_SPEC Config
 {
@@ -45,8 +77,11 @@ class MANGOS_DLL_SPEC Config
     private:
 
         std::string mFilename;
-        ACE_Configuration_Heap* mConf;
+        //ACE_Configuration_Heap* mConf;
+		ConfigMgr * mConf;
 };
+
+
 
 #define sConfig MaNGOS::Singleton<Config>::Instance()
 
