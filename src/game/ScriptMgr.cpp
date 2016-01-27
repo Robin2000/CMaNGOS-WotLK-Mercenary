@@ -2164,7 +2164,9 @@ void ScriptMgr::LoadEventIdScripts()
 
 void ScriptMgr::LoadScriptNames()
 {
-    m_scriptNames.push_back("");
+    m_scriptNamesVec.push_back("");
+	m_scriptNamesMap.insert(std::make_pair("", m_scriptNamesVec.size() - 1));
+
     QueryResult* result = WorldDatabase.Query(
                               "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
                               "UNION "
@@ -2195,18 +2197,26 @@ void ScriptMgr::LoadScriptNames()
     do
     {
         bar.step();
-        m_scriptNames.push_back((*result)[0].GetString());
+        m_scriptNamesVec.push_back((*result)[0].GetString());
+		m_scriptNamesMap.insert(std::make_pair((*result)[0].GetString(), m_scriptNamesVec.size() - 1));
         ++count;
     }
     while (result->NextRow());
     delete result;
 
-    std::sort(m_scriptNames.begin(), m_scriptNames.end());
+    //std::sort(m_scriptNames.begin(), m_scriptNames.end());不再通过排序提高效率
 
     sLog.outString(">> Loaded %d Script Names", count);
     sLog.outString();
 }
 
+uint32 ScriptMgr::GetScriptId(const char* name) const{
+	ScriptNameMap::const_accessor itr;
+	if (m_scriptNamesMap.find(itr, name))
+		return itr->second;
+	return 0;
+}
+/*废弃此低效方法
 uint32 ScriptMgr::GetScriptId(const char* name) const
 {
     // use binary search to find the script name in the sorted vector
@@ -2222,7 +2232,7 @@ uint32 ScriptMgr::GetScriptId(const char* name) const
 
     return uint32(itr - m_scriptNames.begin());
 }
-
+*/
 uint32 ScriptMgr::GetAreaTriggerScriptId(uint32 triggerId) const
 {
     AreaTriggerScriptMap::const_iterator itr = m_AreaTriggerScripts.find(triggerId);

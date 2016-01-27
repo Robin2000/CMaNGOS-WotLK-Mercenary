@@ -25,6 +25,7 @@
 #include "DBCEnums.h"
 #include "pr_threadpool.h"
 #include <atomic>
+#include "tbb/concurrent_hash_map.h"
 
 struct AreaTriggerEntry;
 struct SpellEntry;
@@ -553,9 +554,9 @@ class ScriptMgr
         uint32 GetAreaTriggerScriptId(uint32 triggerId) const;
         uint32 GetEventIdScriptId(uint32 eventId) const;
 
-        const char* GetScriptName(uint32 id) const { return id < m_scriptNames.size() ? m_scriptNames[id].c_str() : ""; }
+        const char* GetScriptName(uint32 id) const { return id < m_scriptNamesVec.size() ? m_scriptNamesVec[id].c_str() : "";}
         uint32 GetScriptId(const char* name) const;
-        uint32 GetScriptIdsCount() const { return m_scriptNames.size(); }
+        uint32 GetScriptIdsCount() const { return m_scriptNamesVec.size(); }
 
         ScriptLoadResult LoadScriptLibrary(const char* libName);
         void UnloadScriptLibrary();
@@ -606,7 +607,10 @@ class ScriptMgr
             ptr = (T)MANGOS_GET_PROC_ADDR(m_hScriptLib, name);
         }
 
-        typedef std::vector<std::string> ScriptNameMap;
+        typedef std::vector<std::string> ScriptNameVec;
+		typedef tbb::concurrent_hash_map<std::string, int64> ScriptNameMap;
+
+
         //typedef std::unordered_map<uint32, uint32> AreaTriggerScriptMap;
 		typedef tbb::concurrent_unordered_map<uint32, uint32> AreaTriggerScriptMap;
         //typedef std::unordered_map<uint32, uint32> EventIdScriptMap;
@@ -615,7 +619,9 @@ class ScriptMgr
         AreaTriggerScriptMap    m_AreaTriggerScripts;
         EventIdScriptMap        m_EventIdScripts;
 
-        ScriptNameMap           m_scriptNames;
+        ScriptNameMap           m_scriptNamesMap;
+		ScriptNameVec           m_scriptNamesVec;
+
         MANGOS_LIBRARY_HANDLE   m_hScriptLib;
 
         // atomic op counter for active scripts amount
