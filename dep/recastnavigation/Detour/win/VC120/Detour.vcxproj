@@ -69,13 +69,13 @@
     <OutDir>$(ProjectDir)\..\..\..\..\lib\$(Platform)_$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)\..\..\..\..\lib\$(Platform)_$(Configuration)\</OutDir>
+    <OutDir>D:\game\MangosRealsed3.3.5a.12340</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>.\$(ProjectName)__$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>.\$(ProjectName)__$(Platform)_$(Configuration)\</IntDir>
+    <IntDir>.\Detour__$(Platform)_$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)\..\..\..\..\lib\$(Platform)_$(Configuration)\</OutDir>
