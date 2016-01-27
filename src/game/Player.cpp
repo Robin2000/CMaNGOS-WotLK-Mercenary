@@ -12845,7 +12845,9 @@ void Player::PrepareGossipMenu(WorldObject* pSource, uint32 menuId)
         }
     }*/
 }
-
+const char* Player::GetMangosString(uint32 entry){
+	return GetSession()->GetMangosString(entry);
+}
 void Player::SendPreparedGossip(WorldObject* pSource)
 {
     if (!pSource)

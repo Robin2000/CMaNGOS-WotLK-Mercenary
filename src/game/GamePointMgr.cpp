@@ -50,12 +50,12 @@ void GamePointMgr::comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeTy
 	if (getGamePoint() < point)
 		return; /*点数不足*/
 
-	ConsumeHistoryEntry * history=NULL;
+	ConsumeHistoryEntry  history;
 	//history.id = null;							//	自动增长
-	history->guid = m_player->GetGUIDLow();			//  角色guid
-	history->consumetype = consumeConsumeType;		//  消费类别
-	history->consumepoint = point;						//  消费点数
-	history->operatetime = time(NULL);				//  操作时间
+	history.guid = m_player->GetGUIDLow();			//  角色guid
+	history.consumetype = consumeConsumeType;		//  消费类别
+	history.consumepoint = point;						//  消费点数
+	history.operatetime = time(NULL);				//  操作时间
 	consumeHistoryQueue.push(history);
 
 	uint32 p1 = (m_accountBalance.totalmoney - m_accountBalance.consumemoney) / oneGamePointCostMoney;
@@ -67,8 +67,8 @@ void GamePointMgr::comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeTy
 		m_accountBalance.consumemoney += point;
 	}
 	else{
-		m_accountBalance.consumemoney += m_accountBalance.totalmoney; //消费的金钱数量
-		m_characterExt.onlinetime -= (point - m_accountBalance.totalmoney / oneGamePointCostMoney) * 3600; //消费的在线时间抵扣
+		m_accountBalance.consumemoney += m_accountBalance.totalmoney; //消费的金钱数量等于全部金钱
+		m_characterExt.onlinetime += (point - m_accountBalance.totalmoney / oneGamePointCostMoney) * 3600; //消费的在线时间抵扣
 		m_accountBalance.totalmoney = 0; //钱扣光
 	}
 	
@@ -85,26 +85,28 @@ void GamePointMgr::_SaveGamePoint() //保存积分数据
 
 	//CharacterDatabase.BeginTransaction();
 	if (m_accountBalance.consumemoney > 0){ //有金钱消费
-		SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
-		stmtDel.PExecute(m_player->GetGUIDLow());
-		stmtIns.PExecute(m_player->GetGUIDLow(), m_accountBalance.id, m_accountBalance.totalmoney, m_accountBalance.consumemoney);
+		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
+		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
+		//stmtDel.PExecute(m_player->GetGUIDLow());
+		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "REPLACE INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
+		stmtIns.PExecute(m_player->GetAccountId(),  m_accountBalance.totalmoney, m_accountBalance.consumemoney);
 	}
 
 	if (m_characterExt.onlinetime > 0){ //有时间消费
-		SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, onlinetime) VALUES (?, ?)");
-		stmtDel.PExecute(m_player->GetGUIDLow());
-		stmtIns.PExecute(m_player->GetGUIDLow(), m_accountBalance.id, m_accountBalance.totalmoney, m_accountBalance.consumemoney);
+		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
+		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, onlinetime) VALUES (?, ?)");
+		//stmtDel.PExecute(m_player->GetGUIDLow());
+		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "REPLACE INTO jf_character_ext (guid, onlinetime) VALUES (?, ?)");
+		stmtIns.PExecute(m_player->GetGUIDLow(), m_characterExt.onlinetime);
 	}
-	ConsumeHistoryEntry* history;
+	ConsumeHistoryEntry history;
 	while (!consumeHistoryQueue.empty())
 	{
 		if (!consumeHistoryQueue.try_pop(history))
 			continue;
 
 		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_consume_history (guid, consumetype,consumepoint,operatetime) VALUES (?, ?,?,now())");
-		stmtIns.PExecute(m_player->GetGUIDLow(), (uint32)history->consumetype, history->consumepoint);
+		stmtIns.PExecute(m_player->GetGUIDLow(), (uint32)history.consumetype, history.consumepoint);
 		
 	}
 	//CharacterDatabase.CommitTransaction();

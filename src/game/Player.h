@@ -1079,8 +1079,9 @@ class MANGOS_DLL_SPEC Player : public Unit
 		//积分
 
 		GamePointMgr gamePointMgr;
-		GamePointMgr GetGamePointMgr(){ return gamePointMgr; };
-		
+		GamePointMgr& GetGamePointMgr(){ return gamePointMgr; };
+		const char* GetMangosString(uint32 entry);
+		const uint32 GetAccountId() { return GetSession()->GetAccountId(); };
 		//积分
 
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
