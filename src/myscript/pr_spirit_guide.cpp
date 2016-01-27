@@ -98,26 +98,6 @@ struct pr_spirit_guideAI : public ScriptedAI
 		DoScriptText(SAY_HELP2, m_creature);
 		DoScriptText(SAY_HELP, m_creature);
 	}
-	void CorpseRemoved(uint32&) override
-	{
-		// TODO: would be better to cast a dummy spell
-		Map* pMap = m_creature->GetMap();
-
-		/*if (!pMap || !pMap->IsBattleGround())
-			return;*/
-
-		Map::PlayerList const& PlayerList = pMap->GetPlayers();
-
-		for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-		{
-			Player* pPlayer = itr->getSource();
-			if (!pPlayer || !pPlayer->IsWithinDistInMap(m_creature, 20.0f) || !pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT))
-				continue;
-
-			// 再次刷出repop玩家 - 现在这个节点不会被计算，另一个节点被搜索
-			pPlayer->RepopAtGraveyard();
-		}
-	}
 
 	void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry) override
 	{
@@ -147,8 +127,10 @@ CreatureAI* GetAI_pr_spirit_guide(Creature* pCreature)
 bool pr_menu_click(Player* pPlayer, Creature* npc, uint32 /*uiSender*/, uint32 uiAction)
 {
 	pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
-
+	
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 1){
+		uint32 time=pPlayer->GetLevelPlayedTime();
+
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "dynamic", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_QUIT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 		pPlayer->SEND_GOSSIP_MENU(907, npc->GetObjectGuid());

@@ -314,6 +314,9 @@ class MANGOS_DLL_SPEC Item : public Object
         uint8 GetGemCountWithLimitCategory(uint32 limitCategory) const;
         InventoryResult CanBeMergedPartlyWith(ItemPrototype const* proto) const;
 
+		std::string Item::GetScriptName() const;
+		uint32 Item::GetScriptId() const;
+
         uint8 GetSlot() const {return m_slot;}
         Bag* GetContainer() { return m_container; }
         uint8 GetBagSlot() const;

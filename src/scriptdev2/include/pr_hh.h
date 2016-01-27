@@ -193,8 +193,11 @@ enum PrStrings
 	ADD_GOSSIP_ITEM_azshara4 = -2800164, //    I do not understand
 	ADD_GOSSIP_ITEM_azshara5 = -2800165, //    Indeed
 	ADD_GOSSIP_ITEM_azshara6 = -2800166, //    I will do this with or your help, Loramus
-	ADD_GOSSIP_ITEM_azshara7 = -2800167 //    Yes
+	ADD_GOSSIP_ITEM_azshara7 = -2800167, //    Yes
 	
+	//MOTD
+	SRV_MOTD = -2800168, //    MOTD welcome to wow server!
+
 };
 
 #endif
@@ -206,6 +209,7 @@ precompiled.h添加
 程序使用
 #include "precompiled.h"
 pPlayer->GetSession()->SendNotification(GO_TELE_TO_DALARAN_CRYSTAL_FAILED);
+char const* format = GetMangosString(string_id);
 
 数据库脚本：
 delete from custom_texts where entry<=-2800001 and entry>=2800002; 
@@ -215,6 +219,10 @@ insert into custom_texts(entry, content_default, content_loc4, content_loc5)valu
 
 insert into custom_texts(entry, content_default, content_loc4, content_loc5)values
 (-2800002, 'Hand over the Southfury moonstone and I\'ll let you go.', '交出月亮石我就放了你。', '交出月亮石我就放了你。');
+
+insert into custom_texts(entry, content_default, content_loc4)values(-2800168, 'Welcome to Wow!', '欢迎来到魔兽世界！');
+
+
 
 */
 

@@ -12,8 +12,10 @@
 #include "../system/ScriptLoader.h"
 #include "../system/system.h"
 #include "../../game/ScriptMgr.h"
+#include "tbb/concurrent_unordered_map.h"
 
 typedef std::vector<Script*> SDScriptVec;
+
 int num_sc_scripts;
 SDScriptVec m_scripts;
 
@@ -313,7 +315,20 @@ bool GOGossipSelect(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 ui
 
     return pTempScript->pGossipSelectGO(pPlayer, pGo, uiSender, uiAction);
 }
+MANGOS_DLL_EXPORT
+bool ItemGossipSelect(Player* pPlayer, Item* pItem, uint32 uiSender, uint32 uiAction)
+{
+	debug_log("SD2: Gossip selection, sender: %u, action: %u", uiSender, uiAction);
 
+	Script* pTempScript = m_scripts[pItem->GetScriptId()];
+
+	if (!pTempScript || !pTempScript->pGossipSelectItem)
+		return false;
+
+	pPlayer->PlayerTalkClass->ClearMenus();
+
+	return pTempScript->pGossipSelectItem(pPlayer, pItem, uiSender, uiAction);
+}
 MANGOS_DLL_EXPORT
 bool GossipSelectWithCode(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* sCode)
 {
@@ -343,7 +358,20 @@ bool GOGossipSelectWithCode(Player* pPlayer, GameObject* pGo, uint32 uiSender, u
 
     return pTempScript->pGossipSelectGOWithCode(pPlayer, pGo, uiSender, uiAction, sCode);
 }
+MANGOS_DLL_EXPORT
+bool ItemGossipSelectWithCode(Player* pPlayer, Item* pItem, uint32 uiSender, uint32 uiAction, const char* sCode)
+{
+	debug_log("SD2: GO Gossip selection with code, sender: %u, action: %u", uiSender, uiAction);
 
+	Script* pTempScript = m_scripts[pItem->GetEntry()];
+
+	if (!pTempScript || !pTempScript->pGossipSelectItemWithCode)
+		return false;
+
+	pPlayer->PlayerTalkClass->ClearMenus();
+
+	return pTempScript->pGossipSelectItemWithCode(pPlayer, pItem, uiSender, uiAction, sCode);
+}
 MANGOS_DLL_EXPORT
 bool QuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {

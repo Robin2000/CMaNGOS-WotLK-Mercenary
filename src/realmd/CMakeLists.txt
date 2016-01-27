@@ -43,6 +43,8 @@ include_directories(
   ${CMAKE_BINARY_DIR}/src/shared
   ${MYSQL_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/tbb/include
+  $(BOOST_ROOT)
 )
 
 add_executable(${EXECUTABLE_NAME}

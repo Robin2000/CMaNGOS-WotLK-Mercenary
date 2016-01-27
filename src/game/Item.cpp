@@ -246,7 +246,15 @@ Item::Item()
     mb_in_trade = false;
     m_lootState = ITEM_LOOT_NONE;
 }
+std::string Item::GetScriptName() const
+{
+	return sScriptMgr.GetScriptName(GetScriptId());
+}
 
+uint32 Item::GetScriptId() const
+{
+	return ObjectMgr::GetItemPrototype(GetEntry())->ScriptId;
+}
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 {
     Object::_Create(guidlow, 0, HIGHGUID_ITEM);

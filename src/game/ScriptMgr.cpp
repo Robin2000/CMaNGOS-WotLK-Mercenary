@@ -54,6 +54,9 @@ ScriptMgr::ScriptMgr() :
     m_pGetCreatureAI(nullptr),
     m_pCreateInstanceData(nullptr),
 
+	m_pOnItemGossipSelect(nullptr),
+	m_pOnItemGossipSelectWithCode(nullptr),
+
     m_pOnGossipHello(nullptr),
     m_pOnGOGossipHello(nullptr),
     m_pOnGossipSelect(nullptr),
@@ -2263,7 +2266,13 @@ bool ScriptMgr::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
 {
     return m_pOnGOGossipHello != nullptr && m_pOnGOGossipHello(pPlayer, pGameObject);
 }
-
+bool ScriptMgr::OnGossipSelect(Player* pPlayer, Item* pItem, uint32 sender, uint32 action, const char* code)
+{
+	if (code)
+		return m_pOnItemGossipSelectWithCode != nullptr && m_pOnItemGossipSelectWithCode(pPlayer, pItem, sender, action, code);
+	else
+		return m_pOnItemGossipSelect != nullptr && m_pOnItemGossipSelect(pPlayer, pItem, sender, action);
+}
 bool ScriptMgr::OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action, const char* code)
 {
     if (code)
@@ -2410,6 +2419,10 @@ ScriptLoadResult ScriptMgr::LoadScriptLibrary(const char* libName)
     GET_SCRIPT_HOOK_PTR(m_pOnGOGossipHello,            "GOGossipHello");
     GET_SCRIPT_HOOK_PTR(m_pOnGossipSelect,             "GossipSelect");
     GET_SCRIPT_HOOK_PTR(m_pOnGOGossipSelect,           "GOGossipSelect");
+
+	GET_SCRIPT_HOOK_PTR(m_pOnItemGossipSelect, "ItemGossipSelect");
+	GET_SCRIPT_HOOK_PTR(m_pOnItemGossipSelectWithCode, "ItemGossipSelectWithCode");
+
     GET_SCRIPT_HOOK_PTR(m_pOnGossipSelectWithCode,     "GossipSelectWithCode");
     GET_SCRIPT_HOOK_PTR(m_pOnGOGossipSelectWithCode,   "GOGossipSelectWithCode");
     GET_SCRIPT_HOOK_PTR(m_pOnQuestAccept,              "QuestAccept");
@@ -2457,6 +2470,10 @@ void ScriptMgr::UnloadScriptLibrary()
     m_pOnGOGossipHello          = nullptr;
     m_pOnGossipSelect           = nullptr;
     m_pOnGOGossipSelect         = nullptr;
+
+	m_pOnItemGossipSelect = nullptr;
+	m_pOnItemGossipSelectWithCode = nullptr;
+
     m_pOnGossipSelectWithCode   = nullptr;
     m_pOnGOGossipSelectWithCode = nullptr;
     m_pOnQuestAccept            = nullptr;

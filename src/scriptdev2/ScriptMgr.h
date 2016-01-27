@@ -69,17 +69,22 @@ struct Script
         pQuestRewardedNPC(NULL), pQuestRewardedGO(NULL),
         pGOUse(NULL), pItemUse(NULL), pAreaTrigger(NULL), pNpcSpellClick(NULL), pProcessEventId(NULL),
         pEffectDummyNPC(NULL), pEffectDummyGO(NULL), pEffectDummyItem(NULL), pEffectScriptEffectNPC(NULL),
-        pEffectAuraDummy(NULL), GetAI(NULL), GetInstanceData(NULL)
+		pEffectAuraDummy(NULL), GetAI(NULL), GetInstanceData(NULL), pGossipSelectItem(NULL), pGossipSelectItemWithCode(NULL)
     {}
 
     std::string Name;
 
     bool (*pGossipHello)(Player*, Creature*);
     bool (*pGossipHelloGO)(Player*, GameObject*);
+
     bool (*pGossipSelect)(Player*, Creature*, uint32, uint32);
     bool (*pGossipSelectGO)(Player*, GameObject*, uint32, uint32);
-    bool (*pGossipSelectWithCode)(Player*, Creature*, uint32, uint32, const char*);
+	bool(*pGossipSelectItem)(Player*, Item*, uint32, uint32);
+
+	bool (*pGossipSelectWithCode)(Player*, Creature*, uint32, uint32, const char*);
     bool (*pGossipSelectGOWithCode)(Player*, GameObject*, uint32, uint32, const char*);
+	bool(*pGossipSelectItemWithCode)(Player*, Item*, uint32, uint32, const char*);
+
     uint32(*pDialogStatusNPC)(Player*, Creature*);
     uint32(*pDialogStatusGO)(Player*, GameObject*);
     bool (*pQuestAcceptNPC)(Player*, Creature*, Quest const*);
