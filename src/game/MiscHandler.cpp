@@ -348,6 +348,12 @@ void WorldSession::HandleTogglePvP(WorldPacket& recv_data)
         recv_data >> newPvPStatus;
         GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP, newPvPStatus);
         GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER, !newPvPStatus);
+
+		if (newPvPStatus)
+			GetPlayer()->HandleEmoteCommandAttack();//做个攻击动作
+		else
+			GetPlayer()->HandleEmoteCommandDefence();//做个防御动作
+		
     }
     else
     {
@@ -411,6 +417,8 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& recv_data)
 
     if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
+
+	unit->HandleEmoteCommandNormal();//任意做个动作
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recv_data)
@@ -1078,10 +1086,13 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     ObjectGuid guid;
     recv_data >> guid;
 	
-	if (_player->GetSelectionGuid() == guid)
+	if (_player->GetSelectionGuid().GetRawValue() == guid.GetRawValue())
 		return;//已经选择，不必重复
 
-    DEBUG_LOG("Inspected guid is %s", guid.GetString().c_str());
+	if (guid.GetRawValue() == _player->GetObjectGuid().GetRawValue())
+		return; //选择的是自己
+
+	    DEBUG_LOG("Inspected guid is %s", guid.GetString().c_str());
 
     _player->SetSelectionGuid(guid);
 
@@ -1092,8 +1103,15 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     if (!_player->IsWithinDistInMap(plr, INSPECT_DISTANCE, false))
         return;
 
-    if (_player->IsHostileTo(plr))
-        return;
+	if (_player->IsHostileTo(plr))
+	{
+		plr->HandleEmoteCommandDefence();//做个防御动作
+		//选择了有敌意的角色，备选角色做个表情
+		return;
+	}
+
+	plr->HandleEmoteCommandNormal();// 做个普通动作
+
 
     WorldPacket data(SMSG_INSPECT_RESULTS, 50);
     data << plr->GetPackGUID();
@@ -1339,6 +1357,7 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recv_data)
         title = 0;
 
     GetPlayer()->SetUInt32Value(PLAYER_CHOSEN_TITLE, title);
+	GetPlayer()->HandleEmoteCommandHappy();//播一个高兴的表情
 }
 
 void WorldSession::HandleTimeSyncResp(WorldPacket& recv_data)

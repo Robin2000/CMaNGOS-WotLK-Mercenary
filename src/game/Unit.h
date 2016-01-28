@@ -44,6 +44,19 @@
 #include "Timer.h"
 #include <list>
 
+const static int emoteHappy[8] = { 4, 10, 400,11, 19, 21, 22, 71 }; //4高兴，顺序举高左右手欢呼10和400舞蹈11大笑19学鸡叫21拍手，带声音22昂首呼叫无声71高兴跳起来
+const static int emoteSad[3] = { 18,391, 20 }; //18悲伤地哭泣 391仰天长啸，无声,痛苦悲伤20单膝跪下，双手举过头，求饶状
+const static int emoteNormal[9] = { 1,2, 3, 5, 6, 23, 29, 32, 426 }; //1说话2弯腰行礼3挥动左手5双手抬起，做解释说明状,询问问题时的样子
+																//23 中性，右手伸直，然后弯曲收回29 挥斥方遒的样子32 摆事实讲道理的样子426 直接坐一小会儿
+const static int emoteAttack[14] = { 27, 28, 173, 35, 36, 37, 38, 44, 45, 48, 51, 54, 60, 390 }; //27 准备徒手格斗的样子28空手劈材173 则用武器劈材的动作35 用胳膊打击
+														//36 用武器斜劈打击37 用武器横向挥砍38 用武器从下往上挑砍动作44 准备用武器战斗的样子45 准备用武器战斗的样子
+														//48 把身体蹦得直直的好斗的样子51 施展技能，战士就是直接打击动作54  特殊的攻击动作60 用脚踢的动作
+														//61右手拳击390 动作打
+															
+const static int emoteDefence[5] = { 39, 43, 274, 389, 433 };//39 格挡动作43 缩头防御动作274 摆手不同意NO,389 滚开的动作,433 准备战斗
+
+const static int emoteHurt[5] = { 33, 34, 64, 93, 445 };//33 受打击，受伤害的一个大动作34 受致命打击64 被打晕不清醒的样子93 被打晕的样子
+														//445 被子弹打中倒地的动作
 enum SpellInterruptFlags
 {
     SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01,
@@ -1461,6 +1474,14 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void HandleEmote(uint32 emote_id);                  // auto-select command/state
         void HandleEmoteCommand(uint32 emote_id);
         void HandleEmoteState(uint32 emote_id);
+		
+		void HandleEmoteCommandHappy();
+		void HandleEmoteCommandSad();
+		void HandleEmoteCommandNormal();
+		void HandleEmoteCommandAttack();
+		void HandleEmoteCommandDefence();
+		void HandleEmoteCommandHurt();
+
         void AttackerStateUpdate(Unit* pVictim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         float MeleeMissChanceCalc(const Unit* pVictim, WeaponAttackType attType) const;

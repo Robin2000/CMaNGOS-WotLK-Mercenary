@@ -1880,12 +1880,38 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
 void Unit::HandleEmoteCommand(uint32 emote_id)
 {
+	if (isDead()||isInCombat())
+		return;
+
     WorldPacket data(SMSG_EMOTE, 4 + 8);
     data << uint32(emote_id);
     data << GetObjectGuid();
     SendMessageToSet(&data, true);
 }
-
+void Unit::HandleEmoteCommandHappy(){
+	int size = sizeof(emoteHappy) / sizeof((int)1);
+	HandleEmoteCommand(emoteHappy[rand() % size]);
+}
+void Unit::HandleEmoteCommandSad(){
+	int size = sizeof(emoteSad) / sizeof((int)1);
+	HandleEmoteCommand(emoteSad[rand() % size]);
+}
+void Unit::HandleEmoteCommandNormal(){
+	int size = sizeof(emoteNormal) / sizeof((int)1);
+	HandleEmoteCommand(emoteNormal[rand() % size]);
+}
+void Unit::HandleEmoteCommandAttack(){
+	int size = sizeof(emoteAttack) / sizeof((int)1);
+	HandleEmoteCommand(emoteAttack[rand() % size]);
+}
+void Unit::HandleEmoteCommandDefence(){
+	int size = sizeof(emoteDefence) / sizeof((int)1);
+	HandleEmoteCommand(emoteDefence[rand() % size]);
+}
+void Unit::HandleEmoteCommandHurt(){
+	int size = sizeof(emoteHurt) / sizeof((int)1);
+	HandleEmoteCommand(emoteHurt[rand() % size]);
+}
 void Unit::HandleEmoteState(uint32 emote_id)
 {
     SetUInt32Value(UNIT_NPC_EMOTESTATE, emote_id);
