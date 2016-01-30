@@ -41,71 +41,125 @@ GamePointMgr::~GamePointMgr()
 }
 
 uint32 GamePointMgr::getGamePoint()  {
+
+	if (m_accountBalance.totalmoney < 10) //不到1原力点的金额设置为0，否则后续计算会带来大问题
+		m_accountBalance.totalmoney = 0;
+
+	if (m_accountBalance.totalmoney < m_accountBalance.consumemoney)//数据出问题，必须纠正，，否则后续计算会带来大问题
+		m_accountBalance.consumemoney = m_accountBalance.totalmoney;
+
+	if (m_player->GetTotalPlayedTime() < m_characterExt.consumetime)//数据出问题，必须纠正，，否则后续计算会带来大问题
+		m_characterExt.consumetime = m_player->GetTotalPlayedTime();
+
 	uint32 p1 = (m_accountBalance.totalmoney - m_accountBalance.consumemoney) / oneGamePointCostMoney;       //总点数可以来自充值后执行转帐增加，分为单位，1毛钱1点。 
-	uint32 p2 = (m_player->GetTotalPlayedTime() - m_characterExt.onlinetime) / 3600;  //秒换算成小时，1小时一个点。
+
+	uint32 p2 = (m_player->GetTotalPlayedTime() - m_characterExt.consumetime) / 3600;  //秒换算成小时，1小时一个点。
+
 	return p1 + p2;
 }
-void GamePointMgr::comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeType, uint32 point) {
+bool GamePointMgr::setReturnPoint(uint32 gamePoint){
+
+	if (m_player->GetMap()->Instanceable())
+	{
+		ChatHandler(m_player).SendSysMessage(-2800180);//系统提示：无法在副本中记录回城点。
+		return false;
+	}
+
+	if (!comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTSET, gamePoint))
+		return false;
+
+
+	m_characterExt.returnPoint.mapid = m_player->GetMapId();
+	m_characterExt.returnPoint.coord_x = m_player->GetPositionX();
+	m_characterExt.returnPoint.coord_y = m_player->GetPositionY();
+	m_characterExt.returnPoint.coord_z = m_player->GetPositionZ();
+	m_characterExt.returnPoint.orientation = m_player->GetOrientation();
 	
-	if (getGamePoint() < point)
-		return; /*点数不足*/
+	changed = true;
+
+	ChatHandler(m_player).SendSysMessage(-2800179);// 系统提示：设置回城点成功。
+
+	return true;
+}
+bool GamePointMgr::useReturnPoint(uint32 gamePoint){
+
+	if (m_characterExt.returnPoint.coord_x == 0.0f && m_characterExt.returnPoint.coord_y == 0.0f&&m_characterExt.returnPoint.coord_z == 0.0f)
+	{
+		ChatHandler(m_player).SendSysMessage(-2800178);// 系统提示：还没有设置回城点。
+		return false;
+	}
+	if (!comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTUSE, gamePoint))
+		return false;
+	
+	m_player->TeleportTo(m_characterExt.returnPoint);
+	return true;
+}
+bool GamePointMgr::comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeType, uint32 gamePoint) {
+	
+	if (!checkPoint(gamePoint))
+		return false;
 
 	ConsumeHistoryEntry  history;
 	//history.id = null;							//	自动增长
 	history.guid = m_player->GetGUIDLow();			//  角色guid
 	history.consumetype = consumeConsumeType;		//  消费类别
-	history.consumepoint = point;						//  消费点数
+	history.consumepoint = gamePoint;						//  消费点数
 	history.operatetime = time(NULL);				//  操作时间
 	consumeHistoryQueue.push(history);
 
 	uint32 p1 = (m_accountBalance.totalmoney - m_accountBalance.consumemoney) / oneGamePointCostMoney;
-	uint32 p2 = (m_player->GetTotalPlayedTime() - m_characterExt.onlinetime) / 3600;
+	//uint32 p2 = (m_player->GetTotalPlayedTime() - m_characterExt.consumetime) / 3600;
 
-	if (p1 > point) 
+	if (p1 > gamePoint)
 	{
-		m_accountBalance.totalmoney -= point;
-		m_accountBalance.consumemoney += point;
+		//m_accountBalance.totalmoney -= gamePoint*oneGamePointCostMoney;//totalmoney数字不会变，变化的是consumemoney
+		m_accountBalance.consumemoney += gamePoint*oneGamePointCostMoney;
 	}
 	else{
 		m_accountBalance.consumemoney += m_accountBalance.totalmoney; //消费的金钱数量等于全部金钱
-		m_characterExt.onlinetime += (point - m_accountBalance.totalmoney / oneGamePointCostMoney) * 3600; //消费的在线时间抵扣
-		m_accountBalance.totalmoney = 0; //钱扣光
+		m_characterExt.consumetime += (gamePoint - m_accountBalance.totalmoney / oneGamePointCostMoney) * 3600; //消费的在线时间抵扣
+		//m_accountBalance.totalmoney = 0; //totalmoney数字不会变，变化的是consumemoney
 	}
 	
 
 	changed = true;
+
+	return true;
 }
 void GamePointMgr::_SaveGamePoint() //保存积分数据
 {
 	if (!changed)
 		return;
 
-	static SqlStatementID delGamePoint;
-	static SqlStatementID insGamePoint;
+	static SqlStatementID insAccountBalance;
+	static SqlStatementID insCharacterExt;
+	static SqlStatementID insConsumeHistory;
+	//static SqlStatementID delGamePoint;
 
 	//CharacterDatabase.BeginTransaction();
-	if (m_accountBalance.consumemoney > 0){ //有金钱消费
+	if (m_accountBalance.consumemoney > 0){ //有过金钱消费
+		
+
 		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
 		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
 		//stmtDel.PExecute(m_player->GetGUIDLow());
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "REPLACE INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
-		stmtIns.PExecute(m_player->GetAccountId(),  m_accountBalance.totalmoney, m_accountBalance.consumemoney);
+		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insAccountBalance, "REPLACE INTO jf_account_balance (id,  consumemoney) VALUES (?, ?)");
+		stmtIns.PExecute(m_player->GetAccountId(), m_accountBalance.consumemoney);
 	}
 
-	if (m_characterExt.onlinetime > 0){ //有时间消费
-		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
-		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, onlinetime) VALUES (?, ?)");
-		//stmtDel.PExecute(m_player->GetGUIDLow());
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "REPLACE INTO jf_character_ext (guid, onlinetime) VALUES (?, ?)");
-		stmtIns.PExecute(m_player->GetGUIDLow(), m_characterExt.onlinetime);
-	}
+	//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
+	//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, consumetime,map,zone,position_x,position_y,position_z) VALUES (?,?,?,?,?,?,?)");
+	//stmtDel.PExecute(m_player->GetGUIDLow());
+	SqlStatement stmtIns = CharacterDatabase.CreateStatement(insCharacterExt, "REPLACE INTO jf_character_ext (guid, consumetime,mapid,coord_x,coord_y,coord_z,orientation) VALUES (?,?,?,?,?,?,?)");
+	stmtIns.PExecute(m_player->GetGUIDLow(), m_characterExt.consumetime, m_characterExt.returnPoint.mapid, m_characterExt.returnPoint.coord_x, m_characterExt.returnPoint.coord_y, m_characterExt.returnPoint.coord_z, m_characterExt.returnPoint.orientation);
+
 	ConsumeHistoryEntry history;
 	while (!consumeHistoryQueue.empty())
 	{
 		if (!consumeHistoryQueue.try_pop(history))
 			continue;
 
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_consume_history (guid, consumetype,consumepoint,operatetime) VALUES (?, ?,?,now())");
+		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insConsumeHistory, "INSERT INTO jf_consume_history (guid, consumetype,consumepoint,operatetime) VALUES (?, ?,?,now())");
 		stmtIns.PExecute(m_player->GetGUIDLow(), (uint32)history.consumetype, history.consumepoint);
 		
 	}
@@ -131,14 +185,19 @@ void GamePointMgr::_LoadAccountBalance(QueryResult* result){
 }
 void GamePointMgr::_LoadCharacterExt(QueryResult* result){
 
-	//           0             
-	//SELECT onlinetime FROM jf_character_ext WHERE guid = '%u'
+	//           0        1      2      3          4        5
+	//SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation FROM jf_character_ext WHERE guid = '%u'
 	if (!result)
 		return;
 
 	Field* fields = result->Fetch();
 
-	m_characterExt.onlinetime = fields[0].GetUInt32();
+	m_characterExt.consumetime = fields[0].GetUInt32();
+	m_characterExt.returnPoint.mapid = fields[1].GetUInt32();
+	m_characterExt.returnPoint.coord_x = fields[2].GetFloat();
+	m_characterExt.returnPoint.coord_y = fields[3].GetFloat();
+	m_characterExt.returnPoint.coord_z = fields[4].GetFloat();
+	m_characterExt.returnPoint.orientation = fields[5].GetFloat();
 
 	delete result;
 

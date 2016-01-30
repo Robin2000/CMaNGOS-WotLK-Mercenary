@@ -22,8 +22,9 @@
 //积分系统
 enum CharacterConsumeConsumeType{
 	// value1         value2        comment
-	CHARACTERCONSUME_CONSUMETYPE_QUESTQUERY = 0,    // 0 任务查询
-	CHARACTERCONSUME_CONSUMETYPE_BINDHOME = 1		// 1 任意绑定回城点
+	CHARACTERCONSUME_CONSUMETYPE_QUESTQUERY = 0,		// 0 任务查询
+	CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTSET = 1,	// 1 设置回城点
+	CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTUSE = 2		// 2 返回回城点
 };
 //账户平衡表jf_account_balance
 struct AccountBalanceEntry
@@ -37,7 +38,8 @@ struct AccountBalanceEntry
 struct CharacterExtEntry
 {
 	uint32	guid;							// 0 角色guid        
-	uint32	onlinetime=0;						// 1 用掉的在线时间，单位秒
+	uint32	consumetime = 0;					// 1 用掉的在线时间，单位秒
+	WorldLocation returnPoint;				// 3 回城点
 };
 
 //角色消费历史表jf_consume_history
@@ -60,7 +62,18 @@ class MANGOS_DLL_SPEC GamePointMgr
 
 		Player* GetPlayer()  { return m_player; }
 		uint32 getGamePoint() ;
-		void comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeType,uint32 point);
+		bool comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeType,uint32 gamePoint);
+		bool setReturnPoint(uint32 gamePoint);
+		bool useReturnPoint(uint32 gamePoint);
+		inline bool checkPoint(uint32 gamePoint){
+			if (getGamePoint() < gamePoint)
+			{
+				ChatHandler(m_player).SendSysMessage(-2800177);//23 系统提示：原力不足，无法完成此操作。
+				return false; /*点数不足*/
+			}
+			return true;
+		}
+		const WorldLocation  &getReturnPoint(){ return m_characterExt.returnPoint; };
 		void _LoadAccountBalance(QueryResult* result);
 		void _LoadCharacterExt(QueryResult* result);
 		void _SaveGamePoint();

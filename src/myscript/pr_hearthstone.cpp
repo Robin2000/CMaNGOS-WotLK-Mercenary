@@ -17,63 +17,63 @@ EndScriptData */
 #include <boost/format.hpp>
 #include "GamePointMgr.h"
 
-#define NPC_BIRD 100000
-#define NPC_TEXT_INTRO  16777214 //在npc_text中定义。
-#define HEARTHSTONE_CUSTOMTEXT_QUEST -2800169 //在custom_text中定义。
-#define HEARTHSTONE_CUSTOMTEXT_NPC -2800170 //在custom_text中定义。
-#define HEARTHSTONE_CUSTOMTEXT_SETHOME -2800171 //在custom_text中定义。
-#define HEARTHSTONE_CUSTOMTEXT_GOHOME -2800172 //在custom_text中定义。
-#define HEARTHSTONE_CUSTOMTEXT_CURGAMEPOINT -2800173 //在custom_text中定义。
-
 
 /*
-insert into npc_text(ID,text0_0)values(16777214,'在线赚取积分，积分兑换服务。');
-insert into custom_texts(entry, content_default)values(-2800169,'任务查询。');
-insert into custom_texts(entry, content_default)values(-2800170,'NPC查询。');
-insert into custom_texts(entry, content_default)values(-2800171,'将此地设置炉石绑定地点（-5积分）。');
-insert into custom_texts(entry, content_default)values(-2800172,'传送我到炉石绑定地点。');
-insert into custom_texts(entry, content_default)values(-2800173,'当前积分：%d');
+
+insert into npc_text(ID,text0_0)values(16777213,'在线即可累积原力。');
+insert into npc_text(ID,text0_0)values(16777214,'原力与你同在！更多信息请移步交流论坛：http://mangos.mybbs.us。');
+
+insert into custom_texts(entry, content_default)values(-2800173,'当前原力值：%d');
+insert into custom_texts(entry, content_default)values(-2800174,'设置回城地点。（-3原力）');
+insert into custom_texts(entry, content_default)values(-2800175,'返回回城地点。（-2原力）');
+insert into custom_texts(entry, content_default)values(-2800176,'返回炉石绑定地点。');
+insert into custom_texts(entry, content_default)values(-2800177,'系统提示：原力不足，无法这样做。');
+insert into custom_texts(entry, content_default)values(-2800178,'系统提示：还没有设置回城点。');
+insert into custom_texts(entry, content_default)values(-2800179,'系统提示：设置回城点成功。');
+insert into custom_texts(entry, content_default)values(-2800180,'系统提示：无法在副本中设置回城点。');
+insert into custom_texts(entry, content_default)values(-2800181,'返回上级菜单。');
 */
 bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*scTargets*/)
 {
-	boost::format fmt(pPlayer->GetMangosString(HEARTHSTONE_CUSTOMTEXT_CURGAMEPOINT));
-	std::string title =(fmt % pPlayer->GetGamePointMgr().getGamePoint()).str();
+	//pPlayer->GetMotionMaster()->MovePoint(50000, pPlayer->GetPositionX() + 10, pPlayer->GetPositionY(), pPlayer->GetPositionZ(), true);
+	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
+	char * title=new char[1024];
+	sprintf(title, pPlayer->GetMangosString(-2800173), pPlayer->GetGamePointMgr().getGamePoint()); // 当前原力值：%d
 	
 	pPlayer->PrepareGossipMenu(pPlayer, 100000);//100000是不存在的menuid，数据库中目前最大为50101，
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, HEARTHSTONE_CUSTOMTEXT_QUEST, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, HEARTHSTONE_CUSTOMTEXT_NPC, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, HEARTHSTONE_CUSTOMTEXT_SETHOME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, HEARTHSTONE_CUSTOMTEXT_GOHOME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-	pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_INTRO, pItem->GetObjectGuid()); //NPC_TEXT_INTRO在npc_text中定义。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//设置回城地点。（-3原力）
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//返回回城地点。（-2原力）
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//返回炉石绑定地点。
+	pPlayer->SEND_GOSSIP_MENU(16777213, pItem->GetObjectGuid()); //在线即可累积原力。
+
 	return true;
 }
 
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
-{
-	pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
-
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 5)
-		pPlayer->TeleportToHomebind();
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 4)
+{	
+	if (pPlayer->isInCombat())
+		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
 	{
-		WorldLocation loc;
-		pPlayer->GetPosition(loc);
+		pPlayer->PrepareGossipMenu(pPlayer, 100000);//100000是不存在的menuid，数据库中目前最大为50101，
+		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 返回上级菜单。
+		pPlayer->SEND_GOSSIP_MENU(16777214, pItem->GetObjectGuid()); //'原力与你同在！更多信息请移步交流论坛：http://mangos.mybbs.us。'
+	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 2){//设置回城点。（-3原力）
+		if(pPlayer->GetGamePointMgr().setReturnPoint(3))
+			pPlayer->PlayerTalkClass->SendPointOfInterest(pPlayer->GetPositionX(), pPlayer->GetPositionY(), 7, 583, 0, "test");
+		//pPlayer->PlayerTalkClass->SendPointOfInterest(target->GetPositionX(), target->GetPositionY(), Poi_Icon(icon), flags, 30, "Test POI");
 
-		pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_BINDHOME, 5);
-		pPlayer->SetHomebindToLocation(loc, pPlayer->GetAreaId());
 	}
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 3){
-
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF +3)//返回回城地点。（-2原力）
+	{
+		pPlayer->GetGamePointMgr().useReturnPoint(2);
+	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 4)//传送我到炉石绑定地点。
+	{
+		pPlayer->TeleportToHomebind();
 	}
-	else
-		pPlayer->SendMovieStart(16);
-		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "dynamic", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_QUIT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-		//pPlayer->SEND_GOSSIP_MENU(907, npc->GetObjectGuid());
-
-
-
+	pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
+	//pPlayer->HandleEmoteCommandHappy();
 	return true;
 }
 
