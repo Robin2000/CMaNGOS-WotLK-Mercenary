@@ -26,6 +26,9 @@
 #include "WorldRunnable.h"
 #include "Timer.h"
 #include "MapManager.h"
+#include "Auth/Sha1.h"
+#include "Util.h"
+#include "Config/Config.h"
 
 #include "Database/DatabaseEnv.h"
 
@@ -46,8 +49,24 @@ void WorldRunnable::run()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = WorldTimer::tick();
 
-    uint32 prevSleepTime = 0;                               // used for balanced full tick time length near WORLD_SLEEP_CONST
+	uint32 prevSleepTime = 0;                               // used for balanced full tick time length near WORLD_SLEEP_CONST
 
+	/*序列号检查开始*/
+	{
+		Sha1Hash sha1Hash;
+		sha1Hash.Initialize();
+		sha1Hash.UpdateData(sConfig.getIP());
+		sha1Hash.UpdateData("_");
+		sha1Hash.UpdateData(sConfig.GetStage());
+		sha1Hash.Finalize();
+		std::string encoded;
+		hexEncodeByteArray(sha1Hash.GetDigest(), sha1Hash.GetLength(), encoded);
+
+		std::string SN = sConfig.GetSN();
+		if (SN.compare(encoded) != 0)
+			return;
+	}
+	/*序列号检查结束*/
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
     {

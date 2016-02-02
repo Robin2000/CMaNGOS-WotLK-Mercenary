@@ -66,7 +66,15 @@ class MANGOS_DLL_SPEC Config
 
         bool SetSource(const char* file);
         bool Reload();
-
+		std::string GetStage(){
+			return GetStringDefault("STAGE", "");
+		}
+		std::string GetSN(){
+			return GetStringDefault("VCODE", "");
+		}
+		std::string getIP(){
+			return GetStringDefault("BindIP", "");
+		}
         std::string GetStringDefault(const char* name, const char* def);
         bool GetBoolDefault(const char* name, const bool def = false);
         int32 GetIntDefault(const char* name, const int32 def);

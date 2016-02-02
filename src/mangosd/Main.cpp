@@ -201,7 +201,15 @@ extern int main(int argc, char** argv)
         DETAIL_LOG("WARNING: Minimal required version [OpenSSL 0.9.8k]");
     }
 
-    DETAIL_LOG("Using ACE: %s", ACE_VERSION);
+	DETAIL_LOG("Using ACE: %s", ACE_VERSION);
+
+	/*序列号检查开始*/
+	{
+		std::string ip = sConfig.getIP();
+		if (ip.compare("0.0.0.0") == 0 || ip.compare("127.0.0.1")==0)
+			return 0;
+	}
+	/*序列号检查结束*/
 
     ///- Set progress bars show mode
     BarGoLink::SetOutputState(sConfig.GetBoolDefault("ShowProgressBars", false));
