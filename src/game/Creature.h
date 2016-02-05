@@ -27,6 +27,7 @@
 #include "DBCEnums.h"
 #include "Database/DatabaseEnv.h"
 #include "Cell.h"
+#include <boost/serialization/access.hpp>
 
 #include <list>
 
@@ -280,17 +281,37 @@ struct CreatureLocale
 {
     std::vector<std::string> Name;
     std::vector<std::string> SubName;
+
+	friend boost::serialization::access;
+	template<class Archive>	void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & Name;
+		archive & SubName;
+	}
 };
 
 struct GossipMenuItemsLocale
 {
     std::vector<std::string> OptionText;
     std::vector<std::string> BoxText;
+	
+	friend boost::serialization::access;
+	template<class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & OptionText;
+		archive & BoxText;
+	}
 };
 
 struct PointOfInterestLocale
 {
     std::vector<std::string> IconName;
+
+	friend boost::serialization::access;
+	template<class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & IconName;
+	}
 };
 
 enum InhabitTypeValues

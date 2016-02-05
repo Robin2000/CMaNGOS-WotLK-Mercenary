@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "Object.h"
 #include "Database/DatabaseEnv.h"
+#include <boost/serialization/access.hpp>
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
@@ -525,6 +526,13 @@ struct GameObjectLocale
 {
     std::vector<std::string> Name;
     std::vector<std::string> CastBarCaption;
+	
+	friend boost::serialization::access;
+	template<class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & Name;
+		archive & CastBarCaption;
+	}
 };
 
 // client side GO show states

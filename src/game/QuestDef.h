@@ -21,6 +21,7 @@
 
 #include "Platform/Define.h"
 #include "Database/DatabaseEnv.h"
+#include <boost/serialization/access.hpp>
 
 #include <string>
 #include <vector>
@@ -189,6 +190,19 @@ struct QuestLocale
     std::vector<std::string> EndText;
     std::vector<std::string> CompletedText;
     std::vector< std::vector<std::string> > ObjectiveText;
+
+	friend boost::serialization::access;
+	template<class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & Title;
+		archive & Details;
+		archive & Objectives;
+		archive & OfferRewardText;
+		archive & RequestItemsText;
+		archive & EndText;
+		archive & CompletedText;
+		archive & ObjectiveText;
+	}
 };
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,

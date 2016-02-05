@@ -68,7 +68,7 @@ QT QStrings.
 
 #include <stdio.h>
 
-#include "md5lib.h"
+#include "pr_md5lib.h"
 
 // MD5 simple initialization method
 MD5::MD5()
@@ -565,16 +565,19 @@ inline void MD5::II(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x,
 }
 //--------------------------------------------------
 //returns md5 for a given file
-std::string getMD5(std::ifstream& stream)
+inline std::string getMD5ByStream(std::ifstream& stream)
 {
   MD5 obj( stream );
   return obj.hex_digest();
 }
 
-std::string getMD5(const char* str,unsigned int str_len )
+inline std::string  getMD5(const char* str, unsigned int str_len)
 {
 	MD5 md5(str,str_len);
 	return md5.hex_digest();
+}
+inline std::string getMD5(const std::string in){
+	return getMD5(in.c_str(),in.length());
 }
 //--------------------------------------------------
 //compares md5's for two files, returns true if they match

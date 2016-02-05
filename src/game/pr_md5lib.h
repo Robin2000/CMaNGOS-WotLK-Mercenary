@@ -139,8 +139,9 @@ private:
 };
 
 //returns md5 for a given file
-std::string getMD5(std::ifstream& stream);
+std::string getMD5ByStream(std::ifstream& stream);
 std::string getMD5(const char* str,unsigned int str_len);
+std::string MANGOS_DLL_SPEC getMD5(std::string);
 
 //compares md5's for two files
 //returns -1 if unable ot open file

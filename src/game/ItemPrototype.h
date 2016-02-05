@@ -20,6 +20,7 @@
 #define _ITEMPROTOTYPE_H
 
 #include "Common.h"
+#include <boost/serialization/access.hpp>
 
 enum ItemModType
 {
@@ -677,6 +678,13 @@ struct ItemLocale
 {
     std::vector<std::string> Name;
     std::vector<std::string> Description;
+
+	friend boost::serialization::access;
+	template<class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & Name;
+		archive & Description;
+	}
 };
 
 #endif

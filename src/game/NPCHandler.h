@@ -18,6 +18,7 @@
 
 #ifndef __NPCHANDLER_H
 #define __NPCHANDLER_H
+#include <boost/serialization/access.hpp>
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
@@ -44,6 +45,12 @@ struct PageText
 struct PageTextLocale
 {
     std::vector<std::string> Text;
+
+	friend boost::serialization::access;
+	template<class Archive>	void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & Text;
+	}
 };
 
 struct NpcTextLocale
@@ -52,6 +59,13 @@ struct NpcTextLocale
 
     std::vector<std::vector<std::string> > Text_0;
     std::vector<std::vector<std::string> > Text_1;
+
+	friend boost::serialization::access;
+	template<class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & Text_0;
+		archive & Text_1;
+	}
 };
 
 struct QEmote

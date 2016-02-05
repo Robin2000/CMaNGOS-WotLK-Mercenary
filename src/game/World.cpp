@@ -1236,18 +1236,26 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading GameTeleports...");
     sObjectMgr.LoadGameTele();
 
-    ///- Loading localization data
-    sLog.outString("Loading Localization strings...");
-    sObjectMgr.LoadCreatureLocales();                       // must be after CreatureInfo loading
-    sObjectMgr.LoadGameObjectLocales();                     // must be after GameobjectInfo loading
-    sObjectMgr.LoadItemLocales();                           // must be after ItemPrototypes loading
-    sObjectMgr.LoadQuestLocales();                          // must be after QuestTemplates loading
-    sObjectMgr.LoadGossipTextLocales();                     // must be after LoadGossipText
-    sObjectMgr.LoadPageTextLocales();                       // must be after PageText loading
-    sObjectMgr.LoadGossipMenuItemsLocales();                // must be after gossip menu items loading
-    sObjectMgr.LoadPointOfInterestLocales();                // must be after POI loading
-    sLog.outString(">>> Localization strings loaded");
-    sLog.outString();
+	sLog.outString("Loading Localization strings...");
+	//clock_t time1 = clock();
+	if (!sObjectMgr.load_cache()){//-加载加密数据失败
+		///- Loading localization data		
+		sObjectMgr.LoadCreatureLocales();                       // must be after CreatureInfo loading
+		sObjectMgr.LoadGameObjectLocales();                     // must be after GameobjectInfo loading
+		sObjectMgr.LoadItemLocales();                           // must be after ItemPrototypes loading
+		sObjectMgr.LoadQuestLocales();                          // must be after QuestTemplates loading
+		sObjectMgr.LoadGossipTextLocales();                     // must be after LoadGossipText -> locales_npc_text
+		sObjectMgr.LoadPageTextLocales();                       // must be after PageText loading
+		sObjectMgr.LoadGossipMenuItemsLocales();                // must be after gossip menu items loading -->locales_gossip_menu_option
+		sObjectMgr.LoadPointOfInterestLocales();                // must be after POI loading
+		//clock_t time2 = clock();
+		//sLog.outString(">>> loaded db %u", int(((double)(time2 - time1)) / 1000));
+		sObjectMgr.save_cache();//-加密数据保存
+	}	
+	//clock_t time3 = clock();
+
+	//sLog.outString(">>> Localization strings loaded %u", int(((double)(time3 - time1)) / 1000));
+	sLog.outString();
 
     ///- Load dynamic data tables from the database
     sLog.outString("Loading Auctions...");

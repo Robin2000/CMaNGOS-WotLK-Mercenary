@@ -52,6 +52,8 @@
 #include <limits>
 #include "ItemEnchantmentMgr.h"
 #include "LootMgr.h"
+#include "pr_cache.hpp"
+
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -227,7 +229,32 @@ ArenaTeam* ObjectMgr::GetArenaTeamByCaptain(ObjectGuid guid) const
 
     return nullptr;
 }
+void ObjectMgr::save_cache(){
 
+	PR_Cache cache;
+	cache.saveCache(mCreatureLocaleMap, "CreatureLocaleMap");
+	cache.saveCache(mGameObjectLocaleMap, "GameObjectLocaleMap");
+	cache.saveCache(mItemLocaleMap, "ItemLocaleMap");
+	cache.saveCache(mQuestLocaleMap, "QuestLocaleMap");
+	cache.saveCache(mNpcTextLocaleMap, "GossipTextLocaleMap");
+	cache.saveCache(mPageTextLocaleMap, "PageTextLocaleMap");
+	cache.saveCache(mGossipMenuItemsLocaleMap, "GossipMenuItemsLocaleMap");
+	cache.saveCache(mPointOfInterestLocaleMap, "PointOfInterestLocaleMap");
+}
+bool ObjectMgr::load_cache(){
+	PR_Cache cache;
+
+	if (!cache.loadCache(mCreatureLocaleMap, "CreatureLocaleMap"))return false;
+	if (!cache.loadCache(mGameObjectLocaleMap, "GameObjectLocaleMap"))return false;
+	if (!cache.loadCache(mItemLocaleMap, "ItemLocaleMap"))return false;
+	if (!cache.loadCache(mQuestLocaleMap, "QuestLocaleMap"))return false;
+	if (!cache.loadCache(mNpcTextLocaleMap, "GossipTextLocaleMap"))return false;
+	if (!cache.loadCache(mPageTextLocaleMap, "PageTextLocaleMap"))return false;
+	if (!cache.loadCache(mGossipMenuItemsLocaleMap, "GossipMenuItemsLocaleMap"))return false;
+	if (!cache.loadCache(mPointOfInterestLocaleMap, "PointOfInterestLocaleMap"))return false;
+
+	return true;
+}
 void ObjectMgr::LoadCreatureLocales()
 {
     mCreatureLocaleMap.clear();                             // need for reload case
