@@ -346,6 +346,7 @@
     <ClCompile Include="..\..\src\game\AuctionHouseHandler.cpp" />
     <ClCompile Include="..\..\src\game\AuctionHouseMgr.cpp" />
     <ClCompile Include="..\..\src\game\Bag.cpp" />
+    <ClCompile Include="..\..\src\game\pr_base64.cpp" />
     <ClCompile Include="..\..\src\game\BattleGround\BattleGround.cpp" />
     <ClCompile Include="..\..\src\game\BattleGround\BattleGroundAA.cpp" />
     <ClCompile Include="..\..\src\game\BattleGround\BattleGroundAB.cpp" />
@@ -424,7 +425,7 @@
     <ClCompile Include="..\..\src\game\MapManager.cpp" />
     <ClCompile Include="..\..\src\game\MapPersistentStateMgr.cpp" />
     <ClCompile Include="..\..\src\game\MassMailMgr.cpp" />
-    <ClCompile Include="..\..\src\game\md5lib.cpp" />
+    <ClCompile Include="..\..\src\game\pr_md5lib.cpp" />
     <ClCompile Include="..\..\src\game\MiscHandler.cpp" />
     <ClCompile Include="..\..\src\game\MotionMaster.cpp" />
     <ClCompile Include="..\..\src\game\MoveMap.cpp" />
@@ -459,7 +460,8 @@
     <ClCompile Include="..\..\src\game\PlayerDump.cpp" />
     <ClCompile Include="..\..\src\game\PointMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\PoolManager.cpp" />
-    <ClCompile Include="..\..\src\game\pr_cache.cpp" />
+    <ClCompile Include="..\..\src\game\pr_aes.cpp" />
+    <ClCompile Include="..\..\src\game\pr_zip.cpp" />
     <ClCompile Include="..\..\src\game\QueryHandler.cpp" />
     <ClCompile Include="..\..\src\game\QuestDef.cpp" />
     <ClCompile Include="..\..\src\game\QuestHandler.cpp" />
@@ -527,6 +529,7 @@
     <ClInclude Include="..\..\src\game\AuctionHouseBot\AuctionHouseBot.h" />
     <ClInclude Include="..\..\src\game\AuctionHouseMgr.h" />
     <ClInclude Include="..\..\src\game\Bag.h" />
+    <ClInclude Include="..\..\src\game\pr_base64.h" />
     <ClInclude Include="..\..\src\game\BattleGround\BattleGround.h" />
     <ClInclude Include="..\..\src\game\BattleGround\BattleGroundAA.h" />
     <ClInclude Include="..\..\src\game\BattleGround\BattleGroundAB.h" />
@@ -601,7 +604,7 @@
     <ClInclude Include="..\..\src\game\MapReference.h" />
     <ClInclude Include="..\..\src\game\MapRefManager.h" />
     <ClInclude Include="..\..\src\game\MassMailMgr.h" />
-    <ClInclude Include="..\..\src\game\md5lib.h" />
+    <ClInclude Include="..\..\src\game\pr_md5lib.h" />
     <ClInclude Include="..\..\src\game\MotionMaster.h" />
     <ClInclude Include="..\..\src\game\MoveMap.h" />
     <ClInclude Include="..\..\src\game\MoveMapSharedDefines.h" />
@@ -632,8 +635,10 @@
     <ClInclude Include="..\..\src\game\PlayerDump.h" />
     <ClInclude Include="..\..\src\game\PointMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\PoolManager.h" />
-    <ClInclude Include="..\..\src\game\pr_cache.h" />
+    <ClInclude Include="..\..\src\game\pr_cache.hpp" />
+    <ClInclude Include="..\..\src\game\pr_aes.h" />
     <ClInclude Include="..\..\src\game\pr_threadpool.h" />
+    <ClInclude Include="..\..\src\game\pr_zip.h" />
     <ClInclude Include="..\..\src\game\QuestDef.h" />
     <ClInclude Include="..\..\src\game\RandomMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\ReactorAI.h" />
