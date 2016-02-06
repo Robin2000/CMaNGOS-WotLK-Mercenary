@@ -173,9 +173,12 @@ void MapManager::Update(uint32 diff)
     if (!i_timer.Passed())
         return;
 
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->Update((uint32)i_timer.GetCurrent());
-
+	for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
+	{
+		Map* pMap = iter->second;//添加逻辑，如果当前地图没有玩家，则什么也不做
+		if (pMap->HavePlayers())
+		  pMap->Update((uint32)i_timer.GetCurrent());
+	}
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
     {
         WorldObject::UpdateHelper helper((*iter));
