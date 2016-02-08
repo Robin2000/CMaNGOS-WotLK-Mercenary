@@ -21,16 +21,16 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _BASE64_HH
 #define _BASE64_HH
 
-//#ifndef _BOOLEAN_HH
-//#include "Boolean.hh"
-//#endif
+
+#include <string>
+
 
 	
-MANGOS_DLL_SPEC std::string base64_encode(const std::string  &in);//加密
+std::string base64_encode(const std::string  &in);//加密
 	// returns a newly allocated array - of size "resultSize" - that
 	// the caller is responsible for delete[]ing.
 
-MANGOS_DLL_SPEC std::string base64_decode(const std::string &in);//解密
+std::string base64_decode(const std::string &in);//解密
 	// 返回\0结尾的string
 	// 调用方负责删除[]ing.
 

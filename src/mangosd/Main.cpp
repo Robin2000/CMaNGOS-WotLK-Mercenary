@@ -29,6 +29,8 @@
 #include "SystemConfig.h"
 #include "AuctionHouseBot/AuctionHouseBot.h"
 #include "revision.h"
+#include "pr_aes.h"
+#include "pr_base64.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <ace/Version.h>
@@ -84,7 +86,7 @@ extern int main(int argc, char** argv)
     ///- Command line parsing
     char const* cfg_file = _MANGOSD_CONFIG;
 
-    char const* options = ":a:c:s:";
+    char const* options = ":a:c:s:k:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v', ACE_Get_Opt::NO_ARG);
@@ -97,6 +99,9 @@ extern int main(int argc, char** argv)
     {
         switch (option)
         {
+		case 'k':
+			printf("%s\n", base64_encode(pr_encrypt(cmd_opts.opt_arg())).c_str());
+			break;
             case 'a':
                 sAuctionBotConfig.SetConfigFileName(cmd_opts.opt_arg());
                 break;

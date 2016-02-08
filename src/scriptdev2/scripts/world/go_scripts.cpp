@@ -325,10 +325,10 @@ bool GOUse_go_tadpole_cage(Player* pPlayer, GameObject* pGo)
 			pCreature->RemoveCorpse();
 
 			if (Creature* newCreature = pPlayer->SummonCreature(NPC_WINTERFIN_TADPOLE,
-				x,y,z,a, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3000000))
+				x,y,z,a, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000)) //5·ÖÖÓºóÏûÊ§
 			{
 				newCreature->GetMotionMaster()->MoveFollow(pPlayer, dist, angle);
-				
+				newCreature->SendPetAIReaction();
 			}
 			pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE);
 

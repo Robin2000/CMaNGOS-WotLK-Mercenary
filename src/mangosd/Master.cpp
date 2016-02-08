@@ -424,6 +424,7 @@ bool Master::_StartDB()
 {
     ///- Get world database info from configuration file
     std::string dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
+
     int nConnections = sConfig.GetIntDefault("WorldDatabaseConnections", 1);
     if (dbstring.empty())
     {
@@ -447,6 +448,7 @@ bool Master::_StartDB()
     }
 
     dbstring = sConfig.GetStringDefault("CharacterDatabaseInfo", "");
+
     nConnections = sConfig.GetIntDefault("CharacterDatabaseConnections", 1);
     if (dbstring.empty())
     {
@@ -478,6 +480,7 @@ bool Master::_StartDB()
 
     ///- Get login database info from configuration file
     dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
+
     nConnections = sConfig.GetIntDefault("LoginDatabaseConnections", 1);
     if (dbstring.empty())
     {

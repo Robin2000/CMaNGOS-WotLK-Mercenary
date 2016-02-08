@@ -73,6 +73,7 @@ QT QStrings.
 
 #ifndef BACKEND_MD5_H
 #define BACKEND_MD5_H
+#include "Platform/Define.h"
 
 class MD5 {
 

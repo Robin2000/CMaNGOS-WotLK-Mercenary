@@ -23,7 +23,8 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "RealmList.h"
-
+#include "pr_aes.h"
+#include "pr_base64.h"
 #include "Config/Config.h"
 #include "Log.h"
 #include "AuthSocket.h"
@@ -92,7 +93,7 @@ extern int main(int argc, char** argv)
     ///- Command line parsing
     char const* cfg_file = _REALMD_CONFIG;
 
-    char const* options = ":c:s:";
+    char const* options = ":c:s:k:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v');
@@ -104,6 +105,9 @@ extern int main(int argc, char** argv)
     {
         switch (option)
         {
+		    case 'k':
+				printf("%s\n", base64_encode(pr_encrypt(cmd_opts.opt_arg())).c_str());
+				break;
             case 'c':
                 cfg_file = cmd_opts.opt_arg();
                 break;
@@ -384,6 +388,7 @@ void OnSignal(int s)
 bool StartDB()
 {
     std::string dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
+
     if (dbstring.empty())
     {
         sLog.outError("Database not specified");

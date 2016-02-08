@@ -1,7 +1,7 @@
 #include <openssl\aes.h>
 #include <openssl\rand.h>
 #include <openssl\evp.h>
-
+#include <string>
 //#pragma comment(lib,"libeay32.lib")
 //#pragma comment(lib,"ssleay32.lib")
 
@@ -13,7 +13,6 @@ std::string EncodeAES( /*const std::string&*/char * strPassword, const std::stri
 	AES_KEY aes_key;
 	if (AES_set_encrypt_key((const unsigned char*)strPassword, AES_BLOCK_SIZE * 8/*strlen(strPassword)*8 *//*strPassword.length() * 8*/, &aes_key) < 0)
 	{
-		assert(false);
 		return "";
 	}
 	std::string strRet;
@@ -31,7 +30,6 @@ std::string EncodeAES_little( /*const std::string&*/char * strPassword, const st
 	AES_KEY aes_key;
 	if (AES_set_encrypt_key((const unsigned char*)strPassword, AES_BLOCK_SIZE * 8/*strlen(strPassword)*8*/ /*strPassword.length() * 8*/, &aes_key) < 0)
 	{
-		assert(false);
 		return "";
 	}
 	unsigned char out[AES_BLOCK_SIZE];
@@ -44,7 +42,6 @@ std::string EncodeAES_Big( /*const std::string&*/char * strPassword, const std::
 	AES_KEY aes_key;
 	if (AES_set_encrypt_key((const unsigned char*)strPassword, AES_BLOCK_SIZE * 8/*strlen(strPassword)*8 *//*strPassword.length() * 8*/, &aes_key) < 0)
 	{
-		assert(false);
 		return "";
 	}
 	std::string strRet;
@@ -69,7 +66,6 @@ std::string DecodeAES( /*const std::string&*/char * strPassword, const std::stri
 	AES_KEY aes_key;
 	if (AES_set_decrypt_key((const unsigned char*)strPassword, AES_BLOCK_SIZE * 8/*strlen(strPassword)*8*/ /*strPassword.length() * 8*/, &aes_key) < 0)
 	{
-		assert(false);
 		return "";
 	}
 	std::string strRet;
@@ -87,7 +83,6 @@ std::string DecodeAES_little( /*const std::string&*/char * strPassword, const st
 	AES_KEY aes_key;
 	if (AES_set_decrypt_key((const unsigned char*)strPassword, AES_BLOCK_SIZE * 8/*strlen(strPassword)*8*/ /*strPassword.length() * 8*/, &aes_key) < 0)
 	{
-		assert(false);
 		return "";
 	}
 	unsigned char out[AES_BLOCK_SIZE];
@@ -100,7 +95,6 @@ std::string DecodeAES_Big( /*const std::string&*/char * strPassword, const std::
 	AES_KEY aes_key;
 	if (AES_set_decrypt_key((const unsigned char*)strPassword, AES_BLOCK_SIZE * 8/*strlen(strPassword)*8*/ /*strPassword.length() * 8*/, &aes_key) < 0)
 	{
-		assert(false);
 		return "";
 	}
 	std::string strRet;

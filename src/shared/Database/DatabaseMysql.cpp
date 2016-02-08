@@ -25,6 +25,8 @@
 #include "DatabaseEnv.h"
 #include "Timer.h"
 
+#include "pr_aes.h"
+#include "pr_base64.h"
 size_t DatabaseMysql::db_count = 0;
 
 void DatabaseMysql::ThreadStart()
@@ -99,8 +101,11 @@ bool MySQLConnection::Initialize(const char* infoString)
         port_or_socket = *iter++;
     if (iter != tokens.end())
         user = *iter++;
-    if (iter != tokens.end())
-        password = *iter++;
+	if (iter != tokens.end())
+	{
+		password = *iter++;
+		password = pr_decrypt(base64_decode(password));
+	}
     if (iter != tokens.end())
         database = *iter++;
 
