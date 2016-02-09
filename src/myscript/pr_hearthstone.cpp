@@ -54,6 +54,8 @@ insert into custom_texts(entry, content_default)values(-2800204,'兽（-1原力�
 insert into custom_texts(entry, content_default)values(-2800205,'毯（-1原力）。');
 insert into custom_texts(entry, content_default)values(-2800206,'虫（-1原力）。');
 
+insert into custom_texts(entry, content_default)values(-2800210,'小技巧。');//
+
 insert into gossip_menu(entry,text_id) values(65535,16777213);
 */
 bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*scTargets*/)
@@ -65,10 +67,11 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//骑乘。
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//设置返回点。（-3原力）
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//前往返回点。（-2原力）
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);//回家。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800210, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//发送游戏小技巧。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//设置返回点。（-3原力）
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);//前往返回点。（-2原力）
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);//回家。
 	pPlayer->SEND_GOSSIP_MENU(16777213, pItem->GetObjectGuid()); //在线即可累积原力。
 
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
@@ -90,6 +93,9 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		hearthstone_prepare_mount(pPlayer, pItem);
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 3){//设置返回点。（-3原力）
+		pPlayer->sendSplitMsg(pPlayer->GetGamePointMgr().nextGameTip());
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 4){//设置返回点。（-3原力）
 		pPlayer->GetGamePointMgr().setReturnPoint(3);
 		if (pPlayer->GetGamePointMgr().setReturnPoint(3))
 		{
@@ -98,10 +104,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		}
 		//return true;
 	}
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF +4)//前往返回地点。（-2原力）
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF +5)//前往返回地点。（-2原力）
 	{
 		pPlayer->GetGamePointMgr().useReturnPoint(2);
-	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 5)//回家。
+	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 6)//回家。
 	{
 		pPlayer->TeleportToHomebind();
 	}

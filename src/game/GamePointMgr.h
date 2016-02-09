@@ -67,8 +67,8 @@ class MANGOS_DLL_SPEC GamePointMgr
 		bool comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeType,uint32 gamePoint);
 		bool setReturnPoint(uint32 gamePoint);
 		bool useReturnPoint(uint32 gamePoint);
-		int getGameTipsID(){ return m_accountBalance.gametips; }
 		void setGameTipsID(uint32 idx){ m_accountBalance.gametips = idx; }
+		std::string & nextGameTip();
 		inline bool checkPoint(uint32 gamePoint){
 			if (getGamePoint() < gamePoint)
 			{

@@ -619,10 +619,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Send MOTD
     {
-		uint32 idx = pCurrChar->GetGamePointMgr().getGameTipsID();
-		std::string &str_motd = (idx < sObjectMgr.getGameTipsCount()) ? sObjectMgr.getGameTips(idx) : sObjectMgr.getGameTips(0);//如果索引超过最大，则取第一条，实现循环
-		if (idx >= sObjectMgr.getGameTipsCount())
-			pCurrChar->GetGamePointMgr().setGameTipsID(0);//将角色播放内容归元
+
+		std::string &str_motd = pCurrChar->GetGamePointMgr().nextGameTip();
 
 		data.Initialize(SMSG_MOTD, str_motd.size()+5);                     // new in 2.0.1
         data << (uint32)0;

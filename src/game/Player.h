@@ -1026,6 +1026,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+		void sendSplitMsg(std::string & msg);/*负责多行发送文本*/
+
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, AreaTrigger const* at = nullptr);
 
         bool TeleportTo(WorldLocation const& loc, uint32 options = 0)

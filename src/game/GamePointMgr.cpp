@@ -39,7 +39,14 @@ GamePointMgr::GamePointMgr(Player* player) :m_player(player){
 GamePointMgr::~GamePointMgr()
 {
 }
-
+std::string & GamePointMgr::nextGameTip(){
+	std::string &tip = (m_accountBalance.gametips < sObjectMgr.getGameTipsCount()) ? sObjectMgr.getGameTips(m_accountBalance.gametips) : sObjectMgr.getGameTips(0);//如果索引超过最大，则取第一条，实现循环
+	if (m_accountBalance.gametips >= sObjectMgr.getGameTipsCount())
+		m_accountBalance.gametips = 0;//将角色播放内容归元
+	else
+		m_accountBalance.gametips++;
+	return tip;
+}
 uint32 GamePointMgr::getGamePoint()  {
 
 	if (m_accountBalance.totalmoney < 10) //不到1原力点的金额设置为0，否则后续计算会带来大问题

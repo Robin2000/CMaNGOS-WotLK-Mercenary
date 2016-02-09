@@ -1898,7 +1898,20 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     return true;
 }
+void Player::sendSplitMsg(std::string & msg){/*负责多行发送文本*/
 
+	std::string::size_type pos, nextpos;
+
+	for (pos = 0; (nextpos = msg.find('@', pos)) != std::string::npos; pos = nextpos + 1)
+	{
+		if (nextpos != pos)
+			ChatHandler(this).PSendSysMessage(msg.substr(pos, nextpos - pos).c_str());;
+	}
+	if (pos==0)
+		ChatHandler(this).PSendSysMessage(msg.c_str());
+	else if (pos < msg.length())
+		ChatHandler(this).PSendSysMessage((msg.substr(pos).c_str()));
+}
 bool Player::TeleportToBGEntryPoint()
 {
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
