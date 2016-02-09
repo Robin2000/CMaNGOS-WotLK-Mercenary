@@ -713,7 +713,10 @@ class ObjectMgr
 
         bool LoadMangosStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value, bool extra_content);
         bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase, "mangos_string", MIN_MANGOS_STRING_ID, MAX_MANGOS_STRING_ID, false); }
-        void LoadCreatureLocales();
+		void LoadGameTips();
+		std::string & getGameTips(uint32 idx){ return mGameTipsVector[idx]; }
+		uint32 getGameTipsCount(){ return mGameTipsVector.size(); }
+		void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatures();
         void LoadCreatureAddons();
@@ -1267,6 +1270,8 @@ class ObjectMgr
         // Array to store creature stats, Max creature level + 1 (for data alignement with in game level)
         CreatureClassLvlStats m_creatureClassLvlStats[DEFAULT_MAX_CREATURE_LEVEL + 1][MAX_CREATURE_CLASS][MAX_EXPANSION + 1];
 
+		typedef tbb::concurrent_vector<std::string> GameTipsVector;
+		GameTipsVector mGameTipsVector;
         MapObjectGuids mMapObjectGuids;
         ActiveCreatureGuidsOnMap m_activeCreatures;
         CreatureDataMap mCreatureDataMap;

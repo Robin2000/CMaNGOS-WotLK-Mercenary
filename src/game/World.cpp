@@ -1237,6 +1237,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr.LoadGameTele();
 
 	sLog.outString("Loading Localization strings...");
+	sObjectMgr.LoadGameTips();
 	//clock_t time1 = clock();
 	if (!sObjectMgr.load_cache()){//-加载加密数据失败
 		///- Loading localization data		

@@ -128,25 +128,27 @@ bool GamePointMgr::comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeTy
 }
 void GamePointMgr::_SaveGamePoint() //保存积分数据
 {
-	if (!changed)
-		return;
-
-	static SqlStatementID insAccountBalance;
-	static SqlStatementID insCharacterExt;
-	static SqlStatementID insConsumeHistory;
-	//static SqlStatementID delGamePoint;
-
 	//CharacterDatabase.BeginTransaction();
-	if (m_accountBalance.consumemoney > 0){ //有过金钱消费
-		
+	//if (m_accountBalance.consumemoney > 0)不再限制，无条件保存account表，因为gametips
+	{ //有过金钱消费
 
+		static SqlStatementID insAccountBalance;
 		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
 		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
 		//stmtDel.PExecute(m_player->GetGUIDLow());
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insAccountBalance, "REPLACE INTO jf_account_balance (id,  consumemoney) VALUES (?, ?)");
-		stmtIns.PExecute(m_player->GetAccountId(), m_accountBalance.consumemoney);
+		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insAccountBalance, "REPLACE INTO jf_account_balance (id,  consumemoney,gametips) VALUES (?, ?,?)");
+		stmtIns.PExecute(m_player->GetAccountId(), m_accountBalance.consumemoney, m_accountBalance.gametips + 1); //写入数据库时，增加1
 	}
 
+
+	if (!changed)
+		return;
+
+
+	static SqlStatementID insCharacterExt;
+	static SqlStatementID insConsumeHistory;
+
+	//static SqlStatementID delGamePoint;
 	//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
 	//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, consumetime,map,zone,position_x,position_y,position_z) VALUES (?,?,?,?,?,?,?)");
 	//stmtDel.PExecute(m_player->GetGUIDLow());
@@ -179,6 +181,7 @@ void GamePointMgr::_LoadAccountBalance(QueryResult* result){
 
 	m_accountBalance.totalmoney = fields[0].GetUInt32();
 	m_accountBalance.consumemoney = fields[1].GetUInt32();
+	m_accountBalance.gametips = fields[2].GetUInt32();
 
 
 	delete result;

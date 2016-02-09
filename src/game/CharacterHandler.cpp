@@ -107,7 +107,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,     "SELECT data, text, mail_id, item_guid, item_template FROM mail_items JOIN item_instance ON item_guid = guid WHERE receiver = '%u'", m_guid.GetCounter());
 
 	//积分
-	res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE, "SELECT totalmoney, consumemoney FROM jf_account_balance WHERE id = '%u'", m_accountId);
+	res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE, "SELECT totalmoney, consumemoney,gametips FROM jf_account_balance WHERE id = '%u'", m_accountId);
 	res &= SetPQuery(PLAYER_LOGIN_QUERY_CHARACTEREXT, "SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation FROM jf_character_ext WHERE guid = '%u'", m_guid.GetCounter());
 
     return res;
@@ -619,11 +619,19 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Send MOTD
     {
-        data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
+		uint32 idx = pCurrChar->GetGamePointMgr().getGameTipsID();
+		std::string &str_motd = (idx < sObjectMgr.getGameTipsCount()) ? sObjectMgr.getGameTips(idx) : sObjectMgr.getGameTips(0);//如果索引超过最大，则取第一条，实现循环
+		if (idx >= sObjectMgr.getGameTipsCount())
+			pCurrChar->GetGamePointMgr().setGameTipsID(0);//将角色播放内容归元
+
+		data.Initialize(SMSG_MOTD, str_motd.size()+5);                     // new in 2.0.1
         data << (uint32)0;
 
         uint32 linecount = 0;
-        std::string str_motd = sWorld.GetMotd();
+        //std::string str_motd = sWorld.GetMotd();废弃
+		
+
+
         std::string::size_type pos, nextpos;
 
         pos = 0;

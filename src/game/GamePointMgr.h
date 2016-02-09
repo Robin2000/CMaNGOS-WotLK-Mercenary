@@ -33,6 +33,7 @@ struct AccountBalanceEntry
 	uint32	id;							// 0 账号id        
 	int64	totalmoney=100;				// 1 总充值金钱，初始赠送的金额1元，对应点数为原力10点。
 	int64	consumemoney=0;				// 2 已消费金钱
+	uint32  gametips = 0;				//初始为向量的第一个元素
 };
 
 //角色扩展表jf_character_ext
@@ -66,6 +67,8 @@ class MANGOS_DLL_SPEC GamePointMgr
 		bool comsumeGamePoint(CharacterConsumeConsumeType consumeConsumeType,uint32 gamePoint);
 		bool setReturnPoint(uint32 gamePoint);
 		bool useReturnPoint(uint32 gamePoint);
+		int getGameTipsID(){ return m_accountBalance.gametips; }
+		void setGameTipsID(uint32 idx){ m_accountBalance.gametips = idx; }
 		inline bool checkPoint(uint32 gamePoint){
 			if (getGamePoint() < gamePoint)
 			{

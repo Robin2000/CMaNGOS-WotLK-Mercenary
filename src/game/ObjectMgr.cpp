@@ -255,6 +255,34 @@ bool ObjectMgr::load_cache(){
 
 	return true;
 }
+void ObjectMgr::LoadGameTips(){
+
+	mGameTipsVector.clear();                             // need for reload case
+
+	QueryResult* result = WorldDatabase.Query("SELECT name FROM gametips order by id");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0 gametips strings. DB table `gametips` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();		
+		mGameTipsVector.push_back(fields[0].GetCppString());
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " gametips strings", mGameTipsVector.size());
+	sLog.outString();
+}
 void ObjectMgr::LoadCreatureLocales()
 {
     mCreatureLocaleMap.clear();                             // need for reload case
