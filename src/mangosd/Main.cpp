@@ -35,7 +35,7 @@
 #include <openssl/crypto.h>
 #include <ace/Version.h>
 #include <ace/Get_Opt.h>
-
+#include <conio.h>
 #include <boost/version.hpp>
 
 #ifdef WIN32
@@ -86,7 +86,7 @@ extern int main(int argc, char** argv)
     ///- Command line parsing
     char const* cfg_file = _MANGOSD_CONFIG;
 
-    char const* options = ":a:c:s:k:";
+    char const* options = ":a:c:s:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v', ACE_Get_Opt::NO_ARG);
@@ -99,9 +99,6 @@ extern int main(int argc, char** argv)
     {
         switch (option)
         {
-		case 'k':
-			printf("%s\n", base64_encode(pr_encrypt(cmd_opts.opt_arg())).c_str());
-			break;
             case 'a':
                 sAuctionBotConfig.SetConfigFileName(cmd_opts.opt_arg());
                 break;
@@ -173,6 +170,17 @@ extern int main(int argc, char** argv)
         Log::WaitBeforeContinueIfNeed();
         return 1;
     }
+	//接受控制台密码输入
+	char password[13];
+	int i = 0;
+	for (; i < 12;i++) {
+		password[i] = getch();		
+		fflush(stdin);
+		if (password[i] == 13)
+			break;
+	}
+	password[i] = '\0';
+	sConfig.SetStage(std::string(password));
 
 #ifndef WIN32                                               // posix daemon commands need apply after config read
     switch (serviceDaemonMode)

@@ -67,7 +67,10 @@ class MANGOS_DLL_SPEC Config
         bool SetSource(const char* file);
         bool Reload();
 		std::string GetStage(){
-			return GetStringDefault("STAGE", "");
+			return stage;
+		}
+		std::string SetStage(std::string key){
+			return stage= key;
 		}
 		std::string GetSN(){
 			return GetStringDefault("VCODE", "");
@@ -87,6 +90,7 @@ class MANGOS_DLL_SPEC Config
         std::string mFilename;
         //ACE_Configuration_Heap* mConf;
 		ConfigMgr * mConf;
+		std::string stage;
 };
 
 

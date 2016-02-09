@@ -53,6 +53,7 @@ void WorldRunnable::run()
 
 	/*序列号检查开始*/
 	{
+		//std::string s = pr_decrypt(base64_decode(sConfig.GetSN())).c_str();
 		if (strcmp((sConfig.getIP() + "_" + sConfig.GetStage()).c_str(), pr_decrypt(base64_decode(sConfig.GetSN())).c_str()) != 0)
 			return;
 	}
