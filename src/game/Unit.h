@@ -1725,6 +1725,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         template<typename Func>
         bool CheckAllControlledUnits(Func const& func, uint32 controlledMask) const;
 
+		bool AddMountSpellAura(int spellid);//×øÆï¹¦ÄÜ
         bool AddSpellAuraHolder(SpellAuraHolder* holder);
         void AddAuraToModList(Aura* aura);
 

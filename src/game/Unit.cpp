@@ -4065,7 +4065,27 @@ float Unit::GetTotalAuraMultiplierByMiscValueForMask(AuraType auratype, uint32 m
     }
     return multiplier;
 }
-
+bool Unit::AddMountSpellAura(int spellid){//×øÆï¹¦ÄÜ
+	SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid);
+	if (!spellInfo)
+		return false;
+	SpellAuraHolder* holder = CreateSpellAuraHolder(spellInfo, this, this);
+	for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+	{
+		uint8 eff = spellInfo->Effect[i];
+		if (eff >= TOTAL_SPELL_EFFECTS)
+			continue;
+		if (IsAreaAuraEffect(eff) ||
+			eff == SPELL_EFFECT_APPLY_AURA ||
+			eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+		{
+			Aura* aur = CreateAura(spellInfo, SpellEffectIndex(i), nullptr, holder, this);
+			holder->AddAura(aur, SpellEffectIndex(i));
+		}
+	}
+	AddSpellAuraHolder(holder);
+	return true;
+}
 bool Unit::AddSpellAuraHolder(SpellAuraHolder* holder)
 {
     SpellEntry const* aurSpellInfo = holder->GetSpellProto();

@@ -24,13 +24,14 @@ enum CharacterConsumeConsumeType{
 	// value1         value2        comment
 	CHARACTERCONSUME_CONSUMETYPE_QUESTQUERY = 0,		// 0 任务查询
 	CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTSET = 1,	// 1 设置回城点
-	CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTUSE = 2		// 2 返回回城点
+	CHARACTERCONSUME_CONSUMETYPE_RETURNPOINTUSE = 2,	// 2 返回回城点
+	CHARACTERCONSUME_CONSUMETYPE_MOUNT = 3		        // 4 骑乘
 };
 //账户平衡表jf_account_balance
 struct AccountBalanceEntry
 {
 	uint32	id;							// 0 账号id        
-	int64	totalmoney=0;					// 1 总充值金钱
+	int64	totalmoney=100;				// 1 总充值金钱，初始赠送的金额1元，对应点数为原力10点。
 	int64	consumemoney=0;				// 2 已消费金钱
 };
 
