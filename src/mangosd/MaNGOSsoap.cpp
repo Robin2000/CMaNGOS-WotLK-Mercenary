@@ -17,6 +17,8 @@
  */
 
 #include "MaNGOSsoap.h"
+#include "pr_aes.h"
+#include "pr_base64.h"
 
 #define POOL_SIZE   5
 
@@ -103,8 +105,8 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         DEBUG_LOG("MaNGOSsoap: Client used invalid username '%s'", soap->userid);
         return 401;
     }
-
-    if (!sAccountMgr.CheckPassword(accountId, soap->passwd))
+	std::string soapPassword = pr_decrypt(base64_decode(soap->passwd)).c_str();/*ÃÜÂë*/
+	if (!sAccountMgr.CheckPassword(accountId, soapPassword))
     {
         DEBUG_LOG("MaNGOSsoap: invalid password for account '%s'", soap->userid);
         return 401;
