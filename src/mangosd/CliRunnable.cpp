@@ -481,9 +481,15 @@ bool ChatHandler::HandleAccountCreateCommand(char* args)
     std::string password = szPassword;
 
     AccountOpResult result;
-    uint32 expansion = 0;
-    if (ExtractUInt32(&args, expansion))
-        result = sAccountMgr.CreateAccount(account_name, password, expansion);
+    uint32 expansion = 2;
+	if (ExtractUInt32(&args, expansion))
+	{
+		char* email = ExtractQuotedOrLiteralArg(&args);
+		if (!email)
+			result = sAccountMgr.CreateAccount(account_name, password, expansion); 
+		else
+			result = sAccountMgr.CreateAccount(account_name, password, expansion, std::string(email));
+	}
     else
         result = sAccountMgr.CreateAccount(account_name, password);
     switch (result)

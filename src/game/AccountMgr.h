@@ -43,6 +43,7 @@ class AccountMgr
 
         AccountOpResult CreateAccount(std::string username, std::string password);
         AccountOpResult CreateAccount(std::string username, std::string password, uint32 expansion);
+		AccountOpResult CreateAccount(std::string username, std::string password, uint32 expansion,std::string email);
         AccountOpResult DeleteAccount(uint32 accid);
         AccountOpResult ChangeUsername(uint32 accid, std::string new_uname, std::string new_passwd);
         AccountOpResult ChangePassword(uint32 accid, std::string new_passwd);

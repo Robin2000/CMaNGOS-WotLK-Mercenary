@@ -1466,7 +1466,7 @@ void World::DetectDBCLang()
         exit(1);
     }
 
-    m_defaultDbcLocale = LocaleConstant(default_locale);
+    //m_defaultDbcLocale = LocaleConstant(default_locale);不从dbc 获得语言
 
     sLog.outString("Using %s DBC Locale as default. All available DBC locales: %s", localeNames[m_defaultDbcLocale], availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
     sLog.outString();
