@@ -139,12 +139,12 @@ void GamePointMgr::_SaveGamePoint() //保存积分数据
 	//if (m_accountBalance.consumemoney > 0)不再限制，无条件保存account表，因为gametips
 	{ //有过金钱消费
 
-		static SqlStatementID insAccountBalance;
+		static SqlStatementID updateAccountBalance;
 		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
 		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
 		//stmtDel.PExecute(m_player->GetGUIDLow());
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insAccountBalance, "REPLACE INTO jf_account_balance (id,  consumemoney,gametips) VALUES (?, ?,?)");
-		stmtIns.PExecute(m_player->GetAccountId(), m_accountBalance.consumemoney, m_accountBalance.gametips + 1); //写入数据库时，增加1
+		SqlStatement stmtIns = CharacterDatabase.CreateStatement(updateAccountBalance, "update jf_account_balance set consumemoney=?,gametips=? where id=?");
+		stmtIns.PExecute(m_accountBalance.consumemoney, m_accountBalance.gametips+1, m_player->GetAccountId()); //写入数据库时，增加1
 	}
 
 
