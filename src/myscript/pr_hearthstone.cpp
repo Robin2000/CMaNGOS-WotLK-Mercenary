@@ -18,7 +18,9 @@ EndScriptData */
 #include "GamePointMgr.h"
 #include "pr_hearthstone.h"
 #include "Chat.h"
+#include "Language.h"
 /*
+insert into npc_text(ID,text0_0)values(16777209,'利用原力传送。');
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
 insert into npc_text(ID,text0_0)values(16777212,'设置返回点成功,原力与你同在！');
@@ -70,7 +72,7 @@ insert into custom_texts(entry, content_default)values(-2800232,'秒升声望（
 insert into custom_texts(entry, content_default)values(-2800233,'秒开地图（-500原力）。');
 insert into custom_texts(entry, content_default)values(-2800234,'秒开鸟点（-500原力）。');
 
-insert into custom_texts(entry, content_default)values(-2800240,'T1-T6套装（-500原力）。');
+insert into custom_texts(entry, content_default)values(-2800240,'T1-T8套装（-500原力）。');
 
 delete from custom_texts where entry>=-2800279 and entry<=-2800260;
 
@@ -90,6 +92,36 @@ insert into custom_texts(entry, content_default)values(-2800272,'【生活技能
 insert into custom_texts(entry, content_default)values(-2800273,'【生活技能】急救（-500原力）。');
 insert into custom_texts(entry, content_default)values(-2800279,'系统提示：商业技能最多学习2个。');
 
+
+insert into custom_texts(entry, content_default)values(-2800300,'地图传送。');
+
+insert into custom_texts(entry, content_default)values(-2800301,'|TInterface\\ICONS\\achievement_zone_zuldrak_05.blp:30|t |cff0000ff各大主城传送。');
+insert into custom_texts(entry, content_default)values(-2800302,'|TInterface\\ICONS\\Achievement_BG_winWSG.blp:30|t |cFFFF0000古拉巴什竞技场"。');
+insert into custom_texts(entry, content_default)values(-2800303,'|TInterface\\ICONS\\Achievement_Zone_EasternKingdoms_01.blp:30|t 东部王国地区。');
+insert into custom_texts(entry, content_default)values(-2800304,'|TInterface\\ICONS\\Achievement_Zone_Kalimdor_01.blp:30|t 卡利姆多地区。');
+insert into custom_texts(entry, content_default)values(-2800305,'|TInterface\\ICONS\\Achievement_Boss_PrinceKeleseth.blp:30|t 艾泽拉斯副本。');
+insert into custom_texts(entry, content_default)values(-2800306,'|TInterface\\ICONS\\Achievement_Zone_Blackrock_01.blp:30|t 艾泽拉斯团队副本。');
+insert into custom_texts(entry, content_default)values(-2800307,'|TInterface\\ICONS\\Achievement_Zone_Outland_01.blp:30|t 外域地区。');
+insert into custom_texts(entry, content_default)values(-2800308,'|TInterface\\ICONS\\Achievement_boss_murmur.blp:30|t 外域副本。');
+insert into custom_texts(entry, content_default)values(-2800309,'|TInterface\\ICONS\\Achievement_Zone_IsleOfQuelDanas.blp:30|t 外域团队副本。');
+insert into custom_texts(entry, content_default)values(-2800310,'|TInterface\\ICONS\\Achievement_Zone_Northrend_01.blp:30|t 诺森德地区。');
+insert into custom_texts(entry, content_default)values(-2800311,'|TInterface\\LFGFrame\\LFGIcon-TheForgeofSouls.blp:30|t 诺森德副本。');
+insert into custom_texts(entry, content_default)values(-2800312,'|TInterface\\ICONS\\Achievement_Zone_IceCrown_01.blp:30|t 诺森德团队副本。');
+
+insert into custom_texts(entry, content_default)values(-2800321, '|cFF0000CC|TInterface\\ICONS\\Achievement_Leader_King_Varian_Wrynn.blp:30|t [联盟]暴风城。');
+insert into custom_texts(entry, content_default)values(-2800322, '|cFF0000CC|TInterface\\ICONS\\Achievement_Leader_King_Magni_Bronzebeard.blp:30|t [联盟]铁炉堡（主城）。');
+insert into custom_texts(entry, content_default)values(-2800323, '|cFF0000CC|TInterface\\ICONS\\Achievement_Leader_Tyrande_Whisperwind.blp:30|t [联盟]达拉苏斯。');
+insert into custom_texts(entry, content_default)values(-2800324, '|cFF0000CC|TInterface\\ICONS\\Achievement_Leader_Prophet_Velen.blp:30|t [联盟]埃索达');
+insert into custom_texts(entry, content_default)values(-2800325, '|cFF990066|TInterface\\ICONS\\Achievement_Zone_Tanaris_01.blp:30|t [中立]加基森。');
+insert into custom_texts(entry, content_default)values(-2800326, '|cFF990066|TInterface\\ICONS\\Achievement_Zone_ElwynnForest.blp:30|t [中立]藏宝海湾。');
+insert into custom_texts(entry, content_default)values(-2800327, '|cFF990066|TInterface\\ICONS\\Achievement_Zone_EversongWoods.blp:30|t [中立]沙塔斯。');
+insert into custom_texts(entry, content_default)values(-2800328, '|cFF990066|TInterface\\ICONS\\Achievement_Zone_GrizzlyHills_01.blp:30|t [中立]达拉然。');
+
+insert into custom_texts(entry, content_default)values(-2800331, '|cFF000000|TInterface\\ICONS\\Achievement_Leader_ Thrall.blp:30|t [部落]奥格瑞玛（主城）。');
+insert into custom_texts(entry, content_default)values(-2800332, '|cff000000|TInterface\\ICONS\\Achievement_Leader_Cairne Bloodhoof.blp:30|t [部落]雷霆崖。');
+insert into custom_texts(entry, content_default)values(-2800333, '|cff000000|TInterface\\ICONS\\Achievement_Leader_Sylvanas.blp:30|t [部落]幽暗城。');
+insert into custom_texts(entry, content_default)values(-2800334, '|cff000000|TInterface\\ICONS\\Achievement_Leader_Lorthemar_Theron .blp:30|t [部落]银月城');
+
 insert into gossip_menu(entry,text_id) values(65535,16777213);
 */
 bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*scTargets*/)
@@ -103,8 +135,8 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//游戏直达。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800300, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);//地图传送。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800210, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//发送游戏小技巧。
-
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);//设置返回点。（-3原力）
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);//前往返回点。（-2原力）
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);//回家。
@@ -113,7 +145,76 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
 	return true;
 }
-
+void hearthstone_prepare_transport(Player* pPlayer, Item* pItem){
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800301, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 200);  // 各大主城传送
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800302, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 201);  // 古拉巴什竞技场
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800303, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 202);  // 东部王国地区
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800304, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 203);  // 卡利姆多地区
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800305, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 204);  // 艾泽拉斯副本
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800306, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 205);  // 艾泽拉斯团队副本
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800307, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 206);  // 外域地区
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800308, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 207);  // 外域副本
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800309, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 208);  // 外域团队副本
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800310, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 209);  // 诺森德地区
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800311, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 210);  // 诺森德副本
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800312, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 211);  // 诺森德团队副本
+	pPlayer->SEND_GOSSIP_MENU(16777209, pItem->GetObjectGuid()); //利用原力传送
+}
+void hearthstone_prepare_transport2(Player* pPlayer, Item* pItem, uint32 uiAction){
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
+	if (uiAction >= GOSSIP_ACTION_INFO_DEF + 200){// 各大主城传送
+		uint8 race=pPlayer->getRace();
+		if (race == 1 || race == 3 || race == 4 || race == 7 || race == 11) {//联盟传送
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800321, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 230);//[联盟]暴风城
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800322, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 231);//[联盟]铁炉堡（主城）
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800323, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 232);//[联盟]达拉苏斯
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800324, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 233);//[联盟]埃索达
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800325, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 234);//[中立]加基森
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800326, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 235);//[联盟]暴风城
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800327, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 236);//[联盟]暴风城
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800328, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 237);//[联盟]暴风城
+		}
+		//Horde Cities
+		else if (race == 2 | race == 5 | race == 6 | race == 8 | race == 10){
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800331, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 240);//[部落]奥格瑞玛（主城）
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800332, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 241);//[部落]雷霆崖
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800333, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 242);//[部落]幽暗城
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800334, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 243);//[部落]银月城
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800325, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 244);//[中立]加基森
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800326, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 245);//[中立]藏宝海湾
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800327, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 246);//[中立]沙塔斯
+			pPlayer->ADD_GOSSIP_ITEM(2, -2800328, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 247);//[中立]达拉然
+		}
+	}
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 201)// 古拉巴什竞技场
+		hearthstone_transport(pPlayer,0, -13261.30, 164.45, 35.78, 0);
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 202){ // 东部王国地区
+	player:GossipMenuAddItem(2, "奥特兰克山脉", 0, 112)
+	player : GossipMenuAddItem(2, "阿拉希高地", 0, 113)
+		 player : GossipMenuAddItem(2, "荒芜之地", 0, 114)
+			  player : GossipMenuAddItem(2, "诅咒之地", 0, 115)
+				   player : GossipMenuAddItem(2, "燃烧平原", 0, 116)
+						player : GossipMenuAddItem(2, "逆风小径", 0, 117)
+							 player : GossipMenuAddItem(2, "丹莫罗", 0, 118)
+								  player : GossipMenuAddItem(2, "暮色森林", 0, 119)
+									   player : GossipMenuAddItem(2, "东瘟疫之地", 0, 120)
+											player : GossipMenuAddItem(2, "艾尔文森林", 0, 121)
+												 player : GossipMenuAddItem(2, "永歌森林", 0, 122)
+													  player : GossipMenuAddItem(2, "幽魂之地", 0, 123)
+														   player : GossipMenuAddItem(2, "希尔斯布莱德丘陵", 0, 124)
+																player : GossipMenuAddItem(2, "奎尔达纳斯之岛", 0, 125)
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 203){  // 卡利姆多地区
+	}
+	pPlayer->SEND_GOSSIP_MENU(16777209, pItem->GetObjectGuid()); //利用原力传送
+}
+bool hearthstone_transport(Player* pPlayer, uint32 mapid, float x, float y, float z, float orientation){
+	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+		return false;
+	pPlayer->TeleportTo(mapid, x, y, z, orientation);
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 1);
+	return true;
+}
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
 {	
 
@@ -150,6 +251,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	{
 		pPlayer->TeleportToHomebind();
 	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 8)//地图传送。
+	{
+		hearthstone_prepare_transport(pPlayer, pItem);
+	}
 	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 91 && uiAction <= GOSSIP_ACTION_INFO_DEF + 106)
 	{
 		hearthstone_mount(pPlayer, pItem, uiAction);
@@ -162,10 +267,27 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	{
 		hearthstone_learn_professional(pPlayer, pItem, uiAction);
 	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 115)
+	{
+		learn_default_spell(pPlayer, pItem, uiAction);
+	}
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 200 && uiAction <= GOSSIP_ACTION_INFO_DEF + 220)//地图传送2级菜单。
+	{
+		hearthstone_prepare_transport2(pPlayer, pItem, uiAction);
+	}
 	//pPlayer->HandleEmoteCommandHappy();
 	return true;
 }
-
+bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction){
+	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+		return false;
+	pPlayer->learnDefaultSpells();
+	pPlayer->learnQuestRewardedSpells();
+	ChatHandler chatHandler(pPlayer);
+	chatHandler.PSendSysMessage(LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST, chatHandler.GetNameLink(pPlayer).c_str());
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	return true;
+}
 void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800221, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 110);  // 秒升30级
@@ -173,10 +295,10 @@ void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800223, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 112);  // 秒升70级
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800224, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 113);  // 秒升80级
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800230, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 114);  // 秒升专业
-	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800231, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 115);  // 秒升法术
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800231, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 115);  // 秒升法术
 	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800232, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 116);  // 秒升声望
-	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800233, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 117);  // 秒开地图
-	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800234, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 118);  // 秒开鸟点
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800233, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 117);  // 秒开地图
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800234, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 118);  // 秒开鸟点
 	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800240, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 119);  // T1-T6套装
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
@@ -261,12 +383,37 @@ void hearthstone_gamedirect(Player* pPlayer, Item* pItem, uint32 uiAction){
 		case GOSSIP_ACTION_INFO_DEF + 114:prepareProfessional(pPlayer, pItem); break;
 		//case GOSSIP_ACTION_INFO_DEF + 115:learnSpell(pPlayer, maMountSpell); break;
 		//case GOSSIP_ACTION_INFO_DEF + 116:gamedirect(pPlayer, maMountSpell); break;
-		//case GOSSIP_ACTION_INFO_DEF + 117:exploreMap(pPlayer, maMountSpell); break;
-		//case GOSSIP_ACTION_INFO_DEF + 118:waypoint(pPlayer, maMountSpell); break;
+		case GOSSIP_ACTION_INFO_DEF + 117:explorecheat(pPlayer); break;
+		case GOSSIP_ACTION_INFO_DEF + 118:taxicheat(pPlayer); break;
 		//case GOSSIP_ACTION_INFO_DEF + 119:itemset(pPlayer, maMountSpell); break;
 	}
 }
+//explorecheat
+bool explorecheat(Player* pPlayer){
+	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+		return false;
 
+	for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
+		pPlayer->SetFlag(PLAYER_EXPLORED_ZONES_1 + i, 0xFFFFFFFF);
+
+	ChatHandler chatHandler(pPlayer);
+	chatHandler.PSendSysMessage(LANG_YOURS_EXPLORE_SET_ALL, chatHandler.GetNameLink().c_str());
+
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	return true;
+}
+//taxicheat
+bool taxicheat(Player* pPlayer){
+	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+		return false;
+
+	pPlayer->SetTaxiCheater(true);
+	ChatHandler chatHandler(pPlayer);
+	chatHandler.PSendSysMessage(LANG_YOURS_TAXIS_ADDED, chatHandler.GetNameLink().c_str());
+
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	return true;
+}
 bool levelup(Player* pPlayer, int level, int point)
 {
 	if (!pPlayer->GetGamePointMgr().checkPoint(point))
