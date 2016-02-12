@@ -319,3 +319,8 @@ const static int yangMountSpell[27] = { //Ст
 bool hearthstone_random_mount(Player* pPlayer, const int spellarray[]);
 void hearthstone_mount(Player* pPlayer, Item* pItem, uint32 uiAction);
 void hearthstone_prepare_mount(Player* pPlayer, Item* pItem);
+bool levelup(Player* pPlayer, int level, int point);
+void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem);
+void hearthstone_gamedirect(Player* pPlayer, Item* pItem, uint32 uiAction);
+void hearthstone_learn_professional(Player* pPlayer, Item* pItem, uint32 uiAction);
+bool learn_professional(Player* pPlayer, uint32 skillid, uint8 maxnum);

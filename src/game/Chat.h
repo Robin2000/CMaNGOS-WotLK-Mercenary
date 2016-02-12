@@ -123,7 +123,7 @@ class MANGOS_DLL_SPEC ChatHandler
             ObjectGuid const& senderGuid = ObjectGuid(), char const* senderName = nullptr,
             ObjectGuid const& targetGuid = ObjectGuid(), char const* targetName = nullptr,
             char const* channelName = nullptr, uint32 achievementId = 0);
-    protected:
+    //protected:¸ÄÎªpublic
         explicit ChatHandler() : m_session(nullptr) {}      // for CLI subclass
 
         bool hasStringAbbr(const char* name, const char* part);
