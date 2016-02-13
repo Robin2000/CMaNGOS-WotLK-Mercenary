@@ -327,6 +327,7 @@ bool learn_professional(Player* pPlayer, uint32 skillid, uint8 maxnum);
 bool explorecheat(Player* pPlayer);
 bool taxicheat(Player* pPlayer);
 bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction);
-void hearthstone_prepare_transport(Player* pPlayer, Item* pItem);
-void hearthstone_prepare_transport2(Player* pPlayer, Item* pItem, uint32 uiAction);
-bool hearthstone_transport(Player* pPlayer, uint32 mapid, float x, float y, float z);
+
+bool hearthstone_prepare_transport2(Player* pPlayer, Item* pItem, uint32 uiAction);
+bool hearthstone_transport(Player* pPlayer, uint32 mapid, double x, double y, double z, double o);
+bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction);
