@@ -601,6 +601,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleHideAreaCommand(char* args);
         bool HandleAddItemCommand(char* args);
         bool HandleAddItemSetCommand(char* args);
+		bool ChatHandler::addItemSet(uint32 itemsetId);
 
         bool HandleBankCommand(char* args);
         bool HandleChangeWeatherCommand(char* args);

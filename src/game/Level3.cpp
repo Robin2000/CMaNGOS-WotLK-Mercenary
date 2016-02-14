@@ -2702,56 +2702,61 @@ bool ChatHandler::HandleAddItemSetCommand(char* args)
         return false;
     }
 
-    Player* pl = m_session->GetPlayer();
-    Player* plTarget = getSelectedPlayer();
-    if (!plTarget)
-        plTarget = pl;
 
     DETAIL_LOG(GetMangosString(LANG_ADDITEMSET), itemsetId);
 
-    bool found = false;
-    for (uint32 id = 0; id < sItemStorage.GetMaxEntry(); ++id)
-    {
-        ItemPrototype const* pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
-        if (!pProto)
-            continue;
-
-        if (pProto->ItemSet == itemsetId)
-        {
-            found = true;
-            ItemPosCountVec dest;
-            InventoryResult msg = plTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, pProto->ItemId, 1);
-            if (msg == EQUIP_ERR_OK)
-            {
-                Item* item = plTarget->StoreNewItem(dest, pProto->ItemId, true);
-
-                // remove binding (let GM give it to another player later)
-                if (pl == plTarget)
-                    item->SetBinding(false);
-
-                pl->SendNewItem(item, 1, false, true);
-                if (pl != plTarget)
-                    plTarget->SendNewItem(item, 1, true, false);
-            }
-            else
-            {
-                pl->SendEquipError(msg, nullptr, nullptr, pProto->ItemId);
-                PSendSysMessage(LANG_ITEM_CANNOT_CREATE, pProto->ItemId, 1);
-            }
-        }
-    }
-
-    if (!found)
-    {
-        PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, itemsetId);
-
-        SetSentErrorMessage(true);
-        return false;
-    }
+	addItemSet(itemsetId);
 
     return true;
 }
+bool ChatHandler::addItemSet(uint32 itemsetId){
 
+
+	Player* pl = m_session->GetPlayer();
+	Player* plTarget = getSelectedPlayer();
+	if (!plTarget)
+		plTarget = pl;
+
+	bool found = false;
+	for (uint32 id = 0; id < sItemStorage.GetMaxEntry(); ++id)
+	{
+		ItemPrototype const* pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
+		if (!pProto)
+			continue;
+
+		if (pProto->ItemSet == itemsetId)
+		{
+			found = true;
+			ItemPosCountVec dest;
+			InventoryResult msg = plTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, pProto->ItemId, 1);
+			if (msg == EQUIP_ERR_OK)
+			{
+				Item* item = plTarget->StoreNewItem(dest, pProto->ItemId, true);
+
+				// remove binding (let GM give it to another player later)
+				if (pl == plTarget&&pl->isGameMaster())
+					item->SetBinding(false);
+
+				pl->SendNewItem(item, 1, false, true);
+				if (pl != plTarget)
+					plTarget->SendNewItem(item, 1, true, false);
+			}
+			else
+			{
+				pl->SendEquipError(msg, nullptr, nullptr, pProto->ItemId);
+				PSendSysMessage(LANG_ITEM_CANNOT_CREATE, pProto->ItemId, 1);
+			}
+		}
+	}
+
+	if (!found)
+	{
+		PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, itemsetId);
+
+		SetSentErrorMessage(true);
+		return false;
+	}
+}
 bool ChatHandler::HandleListItemCommand(char* args)
 {
     uint32 item_id;

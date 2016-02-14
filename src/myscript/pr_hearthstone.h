@@ -331,3 +331,6 @@ bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction);
 bool hearthstone_prepare_transport2(Player* pPlayer, Item* pItem, uint32 uiAction);
 bool hearthstone_transport(Player* pPlayer, uint32 mapid, double x, double y, double z, double o);
 bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction);
+bool hearthstone_itemset(Player* pPlayer, Item* pItem, uint32 uiAction);
+void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction);
+bool additemset(Player* pPlayer, uint32 itemset);
