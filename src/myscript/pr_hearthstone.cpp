@@ -24,7 +24,7 @@ insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标�
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
 insert into npc_text(ID,text0_0)values(16777212,'设置返回点成功,原力与你同在！');
 insert into npc_text(ID,text0_0)values(16777213,'在线即可累积原力。');
-insert into npc_text(ID,text0_0)values(16777214,'原力与你同在！更多信息请移步交流论坛：http://mangos.mybbs.us。');
+insert into npc_text(ID,text0_0)values(16777214,'原力与你同在！更多信息请移步网站：http://51.neocities.org/。');
 
 
 insert into custom_texts(entry, content_default)values(-2800173,'当前原力值：%d');
@@ -154,7 +154,7 @@ insert into gossip_menu_option
 (21002,12,'幽魂之地',123,0,0),
 (21002,13,'奥希尔斯布莱德丘陵',124,0,0),
 (21002,14,'奎尔达纳斯之岛',125,0,0),
-(21002,15,'下一页',121020, 21020,0),
+(21002,15,'下一页',255, 0,21020),
 
 (21020,1,'洛克莫丹',126,0,0),
 (21020,2,'赤脊山脉',127,0,0),
@@ -167,7 +167,7 @@ insert into gossip_menu_option
 (21020,9,'西瘟疫之地',134,0,0),
 (21020,10,'西部荒野',135,0,0),
 (21020,11,'湿地',136,0,0),
-(21020,12,'上一页',121002, 21002,0),
+(21020,12,'上一页',254, 0,21002),
 
 
 (21003,1,'灰谷',137, 0, 0),
@@ -183,7 +183,7 @@ insert into gossip_menu_option
 (21003,11,'月光林地',147, 0, 0),
 (21003,12,'莫高雷',148, 0, 0),
 (21003,13,'希利苏斯',149, 0, 0),
-(21003,14,'下一页',121021, 21021,0 ),
+(21003,14,'下一页',253, 0,21021 ),
 
 (21021,1,'石爪山脉',150, 0, 0),
 (21021,2,'塔纳利斯',151, 0, 0),
@@ -192,7 +192,7 @@ insert into gossip_menu_option
 (21021,5,'千针石林',154, 0, 0),
 (21021,6,'安戈洛环形山',155, 0, 0),
 (21021,7,'冬泉谷',156, 0, 0),
-(21021,8,'上一页',121003,21003, 0 ),
+(21021,8,'上一页',252,0, 21003 ),
 
 (21004,1,'黑暗深渊',29, 0,  0),
 (21004,2,'黑石深渊',30, 0,  0),
@@ -209,14 +209,14 @@ insert into gossip_menu_option
 (21004,13,'沉没的神庙',41, 0,  0),
 (21004,14,'死亡矿井',42, 0,  0),
 (21004,15,'暴风城监狱',43, 0,  22),
-(21004,16,'下一页',121022, 21022,  0);
+(21004,16,'下一页',251, 0,  21022);
 
 insert into gossip_menu_option
 (menu_id,id,option_text,option_id,action_menu_id,condition_id)value
 (21022,1,'奥达曼',44, 0,  0),
 (21022,2,'哀嚎洞穴',45, 0,  0),
 (21022,3,'祖尔法拉克',46, 0,  0),
-(21022,4,'上一页',121004, 21004,  0),
+(21022,4,'上一页',250, 0,  21004),
 
 
 (21005,1,'黑翼之巢',47, 0,  0),
@@ -521,8 +521,8 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 	if (uiAction == 1)return hearthstone_prepare_transport2(pPlayer, pItem, 21001);//主城
 	else if (uiAction == 3)return hearthstone_prepare_transport2(pPlayer, pItem, 21004); //Azeroth Instances
-	else if (uiAction == 121022)return hearthstone_prepare_transport2(pPlayer, pItem, 21022); //下一页
-	else if (uiAction == 121004)return hearthstone_prepare_transport2(pPlayer, pItem, 21004); //上一页
+	else if (uiAction == 251)return hearthstone_prepare_transport2(pPlayer, pItem, 21022); //下一页
+	else if (uiAction == 250)return hearthstone_prepare_transport2(pPlayer, pItem, 21004); //上一页
 
 	else if (uiAction == 4)return hearthstone_prepare_transport2(pPlayer, pItem, 21005); //Azeroth Raids21005
 	else if (uiAction == 5)return hearthstone_prepare_transport2(pPlayer, pItem, 21006); //Outland Locations21006
@@ -546,12 +546,12 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 	else if (uiAction == 26)return hearthstone_transport(pPlayer, 530, 9398.75, -7277.41, 14.21, 0);//Silvermoon
 
 	else if (uiAction == 27)return hearthstone_prepare_transport2(pPlayer, pItem, 21002);//Eastern Kingdoms21002
-	else if (uiAction == 121020)return hearthstone_prepare_transport2(pPlayer, pItem, 21020);//下一页
-	else if (uiAction == 121021)return hearthstone_prepare_transport2(pPlayer, pItem, 21021);//下一页
+	else if (uiAction == 255)return hearthstone_prepare_transport2(pPlayer, pItem, 21020);//下一页
+	else if (uiAction == 253)return hearthstone_prepare_transport2(pPlayer, pItem, 21021);//下一页
 
 	else if (uiAction == 28)return hearthstone_prepare_transport2(pPlayer, pItem, 21003);//Kalimdor21003
-	else if (uiAction == 121002)return hearthstone_prepare_transport2(pPlayer, pItem, 21002);//上一页
-	else if (uiAction == 121003)return hearthstone_prepare_transport2(pPlayer, pItem, 21003);//上一页
+	else if (uiAction == 254)return hearthstone_prepare_transport2(pPlayer, pItem, 21002);//上一页
+	else if (uiAction == 252)return hearthstone_prepare_transport2(pPlayer, pItem, 21003);//上一页
 
 	else if (uiAction == 29)return hearthstone_transport(pPlayer, 1, 4247.34, 744.05, -24.71, 0); //Blackfathom Deeps
 	else if (uiAction == 30)return hearthstone_transport(pPlayer, 0, -7576.74, -1126.68, 262.26, 0);//Blackrock Depths
@@ -1093,6 +1093,7 @@ bool hearthstone_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
 	case GOSSIP_ACTION_INFO_DEF + 326:return additemset(pPlayer, 828);  // T8套装（80级） 828
 	case GOSSIP_ACTION_INFO_DEF + 327:return additemset(pPlayer, 829);  // T8套装（80级） 829
 	};
+	return false;
 }
 
 bool additemset(Player* pPlayer, uint32 itemset){
