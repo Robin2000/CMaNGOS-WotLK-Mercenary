@@ -334,3 +334,7 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction);
 bool hearthstone_itemset(Player* pPlayer, Item* pItem, uint32 uiAction);
 void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction);
 bool additemset(Player* pPlayer, uint32 itemset);
+void hearthstone_prepare_quest(Player* pPlayer, Item* pItem);
+bool hearthstone_click2(Player* pPlayer, Item* pItem);
+void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid);
+void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx);

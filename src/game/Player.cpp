@@ -13284,6 +13284,27 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* pQuest)
 
     return nullptr;
 }
+Quest const* Player::GetQuest(uint32 quest_id){
+	return sObjectMgr.GetQuestTemplate(quest_id);
+}
+void Player::GetQuestTitleLocale(uint32 quest_id, std::string * title){
+	Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+	int loc_idx = GetSession()->GetSessionDbLocaleIndex();
+	*title = pQuest->GetTitle();
+	sObjectMgr.GetQuestLocaleStrings(pQuest->GetQuestId(), loc_idx, title);
+}
+
+void Player::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name){
+	if (entry > 0)//creature
+		sObjectMgr.GetCreatureLocaleStrings(entry, m_session->GetSessionDbLocaleIndex(), name);
+	else if (entry < 0)//gameobject
+		sObjectMgr.GetGameObjectLocaleStrings(0-entry, m_session->GetSessionDbLocaleIndex(), name);
+	else
+		*name = "error";
+}
+CreatureData& Player::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }
+
+GameObjectData& Player::findGameObjectDataByEntry(uint32 entry){ return sObjectMgr.findGameObjectDataByEntry(entry); }
 
 /**
  * Check if a player could see a start quest

@@ -2756,6 +2756,7 @@ bool ChatHandler::addItemSet(uint32 itemsetId){
 		SetSentErrorMessage(true);
 		return false;
 	}
+	return true;
 }
 bool ChatHandler::HandleListItemCommand(char* args)
 {

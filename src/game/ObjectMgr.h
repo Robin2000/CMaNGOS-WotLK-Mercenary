@@ -868,14 +868,15 @@ class ObjectMgr
             return &itr->second;
         }
 
-        void GetCreatureLocaleStrings(uint32 entry, int32 loc_idx, char const** namePtr, char const** subnamePtr = nullptr) const;
+		void GetCreatureLocaleStrings(uint32 entry, int32 loc_idx, char const** namePtr, char const** subnamePtr = nullptr) const;
 
-        GameObjectLocale const* GetGameObjectLocale(uint32 entry) const
+		GameObjectLocale const* GetGameObjectLocale(uint32 entry) const
         {
             GameObjectLocaleMap::const_iterator itr = mGameObjectLocaleMap.find(entry);
             if (itr == mGameObjectLocaleMap.end()) return nullptr;
             return &itr->second;
         }
+		void GetGameObjectLocaleStrings(uint32 entry, int32 loc_idx, char const** namePtr) const;
 
         ItemLocale const* GetItemLocale(uint32 entry) const
         {
@@ -1147,6 +1148,16 @@ class ObjectMgr
         * Qualifier: const
         **/
         CreatureClassLvlStats const* GetCreatureClassLvlStats(uint32 level, uint32 unitClass, int32 expansion) const;
+
+		CreatureDataMap  mCreatureEntryMap;//以entry作为map的key
+		GameObjectDataMap mGameObjectEntryMap;//以entry作为map的key
+		CreatureData& findCreatureDataByEntry(uint32 entry){ 
+			return mCreatureEntryMap[entry]; 
+		}
+		GameObjectData& findGameObjectDataByEntry(uint32 entry){ 
+			return mGameObjectEntryMap[entry]; 
+		}
+
     protected:
 
         // first free id for selected id type
@@ -1275,8 +1286,10 @@ class ObjectMgr
         MapObjectGuids mMapObjectGuids;
         ActiveCreatureGuidsOnMap m_activeCreatures;
         CreatureDataMap mCreatureDataMap;
-        CreatureLocaleMap mCreatureLocaleMap;
+		
+		CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;
+
         GameObjectLocaleMap mGameObjectLocaleMap;
         ItemLocaleMap mItemLocaleMap;
         QuestLocaleMap mQuestLocaleMap;

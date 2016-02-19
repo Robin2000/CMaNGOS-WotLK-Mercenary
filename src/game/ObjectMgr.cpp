@@ -1413,7 +1413,7 @@ void ObjectMgr::LoadCreatures()
         }
 
         CreatureData& data = mCreatureDataMap[guid];
-
+		
         data.id                 = entry;
         data.mapid              = fields[ 2].GetUInt32();
         data.modelid_override   = fields[ 3].GetUInt32();
@@ -1435,6 +1435,7 @@ void ObjectMgr::LoadCreatures()
         int16 GuidPoolId        = fields[19].GetInt16();
         int16 EntryPoolId       = fields[20].GetInt16();
 
+		mCreatureEntryMap[entry] = data;//将数据放到EntryMap中方便根据entry快速定位
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
@@ -1646,7 +1647,7 @@ void ObjectMgr::LoadGameObjects()
         }
 
         GameObjectData& data = mGameObjectDataMap[guid];
-
+		
         data.id             = entry;
         data.mapid          = fields[ 2].GetUInt32();
         data.posX           = fields[ 3].GetFloat();
@@ -1666,6 +1667,7 @@ void ObjectMgr::LoadGameObjects()
         int16 GuidPoolId    = fields[17].GetInt16();
         int16 EntryPoolId   = fields[18].GetInt16();
 
+		mGameObjectEntryMap[entry] = data;//将数据放到EntryMap中方便快速定位
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
@@ -9664,7 +9666,16 @@ void ObjectMgr::GetCreatureLocaleStrings(uint32 entry, int32 loc_idx, char const
         }
     }
 }
-
+void ObjectMgr::GetGameObjectLocaleStrings(uint32 entry, int32 loc_idx, char const** namePtr) const{
+	if (loc_idx >= 0)
+	{
+		if (GameObjectLocale const* il = GetGameObjectLocale(entry))
+		{
+			if (namePtr && il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
+				*namePtr = il->Name[loc_idx].c_str();
+		}
+	}
+}
 void ObjectMgr::GetItemLocaleStrings(uint32 entry, int32 loc_idx, std::string* namePtr, std::string* descriptionPtr) const
 {
     if (loc_idx >= 0)

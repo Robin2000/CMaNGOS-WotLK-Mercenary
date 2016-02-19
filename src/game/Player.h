@@ -38,6 +38,7 @@
 #include "BattleGround/BattleGround.h"
 #include "SharedDefines.h"
 #include "Chat.h"
+#include "GameObject.h"
 #include "pr_threadpool.h"
 
 #include<string>
@@ -538,7 +539,8 @@ enum AtLoginFlags
     AT_LOGIN_FIRST              = 0x20,
 };
 
-typedef std::map<uint32, QuestStatusData> QuestStatusMap;
+//typedef std::map<uint32, QuestStatusData> QuestStatusMap;
+typedef tbb::concurrent_unordered_map<uint32, QuestStatusData> QuestStatusMap; //支持并发迭代
 
 enum QuestSlotOffsets
 {
@@ -1081,10 +1083,15 @@ class MANGOS_DLL_SPEC Player : public Unit
 		//积分
 
 		GamePointMgr gamePointMgr;
-		GamePointMgr& GetGamePointMgr(){ return gamePointMgr; };
+		GamePointMgr& GetGamePointMgr(){ return gamePointMgr; }
 		const char* GetMangosString(uint32 entry);
-		const uint32 GetAccountId() { return GetSession()->GetAccountId(); };
+		const uint32 GetAccountId() { return GetSession()->GetAccountId(); }
 		//积分
+		//炉石任务
+		Quest const * hearthstoneQuest;
+		Quest const *  GetHearthstoneQuest(){ return hearthstoneQuest; }
+		void SetHearthstoneQuest(Quest const * quest){ hearthstoneQuest = quest; }
+		//炉石任务
 
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
@@ -1350,6 +1357,12 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool IsCurrentQuest(uint32 quest_id, uint8 completed_or_not = 0) const; // taken and not yet rewarded
 
         Quest const* GetNextQuest(ObjectGuid guid, Quest const* pQuest);
+		Quest const* GetQuest(uint32 quest_id);
+		void GetQuestTitleLocale(uint32 quest_id, std::string * title);
+		void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
+		CreatureData& findCreatureDataByEntry(uint32 entry);
+		GameObjectData& findGameObjectDataByEntry(uint32 entry);
+
         bool CanSeeStartQuest(Quest const* pQuest) const;
         bool CanTakeQuest(Quest const* pQuest, bool msg) const;
         bool CanAddQuest(Quest const* pQuest, bool msg) const;

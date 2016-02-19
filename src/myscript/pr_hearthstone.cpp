@@ -19,6 +19,7 @@ EndScriptData */
 #include "pr_hearthstone.h"
 #include "Chat.h"
 #include "Language.h"
+#include "ObjectMgr.h"
 /*
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
@@ -26,6 +27,7 @@ insert into npc_text(ID,text0_0)values(16777212,'设置返回点成功,原力与
 insert into npc_text(ID,text0_0)values(16777213,'在线即可累积原力。');
 insert into npc_text(ID,text0_0)values(16777214,'原力与你同在！更多信息请移步网站：http://51.neocities.org/。');
 
+insert into custom_texts(entry, content_default)values(-2800169,'任务辅助');
 
 insert into custom_texts(entry, content_default)values(-2800173,'当前原力值：%d');
 insert into custom_texts(entry, content_default)values(-2800174,'设置返回点。（-3原力）');
@@ -35,7 +37,7 @@ insert into custom_texts(entry, content_default)values(-2800177,'系统提示：
 insert into custom_texts(entry, content_default)values(-2800178,'系统提示：还没有设置返回点。');
 insert into custom_texts(entry, content_default)values(-2800179,'系统提示：设置返回点成功。');
 insert into custom_texts(entry, content_default)values(-2800180,'系统提示：禁止在副本中设置返回点。');
-insert into custom_texts(entry, content_default)values(-2800181,'返回上级菜单。');
+insert into custom_texts(entry, content_default)values(-2800181,'返回主菜单。');
 
 insert into custom_texts(entry, content_default)values(-2800190,'原力骑乘。');
 
@@ -428,13 +430,18 @@ insert into gossip_menu(entry,text_id) values(65535,16777213);
 */
 bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*scTargets*/)
 {
+	return hearthstone_click2(pPlayer, pItem);
+}
+bool hearthstone_click2(Player* pPlayer, Item* pItem)
+{
 	//pPlayer->GetMotionMaster()->MovePoint(50000, pPlayer->GetPositionX() + 10, pPlayer->GetPositionY(), pPlayer->GetPositionZ(), true);
-	
-	char * title=new char[1024];
+
+	char * title = new char[1024];
 	sprintf(title, pPlayer->GetMangosString(-2800173), pPlayer->GetGamePointMgr().getGamePoint()); // 当前原力值：%d
 
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800169, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);//任务辅助。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//游戏直达。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800300, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);//地图传送。
@@ -447,10 +454,9 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
 	return true;
 }
-
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
 {	
-	pPlayer->PlayerTalkClass->ClearMenus();
+	//pPlayer->PlayerTalkClass->ClearMenus();
 	pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 
 	if (pPlayer->isInCombat())
@@ -488,6 +494,14 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	{
 		hearthstone_prepare_transport2(pPlayer, pItem, 21000);
 	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
+	{
+		hearthstone_prepare_quest(pPlayer, pItem);
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 999)
+	{
+		hearthstone_click2(pPlayer, pItem);//返回主菜单
+	}
 	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 91 && uiAction <= GOSSIP_ACTION_INFO_DEF + 106)
 	{
 		hearthstone_mount(pPlayer, pItem, uiAction);
@@ -508,10 +522,78 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 
 		return hearthstone_transport_case(pPlayer, pItem,uiAction);
 	}
+	else if (uiAction>GOSSIP_ACTION_INFO_DEF + 1000)
+	{
+		hearthstone_quest(pPlayer, pItem,uiAction - GOSSIP_ACTION_INFO_DEF - 1000);
+	}
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 980 && uiAction < GOSSIP_ACTION_INFO_DEF + 990)
+	{
+		transportByCreatureOrGO(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 980);
+	}
 	//pPlayer->HandleEmoteCommandHappy();
 	return true;
 }
+void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx){
+	Quest const * quest = pPlayer->GetHearthstoneQuest();
+	int32 creature=quest->ReqCreatureOrGOId[idx];
+	if (creature>0)
+	{
+		CreatureData& data=pPlayer->findCreatureDataByEntry(creature);
+		pPlayer->TeleportTo(data.mapid, data.posX, data.posY, data.posZ, 0);
+	}
+	else if (creature < 0)
+	{
+		uint32 gameobject = -creature;
+		GameObjectData& data = pPlayer->findGameObjectDataByEntry(gameobject);
+		pPlayer->TeleportTo(data.mapid, data.posX, data.posY, data.posZ, 0);
+	}
+}
+void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
+{
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);
+	Quest const * quest = pPlayer->GetQuest(questid);
+	pPlayer->SetHearthstoneQuest(quest);
 
+	for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+	{
+		if (quest->ReqCreatureOrGOId[i] != 0)
+		{
+			const char * name = "";
+			pPlayer->GetCreatureOrGOTitleLocale(quest->ReqCreatureOrGOId[i],&name);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK,"->"+std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+		}
+	}
+
+
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+}
+/*动态生成任务列表*/
+void hearthstone_prepare_quest(Player* pPlayer, Item* pItem){
+
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);
+	
+	QuestStatusMap readMap;
+	QuestStatusMap& map = pPlayer->getQuestStatusMap();
+	
+	uint8 count = 0;
+	for (QuestStatusMap::const_iterator it = map.begin(); it != map.end() && count <= 20; it++, count++)
+	{
+		if (it->second.m_status == QUEST_STATUS_INCOMPLETE || (it->second.m_status == QUEST_STATUS_COMPLETE && !it->second.m_rewarded))
+			readMap[it->first] = it->second;
+	}
+
+	for (QuestStatusMap::const_iterator it = readMap.begin(); it != readMap.end(); it++)
+	{
+		std::string  title = "";
+		pPlayer->GetQuestTitleLocale(it->first, &title);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1000 + it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
+	}
+
+
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+}
 bool hearthstone_prepare_transport2(Player* pPlayer, Item* pItem, uint32 menuid){
 	pPlayer->PrepareGossipMenu(pPlayer, menuid);
 	pPlayer->SEND_GOSSIP_MENU(65535, pItem->GetObjectGuid()); //利用原力直达游戏目标。
