@@ -526,14 +526,29 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	{
 		hearthstone_quest(pPlayer, pItem,uiAction - GOSSIP_ACTION_INFO_DEF - 1000);
 	}
-	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 980 && uiAction < GOSSIP_ACTION_INFO_DEF + 990)
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 980 && uiAction < GOSSIP_ACTION_INFO_DEF + 985)
 	{
 		transportByCreatureOrGO(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 980);
+	}
+	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 985 && uiAction < GOSSIP_ACTION_INFO_DEF + 990)
+	{
+		transportByPOI(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 985);
 	}
 	//pPlayer->HandleEmoteCommandHappy();
 	return true;
 }
+void transportByPOI(Player* pPlayer, Item* pItem, int idx){
+	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+		return;
+	tbb::concurrent_vector<WorldLocation> &POI = pPlayer->getQuestPOI();
+	WorldLocation const loc=POI.at(idx);
+	ChatHandler(pPlayer).HandleGoHelper(pPlayer,loc.mapid, loc.coord_x, loc.coord_y);
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_POI, 1);
+}
 void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx){
+	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+		return;
+
 	Quest const * quest = pPlayer->GetHearthstoneQuest();
 	int32 creature=quest->ReqCreatureOrGOId[idx];
 	if (creature>0)
@@ -547,6 +562,7 @@ void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx){
 		GameObjectData& data = pPlayer->findGameObjectDataByEntry(gameobject);
 		pPlayer->TeleportTo(data.mapid, data.posX, data.posY, data.posZ, 0);
 	}
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_TARGET, 1);
 }
 void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
 {
@@ -554,16 +570,27 @@ void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
 	Quest const * quest = pPlayer->GetQuest(questid);
 	pPlayer->SetHearthstoneQuest(quest);
 
+	//下面添加要杀死的npc或者游戏对象
 	for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
 	{
 		if (quest->ReqCreatureOrGOId[i] != 0)
 		{
 			const char * name = "";
 			pPlayer->GetCreatureOrGOTitleLocale(quest->ReqCreatureOrGOId[i],&name);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK,"->"+std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK,"->"+std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);//0-3 最大为983
 		}
 	}
+	//下面添加兴趣点
+	
+	int count = 0;
+	tbb::concurrent_vector<WorldLocation> &POI = pPlayer->getQuestPOI(questid);
+	for (tbb::concurrent_vector<WorldLocation>::const_iterator itr = POI.begin(); itr != POI.end(); ++itr, count++)
+	{
+		char * title = new char[1024];
+		sprintf(title, "map:%d(%d,%d)", itr->mapid, int32(itr->coord_x), int32(itr->coord_y)); // 坐标(x,y)：%f,%f
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 985 + count);//返回主菜单
 
+	}
 
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
@@ -784,7 +811,7 @@ bool hearthstone_transport(Player* pPlayer, uint32 mapid, double x, double y, do
 	if (!pPlayer->GetGamePointMgr().checkPoint(1))
 		return false;
 	pPlayer->TeleportTo(mapid, x, y, z, o);
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 1);
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TELE, 1);
 	return true;
 }
 bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction){
@@ -807,8 +834,8 @@ void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800230, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 114);  // 秒升专业
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800231, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 115);  // 秒升法术
 	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800232, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 116);  // 秒升声望
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800233, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 117);  // 秒开地图
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800234, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 118);  // 秒开鸟点
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800233, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 117);  // 全开地图
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800234, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 118);  // 全开飞行点
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800240, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 119);  // T1-T8套装
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
@@ -1192,7 +1219,7 @@ bool additemset(Player* pPlayer, uint32 itemset){
 	}
 
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_ITEMSET, 500);
 	return true;
 }
 //explorecheat
@@ -1211,14 +1238,14 @@ bool explorecheat(Player* pPlayer){
 }
 //taxicheat
 bool taxicheat(Player* pPlayer){
-	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+	if (!pPlayer->GetGamePointMgr().checkPoint(2))
 		return false;
 
 	pPlayer->SetTaxiCheater(true);
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.PSendSysMessage(LANG_YOURS_TAXIS_ADDED, chatHandler.GetNameLink().c_str());
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TAXICHEAT, 2);
 	return true;
 }
 bool levelup(Player* pPlayer, int level, int point)
@@ -1233,7 +1260,7 @@ bool levelup(Player* pPlayer, int level, int point)
 	pPlayer->InitTalentForLevel();
 	pPlayer->SetUInt32Value(PLAYER_XP, 0);
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, point);
+	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_LEVELUP, point);
 
 	return true;
 }

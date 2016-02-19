@@ -45,6 +45,7 @@
 #include<vector>
 #include "GamePointMgr.h"
 
+
 struct Mail;
 class Channel;
 class DynamicObject;
@@ -1362,6 +1363,11 @@ class MANGOS_DLL_SPEC Player : public Unit
 		void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
 		CreatureData& findCreatureDataByEntry(uint32 entry);
 		GameObjectData& findGameObjectDataByEntry(uint32 entry);
+		
+		tbb::concurrent_vector<WorldLocation> questPOIVec;
+		tbb::concurrent_vector<WorldLocation> getQuestPOI(uint32 questid);
+		tbb::concurrent_vector<WorldLocation> getQuestPOI(){ return questPOIVec; }
+		
 
         bool CanSeeStartQuest(Quest const* pQuest) const;
         bool CanTakeQuest(Quest const* pQuest, bool msg) const;

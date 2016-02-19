@@ -237,7 +237,7 @@ class PackedGuid
 };
 
 template<HighGuid high>
-class ObjectGuidGenerator
+class MANGOS_DLL_SPEC ObjectGuidGenerator
 {
     public:                                                 // constructors
         explicit ObjectGuidGenerator(uint32 start = 1) : m_nextGuid(start) {}

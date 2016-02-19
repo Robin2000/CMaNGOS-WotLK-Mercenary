@@ -13303,9 +13303,31 @@ void Player::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name){
 		*name = "error";
 }
 CreatureData& Player::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }
-
 GameObjectData& Player::findGameObjectDataByEntry(uint32 entry){ return sObjectMgr.findGameObjectDataByEntry(entry); }
 
+tbb::concurrent_vector<WorldLocation> Player::getQuestPOI(uint32 questid){
+
+	questPOIVec.clear();
+
+	QuestPOIVector const* POI = sObjectMgr.GetQuestPOIVector(questid);
+	int count = 0;
+	for (QuestPOIVector::const_iterator itr = POI->begin(); count<10 && itr != POI->end(); ++itr)
+	{
+		if (!POI)
+			continue;
+		for (tbb::concurrent_vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); count<10 && itr2 != itr->points.end(); ++itr2, count++)
+		{
+			WorldLocation loc;
+			loc.mapid = itr->MapId;
+			loc.coord_x = itr2->x;
+			loc.coord_y = itr2->y;
+			questPOIVec.push_back(loc);
+		}
+
+	}
+
+	return questPOIVec;
+}
 /**
  * Check if a player could see a start quest
  * Basic Quest-taking requirements: Class, Race, Skill, Quest-Line, ...
