@@ -7112,7 +7112,7 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
     cell_guids.corpses.erase(player_guid);
 }
 
-void ObjectMgr::LoadQuestRelationsHelper(QuestRelationsMap& map, char const* table)
+void ObjectMgr::LoadQuestRelationsHelper(QuestRelationsMap& map, QuestRelationsReverseMap& reverseMap, char const* table)
 {
     map.clear();                                            // need for reload case
 
@@ -7148,6 +7148,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelationsMap& map, char const* tab
         }
 
         map.insert(QuestRelationsMap::value_type(id, quest));
+		reverseMap.insert(QuestRelationsMap::value_type( quest,id));
 
         ++count;
     }
@@ -7161,7 +7162,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelationsMap& map, char const* tab
 
 void ObjectMgr::LoadGameobjectQuestRelations()
 {
-    LoadQuestRelationsHelper(m_GOQuestRelations, "gameobject_questrelation");
+	LoadQuestRelationsHelper(m_GOQuestRelations, m_GOQuestReverseRelations, "gameobject_questrelation");
 
     for (QuestRelationsMap::iterator itr = m_GOQuestRelations.begin(); itr != m_GOQuestRelations.end(); ++itr)
     {
@@ -7175,7 +7176,7 @@ void ObjectMgr::LoadGameobjectQuestRelations()
 
 void ObjectMgr::LoadGameobjectInvolvedRelations()
 {
-    LoadQuestRelationsHelper(m_GOQuestInvolvedRelations, "gameobject_involvedrelation");
+	LoadQuestRelationsHelper(m_GOQuestInvolvedRelations, m_GOQuestInvolvedReverseRelations, "gameobject_involvedrelation");
 
     for (QuestRelationsMap::iterator itr = m_GOQuestInvolvedRelations.begin(); itr != m_GOQuestInvolvedRelations.end(); ++itr)
     {
@@ -7189,7 +7190,7 @@ void ObjectMgr::LoadGameobjectInvolvedRelations()
 
 void ObjectMgr::LoadCreatureQuestRelations()
 {
-    LoadQuestRelationsHelper(m_CreatureQuestRelations, "creature_questrelation");
+	LoadQuestRelationsHelper(m_CreatureQuestRelations, m_CreatureQuestReverseRelations, "creature_questrelation");
 
     for (QuestRelationsMap::iterator itr = m_CreatureQuestRelations.begin(); itr != m_CreatureQuestRelations.end(); ++itr)
     {
@@ -7203,7 +7204,7 @@ void ObjectMgr::LoadCreatureQuestRelations()
 
 void ObjectMgr::LoadCreatureInvolvedRelations()
 {
-    LoadQuestRelationsHelper(m_CreatureQuestInvolvedRelations, "creature_involvedrelation");
+	LoadQuestRelationsHelper(m_CreatureQuestInvolvedRelations, m_CreatureQuestInvolvedReverseRelations, "creature_involvedrelation");
 
     for (QuestRelationsMap::iterator itr = m_CreatureQuestInvolvedRelations.begin(); itr != m_CreatureQuestInvolvedRelations.end(); ++itr)
     {

@@ -339,3 +339,6 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem);
 void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid);
 void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx);
 void transportByPOI(Player* pPlayer, Item* pItem, int idx);
+void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEntry);
+void transportToStarter(Player* pPlayer, Item* pItem);
+void transportToInvolved(Player* pPlayer, Item* pItem, int idx);

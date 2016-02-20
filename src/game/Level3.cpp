@@ -5471,7 +5471,7 @@ bool ChatHandler::HandleQuestCompleteCommand(char* args)
         else if (creature < 0)
         {
             for (uint16 z = 0; z < creaturecount; ++z)
-                player->CastedCreatureOrGO(-creature, ObjectGuid(), 0);
+                player->CastedCreatureOrGO(0-creature, ObjectGuid(), 0);
         }
     }
 

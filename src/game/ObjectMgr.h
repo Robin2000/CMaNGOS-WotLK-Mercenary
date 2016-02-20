@@ -218,6 +218,7 @@ typedef tbb::concurrent_unordered_map<uint32, uint32> ItemConvertMap;
 typedef std::multimap<int32, uint32> ExclusiveQuestGroupsMap;
 typedef std::multimap<uint32, ItemRequiredTarget> ItemRequiredTargetMap;
 typedef std::multimap<uint32, uint32> QuestRelationsMap;
+typedef tbb::concurrent_unordered_multimap<uint32, uint32> QuestRelationsReverseMap;
 typedef std::pair<ExclusiveQuestGroupsMap::const_iterator, ExclusiveQuestGroupsMap::const_iterator> ExclusiveQuestGroupsMapBounds;
 typedef std::pair<ItemRequiredTargetMap::const_iterator, ItemRequiredTargetMap::const_iterator> ItemRequiredTargetMapBounds;
 typedef std::pair<QuestRelationsMap::const_iterator, QuestRelationsMap::const_iterator> QuestRelationsMapBounds;
@@ -1168,6 +1169,25 @@ class ObjectMgr
 			return mGameObjectEntryMap[entry]; 
 		}
 
+		inline int32 findQuestStarterCreatureOrGO(uint32 questid){
+			QuestRelationsReverseMap::const_iterator it=m_CreatureQuestReverseRelations.find(questid);
+			if (it != m_CreatureQuestReverseRelations.end())
+				return it->second;
+			QuestRelationsReverseMap::const_iterator it2 = m_GOQuestReverseRelations.find(questid);
+			if (it2 != m_GOQuestReverseRelations.end())
+				return 0-it2->second;
+			return 0;
+		}
+		inline void findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> result){
+			std::pair<QuestRelationsReverseMap::const_iterator, QuestRelationsReverseMap::const_iterator>  p = m_CreatureQuestInvolvedReverseRelations.equal_range(questid);
+			for (QuestRelationsReverseMap::const_iterator itor = p.first; itor != p.second; ++itor) 
+				result.push_back(itor->second);
+			
+
+			std::pair<QuestRelationsReverseMap::const_iterator, QuestRelationsReverseMap::const_iterator>  p2 = m_GOQuestInvolvedReverseRelations.equal_range(questid);
+			for (QuestRelationsReverseMap::const_iterator itor = p2.first; itor != p2.second; ++itor) 
+				result.push_back(0-itor->second);
+		}
     protected:
 
         // first free id for selected id type
@@ -1249,13 +1269,19 @@ class ObjectMgr
         QuestRelationsMap       m_CreatureQuestInvolvedRelations;
         QuestRelationsMap       m_GOQuestRelations;
         QuestRelationsMap       m_GOQuestInvolvedRelations;
+		
+
+		QuestRelationsReverseMap       m_CreatureQuestReverseRelations;
+		QuestRelationsReverseMap       m_CreatureQuestInvolvedReverseRelations;
+		QuestRelationsReverseMap       m_GOQuestReverseRelations;
+		QuestRelationsReverseMap       m_GOQuestInvolvedReverseRelations;
 
         int DBCLocaleIndex;
 
     private:
         void LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
-        void LoadQuestRelationsHelper(QuestRelationsMap& map, char const* table);
+		void LoadQuestRelationsHelper(QuestRelationsMap& map, QuestRelationsReverseMap & reverseMap,char const* table);
         void LoadVendors(char const* tableName, bool isTemplates);
         void LoadTrainers(char const* tableName, bool isTemplates);
 

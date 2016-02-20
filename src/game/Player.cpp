@@ -13308,6 +13308,12 @@ GameObjectData& Player::findGameObjectDataByEntry(uint32 entry){ return sObjectM
 inline std::string & Player::getGameMaps(uint32 idx){
 	return sObjectMgr.getGameMaps(idx);
 }
+inline int32 Player::findQuestStarterCreatureOrGO(uint32 questid){
+	return sObjectMgr.findQuestStarterCreatureOrGO(questid);
+}
+inline void Player::findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result){
+	return sObjectMgr.findQuestInvolvedCreatureOrGO(questid, result);
+}
 tbb::concurrent_vector<WorldLocation> Player::getQuestPOI(uint32 questid){
 
 	questPOIVec.clear();
