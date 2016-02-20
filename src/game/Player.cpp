@@ -13305,6 +13305,9 @@ void Player::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name){
 CreatureData& Player::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }
 GameObjectData& Player::findGameObjectDataByEntry(uint32 entry){ return sObjectMgr.findGameObjectDataByEntry(entry); }
 
+inline std::string & Player::getGameMaps(uint32 idx){
+	return sObjectMgr.getGameMaps(idx);
+}
 tbb::concurrent_vector<WorldLocation> Player::getQuestPOI(uint32 questid){
 
 	questPOIVec.clear();

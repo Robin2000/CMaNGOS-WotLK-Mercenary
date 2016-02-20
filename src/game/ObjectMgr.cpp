@@ -255,6 +255,34 @@ bool ObjectMgr::load_cache(){
 
 	return true;
 }
+void ObjectMgr::LoadGameMaps(){
+
+	mGameMaps.clear();                             // need for reload case
+
+	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM gamemaps");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0  gamemaps. DB table `gamemaps` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();
+		mGameMaps[fields[0].GetUInt32()] = fields[1].GetCppString();
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " gamemaps strings", mGameMaps.size());
+	sLog.outString();
+}
 void ObjectMgr::LoadGameTips(){
 
 	mGameTipsVector.clear();                             // need for reload case

@@ -716,9 +716,16 @@ class ObjectMgr
 
         bool LoadMangosStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value, bool extra_content);
         bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase, "mangos_string", MIN_MANGOS_STRING_ID, MAX_MANGOS_STRING_ID, false); }
+		
+		void LoadGameMaps();
+		inline std::string & getGameMaps(uint32 idx){
+			return mGameMaps[idx]; 
+		}
+		
 		void LoadGameTips();
-		std::string & getGameTips(uint32 idx){ return mGameTipsVector[idx]; }
-		uint32 getGameTipsCount(){ return mGameTipsVector.size(); }
+		inline std::string & getGameTips(uint32 idx){ return mGameTipsVector[idx]; }
+		inline uint32 getGameTipsCount(){ return mGameTipsVector.size(); }
+
 		void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatures();
@@ -1286,6 +1293,9 @@ class ObjectMgr
 
 		typedef tbb::concurrent_vector<std::string> GameTipsVector;
 		GameTipsVector mGameTipsVector;
+		typedef tbb::concurrent_unordered_map<uint32,std::string> GameMaps;
+		GameMaps mGameMaps;
+
         MapObjectGuids mMapObjectGuids;
         ActiveCreatureGuidsOnMap m_activeCreatures;
         CreatureDataMap mCreatureDataMap;

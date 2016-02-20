@@ -463,7 +463,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
 	{
-		pPlayer->SEND_GOSSIP_MENU(16777214, pItem->GetObjectGuid()); //'原力与你同在！更多信息请移步交流论坛：http://mangos.mybbs.us。'
+		pPlayer->SEND_GOSSIP_MENU(16777214, pItem->GetObjectGuid()); //'原力与你同在！更多信息请移步：http://51.neocities.org。'
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 2){//设置返回点。（-3原力）
 		hearthstone_prepare_mount(pPlayer, pItem);
@@ -586,8 +586,8 @@ void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
 	tbb::concurrent_vector<WorldLocation> &POI = pPlayer->getQuestPOI(questid);
 	for (tbb::concurrent_vector<WorldLocation>::const_iterator itr = POI.begin(); itr != POI.end(); ++itr, count++)
 	{
-		char * title = new char[1024];
-		sprintf(title, "map:%d(%d,%d)", itr->mapid, int32(itr->coord_x), int32(itr->coord_y)); // 坐标(x,y)：%f,%f
+		char * title = new char[250];
+		sprintf(title, "%s(%d,%d)", pPlayer->getGameMaps(uint32(itr->mapid)).c_str(), int32(itr->coord_x), int32(itr->coord_y)); // 坐标(x,y)：%f,%f
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 985 + count);//返回主菜单
 
 	}
