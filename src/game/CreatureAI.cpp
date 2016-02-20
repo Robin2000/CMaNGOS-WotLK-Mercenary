@@ -114,9 +114,10 @@ CanCastResult CreatureAI::DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, uint32
                 pCaster->InterruptNonMeleeSpells(false);
 
             // Creature should always stop before it will cast a new spell
-            pCaster->StopMoving();
+            //pCaster->StopMoving();导致AI不正常？
 
             pCaster->CastSpell(pTarget, pSpell, uiCastFlags & CAST_TRIGGERED, nullptr, nullptr, uiOriginalCasterGUID);
+
             return CAST_OK;
         }
         else
