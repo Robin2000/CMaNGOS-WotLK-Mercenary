@@ -562,18 +562,6 @@
     <ClCompile Include="..\..\src\game\GamePointMgr.cpp">
       <Filter>PR</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\game\pr_zip.cpp">
-      <Filter>PR</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\game\pr_base64.cpp">
-      <Filter>PR</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\game\pr_md5lib.cpp">
-      <Filter>PR</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\game\pr_aes.cpp">
-      <Filter>PR</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\game\AccountMgr.h">
@@ -1078,22 +1066,7 @@
     <ClInclude Include="..\..\src\game\GamePointMgr.h">
       <Filter>PR</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\game\pr_threadpool.h">
-      <Filter>PR</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\game\pr_cache.hpp">
-      <Filter>PR</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game\pr_zip.h">
-      <Filter>PR</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game\pr_base64.h">
-      <Filter>PR</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game\pr_md5lib.h">
-      <Filter>PR</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game\pr_aes.h">
       <Filter>PR</Filter>
     </ClInclude>
   </ItemGroup>

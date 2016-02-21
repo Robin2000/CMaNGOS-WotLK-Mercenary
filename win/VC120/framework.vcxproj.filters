@@ -19,6 +19,9 @@
     <Filter Include="Dynamic">
       <UniqueIdentifier>{d9be4e31-76b9-490c-baf9-072221ad89fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PR">
+      <UniqueIdentifier>{6f778ad4-c7f9-44e4-9321-fc1ccb9eb4b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\framework\GameSystem\Grid.h">
@@ -93,6 +96,9 @@
     <ClInclude Include="..\..\src\framework\Policies\Lock.h">
       <Filter>Policies</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\framework\pr_md5lib.h">
+      <Filter>PR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\framework\Policies\MemoryManagement.cpp">
@@ -103,6 +109,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\framework\Utilities\EventProcessor.cpp">
       <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\framework\pr_md5lib.cpp">
+      <Filter>PR</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

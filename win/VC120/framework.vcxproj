@@ -315,6 +315,7 @@
     <ClInclude Include="..\..\src\framework\Policies\ObjectLifeTime.h" />
     <ClInclude Include="..\..\src\framework\Policies\Singleton.h" />
     <ClInclude Include="..\..\src\framework\Policies\ThreadingModel.h" />
+    <ClInclude Include="..\..\src\framework\pr_md5lib.h" />
     <ClInclude Include="..\..\src\framework\Utilities\ByteConverter.h" />
     <ClInclude Include="..\..\src\framework\Utilities\Callback.h" />
     <ClInclude Include="..\..\src\framework\Utilities\EventProcessor.h" />
@@ -326,6 +327,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\framework\Policies\MemoryManagement.cpp" />
     <ClCompile Include="..\..\src\framework\Policies\ObjectLifeTime.cpp" />
+    <ClCompile Include="..\..\src\framework\pr_md5lib.cpp" />
     <ClCompile Include="..\..\src\framework\Utilities\EventProcessor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

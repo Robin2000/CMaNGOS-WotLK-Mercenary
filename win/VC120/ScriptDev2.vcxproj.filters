@@ -1930,5 +1930,8 @@
     <ClInclude Include="..\..\src\scriptdev2\include\pr_hh.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\myscript\pr_hearthstone.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

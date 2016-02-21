@@ -190,7 +190,7 @@
     </Midl>
     <ClCompile>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\dep\include\;..\..\src\shared\;..\..\src\framework\;..\..\src\game\;..\..\src\scriptdev2\include\;..\..\src\scriptdev2\base\;..\..\dep\ACE_wrappers\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\dep\include\;..\..\src\shared\;..\..\src\framework\;..\..\src\game\;..\..\src\scriptdev2\include\;..\..\src\scriptdev2\base\;..\..\dep\ACE_wrappers\;$(BOOST_ROOT);..\..\dep\tbb\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -683,6 +683,7 @@
     <ClCompile Include="..\..\src\scriptdev2\ScriptMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\myscript\pr_hearthstone.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\escort_ai.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\follower_ai.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\guard_ai.h" />

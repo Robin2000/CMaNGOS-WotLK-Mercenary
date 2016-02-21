@@ -19,6 +19,9 @@
     <Filter Include="Auth">
       <UniqueIdentifier>{e35fd108-bd39-46ae-83f9-09cf1ebf4ea8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PR">
+      <UniqueIdentifier>{65583021-ae6f-4c96-aa4e-4b1b58181de6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\shared\Database\Database.cpp">
@@ -83,6 +86,15 @@
     <ClCompile Include="..\..\src\shared\Threading.cpp" />
     <ClCompile Include="..\..\src\shared\Database\SqlPreparedStatement.cpp">
       <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\shared\pr_aes.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\shared\pr_base64.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\shared\pr_zip.cpp">
+      <Filter>PR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +189,18 @@
     <ClInclude Include="..\..\src\shared\Threading.h" />
     <ClInclude Include="..\..\src\shared\Database\SqlPreparedStatement.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shared\pr_aes.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shared\pr_base64.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shared\pr_threadpool.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\shared\pr_zip.h">
+      <Filter>PR</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
