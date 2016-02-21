@@ -215,6 +215,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\myscript\mercenary_gossip.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_hearthstone.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_hh.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_spirit_guide.cpp" />

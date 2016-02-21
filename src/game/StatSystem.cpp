@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
+#include "MercenaryMgr.h"
 
 /*#######################################
 ########                         ########
@@ -819,6 +820,9 @@ bool Creature::UpdateStats(Stats /*stat*/)
 
 bool Creature::UpdateAllStats()
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return false;
+
     UpdateMaxHealth();
     UpdateAttackPowerAndDamage();
 
@@ -844,18 +848,27 @@ void Creature::UpdateResistances(uint32 school)
 
 void Creature::UpdateArmor()
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     float value = GetTotalAuraModValue(UNIT_MOD_ARMOR);
     SetArmor(int32(value));
 }
 
 void Creature::UpdateMaxHealth()
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     float value = GetTotalAuraModValue(UNIT_MOD_HEALTH);
     SetMaxHealth((uint32)value);
 }
 
 void Creature::UpdateMaxPower(Powers power)
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float value  = GetTotalAuraModValue(unitMod);
@@ -864,6 +877,9 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
@@ -898,6 +914,9 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     if (attType > OFF_ATTACK)
         return;
 
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     UnitMods unitMod = (attType == BASE_ATTACK ? UNIT_MOD_DAMAGE_MAINHAND : UNIT_MOD_DAMAGE_OFFHAND);
 
     /* difference in AP between current attack power and base value from DB */
@@ -928,6 +947,9 @@ bool Pet::UpdateStats(Stats stat)
 {
     if (stat > STAT_SPIRIT)
         return false;
+
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return false;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
@@ -994,6 +1016,9 @@ void Pet::UpdateResistances(uint32 school)
 
 void Pet::UpdateArmor()
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     float value = 0.0f;
     float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
@@ -1014,6 +1039,9 @@ void Pet::UpdateArmor()
 
 void Pet::UpdateMaxHealth()
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
 
@@ -1027,6 +1055,9 @@ void Pet::UpdateMaxHealth()
 
 void Pet::UpdateMaxPower(Powers power)
 {
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
+
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
@@ -1043,6 +1074,9 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
 {
     if (ranged)
         return;
+
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
 
     float val = 0.0f;
     float bonusAP = 0.0f;
@@ -1104,6 +1138,9 @@ void Pet::UpdateDamagePhysical(WeaponAttackType attType)
 {
     if (attType > BASE_ATTACK)
         return;
+
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		return;
 
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 

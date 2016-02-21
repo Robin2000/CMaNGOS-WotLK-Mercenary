@@ -49,6 +49,7 @@
 #include "CellImpl.h"
 #include "movement/MoveSplineInit.h"
 #include "CreatureLinkingMgr.h"
+#include "MercenaryMgr.h"
 
 // apply implementation of the singletons
 #include "Policies/Singleton.h"
@@ -285,6 +286,11 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
         return false;
     }
 
+	if(GetScriptName() == sMercenaryMgr->GetAIName())
+		SetFlag(UNIT_FIELD_FLAGS_2, 16);
+	else
+		RemoveFlag(UNIT_FIELD_FLAGS_2, 16);
+
     CreatureModelInfo const* minfo = sObjectMgr.GetCreatureModelRandomGender(display_id);
     if (!minfo)                                             // Cancel load if no model defined
     {
@@ -395,6 +401,11 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
         unitFlags &= ~UNIT_FLAG_UNK_15;
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
+
+	if (GetScriptName() == sMercenaryMgr->GetAIName())
+		SetUInt32Value(UNIT_FIELD_FLAGS_2, 16);
+	else
+		SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
 
     // preserve all current dynamic flags if exist
     uint32 dynFlags = GetUInt32Value(UNIT_DYNAMIC_FLAGS);

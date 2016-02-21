@@ -29,6 +29,7 @@
 #include "Totem.h"
 #include "SpellAuras.h"
 #include "LootMgr.h"
+#include "MercenaryMgr.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
@@ -656,6 +657,39 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 
     if (!pCreature)
         return;
+
+	if (pCreature->IsPet())
+		 {
+		Mercenary* mercenary = sMercenaryMgr->GetMercenary(pCreature->GetCharmInfo()->GetPetNumber());
+		if (mercenary)
+			{
+			WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+			data << pCreature->GetObjectGuid();
+			data << uint32(mercenary->GetDisplay());
+			data << uint8(mercenary->GetRace());
+			data << uint8(mercenary->GetGender());
+			data << uint8(1);
+			data << uint8(0); // Skin
+			data << uint8(0); // Face
+			data << uint8(0); // Hair
+			data << uint8(0); // Hair color
+			data << uint8(0); // Facial hair
+			data << uint32(0);
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->GetItemBySlot(SLOT_HEAD)));
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->GetItemBySlot(SLOT_SHOULDERS)));
+			data << uint32(0); // Shirt?
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->GetItemBySlot(SLOT_CHEST)));
+			data << uint32(0); // Waist
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->GetItemBySlot(SLOT_LEGS)));
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->GetItemBySlot(SLOT_FEET)));
+			data << uint32(0); // Wrists
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->GetItemBySlot(SLOT_HANDS)));
+			data << uint32(0); // Cloak
+			data << uint32(0); // Tabard
+			SendPacket(&data);
+			return;
+			}
+		}
 
     Unit::AuraList const& images = pCreature->GetAurasByType(SPELL_AURA_MIRROR_IMAGE);
 

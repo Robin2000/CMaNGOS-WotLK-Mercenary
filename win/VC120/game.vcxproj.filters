@@ -40,6 +40,9 @@
     <Filter Include="PR">
       <UniqueIdentifier>{144c9a70-ceeb-4a36-a374-4cf3bca6a706}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Mercenary">
+      <UniqueIdentifier>{8b44a97c-8762-4fb1-90d7-9f65cdde401b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\game\AccountMgr.cpp">
@@ -562,6 +565,12 @@
     <ClCompile Include="..\..\src\game\GamePointMgr.cpp">
       <Filter>PR</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\game\Mercenary.cpp">
+      <Filter>Mercenary</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\MercenaryMgr.cpp">
+      <Filter>Mercenary</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\game\AccountMgr.h">
@@ -1068,6 +1077,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\pr_cache.hpp">
       <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Mercenary.h">
+      <Filter>Mercenary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\MercenaryMgr.h">
+      <Filter>Mercenary</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

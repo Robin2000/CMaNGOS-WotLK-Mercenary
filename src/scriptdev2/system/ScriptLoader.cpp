@@ -30,6 +30,8 @@ extern void AddSC_spell_scripts();
 extern void AddSC_world_map_scripts();
 extern void AddSC_world_map_ebon_hold();
 
+void MercenarySetup();
+
 // eastern kingdoms
 extern void AddSC_blackrock_depths();                       // blackrock_depths
 extern void AddSC_boss_ambassador_flamelash();
@@ -498,7 +500,7 @@ void AddScripts()
     AddSC_spell_scripts();
     AddSC_world_map_scripts();
     AddSC_world_map_ebon_hold();
-
+	MercenarySetup();
     // eastern kingdoms
     AddSC_blackrock_depths();                               // blackrock_depths
     AddSC_boss_ambassador_flamelash();

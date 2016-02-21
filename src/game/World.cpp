@@ -68,7 +68,7 @@
 #include "Calendar.h"
 #include "Weather.h"
 #include "tbb/parallel_for.h"
-
+#include "MercenaryMgr.h"
 #include <algorithm>
 #include <mutex>
 
@@ -1413,6 +1413,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Initialize AuctionHouseBot...");
     sAuctionBot.Initialize();
     sLog.outString();
+
+	sMercenaryMgr->LoadMercenaries();
+	sLog.outString("LoadMercenaries...");
 
     sLog.outString("---------------------------------------");
     sLog.outString("      CMANGOS: World initialized       ");

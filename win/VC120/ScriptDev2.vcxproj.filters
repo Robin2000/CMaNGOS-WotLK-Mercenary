@@ -1681,6 +1681,9 @@
     <ClCompile Include="..\..\src\myscript\pr_spirit_guide.cpp">
       <Filter>scripts\custom</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\myscript\mercenary_gossip.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\scriptdev2\base\escort_ai.h">

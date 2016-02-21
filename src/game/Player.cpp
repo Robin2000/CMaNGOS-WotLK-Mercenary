@@ -68,6 +68,7 @@
 #include "Calendar.h"
 #include "LootMgr.h"
 #include "LootMgr.h"
+#include "MercenaryMgr.h"
 
 #include <cmath>
 
@@ -17193,8 +17194,11 @@ void Player::SaveToDB()
         _SaveStats();
 
     // save pet (hunter pet level and experience and all type pets health/mana).
-    if (Pet* pet = GetPet())
-        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+	if (Pet* pet = GetPet())
+	{
+		pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+		sMercenaryMgr->OnSave(this, pet);
+	}
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state

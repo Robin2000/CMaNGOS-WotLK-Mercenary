@@ -1157,6 +1157,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         typedef std::map<uint8 /*slot*/, uint32 /*spellId*/> VisibleAuraMap;
         typedef std::map<SpellEntry const*, ObjectGuid /*targetGuid*/> TrackedAuraTargetMap;
 
+		bool removingSpell = false;//特别，专门用于脚本移除技能
+
         virtual ~Unit();
 
         void AddToWorld() override;

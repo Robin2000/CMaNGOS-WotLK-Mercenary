@@ -26,7 +26,7 @@
 class Creature;
 class Spell;
 
-class PetAI : public CreatureAI
+class MANGOS_DLL_SPEC PetAI : public CreatureAI
 {
     public:
 

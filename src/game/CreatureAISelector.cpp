@@ -24,6 +24,7 @@
 #include "MovementGenerator.h"
 #include "ScriptMgr.h"
 #include "Pet.h"
+#include "MercenaryMgr.h"
 
 INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
 INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);
@@ -33,7 +34,8 @@ namespace FactorySelector
     CreatureAI* selectAI(Creature* creature)
     {
         // Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
-        if ((!creature->IsPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
+        //if ((!creature->IsPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
+		if (creature->GetScriptName() == sMercenaryMgr->GetAIName() || (!creature->IsPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
             if (CreatureAI* scriptedAI = sScriptMgr.GetCreatureAI(creature))
                 return scriptedAI;
 

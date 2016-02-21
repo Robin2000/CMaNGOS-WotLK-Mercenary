@@ -27,6 +27,7 @@
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
+#include "MercenaryMgr.h"
 
 Pet::Pet(PetType type) :
     Creature(CREATURE_SUBTYPE_PET),
@@ -297,6 +298,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     _LoadSpellCooldowns();
 
     owner->SetPet(this);                                    // in DB stored only full controlled creature
+	sMercenaryMgr->OnSummon(owner);
     DEBUG_LOG("New Pet has guid %u", GetGUIDLow());
 
     if (owner->GetTypeId() == TYPEID_PLAYER)
@@ -473,6 +475,8 @@ void Pet::DeleteFromDB(uint32 guidlow, bool separate_transaction)
 
     stmt = CharacterDatabase.CreateStatement(delSpellCD, "DELETE FROM pet_spell_cooldown WHERE guid = ?");
     stmt.PExecute(guidlow);
+
+	sMercenaryMgr->OnDelete(guidlow);
 
     if (separate_transaction)
         CharacterDatabase.CommitTransaction();
