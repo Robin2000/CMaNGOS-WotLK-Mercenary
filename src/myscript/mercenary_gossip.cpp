@@ -106,13 +106,13 @@ public:
 		Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
 //#endif
         if (!mercenary)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I want a mercenary.", 0, 1);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800600, 0, 1);//我要雇佣帮手
         else
         {
             if (mercenary->IsBeingCreated())
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Continue creating your Mercenary", 0, 1);
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800601, 0, 1);//继续召集雇佣兵
         }
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nevermind", 0, 4);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 4);//算了算了
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -122,8 +122,8 @@ public:
 
     void static SendHireOrOptionalList(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Hire random Mercenary", 0, 5);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Hire Mercenary and choose what's best for it", 0, 94);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800603, 0, 5);//随机招募雇佣兵
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800604, 0, 94);//选择最好的招募雇佣兵
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -133,16 +133,16 @@ public:
 
     void static SendHireList(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Warrior", 0, 6);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Paladin", 0, 7);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Hunter", 0, 8);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Rogue", 0, 9);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Death Knight", 0, 10);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Priest", 0, 11);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Shaman", 0, 12);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Warlock", 0, 13);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Druid", 0, 14);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nevermind", 0, 99);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800097, 0, 6);//战士
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800098, 0, 7);//圣骑士
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800094, 0, 8);//猎人
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800096, 0, 9); //潜行者
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800092, 0, 10);//死亡骑士
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800095, 0, 11);//牧师
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800099, 0, 12);//萨满
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800101, 0, 13);//术士
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800093, 0, 14);//德鲁伊
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 99);//算了算了
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -154,30 +154,30 @@ public:
     {
         if (!races)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Race", 0, 15);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "<- Back <-", 0, 98); // Send to SendHireList
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800605, 0, 15);//种族
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800606, 0, 98); // Send to SendHireList后退
         }
         else
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Blood Elf", 0, 16);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Blood Elf", 0, 17);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Draenei", 0, 18);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Draenei", 0, 19);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Dwarf", 0, 20);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Dwarf", 0, 21);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Gnome", 0, 22);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Gnome", 0, 23);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Human", 0, 24);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Human", 0, 25);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Night Elf", 0, 26);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Night Elf", 0, 27);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Orc", 0, 28);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Orc", 0, 29);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Tauren", 0, 30);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Tauren", 0, 31);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Male Troll", 0, 32);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Female Troll", 0, 33);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "<- Back <-", 0, 97); // Send to SendFeatureList
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800607, 0, 16);//血精灵（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800608, 0, 17);//血精灵（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800609, 0, 18); //德莱尼（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800610, 0, 19);//德莱尼（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800611, 0, 20);//小矮人（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800612, 0, 21);//小矮人（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800613, 0, 22);//侏儒（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800614, 0, 23);//侏儒（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800615, 0, 24);//人类（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800616, 0, 25);//人类（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800617, 0, 26);//暗夜精灵（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800618, 0, 27);//暗夜精灵（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800619, 0, 28);//兽人（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800620, 0, 29);//兽人（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800621, 0, 30); //牛头人（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800622, 0, 31);//牛头人（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800623, 0, 32);//巨魔（男）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800624, 0, 33);//巨魔（女）
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800606, 0, 97); // Send to SendFeatureList后退
         }
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
@@ -199,16 +199,16 @@ public:
         bool isRanged = (type == MERCENARY_TYPE_HUNTER);
 
         if (isMelee)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Melee DPS", 0, 34);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800625, 0, 34);//近战输出（DPS）
         if (isCaster)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Caster DPS", 0, 35);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800626, 0, 35); // 远程法攻（DPS）
         if (isRanged)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Marksman DPS", 0, 36);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800627, 0, 36);//远程箭攻（DPS）
         if (isHealer)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Healer", 0, 37);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800628, 0, 37);//治疗(医)
         if (isTank)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Tank", 0, 38);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "<- Back <-", 0, 96); // Back to all races & genders
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800629, 0, 38);//坦克(肉盾)
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800606, 0, 96); // Back to all races & genders后退
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -218,9 +218,9 @@ public:
 
     void static SendConfirmation(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Confirm?", 0, 39);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Start over again", 0, 40);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I don't want to make a mercenary now!", 0, 41);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800630, 0, 39);//确定吗？
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800631, 0, 40);//重新来
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800632, 0, 41);//暂时不招募雇佣兵了
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -232,7 +232,7 @@ public:
     {
         if (!mercenary->Create(player, model, race, gender, type, role))
         {
-            player->GetSession()->SendNotification("Could not create your Mercenary!");
+			player->GetSession()->SendNotification(player->GetMangosString(-2800633));//未能招募成功!
             SendToHello(player, creature);
             return;
         }
@@ -249,7 +249,7 @@ bool GossipHello_mercenary_npc_gossip(Player* player, Creature* creature)
 	player->PlayerTalkClass->ClearMenus();
 	if (player->isInCombat())
 	{
-		player->GetSession()->SendNotification("You are in combat.");
+		player->GetSession()->SendNotification(23);//"You are in combat."
 		return false;
 	}
 
@@ -257,7 +257,7 @@ bool GossipHello_mercenary_npc_gossip(Player* player, Creature* creature)
 	{
 		if (pet->GetEntry() != MERCENARY_DEFAULT_ENTRY)
 		{
-			player->GetSession()->SendNotification("You must dismiss your pet for a Mercenary.");
+			player->GetSession()->SendNotification(player->GetMangosString(-2800634));//必须首先解散你的（雇佣兵）宠物
 			return false;
 		}
 	}
@@ -280,7 +280,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Creature* creature, uint3
 		mercenary = new Mercenary;
 		if (!mercenary->Create(player))
 		{
-			session->SendNotification("Failed to create Mercenary!");
+			session->SendNotification(-2800633);//未能招募成功!
 			return false;
 		}
 	}
@@ -574,14 +574,14 @@ public:
         if (mercenary->GetOwnerGUID() == player->GetGUIDLow())
 //#endif
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Change Gear", 0, 1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "View equipped Gear", 0, 2);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Change Spells", 0, 3);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800635, 0, 1);//更换装备
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800636, 0, 2);//查看装备
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800637, 0, 3); // 更换技能
             //player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, "Change Name", 0, 37, "", 0, true);不支持改名
         }
         else
             player->CLOSE_GOSSIP_MENU();
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nevermind", 0, 4);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 4);//算了算了
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -593,16 +593,16 @@ public:
     {
         if (mercenary->GetEditSlot() != SLOT_EMPTY)
             mercenary->SetEditSlot(SLOT_EMPTY);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HEAD) + MercenaryUtil::GetMercenarySlotName(SLOT_HEAD), 0, 14);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_SHOULDERS) + MercenaryUtil::GetMercenarySlotName(SLOT_SHOULDERS), 0, 13);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HANDS) + MercenaryUtil::GetMercenarySlotName(SLOT_HANDS), 0, 12);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_FEET) + MercenaryUtil::GetMercenarySlotName(SLOT_FEET), 0, 11);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_LEGS) + MercenaryUtil::GetMercenarySlotName(SLOT_LEGS), 0, 10);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_CHEST) + MercenaryUtil::GetMercenarySlotName(SLOT_CHEST), 0, 9);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_MAIN_HAND) + MercenaryUtil::GetMercenarySlotName(SLOT_MAIN_HAND), 0, 8);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_OFF_HAND)+MercenaryUtil::GetMercenarySlotName(SLOT_OFF_HAND), 0, 7);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(SLOT_RANGED), 0, 6);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nevermind", 0, 36);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HEAD) + MercenaryUtil::GetMercenarySlotName(player,SLOT_HEAD), 0, 14);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_SHOULDERS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_SHOULDERS), 0, 13);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HANDS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_HANDS), 0, 12);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_FEET) + MercenaryUtil::GetMercenarySlotName(player, SLOT_FEET), 0, 11);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_LEGS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_LEGS), 0, 10);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_CHEST) + MercenaryUtil::GetMercenarySlotName(player, SLOT_CHEST), 0, 9);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_MAIN_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_MAIN_HAND), 0, 8);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_OFF_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_OFF_HAND), 0, 7);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(player, SLOT_RANGED), 0, 6);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 36);//算了算了
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -623,15 +623,15 @@ public:
 					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
                 else
                 {
-					ss << MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()) << " [|cff990000Already Equipped|r]";
+					ss << MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()) << player->GetMangosString(-2800638);// [|cff990000Already Equipped|r]
 					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + ss.str().c_str(), 0, 36);
                 }
             }
         }
 
         if (slot == SLOT_OFF_HAND && mercenary->HasWeapon(true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Remove Off Hand Weapon", 0, 5);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Back to Main Menu", 0, 36);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800639, 0, 5);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -641,9 +641,9 @@ public:
 
     void static SendSpellList(Player* player, Creature* creature, Mercenary* mercenary)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teach your Mercenary a new spell", 0, 39);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Make your Mercenary Unlearn a spell", 0, 40);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Back to Main Menu", 0, 36);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800640, 0, 39);//教雇佣兵新技能法术
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800641, 0, 40);//遗忘雇佣兵的技能法术
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
 //#ifndef MANGOS
 //        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 //#else
@@ -658,7 +658,7 @@ bool OnGossipHello_mercenary_bot(Player* player, Creature* creature)
 	player->PlayerTalkClass->ClearMenus();
 	if (player->isInCombat())
 	{
-		player->GetSession()->SendNotification("You are in combat.");
+		player->GetSession()->SendNotification(23); // You are in combat.
 		return false;
 	}
 
@@ -699,7 +699,8 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 							return false;
 						else
 						{
-							ChatHandler(session).PSendSysMessage("Successfully equipped %s to your Mercenary!", MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), session).c_str());
+							//成功给你的雇佣兵装备了 %s !
+							ChatHandler(session).PSendSysMessage(player->GetMangosString(-2800642), MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), session).c_str());
 							mercenary->SetEditSlot(SLOT_EMPTY);
 							return false;
 						}
@@ -748,7 +749,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 			if (proto)
 				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->itemId) + MercenaryUtil::GetMercenaryItemLink(itr->itemId, session), 0, 36);
 		}
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<- Back <-", 0, 36);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, 36);
 		//#ifndef MANGOS
 		//                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -817,7 +818,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 				}
 			}
 		}
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Back to Main Menu", 0, 36);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
 		//#ifndef MANGOS
 		//                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -897,7 +898,7 @@ public:
     {
         if (!mercenary->Create(player, model, race, gender, type, role, creature->GetName()))
         {
-            player->GetSession()->SendNotification("Could not hire this Mercenary!");
+			player->GetSession()->SendNotification(-2800643);//不能招募这个雇佣兵!
             player->CLOSE_GOSSIP_MENU();
             return;
         }
@@ -910,7 +911,7 @@ bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 	player->PlayerTalkClass->ClearMenus();
 	if (player->isInCombat())
 	{
-		player->GetSession()->SendNotification("You are in combat.");
+		player->GetSession()->SendNotification(23);
 		return false;
 	}
 
@@ -918,13 +919,13 @@ bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 	{
 		if (pet->GetEntry() != MERCENARY_DEFAULT_ENTRY)
 		{
-			player->GetSession()->SendNotification("You must dismiss your pet for a Mercenary.");
+			player->GetSession()->SendNotification(player->GetMangosString(-2800634));//"You must dismiss your pet for a Mercenary."
 			return false;
 		}
 	}
 
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to hire you.", 0, 1);
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Nevermind.", 0, 2);
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 2800644, 0, 1);// "I would like to hire you."
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 2);
 	//#ifndef MANGOS
 	//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 	//#else
@@ -944,7 +945,7 @@ bool OnGossipSelect_mercenary_world_gossip(Player* player, Creature* creature, u
 	if (mercenary)
 	{
 		//#ifdef MANGOS
-		creature->MonsterSay("I thought you wanted me as your Mercenary? Get rid of your existing Mercenary!", LANG_UNIVERSAL);
+		creature->MonsterSay(player->GetMangosString(-2800645), LANG_UNIVERSAL);//"I thought you wanted me as your Mercenary? Get rid of your existing Mercenary!"
 		//#else
 		//            creature->Say("I thought you wanted me as your Mercenary? Get rid of your existing Mercenary!", LANG_UNIVERSAL);
 		//#endif

@@ -99,7 +99,7 @@ public:
     * Returns slot name
     * Thanks Rochet2 for the function
     */
-    const char* GetSlotName(uint8 slot) const;
+	const char* GetSlotName(Player* player,uint8 slot) const;
     /*
     * Returns spell icon & spell name
     */
@@ -269,7 +269,7 @@ public:
 	static MercenarySpells::const_iterator MercenarySpellsEnd();
 	static std::vector<MercenaryTalking> MercenaryGetTalk(uint8 type, uint8 role);
 	static std::string GetMercenarySlotIcon(uint8 slot);
-	static const char* GetMercenarySlotName(uint8 slot);
+	static const char* GetMercenarySlotName(Player* player,uint8 slot);
 	static std::string GetMercenaryItemIcon(uint32 entry, bool rawPath = false);
 	static std::string GetMercenaryItemLink(uint32 entry, WorldSession* session);
 	static MercenaryStarterGear* GetMercenaryStarterGearByEntry(uint32 entry);

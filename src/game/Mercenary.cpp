@@ -253,15 +253,16 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 
     Initialize(player, pet, true);
 
-    ChatHandler(player->GetSession()).SendSysMessage("Successfully created a mercenary!");
+	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!
 //#ifndef MANGOS
 //    pet->Say("Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.", LANG_UNIVERSAL, player);
 //#else
-    pet->MonsterSay("Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.", LANG_UNIVERSAL, player);
+	pet->MonsterSay(player->GetMangosString(-2800647), LANG_UNIVERSAL, player);//Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.
+	pet->HandleEmoteCommandHappy();
 //#endif
     editSlot = SLOT_EMPTY;
     summoned = true;
-    beingCreated = false;
+    beingCreated = true;//改为true允许创建多个pet
 
     SaveToDB();
     sMercenaryMgr->SaveToList(this);
@@ -407,7 +408,7 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
 //#endif
     if (!proto)
     {
-        ChatHandler(session).SendSysMessage("Invalid item! Your mercenary could not equip this item.");
+		ChatHandler(session).SendSysMessage(-2800648);//"Invalid item! Your mercenary could not equip this item."
 //#ifndef MANGOS
 //        TC_LOG_ERROR("misc", "Tried to equip invalid item %u. Item does not have a template.", item->GetEntry());
 //#else
@@ -427,19 +428,19 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
     bool isCorrectLevel = pet->getLevel() >= proto->RequiredLevel;
     if (proto->RequiredLevel > 0 && !isCorrectLevel)
     {
-        ChatHandler(session).PSendSysMessage("Equip item failed! Item level is too high. You can equip this item on your Mercenary when they are level %u.", proto->RequiredLevel);
+		ChatHandler(session).PSendSysMessage(-2800649, proto->RequiredLevel);//"装备物品失败，物品等级太高。需要达到等级%u"
         return false;
     }
 
     if (itemClass == ITEM_CLASS_ARMOR && (invType != INVTYPE_SHIELD && invType != INVTYPE_HOLDABLE) && !isCorrectProficiency)
     {
-        ChatHandler(session).SendSysMessage("Equip failed. Mercenary cannot equip this armor proficiency.");
+		ChatHandler(session).SendSysMessage(-2800650);//装备物品失败，护甲专精不符。
         return false;
     }
 
     if ((itemClass == ITEM_CLASS_WEAPON || (itemClass == ITEM_CLASS_ARMOR && (invType == INVTYPE_SHIELD || invType == INVTYPE_HOLDABLE))) && !isCorrectProficiency)
     {
-        ChatHandler(session).SendSysMessage("Equip failed. Mercenary cannot equip this weapon proficiency.");
+		ChatHandler(session).SendSysMessage(-2800651);//装备物品失败，武器专精不符。
         return false;
     }
 
@@ -447,7 +448,7 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
     {
         if (invType != INVTYPE_2HWEAPON && invType != INVTYPE_WEAPONMAINHAND && invType != INVTYPE_WEAPON)
         {
-            ChatHandler(session).SendSysMessage("Equip failed. Cannot equip an off hand weapon in your Mercenary's main hand.");
+			ChatHandler(session).SendSysMessage(-2800652);//Equip failed. Cannot equip an off hand weapon in your Mercenary's main hand.
             return false;
         }
     }
@@ -455,7 +456,7 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
     {
         if (invType == INVTYPE_2HWEAPON && invType == INVTYPE_WEAPONMAINHAND && invType == INVTYPE_WEAPON)
         {
-            ChatHandler(session).SendSysMessage("Equip failed. Cannot equip a two handed, main hand or one handed in your Mercenary's off hand.");
+			ChatHandler(session).SendSysMessage(-2800653);//"Equip failed. Cannot equip a two handed, main hand or one handed in your Mercenary's off hand."
             return false;
         }
     }

@@ -969,27 +969,26 @@ void hearthstone_gamedirect(Player* pPlayer, Item* pItem, uint32 uiAction){
 		case GOSSIP_ACTION_INFO_DEF + 119:hearthstone_prepare_itemset(pPlayer, pItem, uiAction); break;
 	}
 }
-void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
-	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
-	switch (pPlayer->getClass())
+void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
+	switch (playerOrPetClass)
 	{
 	case 1://战士
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800400, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 180);  // T1力量(60级) 209 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800401, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 181);  // T2愤怒(60级)  218 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800402, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 182);  // T3无畏(60级) 523 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800403, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 183);  // T4战神(70级防御) 654 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800404, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 184);  // T4战神(70级战斗) 655 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800405, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 185);  // T5摧毁者（70级防御）656 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800406, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 186);  // T5摧毁者（70级战斗）657 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800407, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 187);  // T6冲击(70级战斗）672 
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800408, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 188);  // T6冲击(70级防御）673
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800409, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 189);  // T7套装(80级防御) 787
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800410, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 190);  // T7套装(80级战斗）788
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800411, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 191);  // T8套装(80级战斗） 830
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800412, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 192);  // T8套装(80级防御) 831
-			//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800418, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 195);  // 学习板甲.learn 750
-			//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800419, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1959);  // 学习锁甲.learn 8737
-			break;
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800400, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 180);  // T1力量(60级) 209 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800401, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 181);  // T2愤怒(60级)  218 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800402, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 182);  // T3无畏(60级) 523 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800403, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 183);  // T4战神(70级防御) 654 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800404, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 184);  // T4战神(70级战斗) 655 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800405, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 185);  // T5摧毁者（70级防御）656 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800406, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 186);  // T5摧毁者（70级战斗）657 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800407, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 187);  // T6冲击(70级战斗）672 
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800408, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 188);  // T6冲击(70级防御）673
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800409, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 189);  // T7套装(80级防御) 787
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800410, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 190);  // T7套装(80级战斗）788
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800411, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 191);  // T8套装(80级战斗） 830
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800412, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 192);  // T8套装(80级防御) 831
+		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800418, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 195);  // 学习板甲.learn 750
+		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800419, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1959);  // 学习锁甲.learn 8737
+		break;
 	case 2://圣骑士
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800420, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 200);  // T1秩序之源(60级) 208
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800421, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 201);  // T2审判(60级)  217 
@@ -1114,6 +1113,19 @@ void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800546, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 326);  // T8套装（80级野性） 828
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800547, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 327);  // T8套装（80级治疗） 829
 	}
+}
+void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
+	uint8 playerOrPetClass = pPlayer->getClass();
+	add_itemsetByClass(pPlayer, pItem, playerOrPetClass);
+
+	Pet* pet = pPlayer->GetPet();
+	if (pet)
+	{
+		if (pet->getClass() != playerOrPetClass)
+			add_itemsetByClass(pPlayer, pItem, pet->getClass());
+	}
+
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 
 }
@@ -1261,7 +1273,16 @@ bool additemset(Player* pPlayer, uint32 itemset){
 	case 6:pPlayer->learnSpell(750, true); break;//死亡骑士 //板甲
 	case 7:pPlayer->learnSpell(8737, true); break;//萨满祭司 学习锁甲.learn 8737
 	}
-
+	Pet * pet = pPlayer->GetPet();
+	if (pet){
+		switch (pet->getClass()){
+		case 1:pet->learnSpell(750); break;//战士 学习板甲.learn 750
+		case 2:pet->learnSpell(750); break;//圣骑士 // 学习板甲.learn 750
+		case 3:pet->learnSpell(8737); break;//猎人 //锁甲
+		case 6:pet->learnSpell(750); break;//死亡骑士 //板甲
+		case 7:pet->learnSpell(8737); break;//萨满祭司 学习锁甲.learn 8737
+		}
+	}
 
 	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_ITEMSET, 500);
 	return true;

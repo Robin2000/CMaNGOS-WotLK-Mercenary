@@ -317,24 +317,24 @@ std::string MercenaryMgr::GetSlotIcon(uint8 slot) const
     return ss.str();
 }
 
-const char* MercenaryMgr::GetSlotName(uint8 slot) const
+const char* MercenaryMgr::GetSlotName(Player* player,uint8 slot) const
 {
     switch (slot)
     {
-        case SLOT_HEAD: return  "Head";
-        case SLOT_SHOULDERS: return  "Shoulders";
-        case SLOT_SHIRT: return  "Shirt";
-        case SLOT_CHEST: return  "Chest";
-        case SLOT_WAIST: return  "Waist";
-        case SLOT_LEGS: return  "Legs";
-        case SLOT_FEET: return  "Feet";
-        case SLOT_WRISTS: return  "Wrists";
-        case SLOT_HANDS: return  "Hands";
-        case SLOT_BACK: return  "Back";
-        case SLOT_MAIN_HAND: return  "Main hand";
-        case SLOT_OFF_HAND: return  "Off hand";
-        case SLOT_RANGED: return  "Ranged";
-        case SLOT_TABARD: return  "Tabard";
+	case SLOT_HEAD: return  player->GetMangosString(-2800654);// "Head";
+	case SLOT_SHOULDERS: return  player->GetMangosString(-2800655); //"Shoulders";
+	case SLOT_SHIRT: return  player->GetMangosString(-2800656); //"Shirt";
+	case SLOT_CHEST: return  player->GetMangosString(-2800657); //"Chest";
+	case SLOT_WAIST: return  player->GetMangosString(-2800658); //"Waist";
+	case SLOT_LEGS: return player->GetMangosString(-2800659);// "Legs";
+	case SLOT_FEET: return player->GetMangosString(-2800660);// "Feet";
+	case SLOT_WRISTS: return player->GetMangosString(-2800661);// "Wrists";
+	case SLOT_HANDS: return player->GetMangosString(-2800662);// "Hands";
+	case SLOT_BACK: return player->GetMangosString(-2800663);// "Back";
+	case SLOT_MAIN_HAND: return  player->GetMangosString(-2800664); //"Main hand";
+	case SLOT_OFF_HAND: return player->GetMangosString(-2800665);// "Off hand";
+	case SLOT_RANGED: return player->GetMangosString(-2800666);// "Ranged";
+	case SLOT_TABARD: return player->GetMangosString(-2800667);// "Tabard";
         default: return "";
     }
 }
@@ -371,7 +371,7 @@ MercenarySpells::const_iterator MercenaryUtil::MercenarySpellsBegin(){ return sM
 MercenarySpells::const_iterator MercenaryUtil::MercenarySpellsEnd(){ return sMercenaryMgr->MercenarySpellsEnd(); }
 std::vector<MercenaryTalking> MercenaryUtil::MercenaryGetTalk(uint8 type, uint8 role){ return sMercenaryMgr->GetTalk(type, role); }
 std::string MercenaryUtil::GetMercenarySlotIcon(uint8 slot)  { return sMercenaryMgr->GetSlotIcon(slot); }
-const char* MercenaryUtil::GetMercenarySlotName(uint8 slot)  { return sMercenaryMgr->GetSlotName(slot); }
+const char* MercenaryUtil::GetMercenarySlotName(Player* player, uint8 slot)  { return sMercenaryMgr->GetSlotName(player,slot); }
 std::string MercenaryUtil::GetMercenaryItemIcon(uint32 entry, bool rawPath) { return sMercenaryMgr->GetItemIcon(entry, rawPath); }
 std::string MercenaryUtil::GetMercenaryItemLink(uint32 entry, WorldSession* session) { return sMercenaryMgr->GetItemLink(entry, session); }
 MercenaryStarterGear* MercenaryUtil::GetMercenaryStarterGearByEntry(uint32 entry){ return sMercenaryMgr->GetStarterGearByEntry(entry); }
