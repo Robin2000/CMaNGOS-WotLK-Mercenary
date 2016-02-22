@@ -1684,6 +1684,21 @@
     <ClCompile Include="..\..\src\myscript\mercenary_gossip.cpp">
       <Filter>scripts\custom</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\myscript\teleport.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\myscript\hearthstone_store.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\myscript\hearthstone_quest.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\myscript\hearthstone_learn.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\myscript\hearthstone_mount.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\scriptdev2\base\escort_ai.h">
@@ -1937,6 +1952,21 @@
       <Filter>scripts\custom</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\myscript\mercenary_gossip.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\myscript\teleport.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\myscript\hearthstone_store.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\myscript\hearthstone_quest.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\myscript\hearthstone_learn.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\myscript\hearthstone_mount.h">
       <Filter>scripts\custom</Filter>
     </ClInclude>
   </ItemGroup>

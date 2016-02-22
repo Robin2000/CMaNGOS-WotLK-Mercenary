@@ -215,10 +215,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\myscript\hearthstone_learn.cpp" />
+    <ClCompile Include="..\..\src\myscript\hearthstone_mount.cpp" />
+    <ClCompile Include="..\..\src\myscript\hearthstone_quest.cpp" />
+    <ClCompile Include="..\..\src\myscript\hearthstone_store.cpp" />
     <ClCompile Include="..\..\src\myscript\mercenary_gossip.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_hearthstone.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_hh.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_spirit_guide.cpp" />
+    <ClCompile Include="..\..\src\myscript\teleport.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\escort_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\follower_ai.cpp" />
     <ClCompile Include="..\..\src\scriptdev2\base\guard_ai.cpp" />
@@ -684,8 +689,13 @@
     <ClCompile Include="..\..\src\scriptdev2\ScriptMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\myscript\hearthstone_learn.h" />
+    <ClInclude Include="..\..\src\myscript\hearthstone_mount.h" />
+    <ClInclude Include="..\..\src\myscript\hearthstone_quest.h" />
+    <ClInclude Include="..\..\src\myscript\hearthstone_store.h" />
     <ClInclude Include="..\..\src\myscript\mercenary_gossip.h" />
     <ClInclude Include="..\..\src\myscript\pr_hearthstone.h" />
+    <ClInclude Include="..\..\src\myscript\teleport.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\escort_ai.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\follower_ai.h" />
     <ClInclude Include="..\..\src\scriptdev2\base\guard_ai.h" />

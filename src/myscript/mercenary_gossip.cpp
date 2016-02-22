@@ -38,11 +38,9 @@ public:
 };
 #endif
 */
-struct mercenary_npc_gossip
-{
-public:
 
-    RandomMercenary static GetRandomMercenary()
+
+    RandomMercenary GetRandomMercenary()
     {
         RandomMercenary rndMerc[] =
         {
@@ -68,7 +66,7 @@ public:
 		return rndMerc[MercenaryUtil::GetMercenaryRandom().Next(0, 18)];
     }
 
-    RandomMercenaryTypeRole static GetRandomTypeAndRole()
+    RandomMercenaryTypeRole GetRandomTypeAndRole()
     {
         RandomMercenaryTypeRole rndTypeRole[] =
         {
@@ -96,7 +94,7 @@ public:
 		return rndTypeRole[MercenaryUtil::GetMercenaryRandom().Next(0, 20)];
     }
 
-	void static SendToHello(Player* player,Item* item)
+	void SendToHello(Player* player,Item* item)
     {
 
 		Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
@@ -114,7 +112,7 @@ public:
 
     }
 
-	void static SendHireOrOptionalList(Player* player,Item* item )
+	void SendHireOrOptionalList(Player* player,Item* item )
     {
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800603, 0, 5);//随机招募雇佣兵
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800604, 0, 94);//选择最好的招募雇佣兵
@@ -122,7 +120,7 @@ public:
 
     }
 
-	void static SendHireList(Player* player,  Item* item )
+	void SendHireList(Player* player,  Item* item )
     {
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800097, 0, 6);//战士
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800098, 0, 7);//圣骑士
@@ -139,7 +137,7 @@ public:
 
     }
 
-	void static SendFeatureList(Player* player, Item* item, bool races = false )
+	void SendFeatureList(Player* player, Item* item, bool races = false )
     {
         if (!races)
         {
@@ -175,7 +173,7 @@ public:
 
     }
 
-	void static SendRoleList(Player* player, Item* item, uint8 type)
+	void SendRoleList(Player* player, Item* item, uint8 type)
     {
         bool isMelee = (type == MERCENARY_TYPE_DRUID || type == MERCENARY_TYPE_DK || type == MERCENARY_TYPE_WARRIOR
             || type == MERCENARY_TYPE_ROGUE || type == MERCENARY_TYPE_SHAMAN || type == MERCENARY_TYPE_PALADIN);
@@ -203,7 +201,7 @@ public:
 
     }
 
-	void static SendConfirmation(Player* player, Item* item)
+	void SendConfirmation(Player* player, Item* item)
     {
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800630, 0, 39);//确定吗？
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800631, 0, 40);//重新来
@@ -212,7 +210,7 @@ public:
 		player->SEND_GOSSIP_MENU(1, item->GetObjectGuid());
     }
 
-    void static CreateMercenary(Player* player, Item* item, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type)
+    void CreateMercenary(Player* player, Item* item, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type)
     {
         if (!mercenary->Create(player, model, race, gender, type, role))
         {
@@ -225,7 +223,6 @@ public:
         return;
     }
 
-};
 
 
 bool GossipHello_mercenary_npc_gossip(Player* player, Item* item)
@@ -246,7 +243,7 @@ bool GossipHello_mercenary_npc_gossip(Player* player, Item* item)
 		}
 	}
 
-	mercenary_npc_gossip::SendToHello(player, item);
+	SendToHello(player, item);
 
 	return true;
 }
@@ -266,6 +263,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 		if (!mercenary->Create(player))
 		{
 			session->SendNotification(-2800633);//未能招募成功!
+			player->gossipMenuType = -1;/*还原默认值*/
 			return false;
 		}
 	}
@@ -273,178 +271,182 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 	switch (actions)
 	{
 	case 1: // Hire Mercenary
-			mercenary_npc_gossip::SendHireOrOptionalList(player,item);
+			SendHireOrOptionalList(player,item);
 		break;
 	case 4:
 		player->CLOSE_GOSSIP_MENU();
+		player->gossipMenuType = -1;/*还原默认值*/
 		break;
 	case 5: // Hire random Mercenary
 	{
-				RandomMercenary randomMercenary = mercenary_npc_gossip::GetRandomMercenary();
-				RandomMercenaryTypeRole randomClass = mercenary_npc_gossip::GetRandomTypeAndRole();
+				RandomMercenary randomMercenary = GetRandomMercenary();
+				RandomMercenaryTypeRole randomClass = GetRandomTypeAndRole();
 				mercenary->SetValues(randomMercenary.model, randomMercenary.race, randomMercenary.gender);
 				mercenary->SetType(randomClass.type);
 				mercenary->SetRole(randomClass.role);
-				mercenary_npc_gossip::CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
+				CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
 					mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
 				player->CLOSE_GOSSIP_MENU();
+				player->gossipMenuType = -1;/*还原默认值*/
 	}break;
 	case 94: // Hire Mercenary and choose what's best for it (and you)
-		mercenary_npc_gossip::SendHireList(player, item);
+		SendHireList(player, item);
 		break;
 	case 15:
-		mercenary_npc_gossip::SendFeatureList(player, item, true);
+		SendFeatureList(player, item, true);
 		break;
 	case 6:
 		mercenary->SetType(MERCENARY_TYPE_WARRIOR);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 7:
 		mercenary->SetType(MERCENARY_TYPE_PALADIN);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 8:
 		mercenary->SetType(MERCENARY_TYPE_HUNTER);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 9:
 		mercenary->SetType(MERCENARY_TYPE_ROGUE);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 10:
 		mercenary->SetType(MERCENARY_TYPE_DK);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 11:
 		mercenary->SetType(MERCENARY_TYPE_PRIEST);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 12:
 		mercenary->SetType(MERCENARY_TYPE_SHAMAN);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 13:
 		mercenary->SetType(MERCENARY_TYPE_WARLOCK);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 14:
 		mercenary->SetType(MERCENARY_TYPE_DRUID);
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 16:
 		mercenary->SetValues(BLOODELF_MALE_MODEL, RACE_BLOODELF, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 17:
 		mercenary->SetValues(BLOODELF_FEMALE_MODEL, RACE_BLOODELF, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 18:
 		mercenary->SetValues(DRAENEI_MALE_MODEL, RACE_DRAENEI, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 19:
 		mercenary->SetValues(DRAENEI_FEMALE_MODEL, RACE_DRAENEI, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 20:
 		mercenary->SetValues(DWARF_MALE_MODEL, RACE_DWARF, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 21:
 		mercenary->SetValues(DWARF_FEMALE_MODEL, RACE_DWARF, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 22:
 		mercenary->SetValues(GNOME_MALE_MODEL, RACE_GNOME, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 23:
 		mercenary->SetValues(GNOME_FEMALE_MODEL, RACE_GNOME, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 24:
 		mercenary->SetValues(HUMAN_MALE_MODEL, RACE_HUMAN, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 25:
 		mercenary->SetValues(HUMAN_FEMALE_MODEL, RACE_HUMAN, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 26:
 		mercenary->SetValues(NIGHTELF_MALE_MODEL, RACE_NIGHTELF, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 27:
 		mercenary->SetValues(NIGHTELF_FEMALE_MODEL, RACE_NIGHTELF, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 28:
 		mercenary->SetValues(ORC_MALE_MODEL, RACE_ORC, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 29:
 		mercenary->SetValues(ORC_FEMALE_MODEL, RACE_ORC, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 30:
 		mercenary->SetValues(TAUREN_MALE_MODEL, RACE_TAUREN, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 31:
 		mercenary->SetValues(TAUREN_FEMALE_MODEL, RACE_TAUREN, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 32:
 		mercenary->SetValues(TROLL_MALE_MODEL, RACE_TROLL, GENDER_MALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 33:
 		mercenary->SetValues(TROLL_FEMALE_MODEL, RACE_TROLL, GENDER_FEMALE);
-		mercenary_npc_gossip::SendRoleList(player, item, mercenary->GetType());
+		SendRoleList(player, item, mercenary->GetType());
 		break;
 	case 34:
 		mercenary->SetRole(ROLE_MELEE_DPS);
-		mercenary_npc_gossip::SendConfirmation(player, item);
+		SendConfirmation(player, item);
 		break;
 	case 35:
 		mercenary->SetRole(ROLE_CASTER_DPS);
-		mercenary_npc_gossip::SendConfirmation(player, item);
+		SendConfirmation(player, item);
 		break;
 	case 36:
 		mercenary->SetRole(ROLE_MARKSMAN_DPS);
-		mercenary_npc_gossip::SendConfirmation(player, item);
+		SendConfirmation(player, item);
 		break;
 	case 37:
 		mercenary->SetRole(ROLE_HEALER);
-		mercenary_npc_gossip::SendConfirmation(player, item);
+		SendConfirmation(player, item);
 		break;
 	case 38:
 		mercenary->SetRole(ROLE_TANK);
-		mercenary_npc_gossip::SendConfirmation(player, item);
+		SendConfirmation(player, item);
 		break;
 	case 39:
-		mercenary_npc_gossip::CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
+		CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
 			mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
 		player->CLOSE_GOSSIP_MENU();
+		player->gossipMenuType = -1;/*还原默认值*/
 		break;
 	case 40:
-		mercenary_npc_gossip::SendToHello(player, item);
+		SendToHello(player, item);
 		break;
 	case 41:
 		player->CLOSE_GOSSIP_MENU();
+		player->gossipMenuType = -1;/*还原默认值*/
 		break;
 	case 96:
-		mercenary_npc_gossip::SendFeatureList(player, item, true);
+		SendFeatureList(player, item, true);
 		break;
 	case 97:
-		mercenary_npc_gossip::SendFeatureList(player, item);
+		SendFeatureList(player, item);
 		break;
 	case 98:
-		mercenary_npc_gossip::SendHireList(player, item);
+		SendHireList(player, item);
 		break;
 	case 99:
-		mercenary_npc_gossip::SendToHello(player, item);
+		SendToHello(player, item);
 		break;
 	}
 
@@ -1007,12 +1009,4 @@ void MercenarySetup()
 	s->pGossipSelect = &OnGossipSelect_mercenary_world_gossip;
     s->RegisterSelf();
 //#endif
-}
-
-
-bool GossipHello_mercenary_npc_gossip_hook(Player* player, Item* item){
-	return GossipHello_mercenary_npc_gossip(player, item);
-}
-bool GossipSelect_mercenary_npc_gossip_hook(Player* player, Item* item, uint32 sender, uint32 actions){
-	return GossipSelect_mercenary_npc_gossip(player, item,sender, actions);
 }
