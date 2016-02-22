@@ -39,6 +39,7 @@ insert into custom_texts(entry, content_default)values(-2800178,'系统提示：
 insert into custom_texts(entry, content_default)values(-2800179,'系统提示：设置返回点成功。');
 insert into custom_texts(entry, content_default)values(-2800180,'系统提示：禁止在副本中设置返回点。');
 insert into custom_texts(entry, content_default)values(-2800181,'返回主菜单。');
+insert into custom_texts(entry, content_default)values(-2800182,'原力商店。');
 
 insert into custom_texts(entry, content_default)values(-2800190,'原力骑乘。');
 
@@ -426,6 +427,8 @@ insert into custom_texts(entry, content_default)values(-2800545,  'T8套装(德�
 insert into custom_texts(entry, content_default)values(-2800546,  'T8套装(德鲁伊80级野性');
 insert into custom_texts(entry, content_default)values(-2800547,  'T8套装(德鲁伊80级治疗');
 
+insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原力)');
+
 
 insert into gossip_menu(entry,text_id) values(65535,16777213);
 */
@@ -444,6 +447,8 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800169, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);//任务辅助。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
+	
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//游戏直达。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800300, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);//地图传送。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800210, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//发送游戏小技巧。
@@ -498,6 +503,15 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
 	{
 		hearthstone_prepare_quest(pPlayer, pItem);
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 10)//原力商店
+	{
+		hearthstone_prepare_store(pPlayer, pItem);
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 11){//36格子背包
+		if (!pPlayer->GetGamePointMgr().checkPoint(5)) 	return false;
+		ChatHandler(pPlayer).HandleAddItemCommand("23162");
+		pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_STORE_POCKET, 5);
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 999)
 	{
@@ -637,6 +651,15 @@ void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
 
 	}
 
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+}
+/*原力商店*/
+void hearthstone_prepare_store(Player* pPlayer, Item* pItem){
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800550, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);  // "36格背包(-5原力)"
+	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "终极武器(-500原力)", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);  // 终极武器(-500原力)
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800240, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 119);//T1-T8套装
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
@@ -881,7 +904,7 @@ void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
 	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800232, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 116);  // 秒升声望
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800233, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 117);  // 全开地图
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800234, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 118);  // 全开飞行点
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800240, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 119);  // T1-T8套装
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
 void prepareProfessional(Player* pPlayer, Item* pItem){
@@ -900,6 +923,7 @@ void prepareProfessional(Player* pPlayer, Item* pItem){
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800271, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 141);  // 剥皮
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800272, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 142);  // 钓鱼
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800273, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 143);  // 急救
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
 
@@ -1121,6 +1145,7 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800547, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 327);  // T8套装（80级治疗） 829
 		break;
 	}
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 }
 void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
@@ -1357,7 +1382,7 @@ void hearthstone_prepare_mount(Player* pPlayer, Item* pItem){
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800204, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 104);  // 兽
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800205, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 105);  // 毯
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800206, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 106);  // 坦克
-
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777211, pItem->GetObjectGuid()); //利用原力临时随机召唤一只坐骑，忠诚度有限。
 }
 void hearthstone_mount(Player* pPlayer, Item* pItem,uint32 uiAction){

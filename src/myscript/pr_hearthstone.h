@@ -342,3 +342,4 @@ void transportByPOI(Player* pPlayer, Item* pItem, int idx);
 void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEntry);
 void transportToStarter(Player* pPlayer, Item* pItem);
 void transportToInvolved(Player* pPlayer, Item* pItem, int idx);
+void hearthstone_prepare_store(Player* pPlayer, Item* pItem);
