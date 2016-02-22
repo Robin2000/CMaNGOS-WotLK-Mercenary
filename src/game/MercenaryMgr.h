@@ -209,6 +209,7 @@ public:
     * Returns true if the Mercenary type can use that armor or weapon proficiency
     * If for example armor proficiency column is 0 and weapon proficiency column contains
     *     a value, that row will be loaded (considered) as weapon proficiency. Vice versa is implied here.
+	*  简单的说，就是mercenary_proficiencies表中type匹配，对应的护甲（武器）匹配
     */
     bool CheckProficiencies(uint8 type, uint32 itemClass, uint32 itemSubClass)
     {
@@ -220,10 +221,10 @@ public:
 
             if (itemClass == ITEM_CLASS_ARMOR)
             {
-                if (itr.armorSubClass == 0 && !(itr.armorSubClass == 0 && itr.weaponSubClass == 0))
+				if (itr.armorSubClass == 0 && !(itr.armorSubClass == 0 && itr.weaponSubClass == 0))//仅weaponSubClass不为0，不是针对护甲的
                     continue;
 
-                if (itr.armorSubClass == itemSubClass)
+                if (itr.armorSubClass >= itemSubClass)//将等于改为大于等于，表示预定义的专精大于物品实际的，例如：能穿板甲，就一定能穿锁甲
                 {
                     check = true;
                     break;
@@ -231,10 +232,10 @@ public:
             }
             else if (itemClass == ITEM_CLASS_WEAPON)
             {
-                if (itr.weaponSubClass == 0 && !(itr.weaponSubClass == 0 && itr.armorSubClass == 0))
+                if (itr.weaponSubClass == 0 && !(itr.weaponSubClass == 0 && itr.armorSubClass == 0))//仅armorSubClass不为0，不是针对武器的
                     continue;
 
-                if (itr.weaponSubClass == itemSubClass)
+				if (itr.weaponSubClass == itemSubClass)//武器必须精确等于，用杖的只能用杖
                 {
                     check = true;
                     break;

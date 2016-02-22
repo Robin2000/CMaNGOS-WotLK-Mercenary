@@ -87,19 +87,48 @@ struct RandomMercenaryTypeRole
     uint8 role;
 };
 
+/*将雇佣兵的职业修改为一致
+update mercenary_proficiencies set type=5 where type=3;
+update mercenary_proficiencies set type=6 where type=4;
+update mercenary_proficiencies set type=9 where type=5;
+update mercenary_proficiencies set type=8 where type=6;
+update mercenary_proficiencies set type=11 where type=7;
+update mercenary_proficiencies set type=3 where type=8;
+update mercenary_proficiencies set type=4 where type=9;
+update mercenary_proficiencies set type=7 where type=10;
+
+update mercenary_spells set type=5 where type=3;
+update mercenary_spells set type=6 where type=4;
+update mercenary_spells set type=9 where type=5;
+update mercenary_spells set type=8 where type=6;
+update mercenary_spells set type=11 where type=7;
+update mercenary_spells set type=3 where type=8;
+update mercenary_spells set type=4 where type=9;
+update mercenary_spells set type=7 where type=10;
+
+update mercenary_start_gear set mercenaryType=5 where mercenaryType=3;
+update mercenary_start_gear set mercenaryType=6 where mercenaryType=4;
+update mercenary_start_gear set mercenaryType=9 where mercenaryType=5;
+update mercenary_start_gear set mercenaryType=8 where mercenaryType=6;
+update mercenary_start_gear set mercenaryType=11 where mercenaryType=7;
+update mercenary_start_gear set mercenaryType=3 where mercenaryType=8;
+update mercenary_start_gear set mercenaryType=4 where mercenaryType=9;
+update mercenary_start_gear set mercenaryType=7 where mercenaryType=10;
+
+*/
 enum MercenaryType
 {
     MERCENARY_TYPE_NONE=0,
     MERCENARY_TYPE_WARRIOR=1,
     MERCENARY_TYPE_PALADIN=2,
-    MERCENARY_TYPE_PRIEST=5,
-    MERCENARY_TYPE_DK=6,
-    MERCENARY_TYPE_WARLOCK=9,
-    MERCENARY_TYPE_MAGE=8,
-    MERCENARY_TYPE_DRUID=11,
-    MERCENARY_TYPE_HUNTER=3,
-	MERCENARY_TYPE_ROGUE = 4,
-    MERCENARY_TYPE_SHAMAN=7,
+    MERCENARY_TYPE_PRIEST=5,  //原来是3，变成5
+    MERCENARY_TYPE_DK=6,     //原来是4，变成6
+    MERCENARY_TYPE_WARLOCK=9, //原来5，变成9
+    MERCENARY_TYPE_MAGE=8,   //原来6变成，8
+    MERCENARY_TYPE_DRUID=11, //原来7，变成11
+    MERCENARY_TYPE_HUNTER=3, //原来8变成3
+	MERCENARY_TYPE_ROGUE = 4, //原来9变成4
+    MERCENARY_TYPE_SHAMAN=7,  //原来10 变成7
 
     MAX_MERCENARY_TYPES
 };
