@@ -136,7 +136,7 @@ struct GossipMenuItem
     uint32      m_gBoxMoney;
 };
 
-typedef std::vector<GossipMenuItem> GossipMenuItemList;
+typedef tbb::concurrent_vector<GossipMenuItem> GossipMenuItemList;
 
 struct GossipMenuItemData
 {
@@ -145,7 +145,7 @@ struct GossipMenuItemData
     uint32 m_gAction_script;
 };
 
-typedef std::vector<GossipMenuItemData> GossipMenuItemDataList;
+typedef tbb::concurrent_vector<GossipMenuItemData> GossipMenuItemDataList;
 
 struct QuestMenuItem
 {

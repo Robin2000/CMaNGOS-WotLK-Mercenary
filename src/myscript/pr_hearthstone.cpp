@@ -20,6 +20,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Language.h"
 #include "ObjectMgr.h"
+#include "MercenaryMgr.h"
 /*
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
@@ -292,138 +293,138 @@ insert into gossip_menu_option
 
 delete from custom_texts where entry>=-2800547 and entry<=-2800400;
 
-insert into custom_texts(entry, content_default)values(-2800400,  'T1力量(60级');
-insert into custom_texts(entry, content_default)values(-2800401,  'T2愤怒(60级');
-insert into custom_texts(entry, content_default)values(-2800402,  'T3无畏(60级');
-insert into custom_texts(entry, content_default)values(-2800403,  'T4战神(70级防御');
-insert into custom_texts(entry, content_default)values(-2800404,  'T4战神(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800405,  'T5摧毁者(70级防御');
-insert into custom_texts(entry, content_default)values(-2800406,  'T5摧毁者(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800407,  'T6冲击(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800408,  'T6冲击(70级防御');
-insert into custom_texts(entry, content_default)values(-2800409,  'T7套装(80级防御');
-insert into custom_texts(entry, content_default)values(-2800410,  'T7套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800411,  'T8套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800412,  'T8套装(80级防御');
+insert into custom_texts(entry, content_default)values(-2800400,  'T1力量(战士60级');
+insert into custom_texts(entry, content_default)values(-2800401,  'T2愤怒(战士60级');
+insert into custom_texts(entry, content_default)values(-2800402,  'T3无畏(战士60级');
+insert into custom_texts(entry, content_default)values(-2800403,  'T4战神(战士70级防御');
+insert into custom_texts(entry, content_default)values(-2800404,  'T4战神(战士70级战斗');
+insert into custom_texts(entry, content_default)values(-2800405,  'T5摧毁者(战士70级防御');
+insert into custom_texts(entry, content_default)values(-2800406,  'T5摧毁者(战士70级战斗');
+insert into custom_texts(entry, content_default)values(-2800407,  'T6冲击(战士70级战斗');
+insert into custom_texts(entry, content_default)values(-2800408,  'T6冲击(战士70级防御');
+insert into custom_texts(entry, content_default)values(-2800409,  'T7套装(战士80级防御');
+insert into custom_texts(entry, content_default)values(-2800410,  'T7套装(战士80级战斗');
+insert into custom_texts(entry, content_default)values(-2800411,  'T8套装(战士80级战斗');
+insert into custom_texts(entry, content_default)values(-2800412,  'T8套装(战士80级防御');
 
-insert into custom_texts(entry, content_default)values(-2800420,  'T1秩序之源(60级');
-insert into custom_texts(entry, content_default)values(-2800421,  'T2审判(60级');
-insert into custom_texts(entry, content_default)values(-2800422,  'T3救赎(60级');
-insert into custom_texts(entry, content_default)values(-2800423,  'T4庇护(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800424,  'T4庇护(70级防御');
-insert into custom_texts(entry, content_default)values(-2800425,  'T4庇护(70级惩戒');
-insert into custom_texts(entry, content_default)values(-2800426,  'T5晶铸(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800427,  'T5晶铸(70级防御');
-insert into custom_texts(entry, content_default)values(-2800428,  'T5晶铸(70级惩戒');
-insert into custom_texts(entry, content_default)values(-2800429,  'T6光明使者(70级防御');
-insert into custom_texts(entry, content_default)values(-2800430,  'T6光明使者(惩戒');
-insert into custom_texts(entry, content_default)values(-2800431,  'T6光明使者(治疗');
-insert into custom_texts(entry, content_default)values(-2800432,  'T7套装（80级惩戒');
-insert into custom_texts(entry, content_default)values(-2800433,  'T7套装（80级治疗');
-insert into custom_texts(entry, content_default)values(-2800434,  'T7套装（80级防御');
-insert into custom_texts(entry, content_default)values(-2800435,  'T8套装（80级惩戒');
-insert into custom_texts(entry, content_default)values(-2800436,  'T8套装（80级防御');
-insert into custom_texts(entry, content_default)values(-2800437,  'T8套装(80级防御');
-
-
-insert into custom_texts(entry, content_default)values(-2800440,  'T1巨兽之王(60级');
-insert into custom_texts(entry, content_default)values(-2800441,  'T2驭龙者(60级');
-insert into custom_texts(entry, content_default)values(-2800442,  'T3地穴追猎者(60级');
-insert into custom_texts(entry, content_default)values(-2800443,  'T4恶魔追猎者(70级');
-insert into custom_texts(entry, content_default)values(-2800444,  'T5裂缝行者(70级');
-insert into custom_texts(entry, content_default)values(-2800445,  'T6戈隆追猎者(70级');
-insert into custom_texts(entry, content_default)values(-2800446,  'T7套装(80级');
-insert into custom_texts(entry, content_default)values(-2800447,  'T8套装(80级');
-
-insert into custom_texts(entry, content_default)values(-2800450,  'T1夜幕杀手(60级');
-insert into custom_texts(entry, content_default)values(-2800451,  'T2血牙(60级');
-insert into custom_texts(entry, content_default)values(-2800452,  'T3骨镰(60级');
-insert into custom_texts(entry, content_default)values(-2800453,  'T4虚空之刃(70级');
-insert into custom_texts(entry, content_default)values(-2800454,  'T5死神传承(70级');
-insert into custom_texts(entry, content_default)values(-2800455,  'T6刺杀者(70级');
-insert into custom_texts(entry, content_default)values(-2800456,  'T7套装 (80级');
-insert into custom_texts(entry, content_default)values(-2800457,  'T8套装(80级');
-
-insert into custom_texts(entry, content_default)values(-2800460,  'T1预言(60级');
-insert into custom_texts(entry, content_default)values(-2800461,  'T2卓越(60级');
-insert into custom_texts(entry, content_default)values(-2800462,  'T3信仰(60级');
-insert into custom_texts(entry, content_default)values(-2800463,  'T4化身(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800464,  'T4化身(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800465,  'T5幻身(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800466,  'T5幻身(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800467,  'T6赦免(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800468,  'T6赦免(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800469,  'T7套装(80级治疗');
-insert into custom_texts(entry, content_default)values(-2800470,  'T7套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800471,  'T8套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800472,  'T8套装(80级治疗');
+insert into custom_texts(entry, content_default)values(-2800420,  'T1秩序之源(圣骑士60级');
+insert into custom_texts(entry, content_default)values(-2800421,  'T2审判(圣骑士60级');
+insert into custom_texts(entry, content_default)values(-2800422,  'T3救赎(圣骑士60级');
+insert into custom_texts(entry, content_default)values(-2800423,  'T4庇护(圣骑士70级治疗');
+insert into custom_texts(entry, content_default)values(-2800424,  'T4庇护(圣骑士70级防御');
+insert into custom_texts(entry, content_default)values(-2800425,  'T4庇护(圣骑士70级惩戒');
+insert into custom_texts(entry, content_default)values(-2800426,  'T5晶铸(圣骑士70级治疗');
+insert into custom_texts(entry, content_default)values(-2800427,  'T5晶铸(圣骑士70级防御');
+insert into custom_texts(entry, content_default)values(-2800428,  'T5晶铸(圣骑士70级惩戒');
+insert into custom_texts(entry, content_default)values(-2800429,  'T6光明使者(圣骑士70级防御');
+insert into custom_texts(entry, content_default)values(-2800430,  'T6光明使者(圣骑士70级惩戒');
+insert into custom_texts(entry, content_default)values(-2800431,  'T6光明使者(圣骑士70级治疗');
+insert into custom_texts(entry, content_default)values(-2800432,  'T7套装（圣骑士80级惩戒');
+insert into custom_texts(entry, content_default)values(-2800433,  'T7套装（圣骑士80级治疗');
+insert into custom_texts(entry, content_default)values(-2800434,  'T7套装（圣骑士80级防御');
+insert into custom_texts(entry, content_default)values(-2800435,  'T8套装（圣骑士80级惩戒');
+insert into custom_texts(entry, content_default)values(-2800436,  'T8套装（圣骑士80级防御');
+insert into custom_texts(entry, content_default)values(-2800437,  'T8套装(圣骑士80级防御');
 
 
-insert into custom_texts(entry, content_default)values(-2800480,  'T7套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800481,  'T7套装(80级防御');
-insert into custom_texts(entry, content_default)values(-2800482,  'T8套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800483,  'T8套装(80级防御');
+insert into custom_texts(entry, content_default)values(-2800440,  'T1巨兽之王(猎人60级');
+insert into custom_texts(entry, content_default)values(-2800441,  'T2驭龙者(猎人60级');
+insert into custom_texts(entry, content_default)values(-2800442,  'T3地穴追猎者(猎人60级');
+insert into custom_texts(entry, content_default)values(-2800443,  'T4恶魔追猎者(猎人70级');
+insert into custom_texts(entry, content_default)values(-2800444,  'T5裂缝行者(猎人70级');
+insert into custom_texts(entry, content_default)values(-2800445,  'T6戈隆追猎者(猎人70级');
+insert into custom_texts(entry, content_default)values(-2800446,  'T7套装(猎人80级');
+insert into custom_texts(entry, content_default)values(-2800447,  'T8套装(猎人80级');
 
-insert into custom_texts(entry, content_default)values(-2800490,  'T1大地之怒(60级');
-insert into custom_texts(entry, content_default)values(-2800491,  'T2无尽风暴(60级');
-insert into custom_texts(entry, content_default)values(-2800492,  'T3碎地者(60级');
-insert into custom_texts(entry, content_default)values(-2800493,  'T4飓风(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800494,  'T4飓风(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800495,  'T4飓风(70级战斗');
+insert into custom_texts(entry, content_default)values(-2800450,  'T1夜幕杀手(潜行者60级');
+insert into custom_texts(entry, content_default)values(-2800451,  'T2血牙(潜行者60级');
+insert into custom_texts(entry, content_default)values(-2800452,  'T3骨镰(潜行者60级');
+insert into custom_texts(entry, content_default)values(-2800453,  'T4虚空之刃(潜行者70级');
+insert into custom_texts(entry, content_default)values(-2800454,  'T5死神传承(潜行者70级');
+insert into custom_texts(entry, content_default)values(-2800455,  'T6刺杀者(潜行者70级');
+insert into custom_texts(entry, content_default)values(-2800456,  'T7套装 (潜行者80级');
+insert into custom_texts(entry, content_default)values(-2800457,  'T8套装(潜行者80级');
 
-insert into custom_texts(entry, content_default)values(-2800496,  'T5裂地(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800497,  'T5裂地(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800498,  'T6裂地(70级战斗');
-
-insert into custom_texts(entry, content_default)values(-2800499,  'T6破天(70级战斗');
-insert into custom_texts(entry, content_default)values(-2800500,  'T6破天(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800501,  'T6破天(70级治疗');
-
-insert into custom_texts(entry, content_default)values(-2800502,  'T7套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800503,  'T7套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800504,  'T7套装(80级治疗');
-
-insert into custom_texts(entry, content_default)values(-2800505,  'T8套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800506,  'T8套装(80级战斗');
-insert into custom_texts(entry, content_default)values(-2800507,  'T8套装(80级治疗');
+insert into custom_texts(entry, content_default)values(-2800460,  'T1预言(牧师60级');
+insert into custom_texts(entry, content_default)values(-2800461,  'T2卓越(牧师60级');
+insert into custom_texts(entry, content_default)values(-2800462,  'T3信仰(牧师60级');
+insert into custom_texts(entry, content_default)values(-2800463,  'T4化身(牧师70级治疗');
+insert into custom_texts(entry, content_default)values(-2800464,  'T4化身(牧师70级战斗');
+insert into custom_texts(entry, content_default)values(-2800465,  'T5幻身(牧师70级治疗');
+insert into custom_texts(entry, content_default)values(-2800466,  'T5幻身(牧师70级战斗');
+insert into custom_texts(entry, content_default)values(-2800467,  'T6赦免(牧师70级战斗');
+insert into custom_texts(entry, content_default)values(-2800468,  'T6赦免(牧师70级治疗');
+insert into custom_texts(entry, content_default)values(-2800469,  'T7套装(牧师80级治疗');
+insert into custom_texts(entry, content_default)values(-2800470,  'T7套装(牧师80级战斗');
+insert into custom_texts(entry, content_default)values(-2800471,  'T8套装(牧师80级战斗');
+insert into custom_texts(entry, content_default)values(-2800472,  'T8套装(牧师80级治疗');
 
 
-insert into custom_texts(entry, content_default)values(-2800510,  'T1奥术师(60级');
-insert into custom_texts(entry, content_default)values(-2800511,  'T2灵风(60级');
-insert into custom_texts(entry, content_default)values(-2800512,  'T3霜火(60级');
-insert into custom_texts(entry, content_default)values(-2800513,  'T4占卜者(70级');
-insert into custom_texts(entry, content_default)values(-2800514,  'T5提里斯法(70级');
-insert into custom_texts(entry, content_default)values(-2800515,  'T6风暴(70级');
-insert into custom_texts(entry, content_default)values(-2800516,  'T7套装(80级');
-insert into custom_texts(entry, content_default)values(-2800517,  'T8套装(80级');
+insert into custom_texts(entry, content_default)values(-2800480,  'T7套装(死亡骑士80级战斗');
+insert into custom_texts(entry, content_default)values(-2800481,  'T7套装(死亡骑士80级防御');
+insert into custom_texts(entry, content_default)values(-2800482,  'T8套装(死亡骑士80级战斗');
+insert into custom_texts(entry, content_default)values(-2800483,  'T8套装(死亡骑士80级防御');
 
-insert into custom_texts(entry, content_default)values(-2800520,  'T1恶魔之心 (60级');
-insert into custom_texts(entry, content_default)values(-2800521,  'T2复仇(60级');
-insert into custom_texts(entry, content_default)values(-2800522,  'T3瘟疫之心(60级');
-insert into custom_texts(entry, content_default)values(-2800523,  'T4虚空之心(70级');
-insert into custom_texts(entry, content_default)values(-2800524,  'T5堕落(70级');
-insert into custom_texts(entry, content_default)values(-2800525,  'T6凶星(70级');
-insert into custom_texts(entry, content_default)values(-2800526,  'T7套装(80级');
-insert into custom_texts(entry, content_default)values(-2800527,  'T8套装(80级');
+insert into custom_texts(entry, content_default)values(-2800490,  'T1大地之怒(萨满祭司60级');
+insert into custom_texts(entry, content_default)values(-2800491,  'T2无尽风暴(萨满祭司60级');
+insert into custom_texts(entry, content_default)values(-2800492,  'T3碎地者(萨满祭司60级');
+insert into custom_texts(entry, content_default)values(-2800493,  'T4飓风(萨满祭司70级治疗');
+insert into custom_texts(entry, content_default)values(-2800494,  'T4飓风(萨满祭司70级战斗');
+insert into custom_texts(entry, content_default)values(-2800495,  'T4飓风(萨满祭司70级战斗');
 
-insert into custom_texts(entry, content_default)values(-2800530,  'T1塞纳里奥(60级');
-insert into custom_texts(entry, content_default)values(-2800531,  'T2怒风(60级');
-insert into custom_texts(entry, content_default)values(-2800532,  'T3梦游者(60级');
-insert into custom_texts(entry, content_default)values(-2800533,  'T4玛洛尼(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800534,  'T4玛洛尼(70级平衡');
-insert into custom_texts(entry, content_default)values(-2800535,  'T4玛洛尼(70级野性');
-insert into custom_texts(entry, content_default)values(-2800536,  'T5诺达希尔(70级野性');
-insert into custom_texts(entry, content_default)values(-2800537,  'T5诺达希尔(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800538,  'T5诺达希尔(70级平衡');
-insert into custom_texts(entry, content_default)values(-2800539,  'T6雷霆之心(70级野性');
-insert into custom_texts(entry, content_default)values(-2800540,  'T6雷霆之心(70级平衡');
-insert into custom_texts(entry, content_default)values(-2800541,  'T6雷霆之心(70级治疗');
-insert into custom_texts(entry, content_default)values(-2800542,  'T7套装(80级野性');
-insert into custom_texts(entry, content_default)values(-2800543,  'T7套装(80级治疗');
-insert into custom_texts(entry, content_default)values(-2800544,  'T7套装(80级平衡');
-insert into custom_texts(entry, content_default)values(-2800545,  'T8套装(80级平衡');
-insert into custom_texts(entry, content_default)values(-2800546,  'T8套装(80级野性');
-insert into custom_texts(entry, content_default)values(-2800547,  'T8套装(80级治疗');
+insert into custom_texts(entry, content_default)values(-2800496,  'T5裂地(萨满祭司70级治疗');
+insert into custom_texts(entry, content_default)values(-2800497,  'T5裂地(萨满祭司70级战斗');
+insert into custom_texts(entry, content_default)values(-2800498,  'T6裂地(萨满祭司70级战斗');
+
+insert into custom_texts(entry, content_default)values(-2800499,  'T6破天(萨满祭司70级战斗');
+insert into custom_texts(entry, content_default)values(-2800500,  'T6破天(萨满祭司70级治疗');
+insert into custom_texts(entry, content_default)values(-2800501,  'T6破天(萨满祭司70级治疗');
+
+insert into custom_texts(entry, content_default)values(-2800502,  'T7套装(萨满祭司80级战斗');
+insert into custom_texts(entry, content_default)values(-2800503,  'T7套装(萨满祭司80级战斗');
+insert into custom_texts(entry, content_default)values(-2800504,  'T7套装(萨满祭司80级治疗');
+
+insert into custom_texts(entry, content_default)values(-2800505,  'T8套装(萨满祭司80级战斗');
+insert into custom_texts(entry, content_default)values(-2800506,  'T8套装(萨满祭司80级战斗');
+insert into custom_texts(entry, content_default)values(-2800507,  'T8套装(萨满祭司80级治疗');
+
+
+insert into custom_texts(entry, content_default)values(-2800510,  'T1奥术师(法师60级');
+insert into custom_texts(entry, content_default)values(-2800511,  'T2灵风(法师60级');
+insert into custom_texts(entry, content_default)values(-2800512,  'T3霜火(法师60级');
+insert into custom_texts(entry, content_default)values(-2800513,  'T4占卜者(法师70级');
+insert into custom_texts(entry, content_default)values(-2800514,  'T5提里斯法(法师70级');
+insert into custom_texts(entry, content_default)values(-2800515,  'T6风暴(法师70级');
+insert into custom_texts(entry, content_default)values(-2800516,  'T7套装(法师80级');
+insert into custom_texts(entry, content_default)values(-2800517,  'T8套装(法师80级');
+
+insert into custom_texts(entry, content_default)values(-2800520,  'T1恶魔之心 (术士60级');
+insert into custom_texts(entry, content_default)values(-2800521,  'T2复仇(术士60级');
+insert into custom_texts(entry, content_default)values(-2800522,  'T3瘟疫之心(术士60级');
+insert into custom_texts(entry, content_default)values(-2800523,  'T4虚空之心(术士70级');
+insert into custom_texts(entry, content_default)values(-2800524,  'T5堕落(术士70级');
+insert into custom_texts(entry, content_default)values(-2800525,  'T6凶星(术士70级');
+insert into custom_texts(entry, content_default)values(-2800526,  'T7套装(术士80级');
+insert into custom_texts(entry, content_default)values(-2800527,  'T8套装(术士80级');
+
+insert into custom_texts(entry, content_default)values(-2800530,  'T1塞纳里奥(德鲁伊60级');
+insert into custom_texts(entry, content_default)values(-2800531,  'T2怒风(德鲁伊60级');
+insert into custom_texts(entry, content_default)values(-2800532,  'T3梦游者(德鲁伊60级');
+insert into custom_texts(entry, content_default)values(-2800533,  'T4玛洛尼(德鲁伊70级治疗');
+insert into custom_texts(entry, content_default)values(-2800534,  'T4玛洛尼(德鲁伊70级平衡');
+insert into custom_texts(entry, content_default)values(-2800535,  'T4玛洛尼(德鲁伊70级野性');
+insert into custom_texts(entry, content_default)values(-2800536,  'T5诺达希尔(德鲁伊70级野性');
+insert into custom_texts(entry, content_default)values(-2800537,  'T5诺达希尔(德鲁伊70级治疗');
+insert into custom_texts(entry, content_default)values(-2800538,  'T5诺达希尔(德鲁伊70级平衡');
+insert into custom_texts(entry, content_default)values(-2800539,  'T6雷霆之心(德鲁伊70级野性');
+insert into custom_texts(entry, content_default)values(-2800540,  'T6雷霆之心(德鲁伊70级平衡');
+insert into custom_texts(entry, content_default)values(-2800541,  'T6雷霆之心(德鲁伊70级治疗');
+insert into custom_texts(entry, content_default)values(-2800542,  'T7套装(德鲁伊80级野性');
+insert into custom_texts(entry, content_default)values(-2800543,  'T7套装(德鲁伊80级治疗');
+insert into custom_texts(entry, content_default)values(-2800544,  'T7套装(德鲁伊80级平衡');
+insert into custom_texts(entry, content_default)values(-2800545,  'T8套装(德鲁伊80级平衡');
+insert into custom_texts(entry, content_default)values(-2800546,  'T8套装(德鲁伊80级野性');
+insert into custom_texts(entry, content_default)values(-2800547,  'T8套装(德鲁伊80级治疗');
 
 
 insert into gossip_menu(entry,text_id) values(65535,16777213);
@@ -1030,6 +1031,7 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800455, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 235);  // T6刺杀者（70级）668  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800456, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 236);  // T7套装 （80级）801  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800457, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 237);  // T8套装（80级）826
+		break;
 	case 5://牧师
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800460, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 240);  // T1预言(60级) 202  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800461, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 241);  // T2卓越(60级)  211    
@@ -1044,12 +1046,14 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800470, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 250);  // T7套装 （80级战斗）805
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800471, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 251);  // T8套装（80级战斗）832
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800472, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 252);  // T8套装（80级治疗）833
+		break;
 	case 6://死亡骑士
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800480, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 260);  // T7套装 （80级战斗）792  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800481, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 261);  // T7套装 （80级防御）793 
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800482, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 262);  // T8套装（80级战斗）834
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800483, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 263);  // T8套装（80级防御）835 
 		//板甲
+		break;
 	case 7://萨满祭司
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800490, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 264);  // T1大地之怒(60级) 207  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800492, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 265);  // T2无尽风暴(60级)  216     
@@ -1075,6 +1079,7 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800507, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 281);  // T8套装（80级治疗）825
 
 		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800418, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 195);  // 学习锁甲.learn 8737
+		break;
 	case 8://法师
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800510, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 290);  // T1奥术师 (60级) 201   
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800511, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 291);  // T2灵风(60级)  210    
@@ -1084,6 +1089,7 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800515, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 295);  // T6风暴（70级）671   
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800516, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 296);  // T7套装 （80级）803  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800517, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 297);  // T8套装（80级）836
+		break;
 	case 9://术士
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800520, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 300);  // T1恶魔之心 (60级) 203    
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800521, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 301);  // T2复仇(60级)  212     
@@ -1093,6 +1099,7 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800525, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 305);  // T6凶星（70级）670    
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800526, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 306);  // T7套装（80级）802  
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800527, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 307);  // T8套装（80级）837
+		break;
 	case 10://德鲁伊
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800530, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 310);  // T1塞纳里奥(60级) 205
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800531, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 311);  // T2怒风(60级)  214  
@@ -1112,6 +1119,7 @@ void add_itemsetByClass(Player* pPlayer, Item* pItem, uint8 playerOrPetClass){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800545, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 325);  // T8套装（80级平衡） 827
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800546, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 326);  // T8套装（80级野性） 828
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800547, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 327);  // T8套装（80级治疗） 829
+		break;
 	}
 }
 void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
@@ -1119,11 +1127,12 @@ void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
 	uint8 playerOrPetClass = pPlayer->getClass();
 	add_itemsetByClass(pPlayer, pItem, playerOrPetClass);
 
-	Pet* pet = pPlayer->GetPet();
-	if (pet)
+	Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(pPlayer->GetGUIDLow());
+	
+	if (mercenary)
 	{
-		if (pet->getClass() != playerOrPetClass)
-			add_itemsetByClass(pPlayer, pItem, pet->getClass());
+		if (mercenary->GetType() != playerOrPetClass)
+			add_itemsetByClass(pPlayer, pItem, mercenary->GetType());
 	}
 
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。

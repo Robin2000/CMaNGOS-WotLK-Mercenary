@@ -749,7 +749,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 			if (proto)
 				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->itemId) + MercenaryUtil::GetMercenaryItemLink(itr->itemId, session), 0, 36);
 		}
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, 36);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, 36);//ºóÍË
 		//#ifndef MANGOS
 		//                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -924,7 +924,7 @@ bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 		}
 	}
 
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, 2800644, 0, 1);// "I would like to hire you."
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800644, 0, 1);// "I would like to hire you."
 	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 2);
 	//#ifndef MANGOS
 	//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
