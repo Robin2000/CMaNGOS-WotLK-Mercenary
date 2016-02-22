@@ -1936,5 +1936,8 @@
     <ClInclude Include="..\..\src\myscript\pr_hearthstone.h">
       <Filter>scripts\custom</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\myscript\mercenary_gossip.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

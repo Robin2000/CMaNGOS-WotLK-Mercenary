@@ -21,6 +21,8 @@ EndScriptData */
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "MercenaryMgr.h"
+#include "mercenary_gossip.h"
+
 /*
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
@@ -40,6 +42,7 @@ insert into custom_texts(entry, content_default)values(-2800179,'系统提示：
 insert into custom_texts(entry, content_default)values(-2800180,'系统提示：禁止在副本中设置返回点。');
 insert into custom_texts(entry, content_default)values(-2800181,'返回主菜单。');
 insert into custom_texts(entry, content_default)values(-2800182,'原力商店。');
+insert into custom_texts(entry, content_default)values(-2800183,'雇佣兵招募。');
 
 insert into custom_texts(entry, content_default)values(-2800190,'原力骑乘。');
 
@@ -73,7 +76,7 @@ insert into custom_texts(entry, content_default)values(-2800230,'秒升专业。
 insert into custom_texts(entry, content_default)values(-2800231,'秒升法术（-500原力）。');
 insert into custom_texts(entry, content_default)values(-2800232,'秒升声望（-500原力）。');
 insert into custom_texts(entry, content_default)values(-2800233,'秒开地图（-500原力）。');
-insert into custom_texts(entry, content_default)values(-2800234,'秒开鸟点（-500原力）。');
+insert into custom_texts(entry, content_default)values(-2800234,'全开飞行点（-2原力）。');
 
 insert into custom_texts(entry, content_default)values(-2800240,'T1-T8套装（-500原力）。');
 
@@ -294,138 +297,138 @@ insert into gossip_menu_option
 
 delete from custom_texts where entry>=-2800547 and entry<=-2800400;
 
-insert into custom_texts(entry, content_default)values(-2800400,  'T1力量(战士60级');
-insert into custom_texts(entry, content_default)values(-2800401,  'T2愤怒(战士60级');
-insert into custom_texts(entry, content_default)values(-2800402,  'T3无畏(战士60级');
-insert into custom_texts(entry, content_default)values(-2800403,  'T4战神(战士70级防御');
-insert into custom_texts(entry, content_default)values(-2800404,  'T4战神(战士70级战斗');
-insert into custom_texts(entry, content_default)values(-2800405,  'T5摧毁者(战士70级防御');
-insert into custom_texts(entry, content_default)values(-2800406,  'T5摧毁者(战士70级战斗');
-insert into custom_texts(entry, content_default)values(-2800407,  'T6冲击(战士70级战斗');
-insert into custom_texts(entry, content_default)values(-2800408,  'T6冲击(战士70级防御');
-insert into custom_texts(entry, content_default)values(-2800409,  'T7套装(战士80级防御');
-insert into custom_texts(entry, content_default)values(-2800410,  'T7套装(战士80级战斗');
-insert into custom_texts(entry, content_default)values(-2800411,  'T8套装(战士80级战斗');
-insert into custom_texts(entry, content_default)values(-2800412,  'T8套装(战士80级防御');
+insert into custom_texts(entry, content_default)values(-2800400,  'T1力量(战士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800401,  'T2愤怒(战士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800402,  'T3无畏(战士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800403,  'T4战神(战士70级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800404,  'T4战神(战士70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800405,  'T5摧毁者(战士70级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800406,  'T5摧毁者(战士70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800407,  'T6冲击(战士70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800408,  'T6冲击(战士70级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800409,  'T7套装(战士80级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800410,  'T7套装(战士80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800411,  'T8套装(战士80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800412,  'T8套装(战士80级防御,-500原力)');
 
-insert into custom_texts(entry, content_default)values(-2800420,  'T1秩序之源(圣骑士60级');
-insert into custom_texts(entry, content_default)values(-2800421,  'T2审判(圣骑士60级');
-insert into custom_texts(entry, content_default)values(-2800422,  'T3救赎(圣骑士60级');
-insert into custom_texts(entry, content_default)values(-2800423,  'T4庇护(圣骑士70级治疗');
-insert into custom_texts(entry, content_default)values(-2800424,  'T4庇护(圣骑士70级防御');
-insert into custom_texts(entry, content_default)values(-2800425,  'T4庇护(圣骑士70级惩戒');
-insert into custom_texts(entry, content_default)values(-2800426,  'T5晶铸(圣骑士70级治疗');
-insert into custom_texts(entry, content_default)values(-2800427,  'T5晶铸(圣骑士70级防御');
-insert into custom_texts(entry, content_default)values(-2800428,  'T5晶铸(圣骑士70级惩戒');
-insert into custom_texts(entry, content_default)values(-2800429,  'T6光明使者(圣骑士70级防御');
-insert into custom_texts(entry, content_default)values(-2800430,  'T6光明使者(圣骑士70级惩戒');
-insert into custom_texts(entry, content_default)values(-2800431,  'T6光明使者(圣骑士70级治疗');
-insert into custom_texts(entry, content_default)values(-2800432,  'T7套装（圣骑士80级惩戒');
-insert into custom_texts(entry, content_default)values(-2800433,  'T7套装（圣骑士80级治疗');
-insert into custom_texts(entry, content_default)values(-2800434,  'T7套装（圣骑士80级防御');
-insert into custom_texts(entry, content_default)values(-2800435,  'T8套装（圣骑士80级惩戒');
-insert into custom_texts(entry, content_default)values(-2800436,  'T8套装（圣骑士80级防御');
-insert into custom_texts(entry, content_default)values(-2800437,  'T8套装(圣骑士80级防御');
-
-
-insert into custom_texts(entry, content_default)values(-2800440,  'T1巨兽之王(猎人60级');
-insert into custom_texts(entry, content_default)values(-2800441,  'T2驭龙者(猎人60级');
-insert into custom_texts(entry, content_default)values(-2800442,  'T3地穴追猎者(猎人60级');
-insert into custom_texts(entry, content_default)values(-2800443,  'T4恶魔追猎者(猎人70级');
-insert into custom_texts(entry, content_default)values(-2800444,  'T5裂缝行者(猎人70级');
-insert into custom_texts(entry, content_default)values(-2800445,  'T6戈隆追猎者(猎人70级');
-insert into custom_texts(entry, content_default)values(-2800446,  'T7套装(猎人80级');
-insert into custom_texts(entry, content_default)values(-2800447,  'T8套装(猎人80级');
-
-insert into custom_texts(entry, content_default)values(-2800450,  'T1夜幕杀手(潜行者60级');
-insert into custom_texts(entry, content_default)values(-2800451,  'T2血牙(潜行者60级');
-insert into custom_texts(entry, content_default)values(-2800452,  'T3骨镰(潜行者60级');
-insert into custom_texts(entry, content_default)values(-2800453,  'T4虚空之刃(潜行者70级');
-insert into custom_texts(entry, content_default)values(-2800454,  'T5死神传承(潜行者70级');
-insert into custom_texts(entry, content_default)values(-2800455,  'T6刺杀者(潜行者70级');
-insert into custom_texts(entry, content_default)values(-2800456,  'T7套装 (潜行者80级');
-insert into custom_texts(entry, content_default)values(-2800457,  'T8套装(潜行者80级');
-
-insert into custom_texts(entry, content_default)values(-2800460,  'T1预言(牧师60级');
-insert into custom_texts(entry, content_default)values(-2800461,  'T2卓越(牧师60级');
-insert into custom_texts(entry, content_default)values(-2800462,  'T3信仰(牧师60级');
-insert into custom_texts(entry, content_default)values(-2800463,  'T4化身(牧师70级治疗');
-insert into custom_texts(entry, content_default)values(-2800464,  'T4化身(牧师70级战斗');
-insert into custom_texts(entry, content_default)values(-2800465,  'T5幻身(牧师70级治疗');
-insert into custom_texts(entry, content_default)values(-2800466,  'T5幻身(牧师70级战斗');
-insert into custom_texts(entry, content_default)values(-2800467,  'T6赦免(牧师70级战斗');
-insert into custom_texts(entry, content_default)values(-2800468,  'T6赦免(牧师70级治疗');
-insert into custom_texts(entry, content_default)values(-2800469,  'T7套装(牧师80级治疗');
-insert into custom_texts(entry, content_default)values(-2800470,  'T7套装(牧师80级战斗');
-insert into custom_texts(entry, content_default)values(-2800471,  'T8套装(牧师80级战斗');
-insert into custom_texts(entry, content_default)values(-2800472,  'T8套装(牧师80级治疗');
+insert into custom_texts(entry, content_default)values(-2800420,  'T1秩序之源(圣骑士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800421,  'T2审判(圣骑士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800422,  'T3救赎(圣骑士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800423,  'T4庇护(圣骑士70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800424,  'T4庇护(圣骑士70级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800425,  'T4庇护(圣骑士70级惩戒,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800426,  'T5晶铸(圣骑士70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800427,  'T5晶铸(圣骑士70级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800428,  'T5晶铸(圣骑士70级惩戒,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800429,  'T6光明使者(圣骑士70级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800430,  'T6光明使者(圣骑士70级惩戒,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800431,  'T6光明使者(圣骑士70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800432,  'T7套装（圣骑士80级惩戒,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800433,  'T7套装（圣骑士80级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800434,  'T7套装（圣骑士80级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800435,  'T8套装（圣骑士80级惩戒,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800436,  'T8套装（圣骑士80级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800437,  'T8套装(圣骑士80级防御,-500原力)');
 
 
-insert into custom_texts(entry, content_default)values(-2800480,  'T7套装(死亡骑士80级战斗');
-insert into custom_texts(entry, content_default)values(-2800481,  'T7套装(死亡骑士80级防御');
-insert into custom_texts(entry, content_default)values(-2800482,  'T8套装(死亡骑士80级战斗');
-insert into custom_texts(entry, content_default)values(-2800483,  'T8套装(死亡骑士80级防御');
+insert into custom_texts(entry, content_default)values(-2800440,  'T1巨兽之王(猎人60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800441,  'T2驭龙者(猎人60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800442,  'T3地穴追猎者(猎人60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800443,  'T4恶魔追猎者(猎人70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800444,  'T5裂缝行者(猎人70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800445,  'T6戈隆追猎者(猎人70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800446,  'T7套装(猎人80级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800447,  'T8套装(猎人80级,-500原力)');
 
-insert into custom_texts(entry, content_default)values(-2800490,  'T1大地之怒(萨满祭司60级');
-insert into custom_texts(entry, content_default)values(-2800491,  'T2无尽风暴(萨满祭司60级');
-insert into custom_texts(entry, content_default)values(-2800492,  'T3碎地者(萨满祭司60级');
-insert into custom_texts(entry, content_default)values(-2800493,  'T4飓风(萨满祭司70级治疗');
-insert into custom_texts(entry, content_default)values(-2800494,  'T4飓风(萨满祭司70级战斗');
-insert into custom_texts(entry, content_default)values(-2800495,  'T4飓风(萨满祭司70级战斗');
+insert into custom_texts(entry, content_default)values(-2800450,  'T1夜幕杀手(潜行者60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800451,  'T2血牙(潜行者60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800452,  'T3骨镰(潜行者60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800453,  'T4虚空之刃(潜行者70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800454,  'T5死神传承(潜行者70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800455,  'T6刺杀者(潜行者70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800456,  'T7套装 (潜行者80级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800457,  'T8套装(潜行者80级,-500原力)');
 
-insert into custom_texts(entry, content_default)values(-2800496,  'T5裂地(萨满祭司70级治疗');
-insert into custom_texts(entry, content_default)values(-2800497,  'T5裂地(萨满祭司70级战斗');
-insert into custom_texts(entry, content_default)values(-2800498,  'T6裂地(萨满祭司70级战斗');
-
-insert into custom_texts(entry, content_default)values(-2800499,  'T6破天(萨满祭司70级战斗');
-insert into custom_texts(entry, content_default)values(-2800500,  'T6破天(萨满祭司70级治疗');
-insert into custom_texts(entry, content_default)values(-2800501,  'T6破天(萨满祭司70级治疗');
-
-insert into custom_texts(entry, content_default)values(-2800502,  'T7套装(萨满祭司80级战斗');
-insert into custom_texts(entry, content_default)values(-2800503,  'T7套装(萨满祭司80级战斗');
-insert into custom_texts(entry, content_default)values(-2800504,  'T7套装(萨满祭司80级治疗');
-
-insert into custom_texts(entry, content_default)values(-2800505,  'T8套装(萨满祭司80级战斗');
-insert into custom_texts(entry, content_default)values(-2800506,  'T8套装(萨满祭司80级战斗');
-insert into custom_texts(entry, content_default)values(-2800507,  'T8套装(萨满祭司80级治疗');
+insert into custom_texts(entry, content_default)values(-2800460,  'T1预言(牧师60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800461,  'T2卓越(牧师60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800462,  'T3信仰(牧师60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800463,  'T4化身(牧师70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800464,  'T4化身(牧师70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800465,  'T5幻身(牧师70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800466,  'T5幻身(牧师70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800467,  'T6赦免(牧师70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800468,  'T6赦免(牧师70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800469,  'T7套装(牧师80级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800470,  'T7套装(牧师80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800471,  'T8套装(牧师80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800472,  'T8套装(牧师80级治疗,-500原力)');
 
 
-insert into custom_texts(entry, content_default)values(-2800510,  'T1奥术师(法师60级');
-insert into custom_texts(entry, content_default)values(-2800511,  'T2灵风(法师60级');
-insert into custom_texts(entry, content_default)values(-2800512,  'T3霜火(法师60级');
-insert into custom_texts(entry, content_default)values(-2800513,  'T4占卜者(法师70级');
-insert into custom_texts(entry, content_default)values(-2800514,  'T5提里斯法(法师70级');
-insert into custom_texts(entry, content_default)values(-2800515,  'T6风暴(法师70级');
-insert into custom_texts(entry, content_default)values(-2800516,  'T7套装(法师80级');
-insert into custom_texts(entry, content_default)values(-2800517,  'T8套装(法师80级');
+insert into custom_texts(entry, content_default)values(-2800480,  'T7套装(死亡骑士80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800481,  'T7套装(死亡骑士80级防御,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800482,  'T8套装(死亡骑士80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800483,  'T8套装(死亡骑士80级防御,-500原力)');
 
-insert into custom_texts(entry, content_default)values(-2800520,  'T1恶魔之心 (术士60级');
-insert into custom_texts(entry, content_default)values(-2800521,  'T2复仇(术士60级');
-insert into custom_texts(entry, content_default)values(-2800522,  'T3瘟疫之心(术士60级');
-insert into custom_texts(entry, content_default)values(-2800523,  'T4虚空之心(术士70级');
-insert into custom_texts(entry, content_default)values(-2800524,  'T5堕落(术士70级');
-insert into custom_texts(entry, content_default)values(-2800525,  'T6凶星(术士70级');
-insert into custom_texts(entry, content_default)values(-2800526,  'T7套装(术士80级');
-insert into custom_texts(entry, content_default)values(-2800527,  'T8套装(术士80级');
+insert into custom_texts(entry, content_default)values(-2800490,  'T1大地之怒(萨满祭司60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800491,  'T2无尽风暴(萨满祭司60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800492,  'T3碎地者(萨满祭司60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800493,  'T4飓风(萨满祭司70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800494,  'T4飓风(萨满祭司70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800495,  'T4飓风(萨满祭司70级战斗,-500原力)');
 
-insert into custom_texts(entry, content_default)values(-2800530,  'T1塞纳里奥(德鲁伊60级');
-insert into custom_texts(entry, content_default)values(-2800531,  'T2怒风(德鲁伊60级');
-insert into custom_texts(entry, content_default)values(-2800532,  'T3梦游者(德鲁伊60级');
-insert into custom_texts(entry, content_default)values(-2800533,  'T4玛洛尼(德鲁伊70级治疗');
-insert into custom_texts(entry, content_default)values(-2800534,  'T4玛洛尼(德鲁伊70级平衡');
-insert into custom_texts(entry, content_default)values(-2800535,  'T4玛洛尼(德鲁伊70级野性');
-insert into custom_texts(entry, content_default)values(-2800536,  'T5诺达希尔(德鲁伊70级野性');
-insert into custom_texts(entry, content_default)values(-2800537,  'T5诺达希尔(德鲁伊70级治疗');
-insert into custom_texts(entry, content_default)values(-2800538,  'T5诺达希尔(德鲁伊70级平衡');
-insert into custom_texts(entry, content_default)values(-2800539,  'T6雷霆之心(德鲁伊70级野性');
-insert into custom_texts(entry, content_default)values(-2800540,  'T6雷霆之心(德鲁伊70级平衡');
-insert into custom_texts(entry, content_default)values(-2800541,  'T6雷霆之心(德鲁伊70级治疗');
-insert into custom_texts(entry, content_default)values(-2800542,  'T7套装(德鲁伊80级野性');
-insert into custom_texts(entry, content_default)values(-2800543,  'T7套装(德鲁伊80级治疗');
-insert into custom_texts(entry, content_default)values(-2800544,  'T7套装(德鲁伊80级平衡');
-insert into custom_texts(entry, content_default)values(-2800545,  'T8套装(德鲁伊80级平衡');
-insert into custom_texts(entry, content_default)values(-2800546,  'T8套装(德鲁伊80级野性');
-insert into custom_texts(entry, content_default)values(-2800547,  'T8套装(德鲁伊80级治疗');
+insert into custom_texts(entry, content_default)values(-2800496,  'T5裂地(萨满祭司70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800497,  'T5裂地(萨满祭司70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800498,  'T6裂地(萨满祭司70级战斗,-500原力)');
+
+insert into custom_texts(entry, content_default)values(-2800499,  'T6破天(萨满祭司70级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800500,  'T6破天(萨满祭司70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800501,  'T6破天(萨满祭司70级治疗,-500原力)');
+
+insert into custom_texts(entry, content_default)values(-2800502,  'T7套装(萨满祭司80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800503,  'T7套装(萨满祭司80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800504,  'T7套装(萨满祭司80级治疗,-500原力)');
+
+insert into custom_texts(entry, content_default)values(-2800505,  'T8套装(萨满祭司80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800506,  'T8套装(萨满祭司80级战斗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800507,  'T8套装(萨满祭司80级治疗,-500原力)');
+
+
+insert into custom_texts(entry, content_default)values(-2800510,  'T1奥术师(法师60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800511,  'T2灵风(法师60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800512,  'T3霜火(法师60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800513,  'T4占卜者(法师70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800514,  'T5提里斯法(法师70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800515,  'T6风暴(法师70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800516,  'T7套装(法师80级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800517,  'T8套装(法师80级,-500原力)');
+
+insert into custom_texts(entry, content_default)values(-2800520,  'T1恶魔之心 (术士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800521,  'T2复仇(术士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800522,  'T3瘟疫之心(术士60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800523,  'T4虚空之心(术士70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800524,  'T5堕落(术士70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800525,  'T6凶星(术士70级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800526,  'T7套装(术士80级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800527,  'T8套装(术士80级,-500原力)');
+
+insert into custom_texts(entry, content_default)values(-2800530,  'T1塞纳里奥(德鲁伊60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800531,  'T2怒风(德鲁伊60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800532,  'T3梦游者(德鲁伊60级,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800533,  'T4玛洛尼(德鲁伊70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800534,  'T4玛洛尼(德鲁伊70级平衡,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800535,  'T4玛洛尼(德鲁伊70级野性,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800536,  'T5诺达希尔(德鲁伊70级野性,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800537,  'T5诺达希尔(德鲁伊70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800538,  'T5诺达希尔(德鲁伊70级平衡,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800539,  'T6雷霆之心(德鲁伊70级野性,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800540,  'T6雷霆之心(德鲁伊70级平衡,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800541,  'T6雷霆之心(德鲁伊70级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800542,  'T7套装(德鲁伊80级野性,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800543,  'T7套装(德鲁伊80级治疗,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800544,  'T7套装(德鲁伊80级平衡,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800545,  'T8套装(德鲁伊80级平衡,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800546,  'T8套装(德鲁伊80级野性,-500原力)');
+insert into custom_texts(entry, content_default)values(-2800547,  'T8套装(德鲁伊80级治疗,-500原力)');
 
 insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原力)');
 
@@ -441,15 +444,16 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	//pPlayer->GetMotionMaster()->MovePoint(50000, pPlayer->GetPositionX() + 10, pPlayer->GetPositionY(), pPlayer->GetPositionZ(), true);
 
 	char * title = new char[1024];
-	sprintf(title, pPlayer->GetMangosString(-2800173), pPlayer->GetGamePointMgr().getGamePoint()); // 当前原力值：%d
+	sprintf(title, pPlayer->GetMangosString(-2800173), pPlayer->gamePointMgr.getGamePoint()); // 当前原力值：%d
 
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800169, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);//任务辅助。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800183, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);//雇佣兵招募。
 	
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//游戏直达。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//成就直升。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800300, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);//地图传送。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800210, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//发送游戏小技巧。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);//设置返回点。（-3原力）
@@ -467,7 +471,20 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 
 	if (pPlayer->isInCombat())
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
+	
+	if (uiAction == GOSSIP_ACTION_INFO_DEF + 12){//雇佣兵招募
+		pPlayer->gossipMenuType=1;
+		GossipHello_mercenary_npc_gossip_hook(pPlayer, pItem);
+		return true;
+	}
+	else if (pPlayer->gossipMenuType == 1)
+	{
+		GossipSelect_mercenary_npc_gossip_hook(pPlayer, pItem,NULL , uiAction);
+		return true;
+	}
+
+	pPlayer->gossipMenuType = -1;/*默认值*/
+	if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
 	{
 		pPlayer->SEND_GOSSIP_MENU(16777214, pItem->GetObjectGuid()); //'原力与你同在！更多信息请移步：http://51.neocities.org。'
 	}
@@ -478,11 +495,11 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		hearthstone_prepare_gamedirect(pPlayer, pItem);
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 4){//设置返回点。（-3原力）
-		pPlayer->sendSplitMsg(pPlayer->GetGamePointMgr().nextGameTip());
+		pPlayer->sendSplitMsg(pPlayer->gamePointMgr.nextGameTip());
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 5){//设置返回点。（-3原力）
-		pPlayer->GetGamePointMgr().setReturnPoint(3);
-		if (pPlayer->GetGamePointMgr().setReturnPoint(3))
+		pPlayer->gamePointMgr.setReturnPoint(3);
+		if (pPlayer->gamePointMgr.setReturnPoint(3))
 		{
 			//pPlayer->PlayerTalkClass->SendPointOfInterest(pPlayer->GetPositionX(), pPlayer->GetPositionY(), 7, 39, 0, "ReturnPoint");
 			//pPlayer->SEND_GOSSIP_MENU(16777212, pItem->GetObjectGuid());//设置返回点成功,原力与你同在！
@@ -491,7 +508,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF +6)//前往返回地点。（-2原力）
 	{
-		pPlayer->GetGamePointMgr().useReturnPoint(2);
+		pPlayer->gamePointMgr.useReturnPoint(2);
 	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 7)//回家。
 	{
 		pPlayer->TeleportToHomebind();
@@ -509,10 +526,11 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		hearthstone_prepare_store(pPlayer, pItem);
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 11){//36格子背包
-		if (!pPlayer->GetGamePointMgr().checkPoint(5)) 	return false;
+		if (!pPlayer->gamePointMgr.checkPoint(5)) 	return false;
 		ChatHandler(pPlayer).HandleAddItemCommand("23162");
-		pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_STORE_POCKET, 5);
+		pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_STORE_POCKET, 5);
 	}
+
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 999)
 	{
 		hearthstone_click2(pPlayer, pItem);//返回主菜单
@@ -560,26 +578,26 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	return true;
 }
 void transportByPOI(Player* pPlayer, Item* pItem, int idx){
-	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+	if (!pPlayer->gamePointMgr.checkPoint(1))
 		return;
 	tbb::concurrent_vector<WorldLocation> &POI = pPlayer->getQuestPOI();
 	WorldLocation const loc=POI.at(idx);
 	ChatHandler(pPlayer).HandleGoHelper(pPlayer,loc.mapid, loc.coord_x, loc.coord_y);
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_POI, 1);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_POI, 1);
 }
 void transportToInvolved(Player* pPlayer, Item* pItem, int idx){
 	std::vector<int32> result;
-	const Quest * quest = pPlayer->GetHearthstoneQuest();
+	const Quest * quest = pPlayer->hearthstoneQuest;
 	pPlayer->findQuestInvolvedCreatureOrGO(quest->GetQuestId(), result);
 	transportByCreatureOrGO2(pPlayer, pItem, result.at(idx));
 }
 void transportToStarter(Player* pPlayer, Item* pItem){
-	const Quest * quest = pPlayer->GetHearthstoneQuest();
+	const Quest * quest = pPlayer->hearthstoneQuest;
 	int32 creatureOrGO = pPlayer->findQuestStarterCreatureOrGO(quest->GetQuestId());
 	transportByCreatureOrGO2(pPlayer, pItem, creatureOrGO);
 }
 void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEntry){
-	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+	if (!pPlayer->gamePointMgr.checkPoint(1))
 		return;
 
 	if (creatureOrGOEntry>0)
@@ -593,11 +611,11 @@ void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEn
 		GameObjectData& data = pPlayer->findGameObjectDataByEntry(gameobject);
 		pPlayer->TeleportTo(data.mapid, data.posX, data.posY, data.posZ, 0);
 	}
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_TARGET, 1);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_TARGET, 1);
 }
 void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx){
 
-	Quest const * quest = pPlayer->GetHearthstoneQuest();
+	Quest const * quest = pPlayer->hearthstoneQuest;
 	int32 creature=quest->ReqCreatureOrGOId[idx];
 	transportByCreatureOrGO2(pPlayer, pItem, creature);
 }
@@ -605,7 +623,7 @@ void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
 {
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);
 	Quest const * quest = pPlayer->GetQuest(questid);
-	pPlayer->SetHearthstoneQuest(quest);
+	pPlayer->hearthstoneQuest=quest;
 
 	//下面添加任务开始：最多1个
 	int32 creatureOrGO = pPlayer->findQuestStarterCreatureOrGO(questid);
@@ -876,21 +894,21 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 }
 bool hearthstone_transport(Player* pPlayer, uint32 mapid, double x, double y, double z, double o)
 {
-	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+	if (!pPlayer->gamePointMgr.checkPoint(1))
 		return false;
 	pPlayer->TeleportTo(mapid, x, y, z, o);
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TELE, 1);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TELE, 1);
 	return true;
 }
 bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction){
-	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+	if (!pPlayer->gamePointMgr.checkPoint(500))
 		return false;
 	
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.HandleLearnAllMySpellsCommand((char*)"");
 	chatHandler.HandleLearnAllMyTalentsCommand((char*)"");
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
 	return true;
 }
 void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
@@ -948,7 +966,7 @@ void hearthstone_learn_professional(Player* pPlayer, Item* pItem, uint32 uiActio
 }
 bool learn_professional(Player* pPlayer, uint32 skillid,uint8 maxnum)//.learnsk 165 300 // 制皮  
 {
-	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+	if (!pPlayer->gamePointMgr.checkPoint(500))
 		return false;
 
 	if (pPlayer->HasSkill(skillid))
@@ -975,7 +993,7 @@ bool learn_professional(Player* pPlayer, uint32 skillid,uint8 maxnum)//.learnsk 
 
 	pPlayer->SetSkill(skillid, max, max);
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
 
 	return true;
 }
@@ -1296,7 +1314,7 @@ bool hearthstone_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
 }
 
 bool additemset(Player* pPlayer, uint32 itemset){
-	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+	if (!pPlayer->gamePointMgr.checkPoint(500))
 		return false;
 
 	ChatHandler(pPlayer).addItemSet(itemset);
@@ -1318,12 +1336,12 @@ bool additemset(Player* pPlayer, uint32 itemset){
 		}
 	}
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_ITEMSET, 500);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_ITEMSET, 500);
 	return true;
 }
 //explorecheat
 bool explorecheat(Player* pPlayer){
-	if (!pPlayer->GetGamePointMgr().checkPoint(500))
+	if (!pPlayer->gamePointMgr.checkPoint(500))
 		return false;
 
 	for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
@@ -1332,24 +1350,24 @@ bool explorecheat(Player* pPlayer){
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.PSendSysMessage(LANG_YOURS_EXPLORE_SET_ALL, chatHandler.GetNameLink().c_str());
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
 	return true;
 }
 //taxicheat
 bool taxicheat(Player* pPlayer){
-	if (!pPlayer->GetGamePointMgr().checkPoint(2))
+	if (!pPlayer->gamePointMgr.checkPoint(2))
 		return false;
 
 	pPlayer->SetTaxiCheater(true);
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.PSendSysMessage(LANG_YOURS_TAXIS_ADDED, chatHandler.GetNameLink().c_str());
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TAXICHEAT, 2);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TAXICHEAT, 2);
 	return true;
 }
 bool levelup(Player* pPlayer, int level, int point)
 {
-	if (!pPlayer->GetGamePointMgr().checkPoint(point))
+	if (!pPlayer->gamePointMgr.checkPoint(point))
 		return false;
 
 	if (level - pPlayer->getLevel() <= 0)
@@ -1359,7 +1377,7 @@ bool levelup(Player* pPlayer, int level, int point)
 	pPlayer->InitTalentForLevel();
 	pPlayer->SetUInt32Value(PLAYER_XP, 0);
 
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_LEVELUP, point);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_LEVELUP, point);
 
 	return true;
 }
@@ -1408,7 +1426,7 @@ void hearthstone_mount(Player* pPlayer, Item* pItem,uint32 uiAction){
 }
 bool hearthstone_random_mount(Player* pPlayer,const int spellarray[])
 {
-	if (!pPlayer->GetGamePointMgr().checkPoint(1))
+	if (!pPlayer->gamePointMgr.checkPoint(1))
 		return false;
 
 	int size = sizeof(spellarray) / sizeof((int)1);
@@ -1417,7 +1435,7 @@ bool hearthstone_random_mount(Player* pPlayer,const int spellarray[])
 		return false;
 	
 	
-	pPlayer->GetGamePointMgr().comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 1);
+	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 1);
 
 	return true;
 }

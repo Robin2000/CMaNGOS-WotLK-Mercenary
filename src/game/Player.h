@@ -1037,6 +1037,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         {
             return TeleportTo(loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation, options);
         }
+		
 
         bool TeleportToBGEntryPoint();
 
@@ -1082,17 +1083,12 @@ class MANGOS_DLL_SPEC Player : public Unit
         PlayerTaxi m_taxi;
 		
 		//积分
-
 		GamePointMgr gamePointMgr;
-		GamePointMgr& GetGamePointMgr(){ return gamePointMgr; }
 		const char* GetMangosString(uint32 entry);
 		const uint32 GetAccountId() { return GetSession()->GetAccountId(); }
 		//积分
-		//炉石任务
-		Quest const * hearthstoneQuest;
-		Quest const *  GetHearthstoneQuest(){ return hearthstoneQuest; }
-		void SetHearthstoneQuest(Quest const * quest){ hearthstoneQuest = quest; }
-		//炉石任务
+		int gossipMenuType = -1;/*炉石菜单大类标志*/
+		Quest const * hearthstoneQuest;/*炉石任务*/
 
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);

@@ -1,3 +1,6 @@
+#ifndef __PR_HEARTHSTONE_H
+#define __PR_HEARTHSTONE_H
+
 const static int longMountSpell[60] = {//Бъ
 	3363,
 	8395,
@@ -343,3 +346,5 @@ void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEn
 void transportToStarter(Player* pPlayer, Item* pItem);
 void transportToInvolved(Player* pPlayer, Item* pItem, int idx);
 void hearthstone_prepare_store(Player* pPlayer, Item* pItem);
+
+#endif

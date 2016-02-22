@@ -620,7 +620,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     // Send MOTD
     {
 
-		std::string &str_motd = pCurrChar->GetGamePointMgr().nextGameTip();
+		std::string &str_motd = pCurrChar->gamePointMgr.nextGameTip();
 
 		data.Initialize(SMSG_MOTD, str_motd.size()+5);                     // new in 2.0.1
         data << (uint32)0;
