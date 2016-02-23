@@ -160,8 +160,9 @@ struct npc_rizzle_sprysprocketAI : public npc_escortAI
 					
 					//m_creature->CastSpell(m_creature, 37744, false); //游泳动作，无效
                     //m_creature->CastSpell(m_creature, SPELL_SWIM_SPEED, false);//加速
-					m_creature->CastSpell(m_creature, 24090, false);//略微提高奔跑和游泳速度。
+					//m_creature->CastSpell(m_creature, 24090, false);//略微提高奔跑和游泳速度。
                     m_bIsIntro = false;
+					Start(true); //恢复跑路
                     break;
             }
 
