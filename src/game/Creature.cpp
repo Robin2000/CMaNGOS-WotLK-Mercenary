@@ -372,59 +372,67 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
     if (!InitEntry(Entry, data, eventData))
         return false;
 
-    // creatures always have melee weapon ready if any
+	CreatureInfo const* cInfo = GetCreatureInfo();//取得生物的模板，提高效率，参考了trinity
+
+    // creatures always have melee weapon ready if any【任何生物总是有近战武器准备】
     SetSheath(SHEATH_STATE_MELEE);
 
-    SelectLevel(GetCreatureInfo(), preserveHPAndPower ? GetHealthPercent() : 100.0f);
+    SelectLevel(cInfo, preserveHPAndPower ? GetHealthPercent() : 100.0f);
 
     if (team == HORDE)
-        setFaction(GetCreatureInfo()->FactionHorde);
+        setFaction(cInfo->FactionHorde);
     else
-        setFaction(GetCreatureInfo()->FactionAlliance);
+        setFaction(cInfo->FactionAlliance);
 
-    SetUInt32Value(UNIT_NPC_FLAGS, GetCreatureInfo()->NpcFlags);
+    SetUInt32Value(UNIT_NPC_FLAGS, cInfo->NpcFlags);
 
-    uint32 attackTimer = GetCreatureInfo()->MeleeBaseAttackTime;
+    uint32 attackTimer = cInfo->MeleeBaseAttackTime;
 
     SetAttackTime(BASE_ATTACK,  attackTimer);
     SetAttackTime(OFF_ATTACK,   attackTimer - attackTimer / 4);
-    SetAttackTime(RANGED_ATTACK, GetCreatureInfo()->RangedBaseAttackTime);
+    SetAttackTime(RANGED_ATTACK, cInfo->RangedBaseAttackTime);
 
-    uint32 unitFlags = GetCreatureInfo()->UnitFlags;
+    uint32 unitFlags = cInfo->UnitFlags;
 
-    // we may need to append or remove additional flags
-    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT))
-        unitFlags |= UNIT_FLAG_IN_COMBAT;
+    // we may need to append or remove additional flags【我们可能需要添加或者移除附加的标志】
+    //if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT))
+    //    unitFlags |= UNIT_FLAG_IN_COMBAT;
+	RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);//总是移除战斗标志，来自trinity【分析，战斗标志通过其他地方添加，这里只需要移除】
 
-    if (m_movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) && (GetCreatureInfo()->ExtraFlags & CREATURE_FLAG_EXTRA_HAVE_NO_SWIM_ANIMATION) == 0)
+    if (m_movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) && (cInfo->ExtraFlags & CREATURE_FLAG_EXTRA_HAVE_NO_SWIM_ANIMATION) == 0)
         unitFlags |= UNIT_FLAG_UNK_15;
     else
         unitFlags &= ~UNIT_FLAG_UNK_15;
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
 
-	if (GetScriptName() == sMercenaryMgr->GetAIName())
-		SetUInt32Value(UNIT_FIELD_FLAGS_2, 16);
-	else
-		SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
+	if (GetScriptName() == sMercenaryMgr->GetAIName())				  //如果是雇佣兵，设置
+	{
+		SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);		  //添加法术光环镜像
+		if (Player* owner = Creature::GetCharmerOrOwnerPlayerOrPlayerItself())
+			setFaction(owner->getFaction());						 //雇佣兵总是玩家的阵营
+	}
+	//else
+		//SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);					 【分析：不是雇佣兵，也不用设置为0】
 
-    // preserve all current dynamic flags if exist
+    // preserve all current dynamic flags if exist 【如果存在，就阻止当前的动态标志】
+
     uint32 dynFlags = GetUInt32Value(UNIT_DYNAMIC_FLAGS);
-    SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynFlags ? dynFlags : GetCreatureInfo()->DynamicFlags);
+    SetUInt32Value(UNIT_DYNAMIC_FLAGS, dynFlags ? dynFlags : cInfo->DynamicFlags);
 
-    SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(GetCreatureInfo()->Armor));
-    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(GetCreatureInfo()->ResistanceHoly));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(GetCreatureInfo()->ResistanceFire));
-    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(GetCreatureInfo()->ResistanceNature));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(GetCreatureInfo()->ResistanceFrost));
-    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(GetCreatureInfo()->ResistanceShadow));
-    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(GetCreatureInfo()->ResistanceArcane));
+    SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(cInfo->Armor));
+    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->ResistanceHoly));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->ResistanceFire));
+    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->ResistanceNature));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(cInfo->ResistanceFrost));
+    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(cInfo->ResistanceShadow));
+    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(cInfo->ResistanceArcane));
 
     SetCanModifyStats(true);
     UpdateAllStats();
 
-    // checked and error show at loading templates
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(GetCreatureInfo()->FactionAlliance))
+    // checked and error show at loading templates  【检查并显示所有加载模板的错误】
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->FactionAlliance))
     {
         if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLAG_PVP)
             SetPvP(true);
@@ -432,16 +440,25 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
             SetPvP(false);
     }
 
-    // Try difficulty dependend version before falling back to base entry
-    CreatureTemplateSpells const* templateSpells = sCreatureTemplateSpellsStorage.LookupEntry<CreatureTemplateSpells>(GetCreatureInfo()->Entry);
+
+    // Try difficulty dependend version before falling back to base entry 【使用难度依赖版本，防止掉入基本难度数据】
+    CreatureTemplateSpells const* templateSpells = sCreatureTemplateSpellsStorage.LookupEntry<CreatureTemplateSpells>(cInfo->Entry);
     if (!templateSpells)
         templateSpells = sCreatureTemplateSpellsStorage.LookupEntry<CreatureTemplateSpells>(GetEntry());
     if (templateSpells)
         for (int i = 0; i < CREATURE_MAX_SPELLS; ++i)
             m_spells[i] = templateSpells->spells[i];
 
-    SetVehicleId(GetCreatureInfo()->VehicleTemplateId, 0);
+    SetVehicleId(cInfo->VehicleTemplateId, 0);
 
+	//下面这段代码来自trinity
+	// updates spell bars for vehicles and set player's faction - should be called here, to overwrite faction that is set from the new template
+	//更新技能载具的技能条，设置载具阵营为玩家的阵营--应该在这里设置，覆盖前面的阵营设置
+	if (IsVehicle())
+		if (Player* owner = Creature::GetCharmerOrOwnerPlayerOrPlayerItself()) // this check comes in case we don't have a player【这里检查当没有玩家时】
+			setFaction(owner->getFaction()); // vehicles should have same as owner faction										 【载具应该和玩家相同阵营】
+
+	//结束trinity代码
     // if eventData set then event active and need apply spell_start
     if (eventData)
         ApplyGameEventSpells(eventData, true);
