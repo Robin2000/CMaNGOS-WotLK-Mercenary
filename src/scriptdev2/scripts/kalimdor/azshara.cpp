@@ -160,7 +160,7 @@ struct npc_rizzle_sprysprocketAI : public npc_escortAI
 					
 					//m_creature->CastSpell(m_creature, 37744, false); //游泳动作，无效
                     //m_creature->CastSpell(m_creature, SPELL_SWIM_SPEED, false);//加速
-					//m_creature->CastSpell(m_creature, 24090, false);//略微提高奔跑和游泳速度。
+					m_creature->CastSpell(m_creature, 24090, false);//略微提高奔跑和游泳速度。
                     m_bIsIntro = false;
 					Start(true); //恢复跑路
                     break;
@@ -169,6 +169,10 @@ struct npc_rizzle_sprysprocketAI : public npc_escortAI
             ++m_uiIntroPhase;
             return;
         }
+		m_creature->SetSwim(true);
+		//m_creature->SetSpeedRate(MOVE_WALK, 0.618f, true);
+		m_creature->SetSpeedRate(MOVE_SWIM, 0.618f, true);
+		//m_creature->SetSpeedRate(MOVE_RUN, 0.618f, true);
 
         if (m_uiDepthChargeTimer < uiDiff)
         {
@@ -196,12 +200,15 @@ bool GossipHello_npc_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_rizzle_sprysprocket(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+bool GossipSelect_npc_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, SPELL_GIVE_MOONSTONE, false);
+		pCreature->SetDeathState(JUST_DIED);//GM off
+		pCreature->SetCreateHealth(0);
+		pCreature->RemoveCorpse();
     }
 
     return true;
