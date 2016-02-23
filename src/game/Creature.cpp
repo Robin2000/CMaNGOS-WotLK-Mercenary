@@ -399,6 +399,11 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
     //    unitFlags |= UNIT_FLAG_IN_COMBAT;
 	RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);//总是移除战斗标志，来自trinity【分析，战斗标志通过其他地方添加，这里只需要移除】
 
+	if (cInfo->InhabitType & INHABIT_WATER &&               // check inhabit type water【检查栖居类型为水】
+		!(cInfo->ExtraFlags & CREATURE_FLAG_EXTRA_WALK_IN_WATER) &&  // check if creature is forced to walk (crabs, giant,...)【检查是否生物强制走(螃蟹,巨人)】
+		GetMap()->GetTerrain()->IsSwimmable(GetPositionX(), GetPositionY(), GetPositionZ()))  // check if creature is in water and have enough space to swim【检查生物是否在水中并有足够空间游泳】
+		m_movementInfo.AddMovementFlag(MOVEFLAG_SWIMMING);  // add swimming movement【添加游泳移动】
+
     if (m_movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) && (cInfo->ExtraFlags & CREATURE_FLAG_EXTRA_HAVE_NO_SWIM_ANIMATION) == 0)
         unitFlags |= UNIT_FLAG_UNK_15;
     else
