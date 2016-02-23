@@ -574,16 +574,24 @@ enum UnitFlags2
 {
     UNIT_FLAG2_FEIGN_DEATH          = 0x00000001,
     UNIT_FLAG2_UNK1                 = 0x00000002,           // Hides body and body armor. Weapons and shoulder and head armor still visible
-    UNIT_FLAG2_UNK2                 = 0x00000004,
+	UNIT_FLAG2_IGNORE_REPUTATION	= 0x00000004,
     UNIT_FLAG2_COMPREHEND_LANG      = 0x00000008,
-    UNIT_FLAG2_CLONED               = 0x00000010,           // Used in SPELL_AURA_MIRROR_IMAGE
-    UNIT_FLAG2_UNK5                 = 0x00000020,
+    UNIT_FLAG2_CLONED               = 0x00000010,           // 用于法术光环镜像 SPELL_AURA_MIRROR_IMAGE
+	UNIT_FLAG2_INSTANTLY_APPEAR_MODEL = 0x00000020,			//单位模型瞬间出现当召唤时 (不是淡入)
     UNIT_FLAG2_FORCE_MOVE           = 0x00000040,
-    UNIT_FLAG2_DISARM_OFFHAND       = 0x00000080,           // also shield case
-    UNIT_FLAG2_UNK8                 = 0x00000100,
+    UNIT_FLAG2_DISARM_OFFHAND       = 0x00000080,           // also shield case【总是盾牌的情况】解除副手的武装
+	UNIT_FLAG2_DISABLE_PRED_STATS = 0x00000100,				//禁止玩家预测统计数据(用于团队raid框架)
     UNIT_FLAG2_UNK9                 = 0x00000200,
     UNIT_FLAG2_DISARM_RANGED        = 0x00000400,
     UNIT_FLAG2_REGENERATE_POWER     = 0x00000800,
+	//下面来自trinity
+	UNIT_FLAG2_RESTRICT_PARTY_INTERACTION	= 0x00001000,   // 限制和组队或团队的互动
+	UNIT_FLAG2_PREVENT_SPELL_CLICK			= 0x00002000,	// 阻止点击法术 spellclick
+	UNIT_FLAG2_ALLOW_ENEMY_INTERACT			= 0x00004000,	//允许敌人互动
+	UNIT_FLAG2_DISABLE_TURN					= 0x00008000,	//禁止翻转
+	UNIT_FLAG2_UNK2							= 0x00010000,	
+	UNIT_FLAG2_PLAY_DEATH_ANIM				= 0x00020000,	// Plays special death animation upon death【当死亡时，玩家特别的死亡动画】
+	UNIT_FLAG2_ALLOW_CHEAT_SPELLS			= 0x00040000    // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL【允许施放欺骗法术】
 };
 
 /// Non Player Character flags

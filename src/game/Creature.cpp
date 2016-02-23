@@ -242,7 +242,7 @@ void Creature::RemoveCorpse()
  */
 bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, GameEventCreatureData const* eventData /*=nullptr*/)
 {
-    // use game event entry if any instead default suggested
+    // use game event entry if any instead default suggested【如果有相反的默认建议，使用游戏事件的entry 】
     if (eventData && eventData->entry_id)
         Entry = eventData->entry_id;
 
@@ -256,58 +256,58 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
     CreatureInfo const* cinfo = normalInfo;
     for (Difficulty diff = GetMap()->GetDifficulty(); diff > REGULAR_DIFFICULTY; diff = GetPrevDifficulty(diff, GetMap()->IsRaid()))
     {
-        // we already have valid Map pointer for current creature!
+        // we already have valid Map pointer for current creature!【我们已经有了当前生物的有效的地图指针】
         if (normalInfo->DifficultyEntry[diff - 1])
         {
             cinfo = ObjectMgr::GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
             if (cinfo)
-                break;                                      // template found
+                break;                                      // template found【发现模板】
 
-            // check and reported at startup, so just ignore (restore normalInfo)
+            // check and reported at startup, so just ignore (restore normalInfo)【在启动时检查和报告，仅忽略（恢复归一化信息）】
             cinfo = normalInfo;
         }
     }
 
-    SetEntry(Entry);                                        // normal entry always
-    m_creatureInfo = cinfo;                                 // map mode related always
+    SetEntry(Entry);                                        // normal entry always【总是归一化entry】
+    m_creatureInfo = cinfo;                                 // map mode related always【总是关联地图】
 
     SetObjectScale(cinfo->Scale);
 
-    // equal to player Race field, but creature does not have race
+    // equal to player Race field, but creature does not have race【等于玩家的种族字段，但生物没有种族】
     SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
 
-    // known valid are: CLASS_WARRIOR,CLASS_PALADIN,CLASS_ROGUE,CLASS_MAGE
+    // known valid are: CLASS_WARRIOR,CLASS_PALADIN,CLASS_ROGUE,CLASS_MAGE【已知的有效值是战士，圣骑士，潜行者，法师】
     SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->UnitClass));
 
     uint32 display_id = ChooseDisplayId(GetCreatureInfo(), data, eventData);
-    if (!display_id)                                        // Cancel load if no display id
+    if (!display_id)                                        // Cancel load if no display id【如果没有显示id就取消加载】
     {
         sLog.outErrorDb("Creature (Entry: %u) has no model defined in table `creature_template`, can't load.", Entry);
         return false;
     }
 
-	if(GetScriptName() == sMercenaryMgr->GetAIName())
-		SetFlag(UNIT_FIELD_FLAGS_2, 16);
-	else
-		RemoveFlag(UNIT_FIELD_FLAGS_2, 16);
+	if(GetScriptName() == sMercenaryMgr->GetAIName())	//如果是雇佣兵AI
+		SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //设置法术光环镜像
+	//else
+		//RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //移除法术光环镜像，被我注释掉。【分析：这段代码为雇佣兵添加镜像光环，但也没有必要移除非雇佣兵的光环】
 
     CreatureModelInfo const* minfo = sObjectMgr.GetCreatureModelRandomGender(display_id);
-    if (!minfo)                                             // Cancel load if no model defined
+    if (!minfo)                                             // Cancel load if no model defined【如果没有mixing定义，取消加载】
     {
         sLog.outErrorDb("Creature (Entry: %u) has no model info defined in table `creature_model_info`, can't load.", Entry);
         return false;
     }
 
-    display_id = minfo->modelid;                            // it can be different (for another gender)
+    display_id = minfo->modelid;                            // it can be different (for another gender)【可以不同，对于其他性别】
 
     SetNativeDisplayId(display_id);
 
-    // normally the same as native, but some has exceptions (Spell::DoSummonTotem)
+    // normally the same as native, but some has exceptions (Spell::DoSummonTotem)【通常和本地的一样，但有些会有例外，如召唤图腾】
     SetDisplayId(display_id);
 
     SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
 
-    // set PowerType based on unit class
+    // set PowerType based on unit class【根据单位的职业设置PowerType】
     switch (cinfo->UnitClass)
     {
         case CLASS_WARRIOR:
@@ -325,40 +325,41 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
             break;
     }
 
-    // Load creature equipment
+    // Load creature equipment【加载生物的装备】
     if (eventData && eventData->equipment_id)
     {
-        LoadEquipment(eventData->equipment_id);             // use event equipment if any for active event
+        LoadEquipment(eventData->equipment_id);             // use event equipment if any for active event【如果有活动事件，使用事件装备】
     }
     else if (!data || data->equipmentId == 0)
     {
         if (cinfo->EquipmentTemplateId == 0)
-            LoadEquipment(normalInfo->EquipmentTemplateId); // use default from normal template if diff does not have any
+            LoadEquipment(normalInfo->EquipmentTemplateId); // use default from normal template if diff does not have any【如果diff没有值，使用缺省的模板装备】
         else
-            LoadEquipment(cinfo->EquipmentTemplateId);      // else use from diff template
+            LoadEquipment(cinfo->EquipmentTemplateId);      // else use from diff template【使用diff模板】
     }
     else if (data && data->equipmentId != -1)
     {
-        // override, -1 means no equipment
+        // override, -1 means no equipment【覆盖，-1表示不装备】
         LoadEquipment(data->equipmentId);
     }
 
-    SetName(normalInfo->Name);                              // at normal entry always
+    SetName(normalInfo->Name);                              // at normal entry always【总是使用归一化entry】
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
 
-    // update speed for the new CreatureInfo base speed mods
+    // update speed for the new CreatureInfo base speed mods【更新新的基于CreatureInfo的速度】
     UpdateSpeed(MOVE_WALK, false);
     UpdateSpeed(MOVE_RUN,  false);
 
-    SetLevitate(cinfo->InhabitType & INHABIT_AIR); // TODO: may not be correct to send opcode at this point (already handled by UPDATE_OBJECT createObject)
+    SetLevitate(cinfo->InhabitType & INHABIT_AIR); // TODO: may not be correct to send opcode at this point (already handled by UPDATE_OBJECT createObject)【可能在这里发送opcode不正确(总是通过UPDATE_OBJECT)】
 
-    // check if we need to add swimming movement. TODO: i thing movement flags should be computed automatically at each movement of creature so we need a sort of UpdateMovementFlags() method
-    if (cinfo->InhabitType & INHABIT_WATER &&               // check inhabit type water
-            !(cinfo->ExtraFlags & CREATURE_FLAG_EXTRA_WALK_IN_WATER) &&  // check if creature is forced to walk (crabs, giant,...)
-            data &&                                         // check if there is data to get creature spawn pos
-            GetMap()->GetTerrain()->IsSwimmable(data->posX, data->posY, data->posZ, minfo->bounding_radius))  // check if creature is in water and have enough space to swim
-        m_movementInfo.AddMovementFlag(MOVEFLAG_SWIMMING);  // add swimming movement
+    // check if we need to add swimming movement. 检查是否需要添加游泳移动
+	//TODO: i thing movement flags should be computed automatically at each movement of creature so we need a sort of UpdateMovementFlags() method我认为应该自动计算，因此需要UpdateMovementFlags()方法
+    if (cinfo->InhabitType & INHABIT_WATER &&               // check inhabit type water【检查栖居类型为水】
+            !(cinfo->ExtraFlags & CREATURE_FLAG_EXTRA_WALK_IN_WATER) &&  // check if creature is forced to walk (crabs, giant,...)【检查是否生物强制走(螃蟹,巨人)】
+            data &&                                         // check if there is data to get creature spawn pos【检查是否有数据获得生物诞生时的位置】
+            GetMap()->GetTerrain()->IsSwimmable(data->posX, data->posY, data->posZ, minfo->bounding_radius))  // check if creature is in water and have enough space to swim【检查生物是否在水中并有足够空间游泳】
+        m_movementInfo.AddMovementFlag(MOVEFLAG_SWIMMING);  // add swimming movement【添加游泳移动】
 
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
