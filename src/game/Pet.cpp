@@ -105,9 +105,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
                                           "FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot > '%u') ",
                                           ownerid, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
 
-    if (!result)
-        return false;
-
+	if (!result)
+	{
+		m_loading = false;
+		return false;
+	}
     Field* fields = result->Fetch();
 
     // update for case of current pet "slot = 0"
@@ -195,10 +197,21 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     {
         case SUMMON_PET:
             petlevel = owner->getLevel();
+
+			SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); // class = mage
+			SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+			// this enables popup window (pet dismiss, cancel)【允许解散和取消宠物】
+
             break;
         case HUNTER_PET:
+			SetUInt32Value(UNIT_FIELD_BYTES_0, 0x02020100); // class = warrior, gender = none, power = focus
+			SetSheath(SHEATH_STATE_MELEE);
+
             SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
-            SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
+			SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+			// this enables popup window (pet abandon, cancel)
+
+			SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
             SetPower(POWER_HAPPINESS, fields[12].GetUInt32());
             SetPowerType(POWER_FOCUS);
             break;
@@ -326,6 +339,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             delete result;
         }
     }
+
+	//set last used pet number (for use in BG's)【参考trinity:设置最后使用的宠物号】
+	if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
+		owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
 
@@ -1980,6 +1997,8 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* ci
     if (!cPos.Relocate(this))
         return false;
 
+	// Force regen flag for player pets, just like we do for players themselves【参考trinity】
+	SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
     SetSheath(SHEATH_STATE_MELEE);
 
     if (getPetType() == MINI_PET)                           // always non-attackable
