@@ -510,6 +510,11 @@ Player::Player(WorldSession* session) : Unit(), m_mover(this), m_camera(this), m
     m_ammoDPS = 0.0f;
 
     m_temporaryUnsummonedPetNumber = 0;
+	//cache for UNIT_CREATED_BY_SPELL to allow【参考了trinity增加两变量】
+	//returning reagents for temporarily removed pets【为临时移除宠物】
+	//when dying/logging out【当死亡或者登出时】
+	m_oldpetspell = 0;
+	m_lastpetnumber = 0;
 
     //////////////////// Rest System/////////////////////
     time_inn_enter = 0;
@@ -1420,7 +1425,7 @@ void Player::Update(uint32 update_diff, uint32 p_time)
     // Group update
     SendUpdateToOutOfRangeGroupMembers();
 
-    Pet* pet = GetPet();
+	Pet* pet = GetPet();/*如果宠物不在身边，就从内存撤销并保存到数据库*/
     if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGuid() && (pet->GetObjectGuid() != GetCharmGuid())))
         pet->Unsummon(PET_SAVE_REAGENTS, this);
 
@@ -1668,7 +1673,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     MapEntry const* mEntry = sMapStore.LookupEntry(mapid);  // Validity checked in IsValidMapCoord
 
-    // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)
+    // preparing unsummon pet if lost (we must get pet before teleportation or will not find it later)【传送前必须先找到宠物，否则后面将找不到它】
     Pet* pet = GetPet();
 
     // don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
@@ -1743,7 +1748,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         if (!(options & TELE_TO_NOT_UNSUMMON_PET))
         {
-            // same map, only remove pet if out of range for new position
+            // same map, only remove pet if out of range for new position【相同地图，如果超出范围，仅移除宠物】
             if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityDistance()))
                 UnsummonPetTemporaryIfAny();
         }
@@ -18146,8 +18151,39 @@ void Player::UpdateDuelFlag(time_t currTime)
 
 void Player::RemovePet(PetSaveMode mode)
 {
-    if (Pet* pet = GetPet())
-        pet->Unsummon(mode, this);
+	if (Pet* pet = GetPet())
+	{
+		pet->Unsummon(mode, this);
+		return;
+	}
+
+	/*下面添加法术召唤的宠物的保存,参考了trinity*/
+	if (mode == PET_SAVE_REAGENTS && m_temporaryUnsummonedPetNumber && !InBattleGround())
+	{
+		//returning of reagents only for players, so best done here
+		uint32 spellId = m_oldpetspell;
+		SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+
+		if (spellInfo)
+		{
+			for (uint32 i = 0; i < MAX_SPELL_REAGENTS; ++i)
+			{
+				if (spellInfo->Reagent[i] > 0)
+				{
+					ItemPosCountVec dest;                   //for succubus, voidwalker, felhunter and felguard credit soulshard when despawn reason other than death (out of range, logout)
+					InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, spellInfo->Reagent[i], spellInfo->ReagentCount[i]);
+					if (msg == EQUIP_ERR_OK)
+					{
+						Item* item = StoreNewItem(dest, spellInfo->Reagent[i], true);
+						if (IsInWorld())
+							SendNewItem(item, spellInfo->ReagentCount[i], true, false);
+					}
+				}
+			}
+		}
+		m_temporaryUnsummonedPetNumber = 0;
+	}
+
 }
 
 void Player::Say(const std::string& text, const uint32 language)
@@ -22106,8 +22142,11 @@ void Player::UnsummonPetTemporaryIfAny()
     if (!pet)
         return;
 
-    if (!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned())
-        m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
+	if (!m_temporaryUnsummonedPetNumber && pet->isControlled() && !pet->isTemporarySummoned())
+	{
+		m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
+		m_oldpetspell = pet->GetUInt32Value(UNIT_CREATED_BY_SPELL);
+	}
 
     pet->Unsummon(PET_SAVE_AS_CURRENT, this);
 }

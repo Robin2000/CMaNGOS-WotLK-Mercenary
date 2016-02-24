@@ -5887,8 +5887,8 @@ bool Spell::DoSummonPet(SpellEffectIndex eff_idx)
 
     uint32 level = m_caster->getLevel();                    // TODO Engineering Pets have also caster-level? (if they exist)
     Pet* spawnCreature = new Pet(SUMMON_PET);
-
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && spawnCreature->LoadPetFromDB((Player*)m_caster, pet_entry))
+	Player* player = m_caster->ToPlayer();
+	if (m_caster->GetTypeId() == TYPEID_PLAYER && spawnCreature->LoadPetFromDB((Player*)m_caster, pet_entry, player->GetLastPetNumber(),true))//增加参数
     {
         // Summon in dest location
         if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
@@ -6564,8 +6564,8 @@ void Spell::EffectEnchantItemTmp(SpellEffectIndex eff_idx)
 
 void Spell::EffectTameCreature(SpellEffectIndex /*eff_idx*/)
 {
-    // Caster must be player, checked in Spell::CheckCast
-    // Spell can be triggered, we need to check original caster prior to caster
+    // Caster must be player, checked in Spell::CheckCast【施放者必须是玩家】
+    // Spell can be triggered, we need to check original caster prior to caster【技能可以触发，我们需要检查原始的施放者】
     Player* plr = (Player*)GetAffectiveCaster();
 
     Creature* creatureTarget = (Creature*)unitTarget;
@@ -6636,12 +6636,12 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
 
     Pet* OldSummon = m_caster->GetPet();
 
-    // if pet requested type already exist
+    // if pet requested type already exist【如果请求类型已经存在】
     if (OldSummon)
     {
         if ((petentry == 0 || OldSummon->GetEntry() == petentry) && OldSummon->getPetType() != SUMMON_PET)
         {
-            // pet in corpse state can't be summoned
+            // pet in corpse state can't be summoned【宠物是尸体状态不能召唤】
             if (OldSummon->isDead())
                 return;
 
@@ -6681,7 +6681,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     if (m_caster->GetTypeId() == TYPEID_PLAYER && NewSummon->LoadPetFromDB((Player*)m_caster, petentry))
         return;
 
-    // not error in case fail hunter call pet
+    // not error in case fail hunter call pet【猎人召唤宠物失败无错】
     if (!petentry)
     {
         delete NewSummon;
@@ -6722,7 +6722,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
     NewSummon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
     NewSummon->GetCharmInfo()->SetPetNumber(pet_number, true);
-    // this enables pet details window (Shift+P)
+    // this enables pet details window (Shift+P)【启用宠物详情】
 
     if (m_caster->IsPvP())
         NewSummon->SetPvP(true);
@@ -6737,7 +6737,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER && NewSummon->getPetType() == SUMMON_PET)
     {
-        // generate new name for summon pet
+        // generate new name for summon pet【生成新的名字】
         std::string new_name = sObjectMgr.GeneratePetName(petentry);
         if (!new_name.empty())
             NewSummon->SetName(new_name);
