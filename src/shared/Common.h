@@ -116,11 +116,11 @@ inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 #define STRINGIZE(a) #a
 
 // used for creating values for respawn for example
-#define MAKE_PAIR64(l, h)  uint64( uint32(l) | ( uint64(h) << 32 ) )
+#define MAKE_PAIR64(l, h)  uint64( uint32(l) | ( uint64(h) << 32 ) ) /*注意低位在前，高位在后。前面数字不超4294967295*/
 #define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
 #define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 
-#define MAKE_PAIR32(l, h)  uint32( uint16(l) | ( uint32(h) << 16 ) )
+#define MAKE_PAIR32(l, h)  uint32( uint16(l) | ( uint32(h) << 16 ) ) /*注意低位在前，高位在后。前面数字不超65535*/
 #define PAIR32_HIPART(x)   (uint16)((uint32(x) >> 16) & 0x0000FFFF)
 #define PAIR32_LOPART(x)   (uint16)(uint32(x)         & 0x0000FFFF)
 

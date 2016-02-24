@@ -40,12 +40,12 @@ enum PetType
 // stored in character_pet.slot
 enum PetSaveMode
 {
-    PET_SAVE_AS_DELETED        = -1,                        // not saved in fact
-    PET_SAVE_AS_CURRENT        =  0,                        // in current slot (with player)
+    PET_SAVE_AS_DELETED        = -1,                        // not saved in fact【不保存】
+    PET_SAVE_AS_CURRENT        =  0,                        // in current slot (with player)【在0这个位置保存】
     PET_SAVE_FIRST_STABLE_SLOT =  1,
-    PET_SAVE_LAST_STABLE_SLOT  =  MAX_PET_STABLES,          // last in DB stable slot index (including), all higher have same meaning as PET_SAVE_NOT_IN_SLOT
-    PET_SAVE_NOT_IN_SLOT       =  100,                      // for avoid conflict with stable size grow will use 100
-    PET_SAVE_REAGENTS          =  101                       // PET_SAVE_NOT_IN_SLOT with reagents return
+    PET_SAVE_LAST_STABLE_SLOT  =  MAX_PET_STABLES,          // last in DB stable slot index (including), all higher have same meaning as PET_SAVE_NOT_IN_SLOT【超过的都不在槽】
+    PET_SAVE_NOT_IN_SLOT       =  100,                      // for avoid conflict with stable size grow will use 100【避免冲突，固定为100】
+    PET_SAVE_REAGENTS          =  101                       // PET_SAVE_NOT_IN_SLOT with reagents return【不保存到槽中，同时保存材料】
 };
 
 // There might be a lot more

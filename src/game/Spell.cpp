@@ -2975,11 +2975,11 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     if (triggeredByAura)
         m_triggeredByAuraSpell  = triggeredByAura->GetSpellProto();
 
-    // create and add update event for this spell
+    // create and add update event for this spell【为这个法术创建和更新事件】
     SpellEvent* Event = new SpellEvent(this);
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
-    // Prevent casting at cast another spell (ServerSide check)
+    // Prevent casting at cast another spell (ServerSide check)【当另一个技能在施法时阻止此技能】
     if (m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count)
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
@@ -3003,36 +3003,36 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
         return;
     }
 
-    // Prepare data for triggers
+    // Prepare data for triggers【准备触发的数据】
     prepareDataForTriggerSystem();
 
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = GetSpellCastTime(m_spellInfo, this);
     m_duration = CalculateSpellDuration(m_spellInfo, m_caster);
 
-    // set timer base at cast time
+    // set timer base at cast time【设置开始施法时间】
     ReSetTimer();
 
-    // stealth must be removed at cast starting (at show channel bar)
-    // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
+    // stealth must be removed at cast starting (at show channel bar)【开始施法时隐身必须移除（在显示条）】
+    // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)【跳过法术触发（物品装备技能释放和其它非显示角色施放/物品使用）】
     if (!m_IsTriggeredSpell && isSpellBreakStealth(m_spellInfo))
     {
         m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
         m_caster->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
     }
 
-    // add non-triggered (with cast time and without)
+    // add non-triggered (with cast time and without)【添加非触发（带有施放时间）】
     if (!m_IsTriggeredSpell)
     {
-        // add to cast type slot
+        // add to cast type slot【添加到施放类别格子】
         m_caster->SetCurrentCastedSpell(this);
 
-        // will show cast bar
+        // will show cast bar【会显示施法条】
         SendSpellStart();
 
         TriggerGlobalCooldown();
     }
-    // execute triggered without cast time explicitly in call point
+    // execute triggered without cast time explicitly in call point【执行触发，在调用点没有显式的施法时间】
     else if (m_timer == 0)
         cast(true);
     // else triggered with cast time will execute execute at next tick or later
@@ -3114,10 +3114,10 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
-    // update pointers base at GUIDs to prevent access to already nonexistent object
+    // update pointers base at GUIDs to prevent access to already nonexistent object【更新基于GUID的指针，阻止访问已经不存在的对象】
     UpdatePointers();
 
-    // cancel at lost main target unit
+    // cancel at lost main target unit【在丢掉主要目标单位的时候取消】
     if (!m_targets.getUnitTarget() && m_targets.getUnitTargetGuid() && m_targets.getUnitTargetGuid() != m_caster->GetObjectGuid())
     {
         cancel();
@@ -3139,7 +3139,7 @@ void Spell::cast(bool skipCheck)
         return;
     }
 
-    // triggered cast called from Spell::prepare where it was already checked
+    // triggered cast called from Spell::prepare where it was already checked【当 Spell::prepare已经检查后，触发调用】
     if (!skipCheck)
     {
         castResult = CheckCast(false);
@@ -3153,81 +3153,81 @@ void Spell::cast(bool skipCheck)
         }
     }
 
-    // different triggered (for caster and main target after main cast) and pre-cast (casted before apply effect to each target) cases
+    // different triggered (for caster and main target after main cast) and pre-cast (casted before apply effect to each target) cases【不同的触发】
     switch (m_spellInfo->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
+        case SPELLFAMILY_GENERIC://【通用法术】
         {
-            // Bandages
+            // Bandages【绷带】
             if (m_spellInfo->Mechanic == MECHANIC_BANDAGE)
-                AddPrecastSpell(11196);                     // Recently Bandaged
-            // Stoneskin
-            else if (m_spellInfo->Id == 20594)
-                AddTriggeredSpell(65116);                   // Stoneskin - armor 10% for 8 sec
-            // Chaos Bane strength buff
+                AddPrecastSpell(11196);                     // Recently Bandaged【新近包扎,无法再打绷带。】
+            // Stoneskin【石头皮肤】
+            else if (m_spellInfo->Id == 20594)				//【石像形态，移除所有中毒、疾病和流血效果，并使你的护甲值提高$65116s1%，持续$65116d。】
+                AddTriggeredSpell(65116);                   // Stoneskin - armor 10% for 8 sec【石头皮肤-护甲每8秒10%】
+            // Chaos Bane strength buff【混沌的毁灭力量】
             else if (m_spellInfo->Id == 71904)
                 AddTriggeredSpell(73422);
-            // Weak Alcohol
+            // Weak Alcohol【弱的酒精】
             else if (m_spellInfo->SpellIconID == 1306 && m_spellInfo->SpellVisual[0] == 11359)
-                AddTriggeredSpell(51655);                   // BOTM - Create Empty Brew Bottle
+                AddTriggeredSpell(51655);                   // BOTM - Create Empty Brew Bottle【创建空的啤酒瓶】
             break;
         }
-        case SPELLFAMILY_MAGE:
+        case SPELLFAMILY_MAGE://【法师】
         {
-            // Ice Block
+            // Ice Block【寒冰屏障】
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000008000000000))
-                AddPrecastSpell(41425);                     // Hypothermia
-            // Icy Veins
+                AddPrecastSpell(41425);                     // Hypothermia【体温过低】
+            // Icy Veins【冰冷血脉】
             else if (m_spellInfo->Id == 12472)
             {
-                if (m_caster->HasAura(56374))               // Glyph of Icy Veins
+                if (m_caster->HasAura(56374))               // Glyph of Icy Veins【冰冷血脉雕文】
                 {
-                    // not exist spell do it so apply directly
+                    // not exist spell do it so apply directly【不存在法术直接应用】
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
                     m_caster->RemoveSpellsCausingAura(SPELL_AURA_HASTE_SPELLS);
                 }
             }
-            // Fingers of Frost
+            // Fingers of Frost【寒冰指】
             else if (m_spellInfo->Id == 44544)
-                AddPrecastSpell(74396);                     // Fingers of Frost
+                AddPrecastSpell(74396);                     // Fingers of Frost【寒冰指】
             break;
         }
-        case SPELLFAMILY_WARRIOR:
+        case SPELLFAMILY_WARRIOR://【战士】
         {
-            // Shield Slam
+            // Shield Slam【盾牌猛击】
             if ((m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000020000000000)) && m_spellInfo->Category == 1209)
             {
-                if (m_caster->HasAura(58375))               // Glyph of Blocking
-                    AddTriggeredSpell(58374);               // Glyph of Blocking
+                if (m_caster->HasAura(58375))               // Glyph of Blocking【打断标志】
+                    AddTriggeredSpell(58374);               // Glyph of Blocking【打断标志】
             }
-            // Bloodrage
+            // Bloodrage【血性狂暴】
             if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000100))
             {
-                if (m_caster->HasAura(70844))               // Item - Warrior T10 Protection 4P Bonus
-                    AddTriggeredSpell(70845);               // Stoicism
+                if (m_caster->HasAura(70844))               // Item - Warrior T10 Protection 4P Bonus【物品 - 战士T10防护4P奖励 】
+                    AddTriggeredSpell(70845);               // Stoicism【淡泊，吸收伤害。持续$d。】
             }
-            // Bloodsurge (triggered), Sudden Death (triggered)
+            // Bloodsurge (triggered), Sudden Death (triggered)【猛击，猝死】
             else if (m_spellInfo->Id == 46916 || m_spellInfo->Id == 52437)
-                // Item - Warrior T10 Melee 4P Bonus
+                // Item - Warrior T10 Melee 4P Bonus【物品 - 战士T10近战4P 奖励】
                 if (Aura* aur = m_caster->GetAura(70847, EFFECT_INDEX_0))
                     if (roll_chance_i(aur->GetModifier()->m_amount))
-                        AddTriggeredSpell(70849);           // Extra Charge!
+                        AddTriggeredSpell(70849);           // Extra Charge!【再度冲锋！】
             break;
         }
-        case SPELLFAMILY_PRIEST:
+        case SPELLFAMILY_PRIEST://【牧师】
         {
             // Power Word: Shield
             if (m_spellInfo->Mechanic == MECHANIC_SHIELD &&
                     (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000001)))
-                AddPrecastSpell(6788);                      // Weakened Soul
+                AddPrecastSpell(6788);                      // Weakened Soul【虚弱灵魂】
             // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
             else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000002000000000))
-                AddTriggeredSpell(41637);
+                AddTriggeredSpell(41637);//【愈合祷言】
 
             switch (m_spellInfo->Id)
             {
-                case 15237: AddTriggeredSpell(23455); break;// Holy Nova, rank 1
-                case 15430: AddTriggeredSpell(23458); break;// Holy Nova, rank 2
+                case 15237: AddTriggeredSpell(23455); break;// Holy Nova, rank 1【神圣新星，等级1:制造一次以施法者为中心的神圣能量爆炸，对半径$15237a1码范围内的所有目标造成$15237s1点神圣伤害，并为半径$23455a1码范围内的所有小队成员恢复$23455s1点生命值。这些效果不产生任何威胁值。】
+                case 15430: AddTriggeredSpell(23458); break;// Holy Nova, rank 2【神圣新星，等级2】
                 case 15431: AddTriggeredSpell(23459); break;// Holy Nova, rank 3
                 case 27799: AddTriggeredSpell(27803); break;// Holy Nova, rank 4
                 case 27800: AddTriggeredSpell(27804); break;// Holy Nova, rank 5
@@ -3239,42 +3239,42 @@ void Spell::cast(bool skipCheck)
             }
             break;
         }
-        case SPELLFAMILY_DRUID:
+        case SPELLFAMILY_DRUID://【德鲁伊】
         {
-            // Faerie Fire (Feral)
+            // Faerie Fire (Feral)【精灵之火（野性）使目标的护甲值降低$16857s1%，持续$16857d。在效果持续期间，目标无法潜行或隐形。如果在熊形态或巨熊形态下使用，则可以造成${$AP*0.15+1}点伤害值和额外的威胁值。】
             if (m_spellInfo->Id == 16857 && m_caster->GetShapeshiftForm() != FORM_CAT)
                 AddTriggeredSpell(60089);
-            // Clearcasting
+            // Clearcasting【节能施法：节能施法可以使你的下一个伤害、治疗法术或攻击技能的法力值、怒气值或者能量值消耗降低$16870s1%。】
             else if (m_spellInfo->Id == 16870)
             {
-                if (m_caster->HasAura(70718))               // Item - Druid T10 Balance 2P Bonus
-                    AddPrecastSpell(70721);                 // Omen of Doom
+                if (m_caster->HasAura(70718))               // Item - Druid T10 Balance 2P Bonus【物品-德鲁伊T10平衡2P奖励，当你的清晰预兆天赋使你获得节能施法效果时，你可造成额外$70721s1%的自然和奥术伤害，持续$70721d。】
+                    AddPrecastSpell(70721);                 // Omen of Doom【末日预兆，所造成的自然伤害和奥术伤害提高$s1%。】
             }
-            // Berserk (Bear Mangle part)
+            // Berserk (Bear Mangle part)【狂暴(熊)：激活之后，使你的裂伤（熊）技能攻击最多$58923s1个目标，并且没有冷却时间；使你的所有猎豹形态下的技能消耗的能量值降低$s1%。持续$d。】
             else if (m_spellInfo->Id == 50334)
                 AddTriggeredSpell(58923);
             break;
         }
-        case SPELLFAMILY_ROGUE:
-            // Fan of Knives (main hand)
+        case SPELLFAMILY_ROGUE://【潜行者：】
+            // Fan of Knives (main hand)【刀扇：立即向周围半径$a1码范围内的所有目标掷出两把武器，若使用匕首则造成${$m1*1.5}%的武器伤害，若使用其它武器则造成$s1%的武器伤害。】
             if (m_spellInfo->Id == 51723 && m_caster->GetTypeId() == TYPEID_PLAYER &&
                     ((Player*)m_caster)->haveOffhandWeapon())
             {
-                AddTriggeredSpell(52874);                   // Fan of Knives (offhand)
+                AddTriggeredSpell(52874);                   // Fan of Knives (offhand)【刀扇：立即向周围半径$a1码范围内的所有目标掷出两把武器，造成$s1%的武器伤害。】
             }
             break;
-        case SPELLFAMILY_HUNTER:
+        case SPELLFAMILY_HUNTER://【猎人】
         {
-            // Deterrence
+            // Deterrence【威慑：激活之后，使你的招架几率提高$s1%，闪避远程攻击的几率提高$s1%，偏转法术的几率提高$s2%。当威慑处于激活状态下时，你不能攻击。持续$d。】
             if (m_spellInfo->Id == 19263)
                 AddPrecastSpell(67801);
-            // Kill Command
+            // Kill Command【杀戮命令：命令宠物猛攻目标，使宠物在$34027d内特殊攻击造成的伤害提高${$34027M1*3}%。宠物每次进行特殊攻击之后，这个伤害值加成就降低$34027s1%。】
             else if (m_spellInfo->Id == 34026)
             {
-                if (m_caster->HasAura(37483))               // Improved Kill Command - Item set bonus
-                    m_caster->CastSpell(m_caster, 37482, true);// Exploited Weakness
+                if (m_caster->HasAura(37483))               // Improved Kill Command - Item set bonus【强化杀戮命令：你每次使用杀戮命令技能，你的护甲穿透等级都会提高$37482s1，持续$37482d。】
+                    m_caster->CastSpell(m_caster, 37482, true);// Exploited Weakness【弱点暴露：你的护甲穿透等级提高$s1，持续$d。】
             }
-            // Lock and Load
+            // Lock and Load【荷枪实弹：当你的冰冻陷阱、冰冻之箭、冰霜陷阱被一个目标触发时，或当你的献祭陷阱、爆炸陷阱或黑箭对目标造成持续伤害时，有一定几率使你的下2次奥术射击或爆炸射击不触发冷却、不消耗法力值，也不消耗弹药。这个效果有$56342s3秒的冷却时间。】
             else if (m_spellInfo->Id == 56453)
                 AddPrecastSpell(67544);                     // Lock and Load Marker
             break;
