@@ -179,12 +179,12 @@ uint32 Quest::XPValue(Player* pPlayer) const
         int32 baseLevel = 0;
         int32 playerLevel = pPlayer->getLevel();
 
-        // formula can possibly be organized better, using less if's and simplify some.
+        // formula can possibly be organized better, using less if's and simplify some.【公式可以组织得更好】
 
         if (QuestLevel != -1)
             baseLevel = QuestLevel;
 
-        if (((baseLevel - playerLevel) + 10) * 2 > 10)
+		if (((baseLevel - playerLevel) + 10) * 2 > 10)   //(playerLevel - baseLevel)< 5 也就是玩家等级比任务等级高出5级以内。
         {
             baseLevel = playerLevel;
 
