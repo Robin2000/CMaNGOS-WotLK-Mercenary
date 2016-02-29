@@ -124,6 +124,10 @@ inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 #define PAIR32_HIPART(x)   (uint16)((uint32(x) >> 16) & 0x0000FFFF)
 #define PAIR32_LOPART(x)   (uint16)(uint32(x)         & 0x0000FFFF)
 
+uint64 inline makeMapXY(uint32 mapid, float x, float y){
+	return MAKE_PAIR64(uint32((mapid << 16) | (x>0) ? uint16(0.5+x) : uint16(0.5 - x)), uint32((mapid << 16) | (y>0) ? uint16(0.5 + y) : uint16(0.5 - y)));
+}
+
 enum TimeConstants
 {
     MINUTE = 60,

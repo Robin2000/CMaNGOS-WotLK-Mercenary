@@ -1464,6 +1464,8 @@ void ObjectMgr::LoadCreatures()
         int16 EntryPoolId       = fields[20].GetInt16();
 
 		mCreatureEntryMap[entry] = data;//将数据放到EntryMap中方便根据entry快速定位
+		mCreaturePOIMap[makeMapXY(data.mapid, data.posX, data.posY)] = data;//新增数据结构，用于快速定位POI对应的NPC
+
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
@@ -1696,6 +1698,8 @@ void ObjectMgr::LoadGameObjects()
         int16 EntryPoolId   = fields[18].GetInt16();
 
 		mGameObjectEntryMap[entry] = data;//将数据放到EntryMap中方便快速定位
+		mGameObjectPOIMap[makeMapXY(data.mapid, data.posX, data.posY)] = data;//新增数据结构，用于快速定位POI对应的游戏对象
+
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {

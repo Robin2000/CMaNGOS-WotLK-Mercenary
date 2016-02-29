@@ -145,6 +145,8 @@ struct MangosStringLocale
 
 //typedef std::unordered_map<uint32 /*guid*/, CreatureData> CreatureDataMap;
 typedef tbb::concurrent_unordered_map<uint32, CreatureData> CreatureDataMap;
+typedef tbb::concurrent_unordered_map<uint64, CreatureData>	CreaturePOIMap;//新定义用于坐标定位npc,key为mapid_x_y
+typedef CreaturePOIMap::value_type CreaturePOIMapPair;//新定义用于坐标定位npc
 
 typedef CreatureDataMap::value_type CreatureDataPair;
 
@@ -170,6 +172,8 @@ class FindCreatureData
 
 //typedef std::unordered_map<uint32, GameObjectData> GameObjectDataMap;
 typedef tbb::concurrent_unordered_map<uint32, GameObjectData> GameObjectDataMap;
+typedef tbb::concurrent_unordered_map<uint64, GameObjectData>	GameObjectPOIMap;//新定义用于坐标定位gameobject,key为mapid_x_y
+typedef GameObjectPOIMap::value_type GameObjectPOIMapPair;//新定义用于坐标定位gameobject
 
 typedef GameObjectDataMap::value_type GameObjectDataPair;
 
@@ -1162,11 +1166,38 @@ class ObjectMgr
 
 		CreatureDataMap  mCreatureEntryMap;//以entry作为map的key
 		GameObjectDataMap mGameObjectEntryMap;//以entry作为map的key
-		CreatureData& findCreatureDataByEntry(uint32 entry){ 
-			return mCreatureEntryMap[entry]; 
+
+		CreaturePOIMap mCreaturePOIMap;//新定义用于坐标定位npc
+		GameObjectPOIMap mGameObjectPOIMap;//新定义用于坐标定位gameobject
+		CreatureData* findCreatureDataByPOI(uint32 mapid, float x, float y){
+			CreaturePOIMap::const_iterator itr = mCreaturePOIMap.find(makeMapXY(mapid, x, y));
+			if (itr != mCreaturePOIMap.end())
+				return &(itr->second);
+			
+			return nullptr;
 		}
-		GameObjectData& findGameObjectDataByEntry(uint32 entry){ 
-			return mGameObjectEntryMap[entry]; 
+		GameObjectData* findGameObjectDataByPOI(uint32 mapid,float x,float y){
+			GameObjectPOIMap::const_iterator itr = mGameObjectPOIMap.find(makeMapXY(mapid, x, y));
+			if (itr != mGameObjectPOIMap.end())
+				return &(itr->second);
+
+			return nullptr;
+
+		}
+
+		CreatureData* findCreatureDataByEntry(uint32 entry){ 
+			CreatureDataMap::const_iterator itr = mCreatureEntryMap.find(entry);
+			if (itr != mCreatureEntryMap.end())
+				return &(itr->second);
+
+			return nullptr;
+		}
+		GameObjectData* findGameObjectDataByEntry(uint32 entry){
+			GameObjectDataMap::const_iterator itr = mGameObjectEntryMap.find(entry);
+			if (itr != mGameObjectEntryMap.end())
+				return &(itr->second);
+
+			return nullptr;
 		}
 
 		inline int32 findQuestStarterCreatureOrGO(uint32 questid){

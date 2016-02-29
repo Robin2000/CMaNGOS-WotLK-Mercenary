@@ -1357,8 +1357,10 @@ class MANGOS_DLL_SPEC Player : public Unit
 		Quest const* GetQuest(uint32 quest_id);
 		void GetQuestTitleLocale(uint32 quest_id, std::string * title);
 		void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
-		CreatureData& findCreatureDataByEntry(uint32 entry);
-		GameObjectData& findGameObjectDataByEntry(uint32 entry);
+		CreatureData* findCreatureDataByEntry(uint32 entry);
+		GameObjectData* findGameObjectDataByEntry(uint32 entry);
+		CreatureData* findCreatureDataByPOI(uint32 mapid, float x, float y);
+		GameObjectData* findGameObjectDataByPOI(uint32 mapid, float x, float y);
 		
 		tbb::concurrent_vector<WorldLocation> questPOIVec;
 		tbb::concurrent_vector<WorldLocation> getQuestPOI(uint32 questid);
