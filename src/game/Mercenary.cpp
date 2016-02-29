@@ -169,8 +169,8 @@ bool Mercenary::Create(Player* player)
     summoned = false;
     beingCreated = true;
 
-	player->learnSpell(883, true);//召唤宠物
-	player->learnSpell(982, true);//复活宠物
+	//player->learnSpell(883, true);//召唤宠物
+	//player->learnSpell(982, true);//复活宠物
 
     sMercenaryMgr->SaveToList(this);
 
@@ -267,8 +267,8 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     summoned = true;
     beingCreated = true;//改为true允许创建多个pet
 
-	player->learnSpell(883, true);//召唤宠物
-	player->learnSpell(982, true);//复活宠物
+	//player->learnSpell(883, true);//召唤宠物
+	//player->learnSpell(982, true);//复活宠物
 
     SaveToDB();
     sMercenaryMgr->SaveToList(this);

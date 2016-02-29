@@ -126,10 +126,13 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		QuestStatusMap& map = pPlayer->getQuestStatusMap();
 
 		uint8 count = 0;
-		for (QuestStatusMap::const_iterator it = map.begin(); it != map.end() && count <= 20; it++, count++)
+		for (QuestStatusMap::const_iterator it = map.begin(); it != map.end() && count <= 20; it++)
 		{
 			if (it->second.m_status == QUEST_STATUS_INCOMPLETE || (it->second.m_status == QUEST_STATUS_COMPLETE && !it->second.m_rewarded))
+			{
 				readMap[it->first] = it->second;
+				count++;
+			}
 		}
 
 		for (QuestStatusMap::const_iterator it = readMap.begin(); it != readMap.end(); it++)

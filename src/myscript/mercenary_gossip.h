@@ -4,5 +4,6 @@
 #include "Player.h"
 bool GossipHello_mercenary_npc_gossip(Player* player, Item* item);
 bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*sender*/, uint32 actions);
+bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actions);
 
 #endif

@@ -92,6 +92,7 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->SEND_GOSSIP_MENU(16777213, pItem->GetObjectGuid()); //在线即可累积原力。
 
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
+	pPlayer->gossipMenuType = -1;//出主菜单，就将玩家子菜单标志置为空
 	return true;
 }
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
