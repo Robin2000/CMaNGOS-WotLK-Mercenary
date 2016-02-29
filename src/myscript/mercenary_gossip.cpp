@@ -104,7 +104,10 @@ public:
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800099, 0, 12);//萨满
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800101, 0, 13);//术士
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800093, 0, 14);//德鲁伊
+
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, GOSSIP_ACTION_INFO_DEF + 999);//算了算了
+
+
 
 		player->SEND_GOSSIP_MENU(1, item->GetObjectGuid());
 
@@ -207,6 +210,7 @@ public:
 
 	void SendConfirmation(Player* player, Item* item)
     {
+
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800630, 0, 39);//确定吗？
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800631, 0, 40);//重新来
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800632, 0, 41);//暂时不招募雇佣兵了
@@ -218,8 +222,7 @@ public:
     {
         if (!mercenary->Create(player, model, race, gender, type, role))
         {
-			player->GetSession()->SendNotification(player->GetMangosString(-2800633));//未能招募成功!
-			SendToHello(player, item);
+			player->GetSession()->SendNotification(player->GetMangosString(-2800185));//系统提示：本次操作失败。
             return;
         }
 
@@ -396,23 +399,33 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 			break;
 		case 34:
 			mercenary->SetRole(ROLE_MELEE_DPS);
-			SendConfirmation(player, item);
+			//SendConfirmation(player, item);
+			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+			player->CLOSE_GOSSIP_MENU();
 			break;
 		case 35:
 			mercenary->SetRole(ROLE_CASTER_DPS);
-			SendConfirmation(player, item);
+			//SendConfirmation(player, item);
+			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+			player->CLOSE_GOSSIP_MENU();
 			break;
 		case 36:
 			mercenary->SetRole(ROLE_MARKSMAN_DPS);
-			SendConfirmation(player, item);
+			//SendConfirmation(player, item);
+			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+			player->CLOSE_GOSSIP_MENU();
 			break;
 		case 37:
 			mercenary->SetRole(ROLE_HEALER);
-			SendConfirmation(player, item);
+			//SendConfirmation(player, item);
+			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+			player->CLOSE_GOSSIP_MENU();
 			break;
 		case 38:
 			mercenary->SetRole(ROLE_TANK);
-			SendConfirmation(player, item);
+			//SendConfirmation(player, item);
+			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+			player->CLOSE_GOSSIP_MENU();
 			break;
 		case 39:
 			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
@@ -425,6 +438,16 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 
 	return true;
 }
+bool recallMercenary(Player* player, Item* item){
+	Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
+	if (!mercenary)
+	{
+		ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800642));
+		return false;
+	}
+	CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+	return true;
+}
 bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*sender*/, uint32 actions)
 {
 	player->PlayerTalkClass->ClearMenus();
@@ -432,6 +455,9 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 
 	switch (actions)
 	{
+		case GOSSIP_ACTION_INFO_DEF + 998:/*唤醒雇佣兵*/
+			recallMercenary(player, item);
+			break;
 		case 1: // Hire Mercenary【//我要雇佣帮手+继续雇佣】
 				SendHireOrOptionalList(player,item);
 			break;
