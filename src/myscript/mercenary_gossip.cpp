@@ -435,7 +435,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 		case 1: // Hire Mercenary【//我要雇佣帮手+继续雇佣】
 				SendHireOrOptionalList(player,item);
 			break;
-		case 4:////算了算了
+		case GOSSIP_ACTION_INFO_DEF + 999:////算了算了
 			player->CLOSE_GOSSIP_MENU();
 			player->gossipMenuType = -1;/*还原默认值*/
 			break;

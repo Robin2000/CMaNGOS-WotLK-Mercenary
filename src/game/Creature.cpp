@@ -395,9 +395,9 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
     uint32 unitFlags = cInfo->UnitFlags;
 
     // we may need to append or remove additional flags【我们可能需要添加或者移除附加的标志】
-    //if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT))
-    //    unitFlags |= UNIT_FLAG_IN_COMBAT;
-	RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);//总是移除战斗标志，来自trinity【分析，战斗标志通过其他地方添加，这里只需要移除】
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT))
+        unitFlags |= UNIT_FLAG_IN_COMBAT;
+	//RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);//移除战斗状态通过WorldSession循环间隔5秒1次，这里保持原有
 
 	if (cInfo->InhabitType & INHABIT_WATER &&               // check inhabit type water【检查栖居类型为水】
 		!(cInfo->ExtraFlags & CREATURE_FLAG_EXTRA_WALK_IN_WATER) &&  // check if creature is forced to walk (crabs, giant,...)【检查是否生物强制走(螃蟹,巨人)】

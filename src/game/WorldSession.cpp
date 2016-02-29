@@ -234,9 +234,12 @@ bool WorldSession::Update(PacketFilter& updater)
                         if (!m_playerRecentlyLogout)
                             LogUnexpectedOpcode(packet, "the player has not logged in yet");
                     }
-                    else if (_player->IsInWorld())
-                        ExecuteOpcode(opHandle, packet);
-
+					else if (_player->IsInWorld())
+					{
+						ExecuteOpcode(opHandle, packet);
+						if (update_combat&&GetPlayer()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT))
+							GetPlayer()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);/*ÖÜÆÚÒÆ³ýÕ½¶·×´Ì¬*/
+					}
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                     break;
                 case STATUS_LOGGEDIN_OR_RECENTLY_LOGGEDOUT:
