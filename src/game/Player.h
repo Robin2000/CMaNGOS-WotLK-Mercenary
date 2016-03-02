@@ -1082,6 +1082,8 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         PlayerTaxi m_taxi;
 		
+		//任务推荐
+		void recommendQuest(std::vector<Quest*>& vector, uint8 num);
 		//积分
 		GamePointMgr gamePointMgr;
 		const char* GetMangosString(uint32 entry);
@@ -1357,10 +1359,15 @@ class MANGOS_DLL_SPEC Player : public Unit
 		Quest const* GetQuest(uint32 quest_id);
 		void GetQuestTitleLocale(uint32 quest_id, std::string * title);
 		void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
+		
 		CreatureData* findCreatureDataByEntry(uint32 entry);
 		GameObjectData* findGameObjectDataByEntry(uint32 entry);
+		CreatureData* findQuestStarterCreature(uint32 quest_id);
+		GameObjectData* findQuestStarterGameObject(uint32 quest_id);
+
 		CreatureData* findCreatureDataByPOI(uint32 mapid, float x, float y);
 		GameObjectData* findGameObjectDataByPOI(uint32 mapid, float x, float y);
+
 		
 		tbb::concurrent_vector<WorldLocation> questPOIVec;
 		tbb::concurrent_vector<WorldLocation> getQuestPOI(uint32 questid);

@@ -11,6 +11,7 @@ void transportToStarter(Player* pPlayer, Item* pItem);
 void transportToInvolved(Player* pPlayer, Item* pItem, int idx);
 void hearthstone_prepare_quest(Player* pPlayer, Item* pItem);
 bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction);
-
+void hearthstone_recommend_quest(Player* pPlayer, Item* pItem);
+bool hearthstone_recommend_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction);
 
 #endif

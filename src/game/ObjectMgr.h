@@ -474,6 +474,7 @@ typedef tbb::concurrent_unordered_map<uint32, VendorItemData> CacheVendorItemMap
 //typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
 typedef tbb::concurrent_unordered_map<uint32, TrainerSpellData> CacheTrainerSpellMap;
 
+typedef tbb::concurrent_vector<Quest*> MinlevelQuestVector;/*相同minlevel的任务形成一个向量*/
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -556,6 +557,10 @@ class ObjectMgr
 
         //typedef std::unordered_map<uint32, PointOfInterest> PointOfInterestMap;
 		typedef tbb::concurrent_unordered_map<uint32, PointOfInterest> PointOfInterestMap;
+
+		
+		typedef tbb::concurrent_unordered_map<uint32, MinlevelQuestVector> MinlevelQuestMap;/*不同minlevel的任务形成一个map*/
+
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo* goinfo);
 
@@ -1164,6 +1169,8 @@ class ObjectMgr
         **/
         CreatureClassLvlStats const* GetCreatureClassLvlStats(uint32 level, uint32 unitClass, int32 expansion) const;
 
+		MinlevelQuestMap mMinlevelQuestMap; //依据任务最低等级组织的任务Map
+
 		CreatureDataMap  mCreatureEntryMap;//以entry作为map的key
 		GameObjectDataMap mGameObjectEntryMap;//以entry作为map的key
 
@@ -1184,7 +1191,13 @@ class ObjectMgr
 			return nullptr;
 
 		}
+		MinlevelQuestVector* getQuestVectorByMinLevel(uint32 minlevel){
+			MinlevelQuestMap::const_iterator itr = mMinlevelQuestMap.find(minlevel);
+			if (itr != mMinlevelQuestMap.end())
+				return &(itr->second);
 
+			return nullptr;
+		}
 		CreatureData* findCreatureDataByEntry(uint32 entry){ 
 			CreatureDataMap::const_iterator itr = mCreatureEntryMap.find(entry);
 			if (itr != mCreatureEntryMap.end())
@@ -1200,7 +1213,7 @@ class ObjectMgr
 			return nullptr;
 		}
 
-		inline int32 findQuestStarterCreatureOrGO(uint32 questid){
+		int32 findQuestStarterCreatureOrGO(uint32 questid){
 			QuestRelationsReverseMap::const_iterator it=m_CreatureQuestReverseRelations.find(questid);
 			if (it != m_CreatureQuestReverseRelations.end())
 				return it->second;
@@ -1209,7 +1222,7 @@ class ObjectMgr
 				return 0-it2->second;
 			return 0;
 		}
-		inline void findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> result){
+		void findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> result){
 			std::pair<QuestRelationsReverseMap::const_iterator, QuestRelationsReverseMap::const_iterator>  p = m_CreatureQuestInvolvedReverseRelations.equal_range(questid);
 			for (QuestRelationsReverseMap::const_iterator itor = p.first; itor != p.second; ++itor) 
 				result.push_back(itor->second);
@@ -1218,6 +1231,30 @@ class ObjectMgr
 			std::pair<QuestRelationsReverseMap::const_iterator, QuestRelationsReverseMap::const_iterator>  p2 = m_GOQuestInvolvedReverseRelations.equal_range(questid);
 			for (QuestRelationsReverseMap::const_iterator itor = p2.first; itor != p2.second; ++itor) 
 				result.push_back(0-itor->second);
+		}
+		CreatureData* findQuestStarterCreature(uint32 questid){
+			QuestRelationsReverseMap::const_iterator it = m_CreatureQuestReverseRelations.find(questid);
+			if (it != m_CreatureQuestReverseRelations.end())
+				return findCreatureDataByEntry(it->second);
+			return nullptr;
+		}
+		GameObjectData* findQuestStarterGameObject(uint32 questid){
+			QuestRelationsReverseMap::const_iterator it = m_GOQuestReverseRelations.find(questid);
+			if (it != m_GOQuestReverseRelations.end())
+				return findGameObjectDataByEntry(it->second);
+			return nullptr;
+		}
+		bool IsHostileToCreature(FactionTemplateEntry const* factionTemplateEntry, uint32 creaturEntry){
+			return factionTemplateEntry->IsHostileTo(*sFactionTemplateStore.LookupEntry(GetCreatureTemplate(creaturEntry)->FactionAlliance));
+		}
+		bool IsHostileToGameObject(FactionTemplateEntry const* factionTemplateEntry, uint32 gameObjectEntry){
+			return factionTemplateEntry->IsHostileTo(*sFactionTemplateStore.LookupEntry(GetGameObjectInfo(gameObjectEntry)->faction));
+		}
+		bool IsFriendlyToCreature(FactionTemplateEntry const* factionTemplateEntry, uint32 creaturEntry){
+			return factionTemplateEntry->IsFriendlyTo(*sFactionTemplateStore.LookupEntry(GetCreatureTemplate(creaturEntry)->FactionAlliance));
+		}
+		bool IsFriendlyToGameObject(FactionTemplateEntry const* factionTemplateEntry, uint32 gameObjectEntry){
+			return factionTemplateEntry->IsFriendlyTo(*sFactionTemplateStore.LookupEntry(GetGameObjectInfo(gameObjectEntry)->faction));
 		}
     protected:
 

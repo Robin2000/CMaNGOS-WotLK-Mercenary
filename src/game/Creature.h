@@ -217,6 +217,7 @@ struct CreatureData
     bool  is_dead;
     uint8 movementType;
     uint8 spawnMask;
+	FactionTemplateEntry const* faction=nullptr;
 
     // helper function
     ObjectGuid GetObjectGuid(uint32 lowguid) const;

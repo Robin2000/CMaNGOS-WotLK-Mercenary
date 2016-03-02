@@ -67,6 +67,11 @@ insert into gossip_menu(entry,text_id) values(65535,16777213);
 */
 bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*scTargets*/)
 {
+	if (pPlayer->isInCombat())
+	{
+		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
+		return false;
+	}
 	return hearthstone_click2(pPlayer, pItem);
 }
 bool hearthstone_click2(Player* pPlayer, Item* pItem)
@@ -79,6 +84,7 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800169, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);//任务辅助。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800167, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);//任务推荐。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800183, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);//雇佣兵招募。
@@ -102,8 +108,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 
 	if (pPlayer->isInCombat())
+	{
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
-	
+		return false;
+	}
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 999)
 	{
 		hearthstone_click2(pPlayer, pItem);//返回主菜单，无论哪个菜单子类，通用
@@ -149,6 +157,12 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	{
 		pPlayer->gossipMenuType = 4;//任务辅助。
 		hearthstone_prepare_quest(pPlayer, pItem);
+		return true;
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 14)//任务推荐
+	{
+		pPlayer->gossipMenuType = 4;//任务推荐。
+		hearthstone_recommend_quest(pPlayer, pItem);
 		return true;
 	}
 	else if (pPlayer->gossipMenuType == 4)

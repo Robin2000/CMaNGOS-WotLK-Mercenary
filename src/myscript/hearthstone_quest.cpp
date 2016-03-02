@@ -1,14 +1,32 @@
 #include "precompiled.h"
 #include "hearthstone_quest.h"
-
+std::string getQuestType(Player* pPlayer,uint32 type){
+	switch (type){
+		case 1:return pPlayer->GetMangosString(-2800570);
+		case 41:return pPlayer->GetMangosString(-2800571);
+		case 62:return pPlayer->GetMangosString(-2800572);
+		case 81:return pPlayer->GetMangosString(-2800573);
+		case 82:return pPlayer->GetMangosString(-2800578);
+		case 84:return pPlayer->GetMangosString(-2800574);
+		case 85:return pPlayer->GetMangosString(-2800575);
+		case 88:return pPlayer->GetMangosString(-2800576);
+		case 89:return pPlayer->GetMangosString(-2800577);
+		default:return "";
+	}
+}
 bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	
 	if (uiAction > GOSSIP_ACTION_INFO_DEF + 1000)
 	{
-		hearthstone_quest(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 1000);
+		hearthstone_quest(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 1000);/*任务辅助*/
 		return true;
 	}
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 970)
+	if (uiAction >= GOSSIP_ACTION_INFO_DEF + 900 && uiAction <= GOSSIP_ACTION_INFO_DEF + 920)/*任务推荐*/
+	{
+		hearthstone_recommend_quest_click(pPlayer, pItem, uiAction);
+		return true;
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 970)
 		transportToStarter(pPlayer, pItem);
 	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 971 && uiAction <= GOSSIP_ACTION_INFO_DEF + 975)
 		transportToInvolved(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 971);
@@ -160,10 +178,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				continue;
 			}
 
-			char * title = new char[250];/*如果npc和gameobject都没有对应的数据，那么将坐标直接显示出来*/
-			sprintf(title, "%s(%d,%d)", pPlayer->getGameMaps(uint32(itr->mapid)).c_str(), int32(itr->coord_x), int32(itr->coord_y)); // 坐标(x,y)：%f,%f
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 985 + count);//返回主菜单
-
+			std::ostringstream os;
+			os << pPlayer->getGameMaps(uint32(itr->mapid)).c_str() << "(" << int32(itr->coord_x) << "," << int32(itr->coord_y)<<")";
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 985 + count);//返回主菜单
 		}
 
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
@@ -192,10 +209,35 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		{
 			std::string  title = "";
 			pPlayer->GetQuestTitleLocale(it->first, &title);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1000 + it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
+			std::ostringstream os;
+			os << it->first << "." << title;
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1000 + it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
 
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+	}
+	void hearthstone_recommend_quest(Player* pPlayer, Item* pItem){
+		pPlayer->PrepareGossipMenu(pPlayer, 65535);
+		std::vector<Quest*> v;
+		pPlayer->recommendQuest(v,18);
+		for (int i = 0; i < v.size();i++)
+		{
+			std::string  title = "";
+			pPlayer->GetQuestTitleLocale(v.at(i)->GetQuestId(), &title);
+			std::ostringstream os;
+			os << v.at(i)->GetQuestId() << "." << getQuestType(pPlayer,v.at(i)->GetType()) << title;
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 900 + i);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
+		}
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+	}
+	bool hearthstone_recommend_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
+		int idx = uiAction - GOSSIP_ACTION_INFO_DEF - 900;
+		std::vector<Quest*> v;
+		pPlayer->recommendQuest(v, 18);
+		if (v.size()>idx)
+			hearthstone_quest(pPlayer, pItem, v.at(idx)->GetQuestId());
+		return true;
 	}

@@ -53,6 +53,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "LootMgr.h"
 #include "pr_cache.hpp"
+#include "Config/Config.h"
 
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
@@ -1462,6 +1463,7 @@ void ObjectMgr::LoadCreatures()
         int16 gameEvent         = fields[18].GetInt16();
         int16 GuidPoolId        = fields[19].GetInt16();
         int16 EntryPoolId       = fields[20].GetInt16();
+		data.faction = sFactionTemplateStore.LookupEntry(GetCreatureTemplate(entry)->FactionAlliance);
 
 		mCreatureEntryMap[entry] = data;//将数据放到EntryMap中方便根据entry快速定位
 		mCreaturePOIMap[makeMapXY(data.mapid, data.posX, data.posY)] = data;//新增数据结构，用于快速定位POI对应的NPC
@@ -1696,6 +1698,7 @@ void ObjectMgr::LoadGameObjects()
         int16 gameEvent     = fields[16].GetInt16();
         int16 GuidPoolId    = fields[17].GetInt16();
         int16 EntryPoolId   = fields[18].GetInt16();
+		data.faction = sFactionTemplateStore.LookupEntry(GetGameObjectInfo(entry)->faction);
 
 		mGameObjectEntryMap[entry] = data;//将数据放到EntryMap中方便快速定位
 		mGameObjectPOIMap[makeMapXY(data.mapid, data.posX, data.posY)] = data;//新增数据结构，用于快速定位POI对应的游戏对象
@@ -3856,6 +3859,7 @@ void ObjectMgr::LoadGroups()
 
 void ObjectMgr::LoadQuests()
 {
+	bool KILL_CREATURE_OR_GO_MINIMAL = sConfig.GetBoolDefault("KILL_CREATURE_OR_GO_MINIMAL", false);
     // For reload case
     for (QuestMap::const_iterator itr = mQuestTemplates.begin(); itr != mQuestTemplates.end(); ++itr)
         delete itr->second;
@@ -3939,8 +3943,11 @@ void ObjectMgr::LoadQuests()
     std::map<uint32, uint32> usedMailTemplates;
 
     for (QuestMap::iterator iter = mQuestTemplates.begin(); iter != mQuestTemplates.end(); ++iter)
-    {
+	{
         Quest* qinfo = iter->second;
+
+		//形成最低等级map
+		mMinlevelQuestMap[qinfo->GetMinLevel()].push_back(qinfo);
 
         // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
 
@@ -4193,6 +4200,9 @@ void ObjectMgr::LoadQuests()
                                 qinfo->GetQuestId(), j + 1, j + 1, qinfo->ReqItemCount[j]);
                 qinfo->ReqItemCount[j] = 0;                 // prevent incorrect work of quest
             }
+
+			if (KILL_CREATURE_OR_GO_MINIMAL&&qinfo->ReqItemCount[j] > 0)
+				qinfo->ReqItemCount[j] = 1; //下调任务目标为1
         }
 
         for (int j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
@@ -4298,6 +4308,9 @@ void ObjectMgr::LoadQuests()
                                 qinfo->GetQuestId(), j + 1, j + 1, qinfo->ReqCreatureOrGOCount[j]);
                 // no changes, quest ignore this data
             }
+
+			if (KILL_CREATURE_OR_GO_MINIMAL&&qinfo->ReqCreatureOrGOCount[j] > 0)
+				qinfo->ReqCreatureOrGOCount[j] = 1;/*下调任务目标为1*/
         }
 
         bool choice_found = false;
@@ -9785,7 +9798,6 @@ bool LoadMangosStrings(DatabaseType& db, char const* table, int32 start_value, i
 
     return sObjectMgr.LoadMangosStrings(db, table, start_value, end_value, extra_content);
 }
-
 void ObjectMgr::LoadCreatureTemplateSpells()
 {
     sCreatureTemplateSpellsStorage.Load();
