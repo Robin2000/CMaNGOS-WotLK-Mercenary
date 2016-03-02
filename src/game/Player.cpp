@@ -21912,6 +21912,9 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         {
             uint32 damage = (uint32)(damageperc * GetMaxHealth() * sWorld.getConfig(CONFIG_FLOAT_RATE_DAMAGE_FALL));
 
+			if (isGodCheater())
+				damage = 0;
+
             float height = position->z;
             UpdateAllowedPositionZ(position->x, position->y, height);
 

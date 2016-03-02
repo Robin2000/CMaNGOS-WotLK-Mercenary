@@ -578,6 +578,18 @@ void Unit::DealDamageMods(Unit* pVictim, uint32& damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const* spellProto, bool durabilityLoss)
 {
+	if (pVictim->GetTypeId() == TYPEID_PLAYER && this != pVictim)
+	{
+		// Signal to pets that their owner was attacked
+		Pet* pet = pVictim->ToPlayer()->GetPet();
+
+		if (pet && pet->isAlive())
+			pet->AI()->AttackStart(this);
+
+		if (pVictim->ToPlayer()->isGodCheater())
+			return 0;
+	}
+
     // remove affects from attacker at any non-DoT damage (including 0 damage)
     if (damagetype != DOT)
     {

@@ -2272,3 +2272,39 @@ bool ChatHandler::HandleSetViewCommand(char* /*args*/)
 
     return true;
 }
+
+// Enable On\OFF GOD
+bool ChatHandler::HandleCheatGodCommand(char* args)
+{
+	bool value;
+	if (!ExtractOnOff(&args, value))
+	{
+		SendSysMessage(LANG_USE_BOL);
+		SetSentErrorMessage(true);
+		return false;
+	}
+
+	Player* chr = getSelectedPlayer();
+	if (!chr)
+		chr = m_session->GetPlayer();
+	// check online security
+	else if (HasLowerSecurity(chr))
+		return false;
+
+	if (value)
+	{
+		chr->SetGodCheater(true);
+		PSendSysMessage(LANG_YOU_GIVE_GOD, GetNameLink(chr).c_str());
+		if (needReportToTarget(chr))
+			ChatHandler(chr).PSendSysMessage(LANG_YOURS_GOD_ADDED, GetNameLink().c_str());
+	}
+	else
+	{
+		chr->SetGodCheater(false);
+		PSendSysMessage(LANG_YOU_REMOVE_GOD, GetNameLink(chr).c_str());
+		if (needReportToTarget(chr))
+			ChatHandler(chr).PSendSysMessage(LANG_YOURS_GOD_REMOVED, GetNameLink().c_str());
+	}
+
+	return true;
+}

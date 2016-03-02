@@ -515,6 +515,7 @@ enum MirrorTimerType
 enum PlayerExtraFlags
 {
     // gm abilities
+
     PLAYER_EXTRA_GM_ON              = 0x0001,
     PLAYER_EXTRA_GM_ACCEPT_TICKETS  = 0x0002,
     PLAYER_EXTRA_ACCEPT_WHISPERS    = 0x0004,
@@ -523,9 +524,10 @@ enum PlayerExtraFlags
     PLAYER_EXTRA_GM_CHAT            = 0x0020,               // Show GM badge in chat messages
     PLAYER_EXTRA_AUCTION_NEUTRAL    = 0x0040,
     PLAYER_EXTRA_AUCTION_ENEMY      = 0x0080,               // overwrite PLAYER_EXTRA_AUCTION_NEUTRAL
-
     // other states
-    PLAYER_EXTRA_PVP_DEATH          = 0x0100                // store PvP death status until corpse creating.
+    PLAYER_EXTRA_PVP_DEATH          = 0x0100,               // store PvP death status until corpse creating.
+	PLAYER_EXTRA_CHEAT_GOD			= 0x0200				//²»ËÀ×´Ì¬					
+
 };
 
 // 2^n values
@@ -1107,6 +1109,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetGMChat(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
         bool isTaxiCheater() const { return m_ExtraFlags & PLAYER_EXTRA_TAXICHEAT; }
         void SetTaxiCheater(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_TAXICHEAT; else m_ExtraFlags &= ~PLAYER_EXTRA_TAXICHEAT; }
+		bool isGodCheater() const { return m_ExtraFlags & PLAYER_EXTRA_CHEAT_GOD; }
+		void SetGodCheater(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_CHEAT_GOD; else m_ExtraFlags &= ~PLAYER_EXTRA_CHEAT_GOD; }
         bool isGMVisible() const { return !(m_ExtraFlags & PLAYER_EXTRA_GM_INVISIBLE); }
         void SetGMVisible(bool on);
         void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }

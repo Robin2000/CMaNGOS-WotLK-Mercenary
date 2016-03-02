@@ -1025,5 +1025,10 @@ enum MangosStrings
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000999999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2001000000-2147483647 (max index)
+
+	LANG_YOU_GIVE_GOD					= -2800580,
+	LANG_YOURS_GOD_ADDED				= -2800581,
+	LANG_YOU_REMOVE_GOD					= -2800582,
+	LANG_YOURS_GOD_REMOVED				= -2800583
 };
 #endif

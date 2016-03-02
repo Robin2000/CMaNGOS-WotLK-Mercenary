@@ -569,6 +569,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HandleNotifyCommand(char* args);
         bool HandleGPSCommand(char* args);
         bool HandleTaxiCheatCommand(char* args);
+		bool HandleCheatGodCommand(char* args);
         bool HandleWhispersCommand(char* args);
         bool HandleModifyDrunkCommand(char* args);
         bool HandleSetViewCommand(char* args);
