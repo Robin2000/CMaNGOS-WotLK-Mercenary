@@ -238,7 +238,10 @@ bool WorldSession::Update(PacketFilter& updater)
 					{
 						ExecuteOpcode(opHandle, packet);
 						if (update_combat&&GetPlayer()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT))
+						{
 							GetPlayer()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);/*ÖÜÆÚÒÆ³ýÕ½¶·×´Ì¬*/
+							update_combat = false;
+						}
 					}
                     // lag can cause STATUS_LOGGEDIN opcodes to arrive after the player started a transfer
                     break;
