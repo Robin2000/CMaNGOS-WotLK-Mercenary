@@ -445,7 +445,8 @@ bool recallMercenary(Player* player, Item* item){
 		ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800642));
 		return false;
 	}
-	CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+	mercenary->Summon(player);
+	//CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
 	return true;
 }
 bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*sender*/, uint32 actions)
