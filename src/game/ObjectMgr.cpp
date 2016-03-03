@@ -533,9 +533,22 @@ struct SQLCreatureLoader : public SQLStorageLoaderBase<SQLCreatureLoader, SQLSto
 
 void ObjectMgr::LoadCreatureTemplates()
 {
+	float DB_CREATURE_DamageMultiplier = sConfig.GetFloatDefault("DB_CREATURE_DamageMultiplier", false);
+	float DB_CREATURE_ArmorMultiplier = sConfig.GetFloatDefault("DB_CREATURE_ArmorMultiplier", false);
+	float DB_CREATURE_HealthMultiplier = sConfig.GetFloatDefault("DB_CREATURE_HealthMultiplier", false);
+
     SQLCreatureLoader loader;
     loader.Load(sCreatureStorage);
 
+	for (uint32 i = 1; i < sCreatureStorage.GetMaxEntry(); ++i)/*更改难度*/
+	{
+		CreatureInfo * cInfo = sCreatureStorage.LookupEditableEntry<CreatureInfo>(i);
+		if (!cInfo)
+			continue;
+		cInfo->DamageMultiplier = cInfo->DamageMultiplier*DB_CREATURE_DamageMultiplier;
+		cInfo->ArmorMultiplier = cInfo->ArmorMultiplier*DB_CREATURE_ArmorMultiplier;
+		cInfo->HealthMultiplier = cInfo->HealthMultiplier*DB_CREATURE_HealthMultiplier;
+	}
     std::set<uint32> difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures
     std::set<uint32> hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1  values
 

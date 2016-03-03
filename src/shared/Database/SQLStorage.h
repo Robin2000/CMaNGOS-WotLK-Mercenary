@@ -117,6 +117,13 @@ class SQLStorage : public SQLStorageBase
                 return nullptr;
             return reinterpret_cast<T const*>(m_Index[id]);
         }
+		template<class T>
+		T * LookupEditableEntry(uint32 id) const
+		{
+			if (id >= GetMaxEntry())
+				return nullptr;
+			return reinterpret_cast<T *>(m_Index[id]);
+		}
 
         void Load();
 
