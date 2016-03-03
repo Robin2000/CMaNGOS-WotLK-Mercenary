@@ -421,7 +421,7 @@ class MANGOS_DLL_SPEC Object
 
         std::vector<bool> m_changedValues;
 
-        uint16 m_valuesCount;
+        uint16 m_valuesCount=0;
 
         bool m_objectUpdated;
 
