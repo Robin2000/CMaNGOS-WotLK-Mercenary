@@ -880,6 +880,9 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 	if (GetScriptName() == sMercenaryMgr->GetAIName())
 		return;
 
+	if (!ranged&&GetSheath() == SHEATH_STATE_RANGED)/*如果没指定远程，就根据装备计算一下，拿远程装备的强制为远程攻击*/
+		ranged = true;
+
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
