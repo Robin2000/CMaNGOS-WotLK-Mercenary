@@ -3585,8 +3585,46 @@ void ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg msgtype, char const
     if (isAchievement)
         data << uint32(achievementId);
 }
+/*工具方法，用于脚本调用*/
+bool ChatHandler::checkPetName(std::string& name){
 
+	if (!normalizePlayerName(name))
+	{
+		PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
+		SetSentErrorMessage(true);
+		return false;
+	}
 
+	if (ObjectMgr::CheckPlayerName(name, true) != CHAR_NAME_SUCCESS)
+	{
+		PSendSysMessage(LANG_INVALID_CHARACTER_NAME);
+		SetSentErrorMessage(true);
+		return false;
+	}
+	return true;
+}
+void ChatHandler::getDefaultSpells(std::vector<uint32>& vec,uint8 race, uint8 cla)
+{
+	PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, cla);
+	for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
+	{
+		// but send in normal spell in game learn case
+		vec.push_back(*itr);
+	}
+}
+void ChatHandler::learnDefaultSpells(Pet* pet, uint8 race, uint8 cla,uint8 maxcount)
+{
+	if (!pet)
+		return;
+	// learn default race/class spells
+	PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, cla);
+	int count = 0;
+	for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); count <= maxcount&&itr != info->spell.end(); ++itr, count++)
+	{
+                                             // but send in normal spell in game learn case
+		pet->learnSpell(*itr);
+	}
+}
 // Instantiate template for helper function
 template void ChatHandler::ShowNpcOrGoSpawnInformation<Creature>(uint32 guid);
 template void ChatHandler::ShowNpcOrGoSpawnInformation<GameObject>(uint32 guid);

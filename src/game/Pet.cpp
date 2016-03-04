@@ -493,8 +493,6 @@ void Pet::DeleteFromDB(uint32 guidlow, bool separate_transaction)
     stmt = CharacterDatabase.CreateStatement(delSpellCD, "DELETE FROM pet_spell_cooldown WHERE guid = ?");
     stmt.PExecute(guidlow);
 
-	sMercenaryMgr->OnDelete(guidlow);
-
     if (separate_transaction)
         CharacterDatabase.CommitTransaction();
 }

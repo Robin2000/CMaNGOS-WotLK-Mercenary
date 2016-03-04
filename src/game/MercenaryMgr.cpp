@@ -9,35 +9,33 @@ MercenaryMgr::MercenaryMgr() { }
 
 MercenaryMgr::~MercenaryMgr()
 {
-    Clear();
 }
 
 void MercenaryMgr::SaveToList(Mercenary* mercenary)
 {
-    MercenaryContainer[mercenary->GetId()] = mercenary;
+	MercenaryContainer[mercenary->GetOwnerGUID()] = mercenary;
 }
-
-void MercenaryMgr::DeleteFromList(Mercenary* mercenary)
+/*角色登录时加载，注销时不删除，每人限一个雇佣兵*/
+void MercenaryMgr::LoadMercenarie(Player* player)
 {
-    MercenaryContainer.erase(mercenary->GetId());
+	QueryResult* result = CharacterDatabase.PQuery("SELECT role, displayId, race, gender, type FROM mercenaries  where ownerGUID='%u'", player->GetGUIDLow());
+	if (result)
+	{
+			Mercenary* mercenary = new Mercenary;
+			if (!mercenary->LoadFromDB(player,result))
+			{
+				delete mercenary;
+				return;
+			}
+			MercenaryContainer[mercenary->GetOwnerGUID()] = mercenary;
+	}
 }
-
-void MercenaryMgr::LoadMercenaries()
+/*加载配置信息，应该在world库中*/
+void MercenaryMgr::	LoadMercenaries()
 {
-    Clear();
-//#ifndef MANGOS
-//    TC_LOG_INFO("server.loading", "Loading Mercenaries..");
-//#else
     sLog.outBasic("Loading Mercenaries...");
-//#endif
-
-//#ifndef MANGOS
-//    QueryResult result = CharacterDatabase.Query("SELECT mercenaryType, mercenaryRole, entry, headEntry, shoulderEntry, chestEntry, legEntry, handEntry, feetEntry, weaponEntry, "
-//        "offHandEntry, rangedEntry FROM mercenary_start_gear");
-//#else
-    QueryResult* result = CharacterDatabase.Query("SELECT mercenaryType, mercenaryRole, entry, headEntry, shoulderEntry, chestEntry, legEntry, handEntry, feetEntry, weaponEntry, "
-        "offHandEntry, rangedEntry FROM mercenary_start_gear");
-//#endif
+    QueryResult* result = WorldDatabase.PQuery("SELECT mercenaryType, mercenaryRole, entry, headEntry, shoulderEntry, chestEntry, legEntry, handEntry, feetEntry, weaponEntry, "
+		"offHandEntry, rangedEntry FROM mercenary_start_gear");
     if (result)
     {
         do
@@ -62,7 +60,7 @@ void MercenaryMgr::LoadMercenaries()
         } while (result->NextRow());
     }
 
-    result = CharacterDatabase.Query("SELECT type, role, healthpct, message FROM mercenary_talk");
+	result = WorldDatabase.Query("SELECT type, role, healthpct, message FROM mercenary_talk");
     if (result)
     {
         do
@@ -79,7 +77,7 @@ void MercenaryMgr::LoadMercenaries()
         } while (result->NextRow());
     }
 
-    result = CharacterDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive FROM mercenary_spells");
+	result = WorldDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive FROM mercenary_spells");
     if (result)
     {
         do
@@ -97,7 +95,7 @@ void MercenaryMgr::LoadMercenaries()
         } while (result->NextRow());
     }
 
-    result = CharacterDatabase.Query("SELECT entry, modelId, race, gender FROM mercenary_world");
+	result = WorldDatabase.Query("SELECT entry, modelId, race, gender FROM mercenary_world");
     if (result)
     {
         do
@@ -113,7 +111,7 @@ void MercenaryMgr::LoadMercenaries()
         } while (result->NextRow());
     }
 
-    result = CharacterDatabase.Query("SELECT type, armor_prof, weapon_prof FROM mercenary_proficiencies");
+	result = WorldDatabase.Query("SELECT type, armor_prof, weapon_prof FROM mercenary_proficiencies");
     if (result)
     {
         do
@@ -129,111 +127,25 @@ void MercenaryMgr::LoadMercenaries()
         } while (result->NextRow());
     }
 
-    result = CharacterDatabase.Query("SELECT Id, ownerGUID, role, displayId, race, gender, type, summoned FROM mercenaries");
-    if (result)
-    {
-        do
-        {
-            Mercenary* mercenary = new Mercenary;
-            if (!mercenary->LoadFromDB(result))
-            {
-                delete mercenary;
-                continue;
-            }
-
-            MercenaryContainer[mercenary->GetId()] = mercenary;
-        } while (result->NextRow());
-   }
-
-//#ifndef MANGOS
-//    TC_LOG_INFO("server.loading", "Loading Mercenaries Completed..");
-//#else
     sLog.outBasic("Loading Mercenaries Completed..");
-//#endif
+
 }
 
-void MercenaryMgr::Clear()
+
+void MercenaryMgr::OnSave(Player* player)
 {
-    for (auto itr = MercenaryContainer.begin(); itr != MercenaryContainer.end(); ++itr)
-        delete itr->second;
-    for (auto itr = MercenaryWorldContainer.begin(); itr != MercenaryWorldContainer.end(); ++itr)
-        delete &itr->second;
 
-    MercenaryContainer.clear();
-    MercenaryWorldContainer.clear();
-    MercenarySpellsContainer.clear();
-    MercenaryStartGearContainer.clear();
-    MercenaryTalkContainer.clear();
-}
-
-void MercenaryMgr::UpdateSummoned(uint32 Id, bool summoned)
-{
-/*#ifndef MANGOS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MERCENARY_SUMMON);
-    stmt->setBool(0, summoned);
-    stmt->setUInt32(1, Id);
-    trans->Append(stmt);
-
-    CharacterDatabase.CommitTransaction(trans);
-#endif*/
-	
-	CharacterDatabase.BeginTransaction();
-	static SqlStatementID updateSummon;
-	SqlStatement stmt = CharacterDatabase.CreateStatement(updateSummon,"update mercenaries set summoned=? where Id=?");
-	stmt.PExecute(summoned, Id);
-	CharacterDatabase.CommitTransaction();
-}
-
-void MercenaryMgr::OnSave(Player* player, Pet* pet)
-{
-//#ifndef MANGOS
-//    Mercenary* mercenary = GetMercenaryByOwner(player->GetGUID().GetCounter());
-//#else
     Mercenary* mercenary = GetMercenaryByOwner(player->GetGUIDLow());
-//#endif
     if (!mercenary)
         return;
+	if (mercenary->IsSummoned())
+		mercenary->SaveToDB();
 
-    if (!mercenary->IsBeingCreated())
-    {
-        mercenary->UpdateGear();
-//#ifndef MANGOS
-//        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-//        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MERCENARY);
-//        stmt->setUInt32(0, mercenary->GetId());
-//        trans->Append(stmt);
-//        CharacterDatabase.CommitTransaction(trans);
-//#else
-        CharacterDatabase.BeginTransaction();
-        static SqlStatementID delMerc;
-
-        SqlStatement stmt = CharacterDatabase.CreateStatement(delMerc, "DELETE FROM mercenaries WHERE Id=?");
-        stmt.PExecute(mercenary->GetId());
-
-        CharacterDatabase.CommitTransaction();
-//#endif
-        mercenary->SaveToDB();
-    }
-}
-
-void MercenaryMgr::OnDelete(uint32 guidLow)
-{
-    Mercenary* mercenary = GetMercenary(guidLow);
-    if (!mercenary)
-        return;
-
-    mercenary->DeleteFromDB();
 }
 
 void MercenaryMgr::OnSummon(Player* player)
 {
-//#ifndef MANGOS
-//    if (Mercenary* mercenary = GetMercenaryByOwner(player->GetGUID().GetCounter()))
-//#else
     if (Mercenary* mercenary = GetMercenaryByOwner(player->GetGUIDLow()))
-//#endif
         mercenary->Summon(player);
 }
 

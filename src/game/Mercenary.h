@@ -26,14 +26,6 @@ struct MercenarySpell
     bool isActive;
 };
 
-struct MercenaryGear
-{
-    uint32 itemId;
-    uint8 slot;
-
-    MercenaryGear(uint32 itemEntry, uint8 slotId)
-        : itemId(itemEntry), slot(slotId) { }
-};
 
 struct MercenaryStarterGear
 {
@@ -188,7 +180,7 @@ public:
 //#ifndef MANGOS
 //    bool LoadFromDB(QueryResult result);
 //#else
-    bool LoadFromDB(QueryResult* result);
+	bool LoadFromDB(Player* player,QueryResult* result);
 //#endif
     /*
     * Temporarily adds a new Mercenary being created into the Mercenary map
@@ -198,7 +190,7 @@ public:
     /*
     * Creates and spawns the Mercenary
     */
-    bool Create(Player* player, uint32 model, uint8 race, uint8 gender, uint8 mercenaryType, uint8 role, const std::string& name = "");
+	bool Create(Player* player, uint32 model, uint8 race, uint8 gender, uint8 mercenaryType, uint8 role, const std::string& name = "");
     /*
     * Mercenary will learn the given spellId
     * Maximum spells Mercenary can have is 4
@@ -235,11 +227,19 @@ public:
     /*
     * Sets the role of the Mercenary
     */
-    void SetRole(const uint8 newRole) { role = newRole; }
+    void SetRole(const uint8 newRole) { 
+		//if (role != newRole)
+			//GearContainer.clear();攻防切换，装备可以不换
+		role = newRole; 
+	}
     /*
     * Sets the type of the Mercenary
     */
-    void SetType(const uint8 newType) { type = newType; }
+    void SetType(const uint8 newType) { 
+		if (type != newType)//职业切换，装备必须切换
+			GearContainer.clear();
+		type = newType; 
+	}
     /*
     * Sets the equip slot the Mercenary owner is currently editing
     */
@@ -269,14 +269,6 @@ public:
     */
     void SaveToDB();
     /*
-    * Saves the Mercenary's gear to the database
-    */
-    void SaveGearToDB();
-    /*
-    * Deletes the Mercenary from the database (does not include character_pet)
-    */
-    void DeleteFromDB();
-    /*
     * Sends the Mirror Image packet after equipping new armor
     */
     void SendMirrorImagePacket(Creature* creature);
@@ -284,17 +276,14 @@ public:
     * Removes the Mercenary's off hand weapon
     */
     void RemoveOffHand(Creature* creature);
-    /*
-    * Updates the Mercenary's gear in the database
-    */
-    void UpdateGear();
+
+	void SetSheath(Pet* pet, SheathState sheathed);
 
     /*
     * Returns InventorySlot Id by supplying a CharacterSlot Id
     */
     uint8 GetInvTypeSlot(uint8 characterSlot) const;
 
-    uint32 GetId() const { return Id; }
     uint32 GetOwnerGUID() const { return ownerGUID; }
     uint8 GetRole() const { return role; }
     uint32 GetDisplay() const { return displayId; }
@@ -302,10 +291,9 @@ public:
     uint8 GetGender() const { return gender; }
     uint8 GetType() const { return type; }
     bool IsSummoned() const { return summoned; }
-    bool IsBeingCreated() const { return beingCreated; }
     uint8 GetEditSlot() const { return editSlot; }
 
-    typedef std::vector<MercenaryGear> Gear;
+	typedef tbb::concurrent_unordered_map<uint8, uint32> Gear;/*slot , itemid*/
 
     Gear::const_iterator GearBegin() const { return GearContainer.begin(); }
     Gear::const_iterator GearEnd() const { return GearContainer.end(); }
@@ -316,13 +304,10 @@ public:
     */
     uint32 GetItemBySlot(uint8 slot) const
     {
-        for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
-        {
-            if (slot == itr->slot)
-                return itr->itemId;
-        }
-
-        return NULL;
+		Gear::const_iterator itr = GearContainer.find(slot);
+		if (itr == GearContainer.end()) 
+			return NULL;
+		return itr->second;
     }
 
     /*
@@ -367,33 +352,17 @@ public:
     */
     bool HasWeapon(bool offhand)
     {
-        for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
-        {
-            if (offhand)
-            {
-                if (itr->slot == SLOT_OFF_HAND)
-                    return itr->itemId > 0;
-            }
-            else
-            {
-                if (itr->slot == SLOT_MAIN_HAND)
-                    return itr->itemId > 0;
-            }
-        }
-
-        return true;
+		return offhand ? (GearContainer[SLOT_OFF_HAND]>0) : (GearContainer[SLOT_MAIN_HAND]>0);
     }
 
 private:
-    uint32 Id;
     uint32 ownerGUID;
-    uint8 role;
+	uint8 role = ROLE_NONE;
     uint32 displayId;
     uint8 race;
     uint8 gender;
-    uint8 type;
-    bool summoned;
-    bool beingCreated;
+	uint8 type = MERCENARY_TYPE_NONE;
+    bool summoned=false;
     uint8 editSlot;
 
     Gear GearContainer;

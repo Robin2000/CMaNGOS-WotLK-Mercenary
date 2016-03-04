@@ -22,152 +22,71 @@ Mercenary::~Mercenary()
 void Mercenary::LoadGearFromDB()
 {
     GearContainer.clear();
+	QueryResult* result = CharacterDatabase.PQuery("SELECT slot,itemId  FROM mercenary_gear WHERE guid='%u'", GetOwnerGUID());
 
-//#ifdef MANGOS
-    QueryResult* result = CharacterDatabase.PQuery("SELECT itemId, slot FROM mercenary_gear WHERE guid='%u'", GetId());
-//#else
-//    QueryResult result = CharacterDatabase.PQuery("SELECT itemId, slot FROM mercenary_gear WHERE guid='%u'", GetId());
-//#endif
     if (result)
     {
         do
         {
             Field* fields = result->Fetch();
 
-            GearContainer.push_back(MercenaryGear(fields[0].GetUInt32(), fields[1].GetUInt8()));
+			GearContainer[fields[0].GetUInt8()]=fields[1].GetUInt32();
         } while (result->NextRow());
     }
 }
 
-//#ifdef MANGOS
-bool Mercenary::LoadFromDB(QueryResult* result)
-//#else
-//bool Mercenary::LoadFromDB(QueryResult result)
-//#endif
+//          0         1    2          3    4                
+//"SELECT role, displayId, race, gender, type FROM mercenaries  where ownerGUID=?
+bool Mercenary::LoadFromDB(Player* player,QueryResult* result)
 {
     Field* fields = result->Fetch();
-    Id = fields[0].GetUInt32();
-    ownerGUID = fields[1].GetUInt32();
-    role = fields[2].GetUInt8();
-    displayId = fields[3].GetUInt32();
-    race = fields[4].GetUInt8();
-    gender = fields[5].GetUInt8();
-    type = fields[6].GetUInt8();
-    summoned = fields[7].GetBool();
+	ownerGUID = player->GetGUIDLow();
+    role = fields[0].GetUInt8();
+    displayId = fields[1].GetUInt32();
+    race = fields[2].GetUInt8();
+    gender = fields[3].GetUInt8();
+    type = fields[4].GetUInt8();
 
     LoadGearFromDB();
+
+	summoned = true;/*凡保存到数据库的，确定summoned为true*/
 
     return true;
 }
 
 void Mercenary::SaveToDB()
 {
-/*#ifndef MANGOS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MERCENARY);
-    stmt->setUInt32(0, Id);
-    stmt->setUInt32(1, ownerGUID);
-    stmt->setUInt8(2, role);
-    stmt->setUInt32(3, displayId);
-    stmt->setUInt8(4, race);
-    stmt->setUInt8(5, gender);
-    stmt->setUInt8(6, type);
-    stmt->setBool(7, summoned);
-
-    trans->Append(stmt);
-    CharacterDatabase.CommitTransaction(trans);
-#else*/
-    //CharacterDatabase.BeginTransaction();
+	CharacterDatabase.BeginTransaction();
 
     static SqlStatementID insMerc;
-    SqlStatement saveMerc = CharacterDatabase.CreateStatement(insMerc, "INSERT INTO mercenaries (Id, ownerGUID, role, displayId, race, gender, type, "
-        "summoned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    SqlStatement saveMerc = CharacterDatabase.CreateStatement(insMerc, "REPLACE INTO mercenaries (ownerGUID, role, displayId, race, gender, type) VALUES (?, ?, ?, ?, ?, ?)");
 
-    saveMerc.addUInt32(Id);
     saveMerc.addUInt32(ownerGUID);
     saveMerc.addUInt8(role);
     saveMerc.addUInt32(displayId);
     saveMerc.addUInt8(race);
     saveMerc.addUInt8(gender);
     saveMerc.addUInt8(type);
-    saveMerc.addBool(summoned);
 
     saveMerc.Execute();
-   // CharacterDatabase.CommitTransaction();
-//#endif
+
+	for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
+		CharacterDatabase.PExecute("REPLACE INTO mercenary_gear (guid, slot ,itemId ) VALUES ('%u', '%u', '%u')", GetOwnerGUID(), itr->first, itr->second);
+
+	CharacterDatabase.CommitTransaction();
 }
 
-void Mercenary::SaveGearToDB()
-{
-/*#ifndef MANGOS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MERCENARY_GEAR);
-        stmt->setUInt32(0, GetId());
-        stmt->setUInt32(1, itr->itemId);
-        stmt->setUInt8(2, itr->slot);
-        trans->Append(stmt);
-    }
-    CharacterDatabase.CommitTransaction(trans);
-#else*/
-    CharacterDatabase.BeginTransaction();
-
-    for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
-        CharacterDatabase.PExecute("INSERT INTO mercenary_gear (guid, itemId, slot) VALUES ('%u', '%u', '%u')", GetId(), itr->itemId, itr->slot);
-
-    CharacterDatabase.CommitTransaction();
-//#endif
-}
-
-void Mercenary::DeleteFromDB()
-{
-/*#ifndef MANGOS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MERCENARY);
-    stmt->setUInt32(0, GetId());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MERCENARY_GEAR);
-    stmt->setUInt32(0, GetId());
-    trans->Append(stmt);
-
-    CharacterDatabase.CommitTransaction(trans);
-#else*/
-    static SqlStatementID delMerc;
-    static SqlStatementID delGear;
-
-    SqlStatement stmt = CharacterDatabase.CreateStatement(delMerc, "DELETE FROM mercenaries WHERE Id=?");
-    stmt.PExecute(GetId());
-
-    stmt = CharacterDatabase.CreateStatement(delGear, "DELETE FROM mercenary_gear WHERE guid=?");
-    stmt.PExecute(GetId());
-//#endif
-
-    sMercenaryMgr->DeleteFromList(this);
-}
 
 bool Mercenary::Create(Player* player)
 {
     if (!player)
         return false;
-
-    Id = sMercenaryMgr->MaxMercenaryId() + 1;
-//#ifndef MANGOS
-//    ownerGUID = player->GetGUID().GetCounter();
-//#else
     ownerGUID = player->GetGUIDLow();
-//#endif
     role = ROLE_NONE;
     displayId = 1;
     race = 0;
     gender = GENDER_NONE;
     type = MERCENARY_TYPE_NONE;
-    summoned = false;
-    beingCreated = true;
 
 	//player->learnSpell(883, true);//召唤宠物
 	//player->learnSpell(982, true);//复活宠物
@@ -182,11 +101,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     if (!player)
         return false;
 
-//#ifndef MANGOS
-//    Pet* pet = new Pet(player, SUMMON_PET);
-//#else
     Pet* pet = new Pet;
-//#endif
     if (!pet)
         return false;
 
@@ -199,29 +114,17 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	//pet->SetOwnerGuid(player->GetObjectGuid());//我加的，会失败
 
     float x, y, z, o = 0;
-//#ifndef MANGOS
-//    player->GetPosition(x, y, z, o);
-//#else
     player->GetPosition(x, y, z);
-//#endif
+
 
     pet->Relocate(x, y, z, o);
     if (!pet->IsPositionValid())
     {
-//#ifndef MANGOS
-//        TC_LOG_ERROR("misc", "Pet (guidlow %d) suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUID().GetCounter(), pet->GetPositionX(), pet->GetPositionY());
-//#endif
         delete pet;
         return false;
     }
 
     Map* map = player->GetMap();
-//#ifndef MANGOS
-//    uint32 petNumber = sObjectMgr->GeneratePetNumber();
-//    uint32 guidLow = map->GenerateLowGuid<HighGuid::Pet>();
-
-//    if (!pet->Create(guidLow, map, player->GetPhaseMask(), MERCENARY_DEFAULT_ENTRY, petNumber))
-//#else
     CreatureCreatePos pos(player, player->GetOrientation());
     CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(MERCENARY_DEFAULT_ENTRY);
     if (!creatureInfo)
@@ -234,18 +137,12 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     uint32 guid = pos.GetMap()->GenerateLocalLowGuid(HIGHGUID_PET);
 
     if (!pet->Create(guid, pos, creatureInfo, petNumber))
-//#endif
     {
         delete pet;
         return false;
     }
 
-    Id = petNumber;
-//#ifndef MANGOS
-//    ownerGUID = player->GetGUID().GetCounter();
-//#else
     ownerGUID = player->GetGUIDLow();
-//#endif
     role = mercRole;
     displayId = model;
     race = r;
@@ -254,25 +151,23 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     if (!name.empty())
         pet->SetName(name);
 
+	ChatHandler(player).learnDefaultSpells(pet, race, type,4);/*学习该职业该种族默认的技能*/
+
     Initialize(player, pet, true);
 
 	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!
-//#ifndef MANGOS
-//    pet->Say("Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.", LANG_UNIVERSAL, player);
-//#else
 	pet->MonsterSay(player->GetMangosString(-2800647), LANG_UNIVERSAL, player);//Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.
 	pet->HandleEmoteCommandHappy();
-//#endif
     editSlot = SLOT_EMPTY;
     summoned = true;
-    beingCreated = true;//改为true允许创建多个pet
 
 	//player->learnSpell(883, true);//召唤宠物
 	//player->learnSpell(982, true);//复活宠物
 
-    SaveToDB();
-    sMercenaryMgr->SaveToList(this);
-
+	//if (!reSummon){
+	//    SaveToDB();	    
+	//	}创建时不再保存
+	sMercenaryMgr->SaveToList(this);
     return true;
 }
 
@@ -292,20 +187,23 @@ bool Mercenary::LearnSpell(Player* player, uint32 spellId)
 
 bool Mercenary::Summon(Player* player)
 {
-    if (!player)
-        return false;
+	if (!player)
+		return false;
 
-    Pet* pet = player->GetPet();
-    if (!pet)
-        return false;
+	Pet* pet = player->GetPet();
+	if (!pet)
+		return false;
 
-    Initialize(player, pet, false);
+	Initialize(player, pet, false);
 
-    return true;
+	return true;
+	
 }
 
 void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 {
+	if (pet)
+		pet->isMercenary = true;
     if (!create)
     {
         pet->SetDisplayId(GetDisplay());
@@ -315,31 +213,31 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 
         InitStats(player, pet);
 
-        pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetId());
+		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
 
         for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
         {
-            if (itr->slot == SLOT_MAIN_HAND)
-                pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->itemId);
-            if (itr->slot == SLOT_OFF_HAND)
-                pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->itemId);
-            if (itr->slot == SLOT_RANGED)
-               pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->itemId);
+			switch (itr->first)
+			{
+				case SLOT_MAIN_HAND:
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->second);
+					break;
+				case SLOT_OFF_HAND:
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->second);
+					break;
+				case SLOT_RANGED:
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->second);
+			}
         }
     }
     else
     {
-//#ifndef MANGOS
-//        pet->SetCreatorGUID(player->GetGUID());
-//        pet->setPowerType(POWER_MANA);
-//#else
-        pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetId());
+		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
         pet->SetOwnerGuid(player->GetObjectGuid());
         pet->SetCreatorGuid(player->GetObjectGuid());
         pet->SetPowerType(POWER_MANA);
         pet->setPetType(SUMMON_PET);
-//#endif
-        pet->GetCharmInfo()->SetPetNumber(GetId(), true);
+        pet->GetCharmInfo()->SetPetNumber(GetOwnerGUID(), true);
         pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
         pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         pet->SetDisplayId(GetDisplay());
@@ -360,45 +258,35 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
         pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
         pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
         pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL)));
-//#ifdef MANGOS
         pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
-//#else
-//        pet->SetReactState(REACT_DEFENSIVE);
-//#endif
         pet->InitPetCreateSpells();
 
         for (auto itr = sMercenaryMgr->MercenaryStartGearBegin(); itr != sMercenaryMgr->MercenaryStartGearEnd(); ++itr)
         {
             if (GetType() == itr->mercenaryType && role == itr->mercenaryRole && itr->creature_entry == pet->GetEntry())
             {
-                GearContainer.push_back(MercenaryGear(itr->headEntry, SLOT_HEAD));
-                GearContainer.push_back(MercenaryGear(itr->shoulderEntry, SLOT_SHOULDERS));
-                GearContainer.push_back(MercenaryGear(itr->chestEntry, SLOT_CHEST));
-                GearContainer.push_back(MercenaryGear(itr->legEntry, SLOT_LEGS));
-                GearContainer.push_back(MercenaryGear(itr->feetEntry, SLOT_FEET));
-                GearContainer.push_back(MercenaryGear(itr->handEntry, SLOT_HANDS));
-                GearContainer.push_back(MercenaryGear(itr->weaponEntry, SLOT_MAIN_HAND));
-                GearContainer.push_back(MercenaryGear(itr->offHandEntry, SLOT_OFF_HAND));
-                GearContainer.push_back(MercenaryGear(itr->rangedEntry, SLOT_RANGED));
+				GearContainer[SLOT_HEAD]=itr->headEntry;
+				GearContainer[SLOT_SHOULDERS]=itr->shoulderEntry;
+				GearContainer[SLOT_CHEST] = itr->chestEntry;
+				GearContainer[SLOT_LEGS] = itr->legEntry;
+				GearContainer[SLOT_FEET] = itr->feetEntry;
+				GearContainer[SLOT_HANDS] = itr->handEntry;
+				GearContainer[SLOT_MAIN_HAND] = itr->weaponEntry;
+				GearContainer[SLOT_OFF_HAND] = itr->offHandEntry;
+				GearContainer[SLOT_RANGED] = itr->rangedEntry;
                 pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->weaponEntry);
                 pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->offHandEntry);
                 pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->rangedEntry);
-                SaveGearToDB();
             }
         }
 
-//#ifndef MANGOS
-//        pet->SetFullHealth();
-//        player->SetMinion(pet, true);
-//        player->GetMap()->AddToMap(pet->ToCreature());
-//#else
         pet->SetHealth(pet->GetMaxHealth());
         pet->AIM_Initialize();
         player->GetMap()->Add((Creature*)pet);
         player->SetPet(pet);
-//#endif
         player->PetSpellInitialize();
     }
+	SendMirrorImagePacket(pet);
 }
 
 bool Mercenary::CanEquipItem(Player* player, Item* item)
@@ -407,19 +295,11 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
     if (!item)
         return false;
 
-//#ifndef MANGOS
-//    const ItemTemplate* proto = item->GetTemplate();
-//#else
     const ItemPrototype* proto = item->GetProto();
-//#endif
     if (!proto)
     {
 		ChatHandler(session).SendSysMessage(-2800648);//"Invalid item! Your mercenary could not equip this item."
-//#ifndef MANGOS
-//        TC_LOG_ERROR("misc", "Tried to equip invalid item %u. Item does not have a template.", item->GetEntry());
-//#else
         sLog.outError("Tried to equip invalid item %u.Item does not have a template.", item->GetEntry());
-//#endif
         return false;
     }
 
@@ -468,24 +348,25 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
     }
 
     uint32 newItemId = item->GetEntry();
-    for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
-    {
         if (itemClass == ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS_WEAPON)
         {
-            if (itr->slot == editSlot)
-                itr->itemId = newItemId;
-
-            if (itr->slot == editSlot && editSlot == SLOT_MAIN_HAND)
-                pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->itemId);
-            else if (itr->slot == editSlot && editSlot == SLOT_OFF_HAND)
-                pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->itemId);
-            else if (itr->slot == editSlot && editSlot == SLOT_RANGED)
-                pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->itemId);
-        }
+			GearContainer[editSlot] = newItemId;
+				
+			switch (editSlot)
+			{
+				case SLOT_MAIN_HAND:
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, newItemId);
+					break;
+				case SLOT_OFF_HAND:
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, newItemId);
+					break;
+				case SLOT_RANGED:
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, newItemId);
+			}
     }
 
-    if (editSlot != SLOT_MAIN_HAND || editSlot != SLOT_OFF_HAND || editSlot != SLOT_RANGED)
-        SendMirrorImagePacket(pet);
+    //if (editSlot != SLOT_MAIN_HAND || editSlot != SLOT_OFF_HAND || editSlot != SLOT_RANGED)改为总是更新
+    SendMirrorImagePacket(pet);
 
     UpdateAllStats(player, pet);
 
@@ -495,29 +376,16 @@ bool Mercenary::CanEquipItem(Player* player, Item* item)
 bool Mercenary::InitStats(Player* player, Pet* pet)
 {
     uint8 mercenaryLevel = player->getLevel();
-
-//#ifndef MANGOS
-//    CreatureTemplate const* creatureInfo = pet->GetCreatureTemplate();
-//#else
     CreatureInfo const* creatureInfo = pet->GetCreatureInfo();
-//#endif
     if (!creatureInfo)
     {
-//#ifdef MANGOS
         sLog.outError("Failed to load creature info for Mercenary");
-//#else
-//        TC_LOG_ERROR("misc", "Failed to load creature info for Mercenary");
-//#endif
         return false;
     }
 
     pet->SetLevel(mercenaryLevel);
-
-//#ifndef MANGOS
-//    pet->SetMeleeDamageSchool(SpellSchools(creatureInfo->dmgschool));
-//#else
     pet->SetMeleeDamageSchool(SpellSchools(creatureInfo->DamageSchool));
-//#endif
+
     //@TODO Below, Change by stats (gear)
     pet->SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(mercenaryLevel * 50));
     pet->SetAttackTime(BASE_ATTACK, BASE_ATTACK_TIME);
@@ -527,10 +395,6 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     pet->SetObjectScale(1.0f);
 
-//#ifndef MANGOS
-//    for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-//        pet->SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(creatureInfo->resistance[i]));
-//#else
     int32 createResistance[MAX_SPELL_SCHOOL] = { 0, 0, 0, 0, 0, 0, 0 };
     createResistance[SPELL_SCHOOL_HOLY] = creatureInfo->ResistanceHoly;
     createResistance[SPELL_SCHOOL_FIRE] = creatureInfo->ResistanceFire;
@@ -540,16 +404,10 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
     createResistance[SPELL_SCHOOL_ARCANE] = creatureInfo->ResistanceArcane;
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         pet->SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
-//#endif
 
-//#ifndef MANGOS
-//    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(mercenaryLevel, creatureInfo->unit_class);
-//    pet->SetCreateHealth(stats->BaseHealth[creatureInfo->expansion]);
-//    pet->SetCreateMana(stats->BaseMana);
-//#else
+
     pet->SetCreateHealth(uint32(((float(creatureInfo->MaxLevelHealth) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
     pet->SetCreateMana(uint32(((float(creatureInfo->MaxLevelMana) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
-//#endif
 
     pet->SetCreateStat(STAT_STRENGTH, 22);
     pet->SetCreateStat(STAT_AGILITY, 22);
@@ -557,11 +415,8 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
     pet->SetCreateStat(STAT_INTELLECT, 28);
     pet->SetCreateStat(STAT_SPIRIT, 27);
 
-//#ifndef MANGOS
-//    pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(mercenaryLevel) * 0.05f));
-//#else
+
     pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr.GetXPForLevel(mercenaryLevel) * 0.05f));
-//#endif
 
     pet->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(mercenaryLevel - (mercenaryLevel / 4)));
     pet->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(mercenaryLevel + (mercenaryLevel / 4)));
@@ -570,19 +425,46 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
         UpdateStats(player, Stats(i), pet);
     for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
         UpdateMaxPower(Powers(i), pet);
-//#ifndef MANGOS
-//    pet->UpdateAllResistances();
-//    pet->SetFullHealth();
-//#else
+
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         pet->UpdateResistances(i);
     pet->SetHealth(pet->GetMaxHealth());
-//#endif
+
     pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
+	if (role == ROLE_HEALER || ROLE_CASTER_DPS){
+		SetSheath(pet,SHEATH_STATE_RANGED);
+	}
     return true;
 }
-
+void Mercenary::SetSheath(Pet* pet,SheathState sheathed)
+{
+	/*switch (sheathed)
+	{
+	case SHEATH_STATE_UNARMED:                          // no prepared weapon
+		pet->SetVirtualItemSlot(0, nullptr);
+		pet->SetVirtualItemSlot(1, nullptr);
+		pet->SetVirtualItemSlot(2, nullptr);
+		break;
+	case SHEATH_STATE_MELEE:                            // prepared melee weapon
+	{
+		pet->SetVirtualItemSlot(0, GetWeaponForAttack(BASE_ATTACK, true, true));
+		pet->SetVirtualItemSlot(1, GetWeaponForAttack(OFF_ATTACK, true, true));
+		pet->SetVirtualItemSlot(2, nullptr);
+	};  break;
+	case SHEATH_STATE_RANGED:                           // prepared ranged weapon
+		pet->SetVirtualItemSlot(0, nullptr);
+		pet->SetVirtualItemSlot(1, nullptr);
+		pet->SetVirtualItemSlot(2, GetWeaponForAttack(RANGED_ATTACK, true, true));
+		break;
+	default:
+		pet->SetVirtualItemSlot(0, nullptr);
+		pet->SetVirtualItemSlot(1, nullptr);
+		pet->SetVirtualItemSlot(2, nullptr);
+		break;
+	}*/
+	pet->SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
+}
 bool Mercenary::UpdateStats(Player* player, Stats stat, Pet* pet)
 {
     if (stat >= MAX_STATS)
@@ -595,39 +477,22 @@ bool Mercenary::UpdateStats(Player* player, Stats stat, Pet* pet)
     float mod = 0.75f;
     if (stat == STAT_STAMINA)
     {
-        // Small stamina gain (Basic advantage of having a Mercenary)
-//#ifndef MANGOS
-//        value += CalculatePct(player->GetStat(stat), 15);
-//#else
+
         value += float(player->GetStat(stat)) * 0.3f;
-//#endif
+
     }
     else if (stat == STAT_INTELLECT)
     {
-        // Small intellect gain (Basic advantage of having a Mercenary)
-//#ifndef MANGOS
-//        value += CalculatePct(player->GetStat(stat), 15);
-//#else
         value += float(player->GetStat(stat)) * 0.3f;
-//#endif
     }
     else if (stat == STAT_STRENGTH)
     {
-        // Small strength gain (Basic advantage of having a Mercenary)
-//#ifndef MANGOS
-//        value += CalculatePct(player->GetStat(stat), 15);
-//#else
         value += float(player->GetStat(stat)) * 0.3f;
-//#endif
     }
 
     for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
     {
-//#ifndef MANGOS
-//        const ItemTemplate* proto = sObjectMgr->GetItemTemplate(itr->itemId);
-//#else
-        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->itemId);
-//#endif
+		const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second);
         if (proto)
         {
             for (uint32 i = 0; i < proto->StatsCount; i++)
@@ -681,31 +546,6 @@ void Mercenary::SetValues(uint32 model, uint8 r, uint8 g)
     gender = g;
 }
 
-void Mercenary::UpdateGear()
-{
-/*#ifndef MANGOS
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-    for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MERCENARY_GEAR);
-        stmt->setUInt32(0, itr->itemId);
-        stmt->setUInt32(1, GetId());
-        stmt->setUInt32(2, itr->slot);
-        trans->Append(stmt);
-    }
-
-    CharacterDatabase.CommitTransaction(trans);
-#else*/
-    CharacterDatabase.BeginTransaction();
-
-    for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
-        CharacterDatabase.PExecute("UPDATE mercenary_gear SET itemId='%u' WHERE guid='%u' AND slot='%u'", itr->itemId, GetId(), itr->slot);
-
-    CharacterDatabase.CommitTransaction();
-//#endif
-}
-
 void Mercenary::RemoveOffHand(Creature* creature)
 {
     if (!creature)
@@ -713,8 +553,8 @@ void Mercenary::RemoveOffHand(Creature* creature)
 
     for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
     {
-        if (itr->slot == SLOT_OFF_HAND)
-            itr->itemId = 0;
+        if (itr->first == SLOT_OFF_HAND)
+			itr->second = 0;
     }
     creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
 }
@@ -722,11 +562,7 @@ void Mercenary::RemoveOffHand(Creature* creature)
 void Mercenary::SendMirrorImagePacket(Creature* creature)
 {
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
-//#ifndef MANGOS
-//    data << uint64(creature->GetGUID());
-//#else
     data << creature->GetObjectGuid();
-//#endif
     data << uint32(GetDisplay());
     data << uint8(GetRace());
     data << uint8(GetGender());
@@ -796,13 +632,9 @@ void Mercenary::UpdatePhysicalDamage(WeaponAttackType attackType, Pet* pet)
     float maxdamage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
     for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
     {
-        if (itr->slot == SLOT_MAIN_HAND || itr->slot == SLOT_OFF_HAND)
+        if (itr->first == SLOT_MAIN_HAND || itr->first == SLOT_OFF_HAND)
         {
-//#ifndef MANGOS
-//            const ItemTemplate* proto = sObjectMgr->GetItemTemplate(itr->itemId);
-//#else
-            const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->itemId);
-//#endif
+			const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second);
             if (proto)
             {
                 mindamage += proto->Damage[0].DamageMin;
@@ -824,11 +656,7 @@ void Mercenary::UpdateArmor(Pet* pet)
 
     for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
     {
-//#ifndef MANGOS
-//        const ItemTemplate* proto = sObjectMgr->GetItemTemplate(itr->itemId);
-//#else
-        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->itemId);
-//#endif
+        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second);
         if (proto)
         {
             if (proto->Armor > 0)

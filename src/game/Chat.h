@@ -98,6 +98,10 @@ class MANGOS_DLL_SPEC ChatHandler
         bool isValidChatMessage(const char* msg);
         bool HasSentErrorMessage() { return sentErrorMessage;}
 
+		/*一些工具方法*/
+		void getDefaultSpells(std::vector<uint32> & vec, uint8 race, uint8 cla);
+		void learnDefaultSpells(Pet* pet, uint8 race, uint8 cla, uint8 maxcount);
+		
         /**
         * \brief Prepare SMSG_GM_MESSAGECHAT/SMSG_MESSAGECHAT
         *
@@ -141,6 +145,8 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalSysMessage(const char* str);
+
+		bool ChatHandler::checkPetName(std::string& name);
 
         bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 security, std::string const& help);
         void ExecuteCommand(const char* text);

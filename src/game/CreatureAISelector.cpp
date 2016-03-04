@@ -35,7 +35,7 @@ namespace FactorySelector
     {
         // Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
         //if ((!creature->IsPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
-		if (creature->GetScriptName() == sMercenaryMgr->GetAIName() || (!creature->IsPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
+		if (creature->isMercenary || (!creature->IsPet() || !((Pet*)creature)->isControlled()) && !creature->isCharmed())
             if (CreatureAI* scriptedAI = sScriptMgr.GetCreatureAI(creature))
                 return scriptedAI;
 

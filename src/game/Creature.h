@@ -587,6 +587,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsInEvadeMode() const;
 
         bool AIM_Initialize();
+		bool isMercenary=false;/*由于宠物类型为临时sumon，只能增加标志识别是否雇佣兵*/
 
         CreatureAI* AI() { return i_AI; }
 

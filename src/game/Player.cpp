@@ -69,6 +69,7 @@
 #include "LootMgr.h"
 #include "LootMgr.h"
 #include "MercenaryMgr.h"
+#include "MercenaryMgr.h"
 
 #include <cmath>
 
@@ -15621,7 +15622,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 	// »ý·Ö
 	gamePointMgr._LoadAccountBalance(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE));
 	gamePointMgr._LoadCharacterExt(holder->GetResult(PLAYER_LOGIN_QUERY_CHARACTEREXT));
-
+	//¹ÍÓ¶±ø
+	sMercenaryMgr->LoadMercenarie(this);
     // Mail
     _LoadMails(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILS));
     _LoadMailedItems(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS));
@@ -17271,8 +17273,8 @@ void Player::SaveToDB()
 	if (Pet* pet = GetPet())
 	{
 		pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-		sMercenaryMgr->OnSave(this, pet);
 	}
+	sMercenaryMgr->OnSave(this);
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state

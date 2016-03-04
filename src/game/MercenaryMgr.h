@@ -42,44 +42,29 @@ public:
         static MercenaryMgr instance;
         return &instance;
     }
-
+	void LoadMercenaries();
     /*
     * Loads Mercenaries from Database
     */
-    void LoadMercenaries();
+	void LoadMercenarie(Player* player);
     /*
     * Saves Mercenary to a container
     */
     void SaveToList(Mercenary* mercenary);
-    /*
-    /*
-    * Deletes Mercenary from a container
-    */
-    void DeleteFromList(Mercenary* mercenary);
-    /*
-    * Sets if the Mercenary is currently summoned
-    */
-    void UpdateSummoned(uint32 Id, bool summoned);
+
     /*
     * On Mercenary save to database
     * Also updates gear and saves Mercenary spells
     * Cals when players saves
     */
-    void OnSave(Player* player, Pet* pet);
-    /*
-    * On Mercenary delete when a character with Mercenaries was deleted
-    */
-    void OnDelete(uint32 guidLow);
+    void OnSave(Player* player);
+
     /*
     * On Mercenary summon
     * Calls when you change zones
     * If your Mercenary isn't with you, you can change zones to summon it back automatically
     */
     void OnSummon(Player* player);
-    /*
-    * Clears all containers
-    */
-    void Clear();
     /*
     * Returns the item's icon
     * Thanks Rochet2 for the function
