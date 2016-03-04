@@ -159,7 +159,6 @@ std::string MercenaryMgr::GetSpellIcon(uint32 entry, Player* player) const
     const SpellEntry* temp = sSpellStore.LookupEntry(entry);
 //#endif
     const SpellIconEntry* icon = nullptr;
-	std::string name = player->getSpellName(entry);
     if (temp)
     {
         icon = sSpellIconStore.LookupEntry(temp->SpellIconID);
@@ -168,7 +167,8 @@ std::string MercenaryMgr::GetSpellIcon(uint32 entry, Player* player) const
     }
     if (!icon)
         ss << "Interface/ICONS/InventoryItems/WoWUnknownItem01";
-    ss << ":" << 32 << ":" << 32 << ":" << -18 << ":" << 0 << "|t" << name;
+    ss << ":" << 32 << ":" << 32 << ":" << -18 << ":" << 0 << "|t";
+	ss << "|cff0000ff|Hspell:" << entry << "|h[" << player->getSpellName(entry) << "]|h|r";
     return ss.str();
 }
 

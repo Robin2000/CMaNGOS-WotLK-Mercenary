@@ -772,7 +772,7 @@ void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint
 			{
 				if (pet->HasSpell(it->spellId))
 				{
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player) + " [Unlearn]", 0, it->spellId);
+					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player) + player->GetMangosString(-2800586), 0, it->spellId);//าลอü
 					creature->removingSpell = true;
 				}
 			}
@@ -789,7 +789,7 @@ void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint
 		{
 			if (pet->HasSpell(*itr))
 			{
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player) + player->GetMangosString(-2800586), 0, *itr);
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player) + player->GetMangosString(-2800586), 0, *itr);//าลอü
 				creature->removingSpell = true;
 			}
 		}
