@@ -767,12 +767,12 @@ void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint
 		if (mercenary->GetType() == it->type && mercenary->GetRole() == it->role)
 		{
 			if (actions == 39)
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player->GetSession()), 0, it->spellId);
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player), 0, it->spellId);
 			else
 			{
 				if (pet->HasSpell(it->spellId))
 				{
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player->GetSession()) + " [Unlearn]", 0, it->spellId);
+					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player) + " [Unlearn]", 0, it->spellId);
 					creature->removingSpell = true;
 				}
 			}
@@ -784,12 +784,12 @@ void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint
 	for (auto itr = defaultSpellVec.begin(); itr != defaultSpellVec.end(); ++itr)
 	{
 		if (actions == 39)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player->GetSession()), 0, *itr);
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player), 0, *itr);
 		else
 		{
 			if (pet->HasSpell(*itr))
 			{
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player->GetSession()) + " [Unlearn]", 0, *itr);
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player) + player->GetMangosString(-2800586), 0, *itr);
 				creature->removingSpell = true;
 			}
 		}

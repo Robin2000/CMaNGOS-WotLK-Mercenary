@@ -88,7 +88,7 @@ public:
     /*
     * Returns spell icon & spell name
     */
-    std::string GetSpellIcon(uint32 entry, WorldSession* session) const;
+	std::string GetSpellIcon(uint32 entry, Player* player) const;
 
     const char* GetAIName() const { return "mercenary_bot"; }
 
@@ -260,7 +260,7 @@ public:
 	static std::string GetMercenaryItemLink(uint32 entry, WorldSession* session);
 	static MercenaryStarterGear* GetMercenaryStarterGearByEntry(uint32 entry);
 	static const ItemPrototype* GetItemPrototype(uint32 entry);
-	static std::string GetMercenarySpellIcon(uint32 entry, WorldSession* session);
+	static std::string GetMercenarySpellIcon(uint32 entry, Player* player);
 	static MercenaryWorld* GetMercenaryWorldData(uint32 entry);
 };
 

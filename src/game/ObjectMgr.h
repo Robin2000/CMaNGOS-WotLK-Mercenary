@@ -731,7 +731,10 @@ class ObjectMgr
 		inline std::string & getGameMaps(uint32 idx){
 			return mGameMaps[idx]; 
 		}
-		
+		void LoadSpellNameMaps();
+		inline std::string & getSpellName(uint32 idx){
+			return mSpellNameMaps[idx];
+		}
 		void LoadGameTips();
 		inline std::string & getGameTips(uint32 idx){ return mGameTipsVector[idx]; }
 		inline uint32 getGameTipsCount(){ return mGameTipsVector.size(); }
@@ -1389,6 +1392,8 @@ class ObjectMgr
 		GameTipsVector mGameTipsVector;
 		typedef tbb::concurrent_unordered_map<uint32,std::string> GameMaps;
 		GameMaps mGameMaps;
+		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
+		SpellNameMaps mSpellNameMaps;
 
         MapObjectGuids mMapObjectGuids;
         ActiveCreatureGuidsOnMap m_activeCreatures;

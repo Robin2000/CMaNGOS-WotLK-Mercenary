@@ -13316,6 +13316,9 @@ GameObjectData* Player::findGameObjectDataByEntry(uint32 entry){ return sObjectM
 CreatureData* Player::findQuestStarterCreature(uint32 quest_id){ return sObjectMgr.findQuestStarterCreature(quest_id); }
 GameObjectData* Player::findQuestStarterGameObject(uint32 quest_id){ return sObjectMgr.findQuestStarterGameObject(quest_id); }
 
+inline std::string & Player::getSpellName(uint32 idx){
+	return sObjectMgr.getSpellName(idx);
+}
 inline std::string & Player::getGameMaps(uint32 idx){
 	return sObjectMgr.getGameMaps(idx);
 }

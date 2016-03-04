@@ -149,7 +149,7 @@ void MercenaryMgr::OnSummon(Player* player)
         mercenary->Summon(player);
 }
 
-std::string MercenaryMgr::GetSpellIcon(uint32 entry, WorldSession* session) const
+std::string MercenaryMgr::GetSpellIcon(uint32 entry, Player* player) const
 {
     std::ostringstream ss;
     ss << "|T";
@@ -159,10 +159,9 @@ std::string MercenaryMgr::GetSpellIcon(uint32 entry, WorldSession* session) cons
     const SpellEntry* temp = sSpellStore.LookupEntry(entry);
 //#endif
     const SpellIconEntry* icon = nullptr;
-    std::string name = "";
+	std::string name = player->getSpellName(entry);
     if (temp)
     {
-        name = temp->SpellName[session->GetSessionDbcLocale()];
         icon = sSpellIconStore.LookupEntry(temp->SpellIconID);
         if (icon)
             ss << icon->spellIcon;
@@ -288,5 +287,5 @@ std::string MercenaryUtil::GetMercenaryItemIcon(uint32 entry, bool rawPath) { re
 std::string MercenaryUtil::GetMercenaryItemLink(uint32 entry, WorldSession* session) { return sMercenaryMgr->GetItemLink(entry, session); }
 MercenaryStarterGear* MercenaryUtil::GetMercenaryStarterGearByEntry(uint32 entry){ return sMercenaryMgr->GetStarterGearByEntry(entry); }
 const ItemPrototype* MercenaryUtil::GetItemPrototype(uint32 entry){ return sObjectMgr.GetItemPrototype(entry); }
-std::string MercenaryUtil::GetMercenarySpellIcon(uint32 entry, WorldSession* session) { return sMercenaryMgr->GetSpellIcon(entry, session); }
+std::string MercenaryUtil::GetMercenarySpellIcon(uint32 entry, Player* player) { return sMercenaryMgr->GetSpellIcon(entry, player); }
 MercenaryWorld* MercenaryUtil::GetMercenaryWorldData(uint32 entry){ return sMercenaryMgr->GetMercenaryWorldData(entry); }

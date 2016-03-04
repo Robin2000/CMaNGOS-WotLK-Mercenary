@@ -284,6 +284,34 @@ void ObjectMgr::LoadGameMaps(){
 	sLog.outString(">> Loaded " SIZEFMTD " gamemaps strings", mGameMaps.size());
 	sLog.outString();
 }
+void ObjectMgr::LoadSpellNameMaps(){
+
+	mSpellNameMaps.clear();                             // need for reload case
+
+	QueryResult* result = WorldDatabase.Query("SELECT id,name FROM locales_spell");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0  locales_spell. DB table `locales_spell` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();
+		mSpellNameMaps[fields[0].GetUInt32()] = fields[1].GetCppString();
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " locales_spell strings", mSpellNameMaps.size());
+	sLog.outString();
+}
 void ObjectMgr::LoadGameTips(){
 
 	mGameTipsVector.clear();                             // need for reload case

@@ -1377,6 +1377,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 		tbb::concurrent_vector<WorldLocation> getQuestPOI(uint32 questid);
 		tbb::concurrent_vector<WorldLocation> getQuestPOI(){ return questPOIVec; }
 		inline std::string & getGameMaps(uint32 idx);
+		inline std::string & Player::getSpellName(uint32 idx);
 		inline int32 findQuestStarterCreatureOrGO(uint32 questid);
 		inline void findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result);
 
