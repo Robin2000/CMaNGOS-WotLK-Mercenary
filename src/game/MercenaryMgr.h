@@ -46,7 +46,7 @@ public:
     /*
     * Loads Mercenaries from Database
     */
-	void LoadMercenarie(Player* player);
+	Mercenary*  LoadMercenarie(Player* player);
     /*
     * Saves Mercenary to a container
     */

@@ -286,7 +286,7 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
         return false;
     }
 
-	if (isMercenary)	//如果是雇佣兵AI
+	if (isMercenary())	//如果是雇佣兵AI
 		SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //设置法术光环镜像
 	//else
 		//RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //移除法术光环镜像，被我注释掉。【分析：这段代码为雇佣兵添加镜像光环，但也没有必要移除非雇佣兵的光环】
@@ -411,7 +411,7 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
 
-	if (isMercenary)				  //如果是雇佣兵，设置
+	if (isMercenary())				  //如果是雇佣兵，设置
 	{
 		SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);		  //添加法术光环镜像
 		if (Player* owner = Creature::GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -492,6 +492,8 @@ uint32 Creature::ChooseDisplayId(const CreatureInfo* cinfo, const CreatureData* 
 
     // The follow decision tree needs to be updated if MAX_CREATURE_MODEL is changed.
     static_assert(MAX_CREATURE_MODEL == 4, "Need to update model selection code for new or removed model fields");
+	if (cinfo == nullptr)
+		return 0;
 
     // model selected here may be replaced with other_gender using own function
     if (cinfo->ModelId[3] && cinfo->ModelId[2] && cinfo->ModelId[1] && cinfo->ModelId[0])

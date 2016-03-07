@@ -202,8 +202,6 @@ bool Mercenary::Summon(Player* player)
 
 void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 {
-	if (pet)
-		pet->isMercenary = true;
     if (!create)
     {
         pet->SetDisplayId(GetDisplay());
@@ -432,7 +430,7 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	if (role == ROLE_HEALER || ROLE_CASTER_DPS){
+	if (role == ROLE_MARKSMAN_DPS || ROLE_CASTER_DPS){
 		SetSheath(pet,SHEATH_STATE_RANGED);
 	}
     return true;

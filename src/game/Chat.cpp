@@ -3606,6 +3606,8 @@ bool ChatHandler::checkPetName(std::string& name){
 void ChatHandler::getDefaultSpells(std::vector<uint32>& vec,uint8 race, uint8 cla)
 {
 	PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, cla);
+	if (info == nullptr)
+		return;
 	for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
 	{
 		// but send in normal spell in game learn case
@@ -3618,6 +3620,8 @@ void ChatHandler::learnDefaultSpells(Pet* pet, uint8 race, uint8 cla,uint8 maxco
 		return;
 	// learn default race/class spells
 	PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, cla);
+	if (info == nullptr)
+		return;
 	int count = 0;
 	for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); count <= maxcount&&itr != info->spell.end(); ++itr, count++)
 	{

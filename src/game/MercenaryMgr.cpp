@@ -16,7 +16,7 @@ void MercenaryMgr::SaveToList(Mercenary* mercenary)
 	MercenaryContainer[mercenary->GetOwnerGUID()] = mercenary;
 }
 /*角色登录时加载，注销时不删除，每人限一个雇佣兵*/
-void MercenaryMgr::LoadMercenarie(Player* player)
+Mercenary*  MercenaryMgr::LoadMercenarie(Player* player)
 {
 	QueryResult* result = CharacterDatabase.PQuery("SELECT role, displayId, race, gender, type FROM mercenaries  where ownerGUID='%u'", player->GetGUIDLow());
 	if (result)
@@ -25,10 +25,12 @@ void MercenaryMgr::LoadMercenarie(Player* player)
 			if (!mercenary->LoadFromDB(player,result))
 			{
 				delete mercenary;
-				return;
+				return nullptr;
 			}
 			MercenaryContainer[mercenary->GetOwnerGUID()] = mercenary;
+			return mercenary;
 	}
+	return nullptr;
 }
 /*加载配置信息，应该在world库中*/
 void MercenaryMgr::	LoadMercenaries()

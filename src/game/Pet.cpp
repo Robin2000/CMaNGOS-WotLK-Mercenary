@@ -1997,7 +1997,10 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* ci
 
 	// Force regen flag for player pets, just like we do for players themselves¡¾²Î¿¼trinity¡¿
 	SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
-    SetSheath(SHEATH_STATE_MELEE);
+
+
+	if (!isMercenary())
+	    SetSheath(SHEATH_STATE_MELEE);
 
     if (getPetType() == MINI_PET)                           // always non-attackable
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

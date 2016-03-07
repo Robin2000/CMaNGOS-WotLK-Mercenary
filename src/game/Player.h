@@ -968,7 +968,6 @@ class TradeData
             m_money(0), m_spell(0) {}
 
     public:                                                 // access functions
-
         Player* GetTrader() const { return m_trader; }
         TradeData* GetTraderData() const;
 
@@ -983,7 +982,7 @@ class TradeData
 
         bool IsAccepted() const { return m_accepted; }
         bool IsInAcceptProcess() const { return m_acceptProccess; }
-    public:                                                 // access functions
+                                                   // access functions
 
         void SetItem(TradeSlots slot, Item* item);
         void SetSpell(uint32 spell_id, Item* castItem = nullptr);
@@ -1024,6 +1023,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         ~Player();
 
         void CleanupsBeforeDelete() override;
+
+		Mercenary* mMercenary = nullptr;
 
         static UpdateMask updateVisualBits;
         static void InitVisibleBits();

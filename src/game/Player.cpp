@@ -69,7 +69,6 @@
 #include "LootMgr.h"
 #include "LootMgr.h"
 #include "MercenaryMgr.h"
-#include "MercenaryMgr.h"
 
 #include <cmath>
 
@@ -15626,7 +15625,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 	gamePointMgr._LoadAccountBalance(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE));
 	gamePointMgr._LoadCharacterExt(holder->GetResult(PLAYER_LOGIN_QUERY_CHARACTEREXT));
 	//¹ÍÓ¶±ø
-	sMercenaryMgr->LoadMercenarie(this);
+	mMercenary=sMercenaryMgr->LoadMercenarie(this);
     // Mail
     _LoadMails(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILS));
     _LoadMailedItems(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS));

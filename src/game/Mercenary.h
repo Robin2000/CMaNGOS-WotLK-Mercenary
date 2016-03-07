@@ -111,30 +111,32 @@ update mercenary_start_gear set mercenaryType=7 where mercenaryType=10;
 enum MercenaryType
 {
     MERCENARY_TYPE_NONE=0,
-    MERCENARY_TYPE_WARRIOR=1,
-    MERCENARY_TYPE_PALADIN=2,
-    MERCENARY_TYPE_PRIEST=5,  //原来是3，变成5
-    MERCENARY_TYPE_DK=6,     //原来是4，变成6
-    MERCENARY_TYPE_WARLOCK=9, //原来5，变成9
-    MERCENARY_TYPE_MAGE=8,   //原来6变成，8
-    MERCENARY_TYPE_DRUID=11, //原来7，变成11
-    MERCENARY_TYPE_HUNTER=3, //原来8变成3
-	MERCENARY_TYPE_ROGUE = 4, //原来9变成4
-    MERCENARY_TYPE_SHAMAN=7,  //原来10 变成7
+    MERCENARY_TYPE_WARRIOR=1,//战士，能拿盾护甲专精6，能穿护甲专精锁甲4
+    MERCENARY_TYPE_PALADIN=2,//圣骑士，能拿盾护甲专精6，能穿护甲专精锁甲4
+	MERCENARY_TYPE_HUNTER = 3, //猎人，能穿护甲专精3锁甲
+	MERCENARY_TYPE_ROGUE = 4, //潜行者，能穿护甲专精2皮甲
+	MERCENARY_TYPE_PRIEST=5,  //牧师，护甲专精1
+    MERCENARY_TYPE_DK=6,     //死亡骑士，能穿护甲专精锁甲4
+	MERCENARY_TYPE_SHAMAN = 7,  //萨满，能拿盾护甲专精6
+	MERCENARY_TYPE_MAGE=8,   //法师，护甲专精1
+	MERCENARY_TYPE_WARLOCK = 9, //术士，布甲，护甲专精1
+	MERCENARY_TYPE_NOUSE = 10, //没有用占位置
+    MERCENARY_TYPE_DRUID=11, //德鲁伊，能穿护甲专精2皮甲
 
-    MAX_MERCENARY_TYPES
+
+    MAX_MERCENARY_TYPES=12
 };
 
 enum MercenaryRoles
 {
-    ROLE_NONE,
-    ROLE_MELEE_DPS,
-    ROLE_CASTER_DPS,
-    ROLE_MARKSMAN_DPS,
-    ROLE_HEALER,
-    ROLE_TANK,
+    ROLE_NONE=0,
+    ROLE_MELEE_DPS=1,	//近战输出
+    ROLE_CASTER_DPS=2,  //法术远程输出
+    ROLE_MARKSMAN_DPS=3,//猎人物理远程输出
+    ROLE_HEALER=4,		//治疗
+    ROLE_TANK=5,        //坦克
 
-    MAX_MERCENARY_ROLES
+    MAX_MERCENARY_ROLES=6
 };
 
 enum RaceModels
@@ -236,8 +238,8 @@ public:
     * Sets the type of the Mercenary
     */
     void SetType(const uint8 newType) { 
-		if (type != newType)//职业切换，装备必须切换
-			GearContainer.clear();
+		//if (type != newType)//职业切换，装备必须切换
+			//GearContainer.clear();穿戴时检查好些
 		type = newType; 
 	}
     /*

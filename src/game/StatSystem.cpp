@@ -820,7 +820,7 @@ bool Creature::UpdateStats(Stats /*stat*/)
 
 bool Creature::UpdateAllStats()
 {
-	if (isMercenary)
+	if (isMercenary())
 		return false;
 
     UpdateMaxHealth();
@@ -848,7 +848,7 @@ void Creature::UpdateResistances(uint32 school)
 
 void Creature::UpdateArmor()
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     float value = GetTotalAuraModValue(UNIT_MOD_ARMOR);
@@ -857,7 +857,7 @@ void Creature::UpdateArmor()
 
 void Creature::UpdateMaxHealth()
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     float value = GetTotalAuraModValue(UNIT_MOD_HEALTH);
@@ -866,7 +866,7 @@ void Creature::UpdateMaxHealth()
 
 void Creature::UpdateMaxPower(Powers power)
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
@@ -877,7 +877,7 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
 	if (!ranged&&GetSheath() == SHEATH_STATE_RANGED)/*如果没指定远程，就根据装备计算一下，拿远程装备的强制为远程攻击*/
@@ -917,7 +917,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     if (attType > OFF_ATTACK)
         return;
 
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     UnitMods unitMod = (attType == BASE_ATTACK ? UNIT_MOD_DAMAGE_MAINHAND : UNIT_MOD_DAMAGE_OFFHAND);
@@ -951,7 +951,7 @@ bool Pet::UpdateStats(Stats stat)
     if (stat > STAT_SPIRIT)
         return false;
 
-	if (isMercenary)
+	if (isMercenary())
 		return false;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
@@ -1019,7 +1019,7 @@ void Pet::UpdateResistances(uint32 school)
 
 void Pet::UpdateArmor()
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     float value = 0.0f;
@@ -1042,7 +1042,7 @@ void Pet::UpdateArmor()
 
 void Pet::UpdateMaxHealth()
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     UnitMods unitMod = UNIT_MOD_HEALTH;
@@ -1058,7 +1058,7 @@ void Pet::UpdateMaxHealth()
 
 void Pet::UpdateMaxPower(Powers power)
 {
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
@@ -1078,7 +1078,7 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
         return;
 
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     float val = 0.0f;
@@ -1142,7 +1142,7 @@ void Pet::UpdateDamagePhysical(WeaponAttackType attType)
     if (attType > BASE_ATTACK)
         return;
 
-	if (isMercenary)
+	if (isMercenary())
 		return;
 
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
