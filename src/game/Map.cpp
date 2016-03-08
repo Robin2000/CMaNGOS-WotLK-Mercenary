@@ -1988,7 +1988,7 @@ void Map::PlayDirectSoundToMap(uint32 soundId, uint32 zoneId /*=0*/) const
 }
 
 /**
- * Function to check if a point is in line of sight from an other point
+ * Function to check if a point is in line of sight from an other point【检查一个点和另一个点是否在视线内】
  */
 bool Map::IsInLineOfSight(float srcX, float srcY, float srcZ, float destX, float destY, float destZ, uint32 phasemask) const
 {
@@ -1997,8 +1997,8 @@ bool Map::IsInLineOfSight(float srcX, float srcY, float srcZ, float destX, float
 }
 
 /**
- * get the hit position and return true if we hit something (in this case the dest position will hold the hit-position)
- * otherwise the result pos will be the dest pos
+ * get the hit position and return true if we hit something (in this case the dest position will hold the hit-position)【取得攻击点坐标，返回true(目标的坐标即为攻击点)】
+ * otherwise the result pos will be the dest pos【否则返回结果是目标的位置】
  */
 bool Map::GetHitPosition(float srcX, float srcY, float srcZ, float& destX, float& destY, float& destZ, uint32 phasemask, float modifyDist) const
 {
@@ -2163,7 +2163,7 @@ bool Map::GetRandomPointInTheAir(uint32 phaseMask, float& x, float& y, float& z,
     return false;
 }
 
-// supposed to be used for not big radius, usually less than 20.0f
+// supposed to be used for not big radius, usually less than 20.0f【通常小于20的半径范围】
 bool Map::GetReachableRandomPointOnGround(uint32 phaseMask, float& x, float& y, float& z, float radius)
 {
     // Generate a random range and direction for the new point

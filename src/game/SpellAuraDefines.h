@@ -41,129 +41,129 @@ enum AuraFlags
 };
 
 /**
- * This is what's used in a Modifier by the Aura class
- * to tell what the Aura should modify.
+ * This is what's used in a Modifier by the Aura class【用于修改光环的类型】
+ * to tell what the Aura should modify.【告诉什么光环应该被修改】
  */
 enum AuraType
 {
     SPELL_AURA_NONE = 0,
-    SPELL_AURA_BIND_SIGHT = 1,
-    SPELL_AURA_MOD_POSSESS = 2,
+    SPELL_AURA_BIND_SIGHT = 1,//绑定视线
+    SPELL_AURA_MOD_POSSESS = 2,//修改持有的光环
     /**
-     * The aura should do periodic damage, the function that handles
-     * this is Aura::HandlePeriodicDamage, the amount is usually decided
-     * by the Unit::SpellDamageBonusDone or Unit::MeleeDamageBonusDone
-     * which increases/decreases the Modifier::m_amount
+     * The aura should do periodic damage, the function that handles【此光环周期伤害，功能处理Aura::HandlePeriodicDamage】
+     * this is Aura::HandlePeriodicDamage, the amount is usually decided【伤害的量为法伤：Unit::SpellDamageBonusDone】
+     * by the Unit::SpellDamageBonusDone or Unit::MeleeDamageBonusDone【或者近战伤害：Unit::MeleeDamageBonusDone】
+     * which increases/decreases the Modifier::m_amount【增加或者减少Modifier::m_amount】
      */
-    SPELL_AURA_PERIODIC_DAMAGE = 3,
+    SPELL_AURA_PERIODIC_DAMAGE = 3,//定期伤害
     /**
-     * Used by Aura::HandleAuraDummy
+     * Used by Aura::HandleAuraDummy【虚拟光环】
      */
     SPELL_AURA_DUMMY = 4,
     /**
-     * Used by Aura::HandleModConfuse, will either confuse or unconfuse
-     * the target depending on whether the apply flag is set
+     * Used by Aura::HandleModConfuse, will either confuse or unconfuse【混淆或取消混淆目标】
+     * the target depending on whether the apply flag is set【依靠是否设置了应用标志】
      */
-    SPELL_AURA_MOD_CONFUSE = 5,
-    SPELL_AURA_MOD_CHARM = 6,
-    SPELL_AURA_MOD_FEAR = 7,
+    SPELL_AURA_MOD_CONFUSE = 5,//混淆
+    SPELL_AURA_MOD_CHARM = 6,//魅惑
+    SPELL_AURA_MOD_FEAR = 7,//害怕
     /**
-     * The aura will do periodic heals of a target, handled by
+     * The aura will do periodic heals of a target, handled by【周期治愈目标】
      * Aura::HandlePeriodicHeal, uses Unit::SpellHealingBonusDone
-     * to calculate whether to increase or decrease Modifier::m_amount
+     * to calculate whether to increase or decrease Modifier::m_amount【计算是否增减Modifier::m_amount】
      */
-    SPELL_AURA_PERIODIC_HEAL = 8,
+    SPELL_AURA_PERIODIC_HEAL = 8,//定期治愈
     /**
-     * Changes the attackspeed, the Modifier::m_amount decides
-     * how much we change in percent, ie, if the m_amount is
-     * 50 the attackspeed will increase by 50%
+     * Changes the attackspeed, the Modifier::m_amount decides【改变攻击速度】
+     * how much we change in percent, ie, if the m_amount is【Modifier::m_amount是改变的百分比】
+     * 50 the attackspeed will increase by 50%【50代表50%】
      */
     SPELL_AURA_MOD_ATTACKSPEED = 9,
     /**
-     * Modifies the threat that the Aura does in percent,
-     * the Modifier::m_miscvalue decides which of the SpellSchools
+     * Modifies the threat that the Aura does in percent,【威胁修改百分比】
+     * the Modifier::m_miscvalue decides which of the SpellSchools【Modifier::m_miscvalue决定哪个技能类会影响威胁】
      * it should affect threat for.
      * \see SpellSchoolMask
      */
     SPELL_AURA_MOD_THREAT = 10,
     /**
-     * Just applies a taunt which will change the threat a mob has
+     * Just applies a taunt which will change the threat a mob has【应用嘲讽，它会改变怪物的威胁】
      * Taken care of in Aura::HandleModThreat
      */
     SPELL_AURA_MOD_TAUNT = 11,
     /**
-     * Stuns targets in different ways, taken care of in
+     * Stuns targets in different ways, taken care of in【不同的方式击晕目标】
      * Aura::HandleAuraModStun
      */
     SPELL_AURA_MOD_STUN = 12,
     /**
-     * Changes the damage done by a weapon in any hand, the Modifier::m_miscvalue
-     * will tell what school the damage is from, it's used as a bitmask
+     * Changes the damage done by a weapon in any hand, the Modifier::m_miscvalue【通过任意手上武器改变伤害，】
+     * will tell what school the damage is from, it's used as a bitmask【Modifier::m_miscvalue告诉伤害来自什么类，是位遮罩】
      * \see SpellSchoolMask
      */
     SPELL_AURA_MOD_DAMAGE_DONE = 13,
     /**
-     * Not handled by the Aura class but instead this is implemented in
+     * Not handled by the Aura class but instead this is implemented in【不通过光环类别，而替代实现在】
      * Unit::MeleeDamageBonusTaken and Unit::SpellBaseDamageBonusTaken
      */
     SPELL_AURA_MOD_DAMAGE_TAKEN = 14,
     /**
-     * Not handled by the Aura class, implemented in Unit::DealMeleeDamage
+     * Not handled by the Aura class, implemented in Unit::DealMeleeDamage【不通过光环类别处理伤害，而在Unit::DealMeleeDamage处理】
      */
-    SPELL_AURA_DAMAGE_SHIELD = 15,
+    SPELL_AURA_DAMAGE_SHIELD = 15,//SHIELD盾牌
     /**
-     * Taken care of in Aura::HandleModStealth, take note that this
-     * is not the same thing as invisibility
+     * Taken care of in Aura::HandleModStealth, take note that this【在Aura::HandleModStealth中】
+     * is not the same thing as invisibility【不同于隐形】
      */
-    SPELL_AURA_MOD_STEALTH = 16,
+    SPELL_AURA_MOD_STEALTH = 16,//STEALTH隐形
     /**
-     * Not handled by the Aura class, implemented in Unit::isVisibleForOrDetect
-     * which does a lot of checks to determine whether the person is visible or not,
-     * the SPELL_AURA_MOD_STEALTH seems to determine how in/visible ie a rogue is.
+     * Not handled by the Aura class, implemented in Unit::isVisibleForOrDetect【不处理光环类，实现在Unit::isVisibleForOrDetect】
+     * which does a lot of checks to determine whether the person is visible or not,【有大量的检查决定能够看见】
+     * the SPELL_AURA_MOD_STEALTH seems to determine how in/visible ie a rogue is.【看来是决定潜行者是否可见】
      */
-    SPELL_AURA_MOD_STEALTH_DETECT = 17,
+    SPELL_AURA_MOD_STEALTH_DETECT = 17,//STEALTH隐形DETECT监测
     /**
-     * Handled by Aura::HandleInvisibility, the Modifier::m_miscvalue in the struct
-     * seems to decide what kind of invisibility it is with a bitflag. the miscvalue
-     * decides which bit is set, ie: 3 would make the 3rd bit be set.
+     * Handled by Aura::HandleInvisibility, the Modifier::m_miscvalue in the struct【由Aura::HandleInvisibility处理】
+     * seems to decide what kind of invisibility it is with a bitflag. the miscvalue【决定用一个位标识什么类型的看不见】
+     * decides which bit is set, ie: 3 would make the 3rd bit be set.【例如3会让第3位被设置】
      */
-    SPELL_AURA_MOD_INVISIBILITY = 18,
+    SPELL_AURA_MOD_INVISIBILITY = 18,//隐身
     /**
-     * Adds one of the kinds of detections to the possible detections.
-     * As in SPEALL_AURA_MOD_INVISIBILITY the Modifier::m_miscvalue seems to decide
-     * what kind of invisibility the Unit should be able to detect.
+     * Adds one of the kinds of detections to the possible detections.【添加一种检测】
+     * As in SPEALL_AURA_MOD_INVISIBILITY the Modifier::m_miscvalue seems to decide【在SPEALL_AURA_MOD_INVISIBILITY时，Modifier::m_miscvalue代表】
+     * what kind of invisibility the Unit should be able to detect.【什么类型的隐形单位可以被检测】
      */
     SPELL_AURA_MOD_INVISIBILITY_DETECTION = 19,
     SPELL_AURA_OBS_MOD_HEALTH = 20,                         // 20,21 unofficial
     SPELL_AURA_OBS_MOD_MANA = 21,
     /**
-     * Handled by Aura::HandleAuraModResistance, changes the resistance for a unit
-     * the field Modifier::m_miscvalue decides which kind of resistance that should
+     * Handled by Aura::HandleAuraModResistance, changes the resistance for a unit【通过Aura::HandleAuraModResistance，改变单位的抗性】
+     * the field Modifier::m_miscvalue decides which kind of resistance that should【Modifier::m_miscvalue决定什么类型的抗性被修改】
      * be changed, for possible values see SpellSchools.
      * \see SpellSchools
      */
-    SPELL_AURA_MOD_RESISTANCE = 22,
+    SPELL_AURA_MOD_RESISTANCE = 22,//抗性
     /**
-     * Currently just sets Aura::m_isPeriodic to apply and has a special case
-     * for Curse of the Plaguebringer.
+     * Currently just sets Aura::m_isPeriodic to apply and has a special case【目前只需设置Aura::m_isPeriodic】
+     * for Curse of the Plaguebringer.【特殊情况是使者的诅咒】
      */
-    SPELL_AURA_PERIODIC_TRIGGER_SPELL = 23,
+    SPELL_AURA_PERIODIC_TRIGGER_SPELL = 23,//周期触发技能
     /**
-     * Just sets Aura::m_isPeriodic to apply
+     * Just sets Aura::m_isPeriodic to apply【只需要设置Aura::m_isPeriodic 】
      */
-    SPELL_AURA_PERIODIC_ENERGIZE = 24,
+    SPELL_AURA_PERIODIC_ENERGIZE = 24,//激励
     /**
-     * Changes whether the target is pacified or not depending on the apply flag.
-     * Pacify makes the target silenced and have all it's attack skill disabled.
+     * Changes whether the target is pacified or not depending on the apply flag.【改变是否目标被安抚】
+     * Pacify makes the target silenced and have all it's attack skill disabled.【安抚使得目标沉默，所有攻击技能被禁止】
      * See: http://www.wowhead.com/spell=6462/pacified
      */
-    SPELL_AURA_MOD_PACIFY = 25,
+    SPELL_AURA_MOD_PACIFY = 25,//安抚
     /**
      * Roots or unroots the target
      */
     SPELL_AURA_MOD_ROOT = 26,
     /**
-     * Silences the target and stops and spell casts that should be stopped,
+     * Silences the target and stops and spell casts that should be stopped,【沉默目标，停止技能】
      * they have the flag SpellPreventionType::SPELL_PREVENTION_TYPE_SILENCE
      */
     SPELL_AURA_MOD_SILENCE = 27,
@@ -187,7 +187,7 @@ enum AuraType
     SPELL_AURA_TRACK_RESOURCES = 45,
     SPELL_AURA_46 = 46,                                     // Ignore all Gear test spells
     SPELL_AURA_MOD_PARRY_PERCENT = 47,
-    SPELL_AURA_PERIODIC_TRIGGER_BY_CLIENT = 48,             // Client periodic trigger spell by self (3 spells in 3.3.5a)
+    SPELL_AURA_PERIODIC_TRIGGER_BY_CLIENT = 48,             // Client periodic trigger spell by self (3 spells in 3.3.5a)【客户端周期触发技能】
     SPELL_AURA_MOD_DODGE_PERCENT = 49,
     SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT = 50,
     SPELL_AURA_MOD_BLOCK_PERCENT = 51,
@@ -202,7 +202,7 @@ enum AuraType
     SPELL_AURA_MOD_PACIFY_SILENCE = 60,
     SPELL_AURA_MOD_SCALE = 61,
     SPELL_AURA_PERIODIC_HEALTH_FUNNEL = 62,
-    SPELL_AURA_63 = 63,                                     // old SPELL_AURA_PERIODIC_MANA_FUNNEL
+    SPELL_AURA_63 = 63,                                     // old SPELL_AURA_PERIODIC_MANA_FUNNEL【周期魔法漏斗】
     SPELL_AURA_PERIODIC_MANA_LEECH = 64,
     SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK = 65,
     SPELL_AURA_FEIGN_DEATH = 66,
@@ -229,7 +229,7 @@ enum AuraType
     SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN = 87,
     SPELL_AURA_MOD_HEALTH_REGEN_PERCENT = 88,
     SPELL_AURA_PERIODIC_DAMAGE_PERCENT = 89,
-    SPELL_AURA_90 = 90,                                     // old SPELL_AURA_MOD_RESIST_CHANCE
+    SPELL_AURA_90 = 90,                                     // old SPELL_AURA_MOD_RESIST_CHANCE【抵抗机会】
     SPELL_AURA_MOD_DETECT_RANGE = 91,
     SPELL_AURA_PREVENTS_FLEEING = 92,
     SPELL_AURA_MOD_UNATTACKABLE = 93,
@@ -290,13 +290,13 @@ enum AuraType
     SPELL_AURA_RETAIN_COMBO_POINTS = 148,
     SPELL_AURA_REDUCE_PUSHBACK  = 149,                      //    Reduce Pushback
     SPELL_AURA_MOD_SHIELD_BLOCKVALUE_PCT = 150,
-    SPELL_AURA_TRACK_STEALTHED  = 151,                      //    Track Stealthed
-    SPELL_AURA_MOD_DETECTED_RANGE = 152,                    //    Mod Detected Range
-    SPELL_AURA_SPLIT_DAMAGE_FLAT = 153,                     //    Split Damage Flat
-    SPELL_AURA_MOD_STEALTH_LEVEL = 154,                     //    Stealth Level Modifier
-    SPELL_AURA_MOD_WATER_BREATHING = 155,                   //    Mod Water Breathing
-    SPELL_AURA_MOD_REPUTATION_GAIN = 156,                   //    Mod Reputation Gain
-    SPELL_AURA_PET_DAMAGE_MULTI = 157,                      //    Mod Pet Damage
+    SPELL_AURA_TRACK_STEALTHED  = 151,                      //    Track Stealthed【跟踪隐形】
+    SPELL_AURA_MOD_DETECTED_RANGE = 152,                    //    Mod Detected Range【修改检测的范围】
+    SPELL_AURA_SPLIT_DAMAGE_FLAT = 153,                     //    Split Damage Flat【拆分伤害】
+    SPELL_AURA_MOD_STEALTH_LEVEL = 154,                     //    Stealth Level Modifier【隐形的级别修改】
+    SPELL_AURA_MOD_WATER_BREATHING = 155,                   //    Mod Water Breathing【修改水下呼吸】
+    SPELL_AURA_MOD_REPUTATION_GAIN = 156,                   //    Mod Reputation Gain【修改声望取得】
+    SPELL_AURA_PET_DAMAGE_MULTI = 157,                      //    Mod Pet Damage【修改宠物伤害】
     SPELL_AURA_MOD_SHIELD_BLOCKVALUE = 158,
     SPELL_AURA_NO_PVP_CREDIT = 159,
     SPELL_AURA_MOD_AOE_AVOIDANCE = 160,
@@ -312,8 +312,8 @@ enum AuraType
     SPELL_AURA_DETECT_AMORE = 170,
     SPELL_AURA_MOD_SPEED_NOT_STACK = 171,
     SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK = 172,
-    SPELL_AURA_173 = 173,                                   // old SPELL_AURA_ALLOW_CHAMPION_SPELLS
-    SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT = 174,      // by defeult intelect, dependent from SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT
+    SPELL_AURA_173 = 173,                                   // old SPELL_AURA_ALLOW_CHAMPION_SPELLS【允许勇士技能】
+    SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT = 174,      // by defeult intelect, dependent from SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT【缺省智力】
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION = 176,
     SPELL_AURA_AOE_CHARM = 177,
