@@ -9,6 +9,8 @@
 #include "PetAI.h"
 #include "Group.h"
 #include "ScriptMgr.h"
+#include "mercenary_bot.h"
+#include "mercenary_gossip.h"
 
 class ObjectAccessor;
 //#include "ScriptedGossip.h"
@@ -42,62 +44,10 @@ public:
 #endif
 */
 enum menu_ction_base{
-	GOSSIP_ACTION_SPELL_DEF = 1000
+	GOSSIP_ACTION_SPELL_DEF = 1000,
+	GOSSIP_SEL_ROLE_DEF = 900
 };
 
-    RandomMercenary GetRandomMercenary()
-    {
-        RandomMercenary rndMerc[] =
-        {
-            { HUMAN_MALE_MODEL, RACE_HUMAN, GENDER_MALE },
-            { HUMAN_FEMALE_MODEL, RACE_HUMAN, GENDER_FEMALE },
-            { ORC_MALE_MODEL, RACE_ORC, GENDER_MALE },
-            { ORC_FEMALE_MODEL, RACE_ORC, GENDER_FEMALE },
-            { DWARF_MALE_MODEL, RACE_DWARF, GENDER_MALE },
-            { DWARF_FEMALE_MODEL, RACE_DWARF, GENDER_FEMALE },
-            { NIGHTELF_MALE_MODEL, RACE_NIGHTELF, GENDER_MALE },
-            { NIGHTELF_FEMALE_MODEL, RACE_NIGHTELF, GENDER_FEMALE },
-            { TAUREN_MALE_MODEL, RACE_TAUREN, GENDER_MALE },
-            { TAUREN_FEMALE_MODEL, RACE_TAUREN, GENDER_FEMALE },
-            { GNOME_MALE_MODEL, RACE_GNOME, GENDER_MALE },
-            { GNOME_FEMALE_MODEL, RACE_GNOME, GENDER_FEMALE },
-            { TROLL_MALE_MODEL, RACE_TROLL, GENDER_MALE },
-            { TROLL_FEMALE_MODEL, RACE_TROLL, GENDER_FEMALE },
-            { BLOODELF_MALE_MODEL, RACE_BLOODELF, GENDER_MALE },
-            { BLOODELF_FEMALE_MODEL, RACE_BLOODELF, GENDER_FEMALE },
-            { DRAENEI_MALE_MODEL, RACE_DRAENEI, GENDER_MALE },
-            { DRAENEI_FEMALE_MODEL, RACE_DRAENEI, GENDER_FEMALE }
-        };
-		return rndMerc[MercenaryUtil::GetMercenaryRandom().Next(0, 18)];
-    }
-
-    RandomMercenaryTypeRole GetRandomTypeAndRole()
-    {
-        RandomMercenaryTypeRole rndTypeRole[] =
-        {
-            { MERCENARY_TYPE_WARRIOR, ROLE_MELEE_DPS },
-            { MERCENARY_TYPE_WARRIOR, ROLE_TANK },
-            { MERCENARY_TYPE_PALADIN, ROLE_MELEE_DPS },
-            { MERCENARY_TYPE_PALADIN, ROLE_TANK },
-            { MERCENARY_TYPE_PALADIN, ROLE_HEALER },
-            { MERCENARY_TYPE_PRIEST, ROLE_CASTER_DPS },
-            { MERCENARY_TYPE_PRIEST, ROLE_HEALER },
-            { MERCENARY_TYPE_DK, ROLE_MELEE_DPS },
-            { MERCENARY_TYPE_DK, ROLE_TANK },
-            { MERCENARY_TYPE_WARLOCK, ROLE_CASTER_DPS },
-            { MERCENARY_TYPE_MAGE, ROLE_CASTER_DPS },
-            { MERCENARY_TYPE_HUNTER, ROLE_MARKSMAN_DPS },
-            { MERCENARY_TYPE_ROGUE, ROLE_MELEE_DPS },
-            { MERCENARY_TYPE_DRUID, ROLE_MELEE_DPS },
-            { MERCENARY_TYPE_DRUID, ROLE_TANK },
-            { MERCENARY_TYPE_DRUID, ROLE_HEALER },
-            { MERCENARY_TYPE_DRUID, ROLE_CASTER_DPS },
-            { MERCENARY_TYPE_SHAMAN, ROLE_MELEE_DPS },
-            { MERCENARY_TYPE_SHAMAN, ROLE_CASTER_DPS },
-            { MERCENARY_TYPE_SHAMAN, ROLE_HEALER }
-        };
-		return rndTypeRole[MercenaryUtil::GetMercenaryRandom().Next(0, 20)];
-    }
 	void SendHireList(Player* player, Item* item)
 	{
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800097, 0, 106);//战士
@@ -138,13 +88,6 @@ enum menu_ction_base{
 
     }
 
-	void SendHireOrOptionalList(Player* player,Item* item )
-    {
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800603, 0, 5);//随机招募雇佣兵
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800604, 0, 94);//选择最好的招募雇佣兵
-		player->SEND_GOSSIP_MENU(1, item->GetObjectGuid());
-
-    }
 
 
 
@@ -186,30 +129,13 @@ enum menu_ction_base{
 
 	void SendRoleList(Player* player, Item* item, uint8 type)
     {
-        bool isMelee = (type == MERCENARY_TYPE_DRUID || type == MERCENARY_TYPE_DK || type == MERCENARY_TYPE_WARRIOR
-            || type == MERCENARY_TYPE_ROGUE || type == MERCENARY_TYPE_SHAMAN || type == MERCENARY_TYPE_PALADIN);
-        bool isCaster = (type == MERCENARY_TYPE_DRUID || type == MERCENARY_TYPE_MAGE || type == MERCENARY_TYPE_WARLOCK
-            || type == MERCENARY_TYPE_PRIEST || type == MERCENARY_TYPE_SHAMAN);
-        bool isHealer = (type == MERCENARY_TYPE_DRUID || type == MERCENARY_TYPE_PRIEST || type == MERCENARY_TYPE_PALADIN
-            || type == MERCENARY_TYPE_SHAMAN);
-        bool isTank = (type == MERCENARY_TYPE_WARRIOR || type == MERCENARY_TYPE_DK || type == MERCENARY_TYPE_PALADIN
-            || type == MERCENARY_TYPE_DRUID);
-        bool isRanged = (type == MERCENARY_TYPE_HUNTER);
-
-        if (isMelee)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800625, 0, 34);//近战输出（DPS）
-        if (isCaster)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800626, 0, 35); // 远程法攻（DPS）
-        if (isRanged)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800627, 0, 36);//远程箭攻（DPS）
-        if (isHealer)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800628, 0, 37);//治疗(医)
-        if (isTank)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800629, 0, 38);//坦克(肉盾)
+		std::vector<MercenaryRoleDef*>* roles = MercenaryUtil::findRoleVectorByClass(type);
+		uint8 i = 0;
+		for (auto itr = roles->begin(); itr != roles->end(); itr++, i++)
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, (*itr)->name, 0, GOSSIP_SEL_ROLE_DEF + i);
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800606, 0, 96); // Back to all races & genders后退
 
 		player->SEND_GOSSIP_MENU(1, item->GetObjectGuid());
-
     }
 
 	void SendConfirmation(Player* player, Item* item)
@@ -222,9 +148,9 @@ enum menu_ction_base{
 		player->SEND_GOSSIP_MENU(1, item->GetObjectGuid());
     }
 
-    void CreateMercenary(Player* player, Item* item, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type)
+    void CreateMercenary(Player* player, Item* item, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 classid)
     {
-        if (!mercenary->Create(player, model, race, gender, type, role))
+		if (!mercenary->Create(player, model, race, gender, classid, role))
         {
 			player->GetSession()->SendNotification(player->GetMangosString(-2800185));//系统提示：本次操作失败。
             return;
@@ -278,21 +204,20 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 			return false;
 		}
 	}
-
+	if (actions >= GOSSIP_SEL_ROLE_DEF&&actions <= GOSSIP_SEL_ROLE_DEF+5){//
+		std::vector<MercenaryRoleDef*>* roles = MercenaryUtil::findRoleVectorByClass(mercenary->GetType());
+		uint8 i = 0;
+		for (auto itr = roles->begin(); itr != roles->end(); itr++, i++)
+		if (GOSSIP_SEL_ROLE_DEF + i == actions)
+		{
+			mercenary->SetRole((*itr)->role);
+			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
+			player->CLOSE_GOSSIP_MENU();
+			return true;
+		}
+	}
 	switch (actions)
 	{
-		case 5: // Hire random Mercenary【随机雇佣】
-		{
-					RandomMercenary randomMercenary = GetRandomMercenary();
-					RandomMercenaryTypeRole randomClass = GetRandomTypeAndRole();
-					mercenary->SetValues(randomMercenary.model, randomMercenary.race, randomMercenary.gender);
-					mercenary->SetType(randomClass.type);
-					mercenary->SetRole(randomClass.role);
-					CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
-						mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
-					player->CLOSE_GOSSIP_MENU();
-					player->gossipMenuType = -1;/*还原默认值*/
-		}break;
 		case 106:
 			mercenary->SetType(MERCENARY_TYPE_WARRIOR);
 			SendFeatureList(player, item);
@@ -406,36 +331,7 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 			mercenary->SetValues(TROLL_FEMALE_MODEL, RACE_TROLL, GENDER_FEMALE);
 			SendRoleList(player, item, mercenary->GetType());
 			break;
-		case 34:
-			mercenary->SetRole(ROLE_MELEE_DPS);
-			//SendConfirmation(player, item);
-			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case 35:
-			mercenary->SetRole(ROLE_CASTER_DPS);
-			//SendConfirmation(player, item);
-			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case 36:
-			mercenary->SetRole(ROLE_MARKSMAN_DPS);
-			//SendConfirmation(player, item);
-			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case 37:
-			mercenary->SetRole(ROLE_HEALER);
-			//SendConfirmation(player, item);
-			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case 38:
-			mercenary->SetRole(ROLE_TANK);
-			//SendConfirmation(player, item);
-			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
-			player->CLOSE_GOSSIP_MENU();
-			break;
+		
 		case 39:
 			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
 				mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
@@ -455,7 +351,6 @@ bool recallMercenary(Player* player, Item* item){
 		return false;
 	}
 
-	CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
 	return true;
 }
 bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*sender*/, uint32 actions)
@@ -468,9 +363,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 		case GOSSIP_ACTION_INFO_DEF + 998:/*唤醒雇佣兵*/
 			recallMercenary(player, item);
 			break;
-		case 1: // Hire Mercenary【//我要雇佣帮手+继续雇佣】
-				SendHireOrOptionalList(player,item);
-			break;
+
 		case GOSSIP_ACTION_INFO_DEF + 999:////取消
 			player->CLOSE_GOSSIP_MENU();
 			player->gossipMenuType = -1;/*还原默认值*/
@@ -516,52 +409,53 @@ struct mercenary_bot_AI : public PetAI
 {
 	mercenary_bot_AI(Creature* creature) : PetAI(creature) { Reset(); }
 
-	uint32 talkTimer;
+	uint32 talkTimer = 0;
+	uint32 spellTimer=0;
+	int currentSpell = 0;
 
 	void Reset() //注意，这里有个overide，发现父类没有该方法，Reset何时调用，必须考虑
 	{
 		talkTimer = urand(35000, 120000);
 		lastMessage = "";
 
-		//#ifndef MANGOS
-		//            if (Unit* owner = me->GetOwner())
-		//#else
 		if (Unit* owner = m_creature->GetOwner())
-			//#endif
 		{
-			//#ifndef MANGOS
-			//                mercenary = GetMercenaryByOwner(owner->GetGUID().GetCounter());
-			//#else
 			mercenary = MercenaryUtil::GetMercenaryByOwner(owner->GetGUIDLow());
-			//#endif
 			if (mercenary)
 			{
-				for (auto it = MercenaryUtil::MercenarySpellsBegin(); it != MercenaryUtil::MercenarySpellsEnd(); ++it)
-				{
-					if (!it->isActive)
-						continue;
 
-					if (it->type == mercenary->GetType() && it->role == mercenary->GetRole())
-						//#ifdef MANGOS
-					if (!m_creature->HasAura(it->spellId))
-						m_creature->CastSpell(m_creature, it->spellId, true);
-					//#else
-					//                            if (!me->HasAura(it->spellId))
-					//                                me->CastSpell(me, it->spellId, true);
-					//#endif
+				if (mercenary->isRangedAttack())
+				{
+					m_creature->SetSheath(SHEATH_STATE_RANGED);
+					m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
+					//m_creature->addUnitState(UNIT_STAT_FLEEING);
+
 				}
+				else
+				{
+					m_creature->SetSheath(SHEATH_STATE_MELEE);
+					m_creature->addUnitState(UNIT_STAT_MELEE_ATTACKING);
+				}
+
 			}
-			//#ifndef MANGOS  这里没有针对MANGOS的处理代码？？？？？？？？？？？？？？？？？？？？？？？
-			//                if (Unit* owner = me->GetOwner())
-			//                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-			//#endif
+
 		}
 	}
-	bool DoRangeAttackIfReady(){
+	void caseSpell(Unit* target, uint32 spell,const uint32 uiDiff){
+			// Cast spell one on our current target.
+		if (DoCastSpellIfCan(target, spell) == CAST_OK)
+				spellTimer = 5000;
+	}
+	bool DoRangeAttackIfReady(const uint32 diff){
+
+		uint8 spellCount = m_creature->GetPetAutoSpellSize();
+		
+		if (spellCount <= 0)
+			return false;
 
 		Unit* target = m_creature->getVictim();
-		if (!target)
-			target = m_creature->SelectRandomUnfriendlyTarget();
+		//if (!target)
+			//target = m_creature->SelectRandomUnfriendlyTarget();
 		if (!target)
 			return false;
 
@@ -575,17 +469,23 @@ struct mercenary_bot_AI : public PetAI
 		if (!mercenary)
 			return false;
 		
-			for (auto it = MercenaryUtil::MercenarySpellsBegin(); it != MercenaryUtil::MercenarySpellsEnd(); ++it)
+		if (spellTimer < diff)
+		{
+			if (rand() % 50 > 10)//有10%可能随机施法
 			{
-				if (!it->isActive)
-					continue;
-
-				if (it->type == mercenary->GetType() && it->role == mercenary->GetRole()){
-					if (!m_creature->HasCategoryCooldown(it->spellId))
-						DoCastSpellIfCan(target, it->spellId);
-				}
+				uint8 randSpell = rand() % (spellCount+1);
+				caseSpell(target, m_creature->GetPetAutoSpellOnPos(randSpell), diff);
 			}
-		
+			else 
+			{
+				if (currentSpell >= spellCount)
+					currentSpell = 0;
+				caseSpell(target, m_creature->GetPetAutoSpellOnPos(currentSpell), diff);
+				currentSpell++;
+			}
+			
+		}else 
+			spellTimer -= diff;
 
 		return true;
 	};
@@ -593,13 +493,18 @@ struct mercenary_bot_AI : public PetAI
 	void UpdateAI(const uint32 diff) override
 	{
 
-		if (Unit* owner = m_creature->GetOwner())
-		if (!m_creature->getVictim())
-		if (m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
-			m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
+		if (Unit* owner = m_creature->GetOwner()){
+			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+			{
+				if (mercenary->isRangedAttack())
+					m_creature->GetMotionMaster()->MoveFollow(owner, 4 * PET_FOLLOW_DIST, M_PI_F*3.0f / 4.0f);
+				else
+					m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
+			}
+		}
 		if (mercenary)
 		{
-			if (talkTimer <= diff)
+			if (talkTimer <= 0)
 			{
 				std::vector<MercenaryTalking> tempVector = MercenaryUtil::MercenaryGetTalk(mercenary->GetType(), mercenary->GetRole());
 				if (tempVector.size() > 0)
@@ -623,10 +528,12 @@ struct mercenary_bot_AI : public PetAI
 				talkTimer -= diff;
 		}
 
-		if (mercenary->GetRole() == ROLE_CASTER_DPS || mercenary->GetRole() == ROLE_MARKSMAN_DPS)
+		if (mercenary->isRangedAttack())
 		{
-			m_creature->SetSheath(SHEATH_STATE_RANGED);
-			DoRangeAttackIfReady();
+			//m_creature->SetSheath(SHEATH_STATE_RANGED);
+			m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
+			//m_creature->addUnitState(UNIT_STAT_FLEEING);
+			DoRangeAttackIfReady(diff);
 		}else
 			DoMeleeAttackIfReady();
 	}
@@ -636,372 +543,25 @@ private:
 	std::string lastMessage;
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct mercenary_bot : public CreatureAI
-{
-public:
-	mercenary_bot(Creature* pCreature) : CreatureAI(pCreature) { }
-
-    bool removingSpell;
-    void static SendToHello(Player* player, Creature* creature, Mercenary* mercenary)
-    {
-//#ifndef MANGOS
-//        if (mercenary->GetOwnerGUID() == player->GetGUID().GetCounter())
-//#else
-        if (mercenary->GetOwnerGUID() == player->GetGUIDLow())
-//#endif
-        {
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800635, 0, 1);//更换装备
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800636, 0, 2);//查看装备
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800637, 0, 3); // 更换技能
-			player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, -2800584, 0, 37, player->GetMangosString(-2800584), 0, true);//雇佣兵改名
-        }
-        else
-            player->CLOSE_GOSSIP_MENU();
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 4);//取消
-//#ifndef MANGOS
-//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-//#else
-        player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-//#endif
-    }
-
-    void static SendEquipGear(Player* player, Creature* creature, Mercenary* mercenary)
-    {
-        if (mercenary->GetEditSlot() != SLOT_EMPTY)
-            mercenary->SetEditSlot(SLOT_EMPTY);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HEAD) + MercenaryUtil::GetMercenarySlotName(player,SLOT_HEAD), 0, 14);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_SHOULDERS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_SHOULDERS), 0, 13);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HANDS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_HANDS), 0, 12);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_FEET) + MercenaryUtil::GetMercenarySlotName(player, SLOT_FEET), 0, 11);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_LEGS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_LEGS), 0, 10);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_CHEST) + MercenaryUtil::GetMercenarySlotName(player, SLOT_CHEST), 0, 9);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_MAIN_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_MAIN_HAND), 0, 8);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_OFF_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_OFF_HAND), 0, 7);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(player, SLOT_RANGED), 0, 6);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 36);//取消
-//#ifndef MANGOS
-//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-//#else
-        player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-//#endif
-    }
-
-    void static SendItemList(Player* player, Creature* creature, Mercenary* mercenary, uint8 slot)
-    {
-        mercenary->SetEditSlot(slot);
-        std::vector<uint32> tempVector = mercenary->GetEquippableItems(player, slot);
-        for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
-        {
-            if (Item* item = player->GetItemByEntry(*itr))
-            {
-                std::ostringstream ss;
-                if (mercenary->GetItemBySlot(slot) != item->GetEntry())
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
-                else
-                {
-					ss << MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()) << player->GetMangosString(-2800638);// [|cff990000Already Equipped|r]
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + ss.str().c_str(), 0, 36);
-                }
-            }
-        }
-
-        if (slot == SLOT_OFF_HAND && mercenary->HasWeapon(true))
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800639, 0, 5);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
-//#ifndef MANGOS
-//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-//#else
-        player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-//#endif
-    }
-
-    void static SendSpellList(Player* player, Creature* creature, Mercenary* mercenary)
-    {
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800640, 0, 39);//教雇佣兵新技能法术
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800641, 0, 40);//遗忘雇佣兵的技能法术
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
-//#ifndef MANGOS
-//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-//#else
-        player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-//#endif
-    }
-
-};
-
-bool OnGossipHello_mercenary_bot(Player* player, Creature* creature)
-{
-	player->PlayerTalkClass->ClearMenus();
-	if (player->isInCombat())
-	{
-		player->GetSession()->SendNotification(23); // You are in combat.
-		return false;
-	}
-	
-	Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
-	if (!mercenary)
-		return false;
-	mercenary_bot::SendToHello(player, creature, mercenary);
-	return true;
-}
-bool learnOrUnlearnSpell(Mercenary* mercenary ,Player* player, Creature* creature, uint32 spell){
-	/*以下为数据库配置技能*/
-	for (auto it = MercenaryUtil::MercenarySpellsBegin(); it != MercenaryUtil::MercenarySpellsEnd(); ++it)
-	{
-		if (!it->isActive || it->isDefaultAura)
-			continue;
-
-		if (mercenary->GetType() == it->type && mercenary->GetRole() == it->role)
-		{
-			if (spell == it->spellId)
-			{
-				if (creature->removingSpell)
-				{
-					Pet* pet = (Pet*)creature;
-					pet->removeSpell(it->spellId, false);
-				}
-				else
-				{
-					mercenary->LearnSpell(player, it->spellId);
-				}
-				player->CLOSE_GOSSIP_MENU();
-				return false;
-			}
-		}
-	}
-	/*以下为职业默认技能*/
-	std::vector<uint32>& defaultSpellVec = std::vector<uint32>();
-	ChatHandler(player).getDefaultSpells(defaultSpellVec, mercenary->GetRace(), mercenary->GetType());
-	for (auto itr = defaultSpellVec.begin(); itr != defaultSpellVec.end(); ++itr)
-	{
-		if (spell == *itr)
-		{
-			if (creature->removingSpell)
-			{
-				Pet* pet = (Pet*)creature;
-				pet->removeSpell(*itr, false);
-			}
-			else
-				mercenary->LearnSpell(player, *itr);
-			player->CLOSE_GOSSIP_MENU();
-			return false;
-		}
-	}
-
-	if (creature->removingSpell)
-		creature->removingSpell = false;
-	else
-		ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800585));//学习成功，右键点击宠物技能图标启用。
-
-	return true;
-}
-
-void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
-	Pet* pet = (Pet*)creature;
-	/*以下为数据库配置技能*/
-	for (auto it = MercenaryUtil::MercenarySpellsBegin(); it != MercenaryUtil::MercenarySpellsEnd(); ++it)
-	{
-		if (!it->isActive || it->isDefaultAura)
-			continue;
-
-		if (mercenary->GetType() == it->type && mercenary->GetRole() == it->role)
-		{
-			if (actions == 39)
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player), 0, GOSSIP_ACTION_SPELL_DEF+it->spellId);
-			else
-			{
-				if (pet->HasSpell(it->spellId))
-				{
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(it->spellId, player) + player->GetMangosString(-2800586), 0, GOSSIP_ACTION_SPELL_DEF+it->spellId);//遗忘
-					creature->removingSpell = true;
-				}
-			}
-		}
-	}
-	/*以下为职业默认技能*/
-	std::vector<uint32>& defaultSpellVec = std::vector<uint32>();
-	ChatHandler(player).getDefaultSpells(defaultSpellVec, mercenary->GetRace(), mercenary->GetType());
-	for (auto itr = defaultSpellVec.begin(); itr != defaultSpellVec.end(); ++itr)
-	{
-		if (actions == 39)
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player), 0, GOSSIP_ACTION_SPELL_DEF+*itr);
-		else
-		{
-			if (pet->HasSpell(*itr))
-			{
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr, player) + player->GetMangosString(-2800586), 0, GOSSIP_ACTION_SPELL_DEF+*itr);//遗忘
-				creature->removingSpell = true;
-			}
-		}
-	}
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
-	//#ifndef MANGOS
-	//                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-	//#else
-	player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-	//#endif
-}
-bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*sender*/, uint32 actions) 
-{
-	player->PlayerTalkClass->ClearMenus();
-	//#ifndef MANGOS
-	//        Mercenary* mercenary = GetMercenaryByOwner(player->GetGUID().GetCounter());
-	//#else
-	Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
-	//#endif
-	WorldSession* session = player->GetSession();
-
-
-
-		if (mercenary->GetEditSlot() != SLOT_EMPTY) /*mercenary中标记变量editSlot标明actions是否为编辑装备*/
-		{
-			std::vector<uint32> tempVector = mercenary->GetEquippableItems(player, mercenary->GetEditSlot());
-			for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
-			{
-				if (Item* item = player->GetItemByEntry(*itr))
-				{
-					if (actions == item->GetEntry())
-					{
-						player->CLOSE_GOSSIP_MENU();
-						if (!mercenary->CanEquipItem(player, item))
-							return false;
-						else
-						{
-							//成功给你的雇佣兵装备了 %s !
-							ChatHandler(session).PSendSysMessage(player->GetMangosString(-2800642), MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), session).c_str());
-							mercenary->SetEditSlot(SLOT_EMPTY);
-							return false;
-						}
-					}
-				}
-			}
-		}
-		
-		if (actions > GOSSIP_ACTION_SPELL_DEF)
-		{
-			if(mercenary)
-			learnOrUnlearnSpell(mercenary, player, creature, actions - GOSSIP_ACTION_SPELL_DEF);/*如果上面都不匹配，actions代表的就是学习或者遗忘的技能*/
-			player->CLOSE_GOSSIP_MENU();
-			return true;
-		}
-
-	switch (actions)
-	{
-		case 1:
-			mercenary_bot::SendEquipGear(player, creature, mercenary);
-			break;
-		case 2:
-			for (auto itr = mercenary->GearBegin(); itr != mercenary->GearEnd(); ++itr)
-			{
-				const ItemPrototype* proto = MercenaryUtil::GetItemPrototype(itr->second);
-				if (proto)
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second) + MercenaryUtil::GetMercenaryItemLink(itr->second, session), 0, 36);
-			}
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, 36);//后退
-			player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-			break;
-		case 3:
-			mercenary_bot::SendSpellList(player, creature, mercenary);
-			break;
-		case 4:
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case 5:
-			mercenary->RemoveOffHand(player->GetPet());
-			player->CLOSE_GOSSIP_MENU();
-			break;
-		case 6: // Equip Ranged
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_RANGED);
-			break;
-		case 7: // Equip Off Hand
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_OFF_HAND);
-			break;
-		case 8: // Equip Main Hand
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_MAIN_HAND);
-			break;
-		case 9: // Equip Chest
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_CHEST);
-			break;
-		case 10: // Equip Legs
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_LEGS);
-			break;
-		case 11: // Equip Feet
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_FEET);
-			break;
-		case 12: // Equip Hands
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_HANDS);
-			break;
-		case 13: // Equip Shoulders
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_SHOULDERS);
-			break;
-		case 14: // Equip Head
-			mercenary_bot::SendItemList(player, creature, mercenary, SLOT_HEAD);
-			break;
-		case 36:
-			mercenary_bot::SendToHello(player, creature, mercenary);
-			break;
-		case 39:
-		case 40:
-			if (mercenary)
-				addSpellMenu(player, mercenary, creature, actions);/*学习39或者遗忘40菜单*/
-			break;
-	}
-
-	return true;
-}
-bool OnGossipSelectWithCode_mercenary_bot(Player* player, Creature* creature, uint32 sender, uint32 actions, const char* code)
-{
-	player->PlayerTalkClass->ClearMenus();
-	if (actions == 37)
-	{
-		Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
-		if (!mercenary)
-			return false;
-
-		Pet* pet = player->GetPet();
-		if (!pet)
-			return false;
-
-		std::string name = code;
-		if (!ChatHandler(player).checkPetName(name))
-			return false;
-
-		creature->SetName(name);
-
-		if (player->GetGroup())
-			player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
-
-
-		//CharacterDatabase.escape_string(name);
-		//CharacterDatabase.PExecute("UPDATE character_pet SET name='%s' WHERE Id='%u' AND owner='%u'", name.c_str(), mercenary->GetId(), player->GetGUIDLow());
-		//#endif
-		pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL)));
-	}
-
-	//player->CLOSE_GOSSIP_MENU();
-	return true;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct mercenary_world_gossip : public CreatureAI
 {
 public:
 	mercenary_world_gossip(Creature* pCreature) : CreatureAI(pCreature) {  }
- 
-    void static CreateMercenary(Player* player, Creature* creature, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type)
-    {
-        if (!mercenary->Create(player, model, race, gender, type, role, creature->GetName()))
-        {
+
+	void static CreateMercenary(Player* player, Creature* creature, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type)
+	{
+		if (!mercenary->Create(player, model, race, gender, type, role, creature->GetName()))
+		{
 			player->GetSession()->SendNotification(-2800643);//不能招募这个雇佣兵!
-            player->CLOSE_GOSSIP_MENU();
-            return;
-        }
-    }
-	
+			player->CLOSE_GOSSIP_MENU();
+			return;
+		}
+	}
+
 };
 
-bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature) 
+bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 {
 	player->PlayerTalkClass->ClearMenus();
 	if (player->isInCombat())
@@ -1019,7 +579,6 @@ bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 		}
 	}
 
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800644, 0, 1);// "I would like to hire you."
 	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 2);
 	//#ifndef MANGOS
 	//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
@@ -1029,7 +588,7 @@ bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 	return true;
 }
 
-bool OnGossipSelect_mercenary_world_gossip(Player* player, Creature* creature, uint32 /*sender*/, uint32 actions) 
+bool OnGossipSelect_mercenary_world_gossip(Player* player, Creature* creature, uint32 /*sender*/, uint32 actions)
 {
 	player->PlayerTalkClass->ClearMenus();
 	//#ifndef MANGOS
@@ -1071,8 +630,6 @@ bool OnGossipSelect_mercenary_world_gossip(Player* player, Creature* creature, u
 	player->CLOSE_GOSSIP_MENU();
 	return true;
 }
-//////////////////////////////////////////////////////////////////////////////////
-
 CreatureAI* GetAI_mercenary_bot(Creature* creature)
 {
 	return new mercenary_bot_AI(creature);

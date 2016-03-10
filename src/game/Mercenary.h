@@ -17,12 +17,25 @@
 #include "ObjectMgr.h"
 //#endif
 
+struct MercenaryRoleDef
+{
+	uint8 role;
+	std::string name;
+	std::string classname;
+};
+struct MercenarySpellGroup
+{
+	tbb::concurrent_vector<uint32> spellLevelVector;/*由大到小排序*/
+	tbb::concurrent_vector<uint32> spellIdVector;   /*id数组*/
+};
 struct MercenarySpell
 {
     uint8 type;
     uint8 role;
     uint32 spellId;
-    bool isDefaultAura;
+	//std::string comment;
+	//uint32 spelllevel;
+	bool isDefaultAura;
     bool isActive;
 };
 
@@ -127,18 +140,6 @@ enum MercenaryType
     MAX_MERCENARY_TYPES=12
 };
 
-enum MercenaryRoles
-{
-    ROLE_NONE=0,
-    ROLE_MELEE_DPS=1,	//近战输出
-    ROLE_CASTER_DPS=2,  //法术远程输出
-    ROLE_MARKSMAN_DPS=3,//猎人物理远程输出
-    ROLE_HEALER=4,		//治疗
-    ROLE_TANK=5,        //坦克
-
-    MAX_MERCENARY_ROLES=6
-};
-
 enum RaceModels
 {
     HUMAN_MALE_MODEL = 49,
@@ -222,6 +223,12 @@ public:
     * Initializes Mercenary's stats, gear and other summon values
     */
     void Initialize(Player* player, Pet* pet, bool create);
+
+	/*清理不匹配的技能*/
+	void Mercenary::cleanNoMatchSpell(Pet* pet);
+
+	/*清理不匹配的装备*/
+	void Mercenary::clearnNoMatchEquipItem();
     /*
     * Sets the displayId, race and gender values of the Mercenary
     */
@@ -238,8 +245,8 @@ public:
     * Sets the type of the Mercenary
     */
     void SetType(const uint8 newType) { 
-		//if (type != newType)//职业切换，装备必须切换
-			//GearContainer.clear();穿戴时检查好些
+		if (type != newType)//职业切换，装备必须切换
+			GearContainer.clear();//穿戴时检查好些
 		type = newType; 
 	}
     /*
@@ -356,17 +363,20 @@ public:
     {
 		return offhand ? (GearContainer[SLOT_OFF_HAND]>0) : (GearContainer[SLOT_MAIN_HAND]>0);
     }
-
+	bool isRangedAttack(){
+		return type == MERCENARY_TYPE_HUNTER || type == MERCENARY_TYPE_MAGE || type == MERCENARY_TYPE_WARLOCK || role == 13 || role == 27 || role == 18;
+		//法师、术士、猎人、牧师（暗影系）、德鲁伊（平衡系）以及萨满（元素系）
+	}
 private:
     uint32 ownerGUID;
-	uint8 role = ROLE_NONE;
+	uint8 role = 0;
     uint32 displayId;
     uint8 race;
     uint8 gender;
 	uint8 type = MERCENARY_TYPE_NONE;
     bool summoned=false;
     uint8 editSlot;
-
+	std::vector<uint32>* defaultSpellVec;
     Gear GearContainer;
 };
 

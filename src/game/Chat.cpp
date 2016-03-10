@@ -35,6 +35,7 @@
 #include "PoolManager.h"
 #include "GameEventMgr.h"
 #include "AuctionHouseBot/AuctionHouseBot.h"
+#include <hash_map>
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid_hex:completed_0_1:mm:dd:yy_from_2000:criteriaMask1:criteriaMask2:criteriaMask3:criteriaMask4|h[name]|h|r
@@ -3603,16 +3604,103 @@ bool ChatHandler::checkPetName(std::string& name){
 	}
 	return true;
 }
-void ChatHandler::getDefaultSpells(std::vector<uint32>& vec,uint8 race, uint8 cla)
+bool IsSpellFitByClassAndRace(uint32 racemask, uint32 classmask,uint32 spell_id, uint32 level) 
 {
-	PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, cla);
-	if (info == nullptr)
-		return;
-	for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
+	SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spell_id);
+	if (bounds.first == bounds.second)
+		return true;
+
+	for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
 	{
-		// but send in normal spell in game learn case
-		vec.push_back(*itr);
+		SkillLineAbilityEntry const* abilityEntry = _spell_idx->second;
+		// skip wrong race skills
+		if (abilityEntry->racemask && (abilityEntry->racemask & racemask) == 0)
+			continue;
+
+		// skip wrong class skills
+		if (abilityEntry->classmask && (abilityEntry->classmask & classmask) == 0)
+			continue;
+
+		SkillRaceClassInfoMapBounds bounds = sSpellMgr.GetSkillRaceClassInfoMapBounds(abilityEntry->skillId);
+		for (SkillRaceClassInfoMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
+		{
+			SkillRaceClassInfoEntry const* skillRCEntry = itr->second;
+			if ((skillRCEntry->raceMask & racemask) && (skillRCEntry->classMask & classmask))/*仅race和class匹配的记录才可能被排除在外*/
+			{
+				if (skillRCEntry->flags & ABILITY_SKILL_NONTRAINABLE)/*不需要训练的技能被排除在外*/
+					return false;
+
+				if (skillRCEntry->reqLevel && level < skillRCEntry->reqLevel)/*等级不符合的被排除在外*/
+					return false;
+			}
+		}
+
+		return true;
 	}
+
+	return false;
+}
+void ChatHandler::getDefaultSpells(std::vector<uint32>& vec,uint8 race, uint8 cla,uint32 level)
+{
+	Player* player = m_session->GetPlayer();
+	ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(cla);
+	if (!clsEntry)
+		return;
+
+	std::hash_map<uint32, SpellEntry const*> map;
+	uint32 family = clsEntry->spellfamily;
+
+	for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+	{
+		SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
+		if (!entry)
+			continue;
+
+		SpellEntry const* spellInfo = sSpellStore.LookupEntry(entry->spellId);
+		if (!spellInfo)
+			continue;
+
+		// skip server-side/triggered spells
+		if (spellInfo->spellLevel == 0)
+			continue;
+
+
+		// skip other spell families
+		if (spellInfo->SpellFamilyName != family)
+			continue;
+
+		// skip spells with first rank learned as talent (and all talents then also)
+		uint32 first_rank = sSpellMgr.GetFirstSpellInChain(spellInfo->Id);
+		if (GetTalentSpellCost(first_rank) > 0)
+			continue;
+
+		// skip broken spells
+		if (!SpellMgr::IsSpellValid(spellInfo, player, false))
+			continue;
+
+		if ((spellInfo->speed == 0 && spellInfo->DurationIndex == 0))
+			continue;
+
+		if (spellInfo->spellLevel >level)
+			continue;
+
+		// skip wrong class/race skills
+		if (!IsSpellFitByClassAndRace(spellInfo->Id, race, cla, level))
+			continue;
+
+
+		auto it = map.find(spellInfo->SpellIconID);
+		if (it != map.end())//找到
+		{
+			if (it->second->spellLevel <= spellInfo->spellLevel)
+				//	map[spellInfo->SpellIconID] = spellInfo;
+				it->second = spellInfo;
+		}
+		else//没找到
+			map[spellInfo->SpellIconID] = spellInfo;
+	}
+	for (auto itr = map.begin(); itr != map.end(); ++itr)
+		vec.push_back(itr->second->Id);
 }
 void ChatHandler::learnDefaultSpells(Pet* pet, uint8 race, uint8 cla,uint8 maxcount)
 {

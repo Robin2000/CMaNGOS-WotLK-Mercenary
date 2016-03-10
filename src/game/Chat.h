@@ -99,7 +99,7 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HasSentErrorMessage() { return sentErrorMessage;}
 
 		/*一些工具方法*/
-		void getDefaultSpells(std::vector<uint32> & vec, uint8 race, uint8 cla);
+		void getDefaultSpells(std::vector<uint32> & vec, uint8 race, uint8 cla, uint32 level);
 		void learnDefaultSpells(Pet* pet, uint8 race, uint8 cla, uint8 maxcount);
 		
         /**

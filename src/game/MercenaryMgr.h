@@ -12,7 +12,13 @@
 #include <unordered_map>
 #include "SharedDefines.h"
 
-typedef std::vector<MercenarySpell> MercenarySpells;
+
+typedef tbb::concurrent_unordered_map<std::string,MercenarySpellGroup*> GroupSpellsMap;
+typedef tbb::concurrent_unordered_map<uint32, GroupSpellsMap*> MercenarySpellsMap;/*key为雇佣兵职业class,value对应技能组*/
+typedef tbb::concurrent_unordered_map<uint32, MercenarySpell*> MercenarySpellsInfo;/*key为技能*/
+typedef tbb::concurrent_unordered_map<uint32, std::vector<MercenaryRoleDef*>*> MercenaryRoleDefMap;/*key为雇佣兵职业class，value对应角色列表*/
+
+
 typedef std::vector<MercenaryStarterGear> MercenaryStartGear;
 typedef std::vector<MercenaryTalking> MercenaryTalk;
 typedef std::vector<MercenaryProficiency> MercenaryProficiencies;
@@ -96,8 +102,8 @@ public:
     MercenaryMap::const_iterator MercenaryEnd() const { return MercenaryContainer.end(); }
     MercenaryStartGear::const_iterator MercenaryStartGearBegin() const { return MercenaryStartGearContainer.begin(); }
     MercenaryStartGear::const_iterator MercenaryStartGearEnd() const { return MercenaryStartGearContainer.end(); }
-    MercenarySpells::const_iterator MercenarySpellsBegin() const { return MercenarySpellsContainer.begin(); }
-    MercenarySpells::const_iterator MercenarySpellsEnd() const { return MercenarySpellsContainer.end(); }
+	MercenarySpellsMap::const_iterator MercenarySpellsBegin() const { return mercenarySpellsMap.begin(); }
+	MercenarySpellsMap::const_iterator MercenarySpellsEnd() const { return mercenarySpellsMap.end(); }
     MercenaryTalk::const_iterator MercenaryTalkBegin() const { return MercenaryTalkContainer.begin(); }
     MercenaryTalk::const_iterator MercenaryTalkEnd() const { return MercenaryTalkContainer.end(); }
 
@@ -133,7 +139,25 @@ public:
 
         return nullptr;
     }
+	GroupSpellsMap* findGroupSpellsMapByClass(uint32 classType){
+		auto itr = mercenarySpellsMap.find(classType);
+		if (itr == mercenarySpellsMap.end())
+			return nullptr;
+		return itr->second;
+	}
+	std::vector<MercenaryRoleDef*>* findRoleVectorByClass(uint32 classType){
+		auto itr = mercenaryRoleDefMap.find(classType);
+		if (itr == mercenaryRoleDefMap.end())
+			return nullptr;
+		return itr->second;
+	}
 
+	MercenarySpell* findMercenarySpellsInfoBySpell(uint32 spellid){ 
+		auto itr = mercenarySpellsInfo.find(spellid);
+		if (itr == mercenarySpellsInfo.end())
+			return nullptr;
+		return itr->second;
+	} 
     /*
     *  Returns a vector of the correct talk sayings for that Mercenary type and role
     */
@@ -237,7 +261,9 @@ private:
     MercenaryMgr();
     ~MercenaryMgr();
 
-    MercenarySpells MercenarySpellsContainer;
+	MercenarySpellsInfo mercenarySpellsInfo;
+	MercenarySpellsMap mercenarySpellsMap;
+	MercenaryRoleDefMap mercenaryRoleDefMap;
     MercenaryStartGear MercenaryStartGearContainer;
     MercenaryProficiencies MercenaryProficiencyContainer;
     MercenaryMap MercenaryContainer;
@@ -251,8 +277,9 @@ class MANGOS_DLL_SPEC MercenaryUtil{
 public:
 	static Random GetMercenaryRandom();
 	static Mercenary* GetMercenaryByOwner(uint32 ownerGUID);
-	static MercenarySpells::const_iterator MercenarySpellsBegin();
-	static MercenarySpells::const_iterator MercenarySpellsEnd();
+	static GroupSpellsMap* MercenaryUtil::findGroupSpellsMapByClass(uint32 classType);
+	static std::vector<MercenaryRoleDef*>* MercenaryUtil::findRoleVectorByClass(uint32 classType);
+	static MercenarySpell* MercenaryUtil::findMercenarySpellsInfoBySpell(uint32 spellid);
 	static std::vector<MercenaryTalking> MercenaryGetTalk(uint8 type, uint8 role);
 	static std::string GetMercenarySlotIcon(uint8 slot);
 	static const char* GetMercenarySlotName(Player* player,uint8 slot);

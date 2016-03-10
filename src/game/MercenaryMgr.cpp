@@ -78,25 +78,76 @@ void MercenaryMgr::	LoadMercenaries()
             MercenaryTalkContainer.push_back(mercenaryTalking);
         } while (result->NextRow());
     }
-
-	result = WorldDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive FROM mercenary_spells");
+	//										0   1      2          3            4       5         6 
+	result = WorldDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive,comment,spelllevel FROM mercenary_spells order by type,role,spelllevel desc");
     if (result)
     {
         do
         {
             Field* fields = result->Fetch();
+			MercenarySpell* spells = new MercenarySpell();
+            spells->type = fields[0].GetUInt8();
+			spells->role = fields[1].GetUInt8();
+			spells->spellId = fields[2].GetUInt32();
+			spells->isDefaultAura = fields[3].GetBool();
+			spells->isActive = fields[4].GetBool();
+			std::string  comment= fields[5].GetString();
 
-            MercenarySpell spells;
-            spells.type = fields[0].GetUInt8();
-            spells.role = fields[1].GetUInt8();
-            spells.spellId = fields[2].GetUInt32();
-            spells.isDefaultAura = fields[3].GetBool();
-            spells.isActive = fields[4].GetBool();
+			mercenarySpellsInfo.insert(std::make_pair(spells->spellId, spells));
+			
+			GroupSpellsMap* groupSpellsMap;//第一层取得职业对应map
+			if (mercenarySpellsMap.find(spells->type) == mercenarySpellsMap.end())
+			{
+				groupSpellsMap = new GroupSpellsMap();
+				mercenarySpellsMap[spells->type] = groupSpellsMap;
+			}
+			else
+				groupSpellsMap = mercenarySpellsMap[spells->type];
+			
+			MercenarySpellGroup* mercenarySpellGroup;//第二层取得技能名对应map
+			if (groupSpellsMap->find(comment) == groupSpellsMap->end())
+			{
+				mercenarySpellGroup = new MercenarySpellGroup();
+				(*groupSpellsMap)[comment] = mercenarySpellGroup;
+			}
+			else
+				mercenarySpellGroup = (*groupSpellsMap)[comment];
+			
+			mercenarySpellGroup->spellIdVector.push_back(spells->spellId);
+			mercenarySpellGroup->spellLevelVector.push_back(fields[6].GetUInt32());
 
-            MercenarySpellsContainer.push_back(spells);
         } while (result->NextRow());
     }
 
+	result = WorldDatabase.Query("SELECT classid, role, rolename,classname FROM mercenary_spell_role");
+	if (result)
+	{
+		do
+		{
+			Field* fields = result->Fetch();
+
+			MercenaryRoleDef* roleDef = new MercenaryRoleDef();
+			uint32 classid = fields[0].GetUInt32();
+			roleDef->role = fields[1].GetUInt32();
+			roleDef->name = fields[2].GetString();
+			roleDef->classname = fields[3].GetString();
+
+			std::vector<MercenaryRoleDef*>* roleDefV;
+			auto itr = mercenaryRoleDefMap.find(classid);
+
+			if (itr == mercenaryRoleDefMap.end())
+			{
+				roleDefV = new std::vector<MercenaryRoleDef*>();
+				mercenaryRoleDefMap[classid] = roleDefV;
+			}
+			else
+				roleDefV = itr->second;
+
+			roleDefV->push_back(roleDef);
+
+
+		} while (result->NextRow());
+	}
 	result = WorldDatabase.Query("SELECT entry, modelId, race, gender FROM mercenary_world");
     if (result)
     {
@@ -280,8 +331,12 @@ std::string MercenaryMgr::GetItemLink(uint32 entry, WorldSession* session) const
 
 Random MercenaryUtil::GetMercenaryRandom(){ return sMercenaryMgr->random; }
 Mercenary* MercenaryUtil::GetMercenaryByOwner(uint32 ownerGUID){ return sMercenaryMgr->GetMercenaryByOwner(ownerGUID); }
-MercenarySpells::const_iterator MercenaryUtil::MercenarySpellsBegin(){ return sMercenaryMgr->MercenarySpellsBegin(); }
-MercenarySpells::const_iterator MercenaryUtil::MercenarySpellsEnd(){ return sMercenaryMgr->MercenarySpellsEnd(); }
+GroupSpellsMap* MercenaryUtil::findGroupSpellsMapByClass(uint32 classType){ return sMercenaryMgr->findGroupSpellsMapByClass(classType); }
+std::vector<MercenaryRoleDef*>* MercenaryUtil::findRoleVectorByClass(uint32 classType){ return sMercenaryMgr->findRoleVectorByClass(classType); }
+MercenarySpell* MercenaryUtil::findMercenarySpellsInfoBySpell(uint32 spellid){ return sMercenaryMgr->findMercenarySpellsInfoBySpell(spellid); }
+
+MercenarySpell* findMercenarySpellsInfoBySpell(uint32 spellid){ return sMercenaryMgr->findMercenarySpellsInfoBySpell(spellid); }
+
 std::vector<MercenaryTalking> MercenaryUtil::MercenaryGetTalk(uint8 type, uint8 role){ return sMercenaryMgr->GetTalk(type, role); }
 std::string MercenaryUtil::GetMercenarySlotIcon(uint8 slot)  { return sMercenaryMgr->GetSlotIcon(slot); }
 const char* MercenaryUtil::GetMercenarySlotName(Player* player, uint8 slot)  { return sMercenaryMgr->GetSlotName(player,slot); }

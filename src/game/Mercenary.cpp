@@ -5,7 +5,7 @@
 */
 #include "Mercenary.h"
 #include "MercenaryMgr.h"
-
+#include "ObjectMgr.h"
 Mercenary::Mercenary() { }
 
 Mercenary::Mercenary(uint32 model, uint8 r, uint8 g, uint8 role, uint8 type)
@@ -82,7 +82,7 @@ bool Mercenary::Create(Player* player)
     if (!player)
         return false;
     ownerGUID = player->GetGUIDLow();
-    role = ROLE_NONE;
+    role = 0;
     displayId = 1;
     race = 0;
     gender = GENDER_NONE;
@@ -98,6 +98,8 @@ bool Mercenary::Create(Player* player)
 
 bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mercType, uint8 mercRole, const std::string& name)
 {
+	
+
     if (!player)
         return false;
 
@@ -110,7 +112,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
         delete pet;
         return false;
     }
-
+	
 	//pet->SetOwnerGuid(player->GetObjectGuid());//我加的，会失败
 
     float x, y, z, o = 0;
@@ -151,8 +153,9 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     if (!name.empty())
         pet->SetName(name);
 
-	ChatHandler(player).learnDefaultSpells(pet, race, type,4);/*学习该职业该种族默认的技能*/
-
+	//ChatHandler(player).learnDefaultSpells(pet, race, type,4);/*学习该职业该种族默认的技能*/
+	clearnNoMatchEquipItem();//清理不匹配的装备
+	cleanNoMatchSpell(pet);//清理不匹配的技能
     Initialize(player, pet, true);
 
 	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!
@@ -199,7 +202,43 @@ bool Mercenary::Summon(Player* player)
 	return true;
 	
 }
+void Mercenary::cleanNoMatchSpell(Pet* pet){
+	//自动移除无用技能
+	uint8 petSpellCount = pet->GetPetAutoSpellSize();
+	for (int i = 0; i < petSpellCount; i++)
+	{
+		uint32 spell = pet->GetPetAutoSpellOnPos(i);
+		auto itr = MercenaryUtil::findMercenarySpellsInfoBySpell(spell);
+		if (itr == nullptr)
+		{
+			pet->unlearnSpell(spell, false);
+			continue;
+		}
+		if (itr->role != GetRole())
+			pet->unlearnSpell(spell, false);
+	}
 
+}
+//移除不匹配装备
+void Mercenary::clearnNoMatchEquipItem()
+{
+	Gear GearContainerTemp;
+	for (auto itr = GearBegin(); itr != GearEnd(); ++itr)
+	{
+		ItemPrototype const* proto = sObjectMgr.GetItemPrototype(itr->second);
+		if (!proto)
+			continue;
+
+		if (!sMercenaryMgr->CheckProficiencies(type, proto->Class, proto->SubClass))
+			GearContainerTemp[itr->first] = itr->second;
+
+	}
+	if (GearContainerTemp.size()>0)
+	{
+		for (auto itr = GearContainerTemp.begin(); itr != GearContainerTemp.end(); ++itr)
+			GearContainer.unsafe_erase(itr->first);
+	}
+}
 void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 {
     if (!create)
@@ -208,7 +247,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
         pet->SetNativeDisplayId(GetDisplay());
         pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
         pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
+		pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
         InitStats(player, pet);
 
 		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
@@ -430,7 +469,7 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	if (role == ROLE_MARKSMAN_DPS || ROLE_CASTER_DPS){
+	if (isRangedAttack()){
 		SetSheath(pet,SHEATH_STATE_RANGED);
 	}
     return true;
