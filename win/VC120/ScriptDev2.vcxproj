@@ -219,6 +219,7 @@
     <ClCompile Include="..\..\src\myscript\hearthstone_mount.cpp" />
     <ClCompile Include="..\..\src\myscript\hearthstone_quest.cpp" />
     <ClCompile Include="..\..\src\myscript\hearthstone_store.cpp" />
+    <ClCompile Include="..\..\src\myscript\mercenary_bot.cpp" />
     <ClCompile Include="..\..\src\myscript\mercenary_gossip.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_hearthstone.cpp" />
     <ClCompile Include="..\..\src\myscript\pr_hh.cpp" />
@@ -693,6 +694,7 @@
     <ClInclude Include="..\..\src\myscript\hearthstone_mount.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_quest.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_store.h" />
+    <ClInclude Include="..\..\src\myscript\mercenary_bot.h" />
     <ClInclude Include="..\..\src\myscript\mercenary_gossip.h" />
     <ClInclude Include="..\..\src\myscript\pr_hearthstone.h" />
     <ClInclude Include="..\..\src\myscript\teleport.h" />

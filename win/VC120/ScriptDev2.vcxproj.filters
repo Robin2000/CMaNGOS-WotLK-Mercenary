@@ -1699,6 +1699,9 @@
     <ClCompile Include="..\..\src\myscript\hearthstone_mount.cpp">
       <Filter>scripts\custom</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\myscript\mercenary_bot.cpp">
+      <Filter>scripts\custom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\scriptdev2\base\escort_ai.h">
@@ -1967,6 +1970,9 @@
       <Filter>scripts\custom</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\myscript\hearthstone_mount.h">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\myscript\mercenary_bot.h">
       <Filter>scripts\custom</Filter>
     </ClInclude>
   </ItemGroup>
