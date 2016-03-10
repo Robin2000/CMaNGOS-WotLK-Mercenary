@@ -69,9 +69,9 @@ void Mercenary::SaveToDB()
     saveMerc.addUInt8(type);
 
     saveMerc.Execute();
-
+	CharacterDatabase.PExecute("DELETE FROM mercenary_gear WHERE guid = '%u'", GetOwnerGUID());
 	for (auto itr = GearContainer.begin(); itr != GearContainer.end(); ++itr)
-		CharacterDatabase.PExecute("REPLACE INTO mercenary_gear (guid, slot ,itemId ) VALUES ('%u', '%u', '%u')", GetOwnerGUID(), itr->first, itr->second);
+		CharacterDatabase.PExecute("INSERT INTO mercenary_gear (guid, slot ,itemId ) VALUES ('%u', '%u', '%u')", GetOwnerGUID(), itr->first, itr->second);
 
 	CharacterDatabase.CommitTransaction();
 }
