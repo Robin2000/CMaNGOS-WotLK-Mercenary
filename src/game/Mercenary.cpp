@@ -153,9 +153,6 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     if (!name.empty())
         pet->SetName(name);
 
-	//ChatHandler(player).learnDefaultSpells(pet, race, type,4);/*学习该职业该种族默认的技能*/
-	clearnNoMatchEquipItem();//清理不匹配的装备
-	cleanNoMatchSpell(pet);//清理不匹配的技能
     Initialize(player, pet, true);
 
 	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!

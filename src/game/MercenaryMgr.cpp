@@ -198,8 +198,11 @@ void MercenaryMgr::OnSave(Player* player)
 
 void MercenaryMgr::OnSummon(Player* player)
 {
-    if (Mercenary* mercenary = GetMercenaryByOwner(player->GetGUIDLow()))
-        mercenary->Summon(player);
+	if (Mercenary* mercenary = GetMercenaryByOwner(player->GetGUIDLow()))
+	{
+		mercenary->cleanNoMatchSpell(player->GetPet());
+		mercenary->Summon(player);
+	}
 }
 
 std::string MercenaryMgr::GetSpellIcon(uint32 entry, Player* player) const
