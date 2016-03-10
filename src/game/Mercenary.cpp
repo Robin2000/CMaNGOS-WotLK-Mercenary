@@ -249,7 +249,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
         pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
         pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
-        InitStats(player, pet);
+        
 
 		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
 
@@ -267,6 +267,8 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->second);
 			}
         }
+
+		InitStats(player, pet);
     }
     else
     {
@@ -290,7 +292,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 #else
             pet->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 #endif
-        InitStats(player, pet);
+        
 
         pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
         pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
@@ -323,6 +325,8 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
         player->GetMap()->Add((Creature*)pet);
         player->SetPet(pet);
         player->PetSpellInitialize();
+
+		InitStats(player, pet);
     }
 	SendMirrorImagePacket(pet);
 }
@@ -431,7 +435,7 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
     pet->SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
     pet->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
 
-    pet->SetObjectScale(1.0f);
+    //pet->SetObjectScale(1.0f);
 
     int32 createResistance[MAX_SPELL_SCHOOL] = { 0, 0, 0, 0, 0, 0, 0 };
     createResistance[SPELL_SCHOOL_HOLY] = creatureInfo->ResistanceHoly;
