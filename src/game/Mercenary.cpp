@@ -199,6 +199,10 @@ bool Mercenary::Summon(Player* player)
 	return true;
 	
 }
+bool Mercenary::isValidSpell(uint32 spell){
+	auto itr = MercenaryUtil::findMercenarySpellsInfoBySpell(spell);
+	return  itr != nullptr&&itr->role != role;
+}
 void Mercenary::cleanNoMatchSpell(Pet* pet){
 	//自动移除无用技能
 	uint8 petSpellCount = pet->GetPetAutoSpellSize();
@@ -211,7 +215,7 @@ void Mercenary::cleanNoMatchSpell(Pet* pet){
 			pet->unlearnSpell(spell, false);
 			continue;
 		}
-		if (itr->role != GetRole())
+		if (itr->role != role)
 			pet->unlearnSpell(spell, false);
 	}
 

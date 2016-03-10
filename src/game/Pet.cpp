@@ -1188,9 +1188,16 @@ void Pet::_LoadSpells()
 
     if (result)
     {
+		
+		Mercenary*  mercenary = nullptr;
+		if (isMercenary())
+			mercenary=sMercenaryMgr->GetMercenary(GetOwner()->GetGUIDLow());
+
         do
         {
             Field* fields = result->Fetch();
+			if (mercenary&&!mercenary->isValidSpell(fields[0].GetUInt32()))//不加载无效的技能
+				continue;
 
             addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
         }
@@ -1235,7 +1242,9 @@ void Pet::_SaveSpells()
             break;
             case PETSPELL_NEW:
             {
-                SqlStatement stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active) VALUES (?, ?, ?)");
+				SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? and spell = ?");
+				stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);//雇佣兵guid总是相同，此时需要删除掉前面的记录
+				stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active) VALUES (?, ?, ?)");
                 stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, uint32(itr->second.active));
             }
             break;

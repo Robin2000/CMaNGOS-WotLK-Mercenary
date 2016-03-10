@@ -50,6 +50,14 @@ enum menu_ction_base{
 
 	void SendHireList(Player* player, Item* item)
 	{
+			if (Pet* pet = player->GetPet())
+	{
+		if (pet->GetEntry() == MERCENARY_DEFAULT_ENTRY)
+		{
+			player->GetSession()->SendNotification(player->GetMangosString(-2800634));//必须首先解散你的（雇佣兵）宠物
+			return;
+		}
+	}
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800097, 0, 106);//战士
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800098, 0, 107);//圣骑士
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800094, 0, 108);//猎人

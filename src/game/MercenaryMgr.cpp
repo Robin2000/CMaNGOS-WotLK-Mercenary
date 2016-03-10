@@ -200,7 +200,7 @@ void MercenaryMgr::OnSummon(Player* player)
 {
 	if (Mercenary* mercenary = GetMercenaryByOwner(player->GetGUIDLow()))
 	{
-		mercenary->cleanNoMatchSpell(player->GetPet());
+		//mercenary->cleanNoMatchSpell(player->GetPet());在数据库加载时已经移除
 		mercenary->Summon(player);
 	}
 }

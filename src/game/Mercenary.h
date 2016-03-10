@@ -229,6 +229,9 @@ public:
 
 	/*清理不匹配的装备*/
 	void Mercenary::clearnNoMatchEquipItem();
+
+	/*技能有效性判断*/
+	bool isValidSpell(uint32 spell);
     /*
     * Sets the displayId, race and gender values of the Mercenary
     */
