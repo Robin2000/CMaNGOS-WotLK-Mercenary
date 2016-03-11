@@ -15879,7 +15879,9 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 		{
 			quest = *itr;
 
-			if (quest->GetRequiredRaces() != 0 && quest->GetRequiredRaces()&getRace() == 0)/*大多任务是种族不符，优先排除*/
+			if (quest->GetRequiredRaces() == 0)/*大多任务是种族不符，优先排除*/
+				continue;
+			if (quest->GetRequiredRaces()&getRace() == 0)
 				continue;
 
 			int zoneOrSort = quest->GetZoneOrSort();
@@ -15923,11 +15925,11 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 								continue;
 						if (creature->faction==nullptr)
 							vector.push_back(quest);
-						else if (!creature->faction->IsFriendlyTo(*getFactionTemplateEntry()))//非敌视阵营
+						else if (!creature->faction->IsHostileTo(*getFactionTemplateEntry()))//非敌视阵营
 							vector.push_back(quest);
 					}
 				}
-				if (npcgo < 0){
+				else if (npcgo < 0){
 					GameObjectData* gameobject = sObjectMgr.findGameObjectDataByEntry(-npcgo);
 					if (gameobject != nullptr)
 					{
@@ -15937,7 +15939,7 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 
 						if (gameobject->faction==nullptr)
 							vector.push_back(quest);
-						else if (gameobject->faction->IsFriendlyTo(*getFactionTemplateEntry()))//非敌视阵营			
+						else if (!gameobject->faction->IsHostileTo(*getFactionTemplateEntry()))//非敌视阵营			
 							vector.push_back(quest);
 					}
 				}

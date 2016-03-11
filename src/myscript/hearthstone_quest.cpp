@@ -201,7 +201,11 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				count++;
 			}
 		}
-
+		if (readMap.size() == 0)
+		{
+			ChatHandler(pPlayer).SendSysMessage(-2800593);//系统提示：没有进行中的任务。
+			return;
+		}
 		for (QuestStatusMap::const_iterator it = readMap.begin(); it != readMap.end(); it++)
 		{
 			std::string  title = "";
@@ -219,6 +223,11 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->PrepareGossipMenu(pPlayer, 65535);
 		std::vector<Quest*> v;
 		pPlayer->recommendQuest(v,3);
+		if (v.size() == 0)
+		{
+			ChatHandler(pPlayer).SendSysMessage(-2800592);//系统提示：此区域已经没有可以推荐的任务。
+			return;
+		}
 		for (int i = 0; i < v.size();i++)
 		{
 			std::string  title = "";
