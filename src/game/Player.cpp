@@ -15878,6 +15878,10 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 		for (MinlevelQuestVector::const_iterator itr = v->begin(); vector.size() <= num && itr != v->end(); ++itr)
 		{
 			quest = *itr;
+
+			if (quest->GetRequiredRaces() != 0 && quest->GetRequiredRaces()&getRace() == 0)/*大多任务是种族不符，优先排除*/
+				continue;
+
 			int zoneOrSort = quest->GetZoneOrSort();
 			//                 季节性              悼念日             新年                 仲夏                    复活节                感恩节              情人节     战场
 			if (zoneOrSort == -22 || zoneOrSort == -41 || zoneOrSort == -366 || zoneOrSort == -369 || zoneOrSort == -374 || zoneOrSort == -375 || zoneOrSort == -376 || zoneOrSort == -25
@@ -15900,7 +15904,7 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 			
 
 			if (SatisfyQuestStatus(quest, false) && SatisfyQuestExclusiveGroup(quest, false) &&
-				SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
+				SatisfyQuestClass(quest, false)  &&
 				SatisfyQuestSkill(quest, false) && SatisfyQuestReputation(quest, false) &&
 				SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestTimed(quest, false) &&
 				SatisfyQuestNextChain(quest, false) && SatisfyQuestPrevChain(quest, false) && quest->IsActive())
