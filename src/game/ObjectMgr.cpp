@@ -276,12 +276,89 @@ void ObjectMgr::LoadGameMaps(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		mGameMaps[fields[0].GetUInt32()] = fields[1].GetCppString();
+		GameMap gameMap;
+		gameMap.id = fields[0].GetUInt32();
+		gameMap.name = fields[1].GetCppString();
+		mGameMaps[fields[0].GetUInt32()] = gameMap;
 	} while (result->NextRow());
 
 	delete result;
 
 	sLog.outString(">> Loaded " SIZEFMTD " z_map strings", mGameMaps.size());
+	sLog.outString();
+}
+void ObjectMgr::LoadGameZones(){
+
+	mGameZones.clear();                             // need for reload case
+													// 0  1   2    3
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel FROM z_zone");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0  gamemaps. DB table `z_map` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();
+		GameZone gameZone;
+		gameZone.id = fields[0].GetUInt32();
+		gameZone.name = fields[1].GetCppString();
+		gameZone.map = fields[2].GetUInt32();
+		gameZone.areaLevel = fields[3].GetUInt32();
+
+		mGameZones[gameZone.id] = gameZone;
+
+		mGameMaps[gameZone.map].zonelist.push_back(gameZone);
+
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " z_zone strings", mGameZones.size());
+	sLog.outString();
+}
+void ObjectMgr::LoadGameAreas(){
+
+	mGameAreas.clear();                             // need for reload case
+													//0  1    2   3    4
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel FROM z_area");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0  gamemaps. DB table `z_area` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();
+		GameArea gameArea;
+		gameArea.id = fields[0].GetUInt32();
+		gameArea.name = fields[1].GetCppString();
+		gameArea.map = fields[2].GetUInt32();
+		gameArea.zone = fields[3].GetUInt32();
+		gameArea.areaLevel = fields[4].GetUInt32();
+		
+		mGameAreas[gameArea.id] = gameArea;
+		mGameZones[gameArea.zone].arealist.push_back(gameArea);
+
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " z_area strings", mGameAreas.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadSpellNameMaps(){
@@ -362,20 +439,20 @@ void ObjectMgr::LoadQuestNpcGO(){
 		bar.step();
 		
 		QuestNpcGO questNpcGO;
-		uint32 questid = fields[0].GetUInt32();
+		questNpcGO.quest = fields[0].GetUInt32();
 		questNpcGO.npcgo = fields[1].GetInt32();
 		questNpcGO.ntype = fields[2].GetUInt8();
 
 		if (questNpcGO.ntype==0)
-			mQuestStarterNpcGOMaps[questid] = questNpcGO.npcgo;
+			mQuestStarterNpcGOMaps[questNpcGO.quest] = questNpcGO.npcgo;
 
-		auto itr = mQuestNpcGOMaps.find(questid);
+		auto itr = mQuestNpcGOMaps.find(questNpcGO.quest);
 
 		if (itr == mQuestNpcGOMaps.end())
 		{
 			QuestNpcGOVector* questNpcGOVector = new QuestNpcGOVector();
 			questNpcGOVector->push_back(questNpcGO);
-			mQuestNpcGOMaps[questid] = questNpcGOVector;
+			mQuestNpcGOMaps[questNpcGO.quest] = questNpcGOVector;
 		}
 		else
 			itr->second->push_back(questNpcGO);

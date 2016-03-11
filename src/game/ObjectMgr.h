@@ -561,7 +561,9 @@ class ObjectMgr
 		
 		typedef tbb::concurrent_unordered_map<uint32, MinlevelQuestVector> MinlevelQuestMap;/*不同minlevel的任务形成一个map*/
 		typedef tbb::concurrent_vector<std::string> GameTipsVector;
-		typedef tbb::concurrent_unordered_map<uint32, std::string> GameMaps;
+		typedef tbb::concurrent_unordered_map<uint32, GameMap> GameMaps;
+		typedef tbb::concurrent_unordered_map<uint32, GameZone> GameZones;
+		typedef tbb::concurrent_unordered_map<uint32, GameArea> GameAreas;
 		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
 		typedef tbb::concurrent_vector<QuestNpcGO> QuestNpcGOVector;
 		typedef tbb::concurrent_unordered_map<uint32, QuestNpcGOVector*> QuestNpcGOMaps;
@@ -734,8 +736,20 @@ class ObjectMgr
         bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase, "mangos_string", MIN_MANGOS_STRING_ID, MAX_MANGOS_STRING_ID, false); }
 		
 		void LoadGameMaps();
-		inline std::string & getGameMaps(uint32 idx){
+		void LoadGameZones();
+		void LoadGameAreas();
+
+		inline GameMaps & getGameMaps(){
+			return mGameMaps;
+		}
+		inline GameMap & getGameMaps(uint32 idx){
 			return mGameMaps[idx]; 
+		}
+		inline GameZone & getGameZones(uint32 zone){
+			return mGameZones[zone];
+		}
+		inline GameArea & getGameAreas(uint32 area){
+			return mGameAreas[area];
 		}
 		void LoadSpellNameMaps();
 		inline std::string & getSpellName(uint32 idx){
@@ -1410,8 +1424,9 @@ class ObjectMgr
 
 		GameTipsVector mGameTipsVector;
 		GameMaps mGameMaps;
-
-
+		GameZones mGameZones;
+		GameAreas mGameAreas;
+		
 		SpellNameMaps mSpellNameMaps;
 
 		

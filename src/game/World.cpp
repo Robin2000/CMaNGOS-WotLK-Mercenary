@@ -1242,6 +1242,9 @@ void World::SetInitialWorldSettings()
 	sLog.outString("Loading Localization strings...");
 	sObjectMgr.LoadGameTips();
 	sObjectMgr.LoadGameMaps();
+	sObjectMgr.LoadGameZones();
+	sObjectMgr.LoadGameAreas();
+
 	//sObjectMgr.LoadSpellNameMaps();
 	//clock_t time1 = clock();
 	if (!sObjectMgr.load_cache()){//-加载加密数据失败
