@@ -260,13 +260,13 @@ void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM z_gamemaps");
+	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM z_map");
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0  gamemaps. DB table `z_gamemaps` is empty.");
+		sLog.outString(">> Loaded 0  gamemaps. DB table `z_map` is empty.");
 		return;
 	}
 
@@ -281,7 +281,7 @@ void ObjectMgr::LoadGameMaps(){
 
 	delete result;
 
-	sLog.outString(">> Loaded " SIZEFMTD " z_gamemaps strings", mGameMaps.size());
+	sLog.outString(">> Loaded " SIZEFMTD " z_map strings", mGameMaps.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadSpellNameMaps(){
@@ -316,13 +316,13 @@ void ObjectMgr::LoadGameTips(){
 
 	mGameTipsVector.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT name FROM z_gametips order by id");
+	QueryResult* result = WorldDatabase.Query("SELECT name FROM z_tip order by id");
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0 z_gametips strings. DB table `z_gametips` is empty.");
+		sLog.outString(">> Loaded 0 z_tip strings. DB table `z_tip` is empty.");
 		return;
 	}
 
@@ -337,7 +337,7 @@ void ObjectMgr::LoadGameTips(){
 
 	delete result;
 
-	sLog.outString(">> Loaded " SIZEFMTD " z_gametips strings", mGameTipsVector.size());
+	sLog.outString(">> Loaded " SIZEFMTD " z_tip strings", mGameTipsVector.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadQuestNpcGO(){
