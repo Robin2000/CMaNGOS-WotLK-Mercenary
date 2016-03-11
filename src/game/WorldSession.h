@@ -889,7 +889,6 @@ class MANGOS_DLL_SPEC WorldSession
         void HandleReadyForAccountDataTimesOpcode(WorldPacket& recv_data);
         void HandleQueryQuestsCompletedOpcode(WorldPacket& recv_data);
         void HandleQuestPOIQueryOpcode(WorldPacket& recv_data);
-		void inline SetUpdateCombat(bool update){ update_combat = update; }
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
@@ -930,7 +929,6 @@ class MANGOS_DLL_SPEC WorldSession
         //std::deque<WorldPacket *> m_recvQueue;
 		boost::lockfree::queue<WorldPacket *, boost::lockfree::fixed_sized<false>> m_recvQueue;
 
-		bool update_combat;
 };
 #endif
 /// @}

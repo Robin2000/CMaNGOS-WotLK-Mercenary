@@ -1356,8 +1356,6 @@ void World::SetInitialWorldSettings()
     // for AhBot
     m_timers[WUPDATE_AHBOT].SetInterval(20 * IN_MILLISECONDS); // every 20 sec
 
-	m_timers[WUPDATE_COMBATSTATUS].SetInterval(20 * IN_MILLISECONDS); // 每20秒检查1次战斗状态
-
     // to set mailtimer to return mails every day between 4 and 5 am
     // mailtimer is increased when updating auctions
     // one second is 1000 -(tested on win system)
@@ -1527,14 +1525,6 @@ void World::Update(uint32 diff)
 
         ///- Handle expired auctions
         sAuctionMgr.Update();
-    }
-
-    /// <li> Handle COMBATSTATUS operations
-	update_combat = false;
-	if (m_timers[WUPDATE_COMBATSTATUS].Passed())
-    {
-		update_combat=true;
-		m_timers[WUPDATE_COMBATSTATUS].Reset();
     }
 
 	/// <li> Handle AHBot operations
@@ -1973,8 +1963,6 @@ void World::UpdateSessions(uint32 /*diff*/)
 			WorldSessionFilter updater(pSession);
 			if (!pSession->Update(updater))
 				delete_sessions.insert(*itr);
-			else
-				pSession->SetUpdateCombat(update_combat);
 		}
 	});
 	for (SessionMap::iterator itr = delete_sessions.begin(); itr != delete_sessions.end(); itr++){

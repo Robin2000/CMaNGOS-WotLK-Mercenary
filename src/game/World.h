@@ -79,8 +79,7 @@ enum WorldTimers
     WUPDATE_EVENTS      = 3,
     WUPDATE_DELETECHARS = 4,
     WUPDATE_AHBOT       = 5,
-	WUPDATE_COMBATSTATUS = 6,
-    WUPDATE_COUNT       = 7
+    WUPDATE_COUNT       = 6
 };
 
 /// Configuration elements
@@ -706,7 +705,6 @@ class World
         // List of Maps that should be force-loaded on startup
         std::set<uint32>* m_configForceLoadMapIds;
 
-		bool update_combat;
 };
 
 extern uint32 realmID;
