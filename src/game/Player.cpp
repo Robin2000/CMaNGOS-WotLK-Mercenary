@@ -13308,6 +13308,12 @@ void Player::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name){
 	else
 		*name = "error";
 }
+tbb::concurrent_vector<QuestNpcGO> const*  Player::GetQuestNpcGOVector(uint32 questid,bool refresh){
+	if (refresh)
+		selQuestNpcGOVector = sObjectMgr.GetQuestNpcGOVector(questid);
+	return selQuestNpcGOVector;
+}
+
 CreatureData* Player::findCreatureDataByPOI(uint32 mapid, float x, float y){ return sObjectMgr.findCreatureDataByPOI(mapid, x, y); }
 GameObjectData* Player::findGameObjectDataByPOI(uint32 mapid, float x, float y){ return sObjectMgr.findGameObjectDataByPOI(mapid, x, y); }
 CreatureData* Player::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }
@@ -13321,6 +13327,7 @@ inline std::string & Player::getSpellName(uint32 idx){
 inline std::string & Player::getGameMaps(uint32 idx){
 	return sObjectMgr.getGameMaps(idx);
 }
+
 inline int32 Player::findQuestStarterCreatureOrGO(uint32 questid){
 	return sObjectMgr.findQuestStarterCreatureOrGO(questid);
 }
@@ -15864,7 +15871,8 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 	Quest* quest;
 	QuestStatusMap::const_iterator it;
 	uint32  zoneid=GetZoneId();
-	for (uint32 i = GetUInt32Value(UNIT_FIELD_LEVEL); i > 0 && vector.size() <= num; i--)
+	uint32 curLevel = GetUInt32Value(UNIT_FIELD_LEVEL);
+	for (uint32 i = curLevel; i > 0 && vector.size() <= num; i--)
 	{
 		MinlevelQuestVector* v=sObjectMgr.getQuestVectorByMinLevel(i);
 		for (MinlevelQuestVector::const_iterator itr = v->begin(); vector.size() <= num && itr != v->end(); ++itr)
@@ -15886,6 +15894,9 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 
 			if (quest->IsDailyOrWeekly() || quest->IsRepeatable() || quest->IsMonthly())/*季节任务，日常任务和可重复任务，跳过*/
 				continue;
+
+			if (quest->GetMinLevel() > curLevel)
+				continue;
 			
 
 			if (SatisfyQuestStatus(quest, false) && SatisfyQuestExclusiveGroup(quest, false) &&
@@ -15894,28 +15905,37 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 				SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestTimed(quest, false) &&
 				SatisfyQuestNextChain(quest, false) && SatisfyQuestPrevChain(quest, false) && quest->IsActive())
 			{
-				CreatureData* creature = sObjectMgr.findQuestStarterCreature(quest->GetQuestId());
-				if (creature != nullptr)
-				{
-					if (quest->GetQuestLevel()<=30)/*新手区任务*/
-					if (GetTerrain()->GetZoneId(creature->posX, creature->posY, creature->posZ) != zoneid)
-							continue;
-					if (creature->faction==nullptr)
-						vector.push_back(quest);
-					else if (!creature->faction->IsHostileTo(*getFactionTemplateEntry()))//非敌视阵营
-						vector.push_back(quest);
-				}
-				GameObjectData* gameobject = sObjectMgr.findQuestStarterGameObject(quest->GetQuestId());
-				if (gameobject != nullptr)
-				{
-					if (quest->GetQuestLevel() <= 30)/*新手区任务*/
-					if (GetTerrain()->GetZoneId(gameobject->posX, gameobject->posY, gameobject->posZ) != zoneid)
-							continue;
+				int32 npcgo= sObjectMgr.GetQuestStarterNpcGOId(quest->GetQuestId());
+				if (npcgo == 0)/*无可用的任务开始者*/
+					continue;
 
-					if (gameobject->faction==nullptr)
-						vector.push_back(quest);
-					else if (!gameobject->faction->IsHostileTo(*getFactionTemplateEntry()))//非敌视阵营			
-						vector.push_back(quest);
+				if (npcgo > 0)
+				{
+					CreatureData* creature = sObjectMgr.findCreatureDataByEntry(npcgo);
+					if (creature != nullptr)
+					{
+						if (quest->GetQuestLevel()<=30)/*新手区任务*/
+						if (GetTerrain()->GetZoneId(creature->posX, creature->posY, creature->posZ) != zoneid)
+								continue;
+						if (creature->faction==nullptr)
+							vector.push_back(quest);
+						else if (!creature->faction->IsFriendlyTo(*getFactionTemplateEntry()))//非敌视阵营
+							vector.push_back(quest);
+					}
+				}
+				if (npcgo < 0){
+					GameObjectData* gameobject = sObjectMgr.findGameObjectDataByEntry(-npcgo);
+					if (gameobject != nullptr)
+					{
+						if (quest->GetQuestLevel() <= 30)/*新手区任务*/
+						if (GetTerrain()->GetZoneId(gameobject->posX, gameobject->posY, gameobject->posZ) != zoneid)
+								continue;
+
+						if (gameobject->faction==nullptr)
+							vector.push_back(quest);
+						else if (gameobject->faction->IsFriendlyTo(*getFactionTemplateEntry()))//非敌视阵营			
+							vector.push_back(quest);
+					}
 				}
 			}
 		}

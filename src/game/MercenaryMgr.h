@@ -218,7 +218,7 @@ public:
     * Returns true if the Mercenary type can use that armor or weapon proficiency
     * If for example armor proficiency column is 0 and weapon proficiency column contains
     *     a value, that row will be loaded (considered) as weapon proficiency. Vice versa is implied here.
-	*  简单的说，就是mercenary_proficiencies表中type匹配，对应的护甲（武器）匹配
+	*  简单的说，就是z_mercenary_proficiencies表中type匹配，对应的护甲（武器）匹配
     */
     bool CheckProficiencies(uint8 type, uint32 itemClass, uint32 itemSubClass)
     {

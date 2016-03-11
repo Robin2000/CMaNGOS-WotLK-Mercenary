@@ -560,6 +560,12 @@ class ObjectMgr
 
 		
 		typedef tbb::concurrent_unordered_map<uint32, MinlevelQuestVector> MinlevelQuestMap;/*不同minlevel的任务形成一个map*/
+		typedef tbb::concurrent_vector<std::string> GameTipsVector;
+		typedef tbb::concurrent_unordered_map<uint32, std::string> GameMaps;
+		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
+		typedef tbb::concurrent_vector<QuestNpcGO> QuestNpcGOVector;
+		typedef tbb::concurrent_unordered_map<uint32, QuestNpcGOVector*> QuestNpcGOMaps;
+		typedef tbb::concurrent_unordered_map<uint32, uint32> QuestStarterNpcGOMaps;
 
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo* goinfo);
@@ -736,9 +742,23 @@ class ObjectMgr
 			return mSpellNameMaps[idx];
 		}
 		void LoadGameTips();
+		
 		inline std::string & getGameTips(uint32 idx){ return mGameTipsVector[idx]; }
 		inline uint32 getGameTipsCount(){ return mGameTipsVector.size(); }
 
+		void LoadQuestNpcGO();
+		int32  GetQuestStarterNpcGOId(uint32 questid){
+			auto itr = mQuestStarterNpcGOMaps.find(questid);
+			if (itr == mQuestStarterNpcGOMaps.end())
+				return 0;
+			return itr->second;
+		}
+		QuestNpcGOVector *  GetQuestNpcGOVector(uint32 questid){
+			auto itr = mQuestNpcGOMaps.find(questid);
+			if (itr == mQuestNpcGOMaps.end())
+				return nullptr;
+			return itr->second;
+		}
 		void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatures();
@@ -1388,12 +1408,16 @@ class ObjectMgr
         // Array to store creature stats, Max creature level + 1 (for data alignement with in game level)
         CreatureClassLvlStats m_creatureClassLvlStats[DEFAULT_MAX_CREATURE_LEVEL + 1][MAX_CREATURE_CLASS][MAX_EXPANSION + 1];
 
-		typedef tbb::concurrent_vector<std::string> GameTipsVector;
 		GameTipsVector mGameTipsVector;
-		typedef tbb::concurrent_unordered_map<uint32,std::string> GameMaps;
 		GameMaps mGameMaps;
-		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
+
+
 		SpellNameMaps mSpellNameMaps;
+
+		
+
+		QuestNpcGOMaps mQuestNpcGOMaps;
+		QuestStarterNpcGOMaps mQuestStarterNpcGOMaps;
 
         MapObjectGuids mMapObjectGuids;
         ActiveCreatureGuidsOnMap m_activeCreatures;

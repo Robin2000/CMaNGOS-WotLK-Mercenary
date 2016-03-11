@@ -1086,6 +1086,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Weather Data...");
     sWeatherMgr.LoadWeatherZoneChances();
 
+	sLog.outString("Loading QuestNpcGO...");/*在任务加载前先准备可推荐任务*/
+	sObjectMgr.LoadQuestNpcGO();
+
     sLog.outString("Loading Quests...");
     sObjectMgr.LoadQuests();                                // must be loaded after DBCs, creature_template, item_template, gameobject tables
 

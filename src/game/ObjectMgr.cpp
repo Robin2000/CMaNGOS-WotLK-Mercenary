@@ -260,13 +260,13 @@ void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM gamemaps");
+	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM z_gamemaps");
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0  gamemaps. DB table `gamemaps` is empty.");
+		sLog.outString(">> Loaded 0  gamemaps. DB table `z_gamemaps` is empty.");
 		return;
 	}
 
@@ -281,20 +281,20 @@ void ObjectMgr::LoadGameMaps(){
 
 	delete result;
 
-	sLog.outString(">> Loaded " SIZEFMTD " gamemaps strings", mGameMaps.size());
+	sLog.outString(">> Loaded " SIZEFMTD " z_gamemaps strings", mGameMaps.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadSpellNameMaps(){
 
 	mSpellNameMaps.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT id,name FROM locales_spell");
+	QueryResult* result = WorldDatabase.Query("SELECT id,name FROM z_locales_spell");
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0  locales_spell. DB table `locales_spell` is empty.");
+		sLog.outString(">> Loaded 0  locales_spell. DB table `z_locales_spell` is empty.");
 		return;
 	}
 
@@ -309,20 +309,20 @@ void ObjectMgr::LoadSpellNameMaps(){
 
 	delete result;
 
-	sLog.outString(">> Loaded " SIZEFMTD " locales_spell strings", mSpellNameMaps.size());
+	sLog.outString(">> Loaded " SIZEFMTD " z_locales_spell strings", mSpellNameMaps.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadGameTips(){
 
 	mGameTipsVector.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT name FROM gametips order by id");
+	QueryResult* result = WorldDatabase.Query("SELECT name FROM z_gametips order by id");
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0 gametips strings. DB table `gametips` is empty.");
+		sLog.outString(">> Loaded 0 z_gametips strings. DB table `z_gametips` is empty.");
 		return;
 	}
 
@@ -337,7 +337,55 @@ void ObjectMgr::LoadGameTips(){
 
 	delete result;
 
-	sLog.outString(">> Loaded " SIZEFMTD " gametips strings", mGameTipsVector.size());
+	sLog.outString(">> Loaded " SIZEFMTD " z_gametips strings", mGameTipsVector.size());
+	sLog.outString();
+}
+void ObjectMgr::LoadQuestNpcGO(){
+
+	mQuestNpcGOMaps.clear();                             // need for reload case
+
+	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype FROM z_quest_npcgo_all order by ntype");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0 z_quest_npcgo_all . DB table `z_quest_npcgo_all` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();
+		
+		QuestNpcGO questNpcGO;
+		uint32 questid = fields[0].GetUInt32();
+		questNpcGO.npcgo = fields[1].GetInt32();
+		questNpcGO.ntype = fields[2].GetUInt8();
+
+		if (questNpcGO.ntype==0)
+			mQuestStarterNpcGOMaps[questid] = questNpcGO.npcgo;
+
+		auto itr = mQuestNpcGOMaps.find(questid);
+
+		if (itr == mQuestNpcGOMaps.end())
+		{
+			QuestNpcGOVector* questNpcGOVector = new QuestNpcGOVector();
+			questNpcGOVector->push_back(questNpcGO);
+			mQuestNpcGOMaps[questid] = questNpcGOVector;
+		}
+		else
+			itr->second->push_back(questNpcGO);
+
+
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " z_quest_npcgo_all", mQuestNpcGOMaps.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadCreatureLocales()
@@ -3987,8 +4035,9 @@ void ObjectMgr::LoadQuests()
 	{
         Quest* qinfo = iter->second;
 
-		//形成最低等级map
-		mMinlevelQuestMap[qinfo->GetMinLevel()].push_back(qinfo);
+		//形成最低等级map，前提是可推荐的任务
+		if (mQuestNpcGOMaps.find(qinfo->GetQuestId()) != mQuestNpcGOMaps.end())
+			mMinlevelQuestMap[qinfo->GetMinLevel()].push_back(qinfo);
 
         // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
 

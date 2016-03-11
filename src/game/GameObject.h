@@ -32,6 +32,12 @@
 #pragma pack(push,1)
 #endif
 
+struct QuestNpcGO{
+	//uint32 quest;
+	uint32 npcgo;
+	uint8 ntype;
+};
+
 // from `gameobject_template`
 struct GameObjectInfo
 {

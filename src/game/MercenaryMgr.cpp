@@ -37,7 +37,7 @@ void MercenaryMgr::	LoadMercenaries()
 {
     sLog.outBasic("Loading Mercenaries...");
     QueryResult* result = WorldDatabase.PQuery("SELECT mercenaryType, mercenaryRole, entry, headEntry, shoulderEntry, chestEntry, legEntry, handEntry, feetEntry, weaponEntry, "
-		"offHandEntry, rangedEntry FROM mercenary_start_gear");
+		"offHandEntry, rangedEntry FROM z_mercenary_start_gear");
     if (result)
     {
         do
@@ -62,7 +62,7 @@ void MercenaryMgr::	LoadMercenaries()
         } while (result->NextRow());
     }
 
-	result = WorldDatabase.Query("SELECT type, role, healthpct, message FROM mercenary_talk");
+	result = WorldDatabase.Query("SELECT type, role, healthpct, message FROM z_mercenary_talk");
     if (result)
     {
         do
@@ -79,7 +79,7 @@ void MercenaryMgr::	LoadMercenaries()
         } while (result->NextRow());
     }
 	//										0   1      2          3            4       5         6 
-	result = WorldDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive,comment,spelllevel FROM mercenary_spells order by type,role,spelllevel desc");
+	result = WorldDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive,comment,spelllevel FROM z_mercenary_spells order by type,role,spelllevel desc");
     if (result)
     {
         do
@@ -119,7 +119,7 @@ void MercenaryMgr::	LoadMercenaries()
         } while (result->NextRow());
     }
 
-	result = WorldDatabase.Query("SELECT classid, role, rolename,classname FROM mercenary_spell_role");
+	result = WorldDatabase.Query("SELECT classid, role, rolename,classname FROM z_mercenary_spell_role");
 	if (result)
 	{
 		do
@@ -148,7 +148,7 @@ void MercenaryMgr::	LoadMercenaries()
 
 		} while (result->NextRow());
 	}
-	result = WorldDatabase.Query("SELECT entry, modelId, race, gender FROM mercenary_world");
+	result = WorldDatabase.Query("SELECT entry, modelId, race, gender FROM z_mercenary_world");
     if (result)
     {
         do
@@ -164,7 +164,7 @@ void MercenaryMgr::	LoadMercenaries()
         } while (result->NextRow());
     }
 
-	result = WorldDatabase.Query("SELECT type, armor_prof, weapon_prof FROM mercenary_proficiencies");
+	result = WorldDatabase.Query("SELECT type, armor_prof, weapon_prof FROM z_mercenary_proficiencies");
     if (result)
     {
         do

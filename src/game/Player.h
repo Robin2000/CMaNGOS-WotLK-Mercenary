@@ -1362,6 +1362,9 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         Quest const* GetNextQuest(ObjectGuid guid, Quest const* pQuest);
 		Quest const* GetQuest(uint32 quest_id);
+
+		tbb::concurrent_vector<QuestNpcGO> const*  GetQuestNpcGOVector(uint32 questid,bool refresh);
+
 		void GetQuestTitleLocale(uint32 quest_id, std::string * title);
 		void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
 		
@@ -2710,6 +2713,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 m_timeSyncServer;
 
         uint32 m_cachedGS;
+		tbb::concurrent_vector<QuestNpcGO> *  selQuestNpcGOVector;//²Ëµ¥Ïî»º´æ
 };
 
 void AddItemsSetItem(Player* player, Item* item);

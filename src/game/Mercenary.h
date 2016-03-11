@@ -93,32 +93,32 @@ struct RandomMercenaryTypeRole
 };
 
 /*将雇佣兵的职业修改为一致
-update mercenary_proficiencies set type=5 where type=3;
-update mercenary_proficiencies set type=6 where type=4;
-update mercenary_proficiencies set type=9 where type=5;
-update mercenary_proficiencies set type=8 where type=6;
-update mercenary_proficiencies set type=11 where type=7;
-update mercenary_proficiencies set type=3 where type=8;
-update mercenary_proficiencies set type=4 where type=9;
-update mercenary_proficiencies set type=7 where type=10;
+update z_mercenary_proficiencies set type=5 where type=3;
+update z_mercenary_proficiencies set type=6 where type=4;
+update z_mercenary_proficiencies set type=9 where type=5;
+update z_mercenary_proficiencies set type=8 where type=6;
+update z_mercenary_proficiencies set type=11 where type=7;
+update z_mercenary_proficiencies set type=3 where type=8;
+update z_mercenary_proficiencies set type=4 where type=9;
+update z_mercenary_proficiencies set type=7 where type=10;
 
-update mercenary_spells set type=5 where type=3;
-update mercenary_spells set type=6 where type=4;
-update mercenary_spells set type=9 where type=5;
-update mercenary_spells set type=8 where type=6;
-update mercenary_spells set type=11 where type=7;
-update mercenary_spells set type=3 where type=8;
-update mercenary_spells set type=4 where type=9;
-update mercenary_spells set type=7 where type=10;
+update z_mercenary_spells set type=5 where type=3;
+update z_mercenary_spells set type=6 where type=4;
+update z_mercenary_spells set type=9 where type=5;
+update z_mercenary_spells set type=8 where type=6;
+update z_mercenary_spells set type=11 where type=7;
+update z_mercenary_spells set type=3 where type=8;
+update z_mercenary_spells set type=4 where type=9;
+update z_mercenary_spells set type=7 where type=10;
 
-update mercenary_start_gear set mercenaryType=5 where mercenaryType=3;
-update mercenary_start_gear set mercenaryType=6 where mercenaryType=4;
-update mercenary_start_gear set mercenaryType=9 where mercenaryType=5;
-update mercenary_start_gear set mercenaryType=8 where mercenaryType=6;
-update mercenary_start_gear set mercenaryType=11 where mercenaryType=7;
-update mercenary_start_gear set mercenaryType=3 where mercenaryType=8;
-update mercenary_start_gear set mercenaryType=4 where mercenaryType=9;
-update mercenary_start_gear set mercenaryType=7 where mercenaryType=10;
+update z_mercenary_start_gear set mercenaryType=5 where mercenaryType=3;
+update z_mercenary_start_gear set mercenaryType=6 where mercenaryType=4;
+update z_mercenary_start_gear set mercenaryType=9 where mercenaryType=5;
+update z_mercenary_start_gear set mercenaryType=8 where mercenaryType=6;
+update z_mercenary_start_gear set mercenaryType=11 where mercenaryType=7;
+update z_mercenary_start_gear set mercenaryType=3 where mercenaryType=8;
+update z_mercenary_start_gear set mercenaryType=4 where mercenaryType=9;
+update z_mercenary_start_gear set mercenaryType=7 where mercenaryType=10;
 
 */
 enum MercenaryType
