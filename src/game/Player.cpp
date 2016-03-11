@@ -15870,7 +15870,11 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 	
 	Quest* quest;
 	QuestStatusMap::const_iterator it;
+
 	uint32  zoneid=GetZoneId();
+	//uint32  mapid=GetMapId();
+	//uint32  areaid=GetAreaId();
+
 	uint32 curLevel = GetUInt32Value(UNIT_FIELD_LEVEL);
 	for (uint32 i = curLevel; i > 0 && vector.size() <= num; i--)
 	{
@@ -15881,7 +15885,7 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 
 			if (quest->GetRequiredRaces() == 0)/*大多任务是种族不符，优先排除*/
 				continue;
-			if (quest->GetRequiredRaces()&getRace() == 0)
+			if ((quest->GetRequiredRaces()&getRace()) == 0)
 				continue;
 
 			int zoneOrSort = quest->GetZoneOrSort();
@@ -15920,7 +15924,7 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 					CreatureData* creature = sObjectMgr.findCreatureDataByEntry(npcgo);
 					if (creature != nullptr)
 					{
-						if (quest->GetQuestLevel()<=30)/*新手区任务*/
+						//if (quest->GetQuestLevel()<=30)/*新手区任务*/
 						if (GetTerrain()->GetZoneId(creature->posX, creature->posY, creature->posZ) != zoneid)
 								continue;
 						if (creature->faction==nullptr)
@@ -15933,7 +15937,7 @@ void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
 					GameObjectData* gameobject = sObjectMgr.findGameObjectDataByEntry(-npcgo);
 					if (gameobject != nullptr)
 					{
-						if (quest->GetQuestLevel() <= 30)/*新手区任务*/
+						//if (quest->GetQuestLevel() <= 30)/*新手区任务*/
 						if (GetTerrain()->GetZoneId(gameobject->posX, gameobject->posY, gameobject->posZ) != zoneid)
 								continue;
 

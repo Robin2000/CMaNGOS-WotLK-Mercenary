@@ -222,7 +222,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	void hearthstone_recommend_quest(Player* pPlayer, Item* pItem){
 		pPlayer->PrepareGossipMenu(pPlayer, 65535);
 		std::vector<Quest*> v;
-		pPlayer->recommendQuest(v,3);
+		pPlayer->recommendQuest(v,18);
 		if (v.size() == 0)
 		{
 			ChatHandler(pPlayer).SendSysMessage(-2800592);//系统提示：此区域已经没有可以推荐的任务。
@@ -242,7 +242,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	bool hearthstone_recommend_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		int idx = uiAction - GOSSIP_ACTION_INFO_DEF - 900;
 		std::vector<Quest*> v;
-		pPlayer->recommendQuest(v, 3);
+		pPlayer->recommendQuest(v, 18);
 		if (v.size()>idx)
 			hearthstone_quest(pPlayer, pItem, v.at(idx)->GetQuestId());
 		return true;
