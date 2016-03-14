@@ -55,6 +55,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	//计算并更新z_quest_npcgo_stater表的任务区域信息
 	void calculateZoneArea();
+	void calculatePOIZoneArea();
 	
 	inline std::string * getGameMapsName(uint32 map);
 	inline std::string * getGameAreaName(uint32 area);

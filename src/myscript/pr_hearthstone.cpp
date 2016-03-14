@@ -95,7 +95,10 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, -2800210, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//发送游戏小技巧。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);//设置返回点。（-3原力）
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);//前往返回点。（-2原力）
+	//if (pPlayer->isGameMaster())
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, "TOOLS", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);//更新数据库表。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);//回家。
+
 	pPlayer->SEND_GOSSIP_MENU(16777213, pItem->GetObjectGuid()); //在线即可累积原力。
 
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
@@ -225,12 +228,14 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 7)//回家。
 	{
 		pPlayer->TeleportToHomebind();
-	}	
+	}
 	else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 110 && uiAction <= GOSSIP_ACTION_INFO_DEF + 129)
 	{
 		hearthstone_gamedirect(pPlayer, pItem, uiAction);
 	}
-
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 20){
+		pPlayer->context.calculatePOIZoneArea();
+	}
 
 	//pPlayer->HandleEmoteCommandHappy();
 	return true;

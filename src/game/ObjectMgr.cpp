@@ -7140,7 +7140,7 @@ void ObjectMgr::LoadQuestPOI()
 
     delete result;
 
-    QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y FROM quest_poi_points");
+    QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y,zone,area FROM quest_poi_points");
 
     if (points)
     {
@@ -7152,6 +7152,8 @@ void ObjectMgr::LoadQuestPOI()
             uint32 poiId        = pointFields[1].GetUInt32();
             int32  x            = pointFields[2].GetInt32();
             int32  y            = pointFields[3].GetInt32();
+			uint32 zone = pointFields[4].GetUInt32();
+			uint32 area = pointFields[5].GetUInt32();
 
             QuestPOIVector& vect = mQuestPOIMap[questId];
 
@@ -7160,7 +7162,7 @@ void ObjectMgr::LoadQuestPOI()
                 if (itr->PoiId != poiId)
                     continue;
 
-                QuestPOIPoint point(x, y);
+                QuestPOIPoint point(x, y,zone,area);
                 itr->points.push_back(point);
                 break;
             }

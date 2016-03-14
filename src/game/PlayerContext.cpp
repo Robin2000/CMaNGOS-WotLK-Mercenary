@@ -143,6 +143,35 @@ void PlayerContext::calculateZoneArea(){
 
 	delete result;
 }
+void PlayerContext::calculatePOIZoneArea(){
+
+	TerrainInfo* terrain = nullptr;
+												//        0     1    2   3
+	QueryResult* result = WorldDatabase.Query("SELECT A.prid,B.mapid,A.x,A.y FROM quest_poi_points A LEFT JOIN quest_poi B ON A.questId=B.questId AND A.poiId=B.poiId");
+	do
+	{
+		Field* fields = result->Fetch();
+		uint32 id = fields[0].GetUInt32();
+		uint32 map = fields[1].GetUInt32();
+		float x = fields[2].GetFloat();
+		float y = fields[3].GetFloat();
+		terrain = sTerrainMgr.LoadTerrain(map);
+		
+		if (!MapManager::IsValidMapCoord(map, x, y))
+			continue;
+
+		float z = terrain->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
+		
+		uint32 zone = terrain->GetZoneId(x, y, z);
+		uint32 area = terrain->GetAreaId(x, y, z);
+		
+		WorldDatabase.PExecute("UPDATE quest_poi_points SET zone = %u, area = %u WHERE prid = %u", zone, area, id);
+
+	} while (result->NextRow());
+
+	delete result;
+}
+
 inline std::string * PlayerContext::getGameMapsName(uint32 map){
 	return  sObjectMgr.getGameMapsName(map);
 }
