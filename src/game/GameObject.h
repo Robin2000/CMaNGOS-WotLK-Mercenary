@@ -38,19 +38,19 @@ struct GameArea{
 	uint32 zone;
 	std::string name;
 	uint32 areaLevel;
-	tbb::concurrent_vector<uint32> questlist;
+	tbb::concurrent_vector<uint32>* questlist;
 };
 struct GameZone{
 	uint32 id;
 	uint32 map;
 	std::string name;
 	uint32 areaLevel;
-	tbb::concurrent_vector<GameArea> arealist;
+	tbb::concurrent_vector<GameArea*>* arealist;
 };
 struct GameMap{
 	uint32 id;
 	std::string name;
-	tbb::concurrent_vector<GameZone> zonelist;
+	tbb::concurrent_vector<GameZone*>* zonelist;
 };
 struct QuestNpcGO{
 	uint32 quest;

@@ -260,7 +260,7 @@ void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM z_map");
+	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM z_map where hasquest=1");
 
 	if (!result)
 	{
@@ -276,9 +276,10 @@ void ObjectMgr::LoadGameMaps(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		GameMap gameMap;
-		gameMap.id = fields[0].GetUInt32();
-		gameMap.name = fields[1].GetCppString();
+		GameMap* gameMap = new GameMap();
+		gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
+		gameMap->id = fields[0].GetUInt32();
+		gameMap->name = fields[1].GetCppString();
 		mGameMaps[fields[0].GetUInt32()] = gameMap;
 	} while (result->NextRow());
 
@@ -291,7 +292,7 @@ void ObjectMgr::LoadGameZones(){
 
 	mGameZones.clear();                             // need for reload case
 													// 0  1   2    3
-	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel FROM z_zone");
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel FROM z_zone where hasquest=1");
 
 	if (!result)
 	{
@@ -307,15 +308,17 @@ void ObjectMgr::LoadGameZones(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		GameZone gameZone;
-		gameZone.id = fields[0].GetUInt32();
-		gameZone.name = fields[1].GetCppString();
-		gameZone.map = fields[2].GetUInt32();
-		gameZone.areaLevel = fields[3].GetUInt32();
+		GameZone* gameZone = new GameZone();
+		gameZone->arealist = new tbb::concurrent_vector<GameArea*>();
 
-		mGameZones[gameZone.id] = gameZone;
+		gameZone->id = fields[0].GetUInt32();
+		gameZone->name = fields[1].GetCppString();
+		gameZone->map = fields[2].GetUInt32();
+		gameZone->areaLevel = fields[3].GetUInt32();
 
-		mGameMaps[gameZone.map].zonelist.push_back(gameZone);
+		mGameZones[gameZone->id] = gameZone;
+		if (mGameMaps.find(gameZone->map) != mGameMaps.end())
+			mGameMaps[gameZone->map]->zonelist->push_back(gameZone);
 
 	} while (result->NextRow());
 
@@ -328,7 +331,7 @@ void ObjectMgr::LoadGameAreas(){
 
 	mGameAreas.clear();                             // need for reload case
 													//0  1    2   3    4
-	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel FROM z_area");
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel FROM z_area  where hasquest=1");
 
 	if (!result)
 	{
@@ -344,15 +347,17 @@ void ObjectMgr::LoadGameAreas(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		GameArea gameArea;
-		gameArea.id = fields[0].GetUInt32();
-		gameArea.name = fields[1].GetCppString();
-		gameArea.map = fields[2].GetUInt32();
-		gameArea.zone = fields[3].GetUInt32();
-		gameArea.areaLevel = fields[4].GetUInt32();
+		GameArea* gameArea = new GameArea();
+		gameArea->questlist = new tbb::concurrent_vector<uint32>();
+		gameArea->id = fields[0].GetUInt32();
+		gameArea->name = fields[1].GetCppString();
+		gameArea->map = fields[2].GetUInt32();
+		gameArea->zone = fields[3].GetUInt32();
+		gameArea->areaLevel = fields[4].GetUInt32();
 		
-		mGameAreas[gameArea.id] = gameArea;
-		mGameZones[gameArea.zone].arealist.push_back(gameArea);
+		mGameAreas[gameArea->id] = gameArea;
+		if (mGameZones.find(gameArea->zone) != mGameZones.end())
+			mGameZones[gameArea->zone]->arealist->push_back(gameArea);
 
 	} while (result->NextRow());
 
@@ -386,7 +391,8 @@ void ObjectMgr::LoadAreaQuestStart(){
 
 		uint32 quest = fields[0].GetUInt32();
 		uint32 area = fields[1].GetUInt32();
-		mGameAreas[area].questlist.push_back(quest);
+		if (mGameAreas.find(area) != mGameAreas.end())
+			mGameAreas[area]->questlist->push_back(quest);
 
 
 	} while (result->NextRow());

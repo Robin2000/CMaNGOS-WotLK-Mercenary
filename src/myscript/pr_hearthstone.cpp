@@ -120,6 +120,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 
 	//////////////////////////////////////////雇佣兵招募
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 12){
+		pPlayer->context.gossipMenuType = 1;
 		GossipHello_mercenary_npc_gossip(pPlayer, pItem);
 		return true;
 	}

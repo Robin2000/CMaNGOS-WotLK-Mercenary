@@ -561,9 +561,9 @@ class ObjectMgr
 		
 		typedef tbb::concurrent_unordered_map<uint32, MinlevelQuestVector> MinlevelQuestMap;/*不同minlevel的任务形成一个map*/
 		typedef tbb::concurrent_vector<std::string> GameTipsVector;
-		typedef tbb::concurrent_unordered_map<uint32, GameMap> GameMaps;
-		typedef tbb::concurrent_unordered_map<uint32, GameZone> GameZones;
-		typedef tbb::concurrent_unordered_map<uint32, GameArea> GameAreas;
+		typedef tbb::concurrent_unordered_map<uint32, GameMap*> GameMaps;
+		typedef tbb::concurrent_unordered_map<uint32, GameZone*> GameZones;
+		typedef tbb::concurrent_unordered_map<uint32, GameArea*> GameAreas;
 		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
 
 		typedef tbb::concurrent_vector<QuestNpcGO> QuestNpcGOVector;
@@ -743,13 +743,19 @@ class ObjectMgr
 		inline GameMaps & getGameMaps(){
 			return mGameMaps;
 		}
-		inline GameMap & getGameMap(uint32 map){
+		inline GameMap * getGameMap(uint32 map){
+			if (mGameMaps.find(map) == mGameMaps.end())
+				return nullptr;
 			return mGameMaps[map];
 		}
-		inline GameZone & getGameZone(uint32 zone){
+		inline GameZone * getGameZone(uint32 zone){
+			if (mGameZones.find(zone) == mGameZones.end())
+				return nullptr;
 			return mGameZones[zone];
 		}
-		inline GameArea & getGameArea(uint32 area){
+		inline GameArea * getGameArea(uint32 area){
+			if (mGameAreas.find(area) == mGameAreas.end())
+				return nullptr;
 			return mGameAreas[area];
 		}
 		void LoadSpellNameMaps();
