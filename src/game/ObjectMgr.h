@@ -709,6 +709,19 @@ class ObjectMgr
 		void LoadGameZones();
 		void LoadGameAreas();
 		void LoadAreaQuestStart();
+
+		std::string * getGameMapsName(uint32 map){
+			auto it=mapIDName.find(map);
+			if (it != mapIDName.end())
+				return &it->second;
+			return nullptr;
+		}
+		std::string * getGameAreaName(uint32 area){
+			auto it = areaIDName.find(area);
+			if (it != areaIDName.end())
+				return &it->second;
+			return nullptr;
+		}
 		inline GameMaps & getGameMaps(){
 			return mGameMaps;
 		}
@@ -1402,6 +1415,8 @@ class ObjectMgr
 		GameMaps mGameMaps;
 		GameZones mGameZones;
 		GameAreas mGameAreas;
+		MapIDName mapIDName;
+		AreaIDName areaIDName;
 		
 		SpellNameMaps mSpellNameMaps;
 

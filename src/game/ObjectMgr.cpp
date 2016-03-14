@@ -259,8 +259,8 @@ bool ObjectMgr::load_cache(){
 void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
-
-	QueryResult* result = WorldDatabase.Query("SELECT id,cn FROM z_map where hasquest=1");
+	                                                //0  1   2
+	QueryResult* result = WorldDatabase.Query("SELECT id,cn,hasquest FROM z_map");
 
 	if (!result)
 	{
@@ -276,11 +276,15 @@ void ObjectMgr::LoadGameMaps(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		GameMap* gameMap = new GameMap();
-		gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
-		gameMap->id = fields[0].GetUInt32();
-		gameMap->name = fields[1].GetCppString();
-		mGameMaps[fields[0].GetUInt32()] = gameMap;
+		uint32 id = fields[0].GetUInt32();
+		mapIDName[id] = fields[1].GetCppString();
+
+		if (fields[2].GetUInt8() == 1){
+			GameMap* gameMap = new GameMap();
+			gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
+			gameMap->id = id;		
+			mGameMaps[fields[0].GetUInt32()] = gameMap;
+		}
 	} while (result->NextRow());
 
 	delete result;
@@ -291,14 +295,14 @@ void ObjectMgr::LoadGameMaps(){
 void ObjectMgr::LoadGameZones(){
 
 	mGameZones.clear();                             // need for reload case
-													// 0  1   2    3
-	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel FROM z_zone where hasquest=1");
+													// 0  1   2    3         4
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel,hasquest FROM z_zone");
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0  gamemaps. DB table `z_map` is empty.");
+		sLog.outString(">> Loaded 0  gamemaps. DB table `z_zone` is empty.");
 		return;
 	}
 
@@ -308,18 +312,23 @@ void ObjectMgr::LoadGameZones(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		GameZone* gameZone = new GameZone();
-		gameZone->arealist = new tbb::concurrent_vector<GameArea*>();
 
-		gameZone->id = fields[0].GetUInt32();
-		gameZone->name = fields[1].GetCppString();
-		gameZone->map = fields[2].GetUInt32();
-		gameZone->areaLevel = fields[3].GetUInt32();
+		uint32 id = fields[0].GetUInt32();
+		areaIDName[id] = fields[1].GetCppString();
 
-		mGameZones[gameZone->id] = gameZone;
-		if (mGameMaps.find(gameZone->map) != mGameMaps.end())
-			mGameMaps[gameZone->map]->zonelist->push_back(gameZone);
+		if (fields[4].GetUInt8() == 1){
 
+			GameZone* gameZone = new GameZone();
+			gameZone->arealist = new tbb::concurrent_vector<GameArea*>();
+
+			gameZone->id = id;
+			gameZone->map = fields[2].GetUInt32();
+			gameZone->areaLevel = fields[3].GetUInt32();
+
+			mGameZones[gameZone->id] = gameZone;
+			if (mGameMaps.find(gameZone->map) != mGameMaps.end())
+				mGameMaps[gameZone->map]->zonelist->push_back(gameZone);
+		}
 	} while (result->NextRow());
 
 	delete result;
@@ -330,8 +339,8 @@ void ObjectMgr::LoadGameZones(){
 void ObjectMgr::LoadGameAreas(){
 
 	mGameAreas.clear();                             // need for reload case
-													//0  1    2   3    4
-	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel FROM z_area  where hasquest=1");
+													//0  1    2   3    4         5
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel,hasquest FROM z_area");
 
 	if (!result)
 	{
@@ -342,23 +351,26 @@ void ObjectMgr::LoadGameAreas(){
 	}
 
 	BarGoLink bar(result->GetRowCount());
-
 	do
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		GameArea* gameArea = new GameArea();
-		gameArea->questlist = new tbb::concurrent_vector<uint32>();
-		gameArea->id = fields[0].GetUInt32();
-		gameArea->name = fields[1].GetCppString();
-		gameArea->map = fields[2].GetUInt32();
-		gameArea->zone = fields[3].GetUInt32();
-		gameArea->areaLevel = fields[4].GetUInt32();
-		
-		mGameAreas[gameArea->id] = gameArea;
-		if (mGameZones.find(gameArea->zone) != mGameZones.end())
-			mGameZones[gameArea->zone]->arealist->push_back(gameArea);
 
+		uint32 id = fields[0].GetUInt32();
+		areaIDName[id] = fields[1].GetCppString();
+
+		if (fields[5].GetUInt8() == 1){
+			GameArea* gameArea = new GameArea();
+			gameArea->questlist = new tbb::concurrent_vector<uint32>();
+			gameArea->id = id;
+			gameArea->map = fields[2].GetUInt32();
+			gameArea->zone = fields[3].GetUInt32();
+			gameArea->areaLevel = fields[4].GetUInt32();
+
+			mGameAreas[gameArea->id] = gameArea;
+			if (mGameZones.find(gameArea->zone) != mGameZones.end())
+				mGameZones[gameArea->zone]->arealist->push_back(gameArea);
+		}
 	} while (result->NextRow());
 
 	delete result;

@@ -143,6 +143,13 @@ void PlayerContext::calculateZoneArea(){
 
 	delete result;
 }
+inline std::string * PlayerContext::getGameMapsName(uint32 map){
+	return  sObjectMgr.getGameMapsName(map);
+}
+inline std::string * PlayerContext::getGameAreaName(uint32 area){
+	return  sObjectMgr.getGameAreaName(area);
+}
+
 tbb::concurrent_unordered_map<uint32, GameMap*> & PlayerContext::getGameMaps(){
 	return  sObjectMgr.getGameMaps();
 }

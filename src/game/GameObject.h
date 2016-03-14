@@ -63,24 +63,24 @@ typedef tbb::concurrent_vector<QuestPOI> QuestPOIVector;
 
 //typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIMap;
 typedef tbb::concurrent_unordered_map<uint32, QuestPOIVector> QuestPOIMap;
+typedef tbb::concurrent_unordered_map<uint32, std::string> MapIDName;
+typedef tbb::concurrent_unordered_map<uint32, std::string> AreaIDName;
+
 struct GameArea{
 	uint32 id;
 	uint32 map;
 	uint32 zone;
-	std::string name;
 	uint32 areaLevel;
 	tbb::concurrent_vector<uint32>* questlist;
 };
 struct GameZone{
 	uint32 id;
 	uint32 map;
-	std::string name;
 	uint32 areaLevel;
 	tbb::concurrent_vector<GameArea*>* arealist;
 };
 struct GameMap{
 	uint32 id;
-	std::string name;
 	tbb::concurrent_vector<GameZone*>* zonelist;
 };
 struct QuestNpcGO{

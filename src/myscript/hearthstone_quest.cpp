@@ -38,36 +38,17 @@ tbb::concurrent_vector<GameArea*> * getArealist(Player* pPlayer){
 		return nullptr;
 	return gameZone->arealist;
 }
-std::string &getMapName(Player* pPlayer){
+std::string *getMapName(Player* pPlayer){
 	uint32 mapid = (pPlayer->context.MAPSEL == -1) ? pPlayer->GetMapId() : pPlayer->context.MAPSEL;
-	GameMap *gameMap=pPlayer->context.getGameMap(mapid);
-
-	if (gameMap == nullptr)
-	{
-		std::string* name=nullptr;
-		return *name;
-	}
-	return gameMap->name;
+	return pPlayer->context.getGameMapsName(mapid);
 }
-std::string & getZoneName(Player* pPlayer){
+std::string * getZoneName(Player* pPlayer){
 	uint32 zoneid = (pPlayer->context.ZONESEL == -1) ? pPlayer->GetZoneId() : pPlayer->context.ZONESEL;
-	GameZone * gameZone = pPlayer->context.getGameZone(zoneid);
-	if (gameZone == nullptr)
-	{
-		std::string* name = nullptr;
-		return *name;
-	}
-	return gameZone->name;
+	return pPlayer->context.getGameAreaName(zoneid);
 }
-std::string & getAreaName(Player* pPlayer){
+std::string * getAreaName(Player* pPlayer){
 	uint32 areaid = (pPlayer->context.AREASEL == -1) ? pPlayer->GetAreaId() : pPlayer->context.AREASEL;
-	GameArea * gameArea=pPlayer->context.getGameArea(areaid);
-	if (gameArea == nullptr)
-	{
-		std::string* name = nullptr;
-		return *name;
-	}
-	return gameArea->name;
+	return pPlayer->context.getGameAreaName(areaid);;
 }
 bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	pPlayer->context.gossipActionType = MAP_SEL_ACTION;
@@ -81,7 +62,9 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	{
 		if (i<pageStart)
 			continue;
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, it->second->name, GOSSIP_SENDER_MAIN, it->first);//选择map 100-299
+		std::string * name = pPlayer->context.getGameMapsName(it->first);
+		if (name!=nullptr)
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *name, GOSSIP_SENDER_MAIN, it->first);//选择map 100-299
 	}
 
 	if (curPage>1)
@@ -101,7 +84,8 @@ bool showZoneMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	tbb::concurrent_vector<GameZone*> * zonelist = getZonelist(pPlayer);
 	if (zonelist == nullptr)
 		return false;
-	std::string& mapName = getMapName(pPlayer);
+
+	std::string* mapName = getMapName(pPlayer);
 	
 	uint32 pageStart = (curPage-1) * 17;
 	uint32 MAX_INDEX = pageStart + 17;
@@ -110,8 +94,11 @@ bool showZoneMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	pPlayer->context.gossipActionType = ZONE_SEL_ACTION;
 
 	for (uint32 i = pageStart; i<MAX_INDEX&&i<countAll; i++)
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, ((&mapName) ? mapName : "") + "-" + zonelist->at(i)->name, GOSSIP_SENDER_MAIN, zonelist->at(i)->id);
-
+	{
+		std::string* areaName = pPlayer->context.getGameAreaName(zonelist->at(i)->id);
+		if (mapName != nullptr&&areaName != nullptr)
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *mapName + "-" + *areaName, GOSSIP_SENDER_MAIN, zonelist->at(i)->id);
+	}
 	if (curPage>1)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800598, GOSSIP_SENDER_MAIN,  699);//上一页
 
@@ -132,17 +119,21 @@ bool showAreaMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 
 	pPlayer->context.gossipActionType=AREA_SEL_ACTION;
 
-	std::string& zoneName = getZoneName(pPlayer);
+	std::string* zoneName = getZoneName(pPlayer);
 	
 	uint32 pageStart = (curPage - 1) * 16;
 	uint32 MAX_INDEX = pageStart + 16;
 	uint32 countAll = arealist->size();
 
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, ((&zoneName)?zoneName:"") + "-" + pPlayer->GetMangosString(-2801000), GOSSIP_SENDER_MAIN,  2000);//选择全部本区
+	if (zoneName!=nullptr)
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *zoneName + "-" + pPlayer->GetMangosString(-2801000), GOSSIP_SENDER_MAIN, 2000);//选择全部本区
 
 	for (uint32 i = pageStart; i<MAX_INDEX&&i<countAll; i++)
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, ((&zoneName) ? zoneName : "") + "-" + arealist->at(i)->name, GOSSIP_SENDER_MAIN, arealist->at(i)->id);
-
+	{
+		std::string* areaName = pPlayer->context.getGameAreaName(arealist->at(i)->id);
+		if (zoneName!=nullptr&&areaName!=nullptr)
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *zoneName + "-" + *areaName, GOSSIP_SENDER_MAIN, arealist->at(i)->id);
+	}
 	if (curPage>1)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800598, GOSSIP_SENDER_MAIN,  750);//上一页
 
@@ -359,17 +350,17 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				for (auto itr = POI->begin(); count<19 && itr != POI->end(); ++itr)
 				{
 					std::ostringstream os;
-					GameMap *gameMap = pPlayer->context.getGameMap(uint32(itr->MapId));
-					if (gameMap != nullptr)
-						os << gameMap->name <<"-";
+					std::string *mapName = pPlayer->context.getGameMapsName(uint32(itr->MapId));
+					if (mapName != nullptr)
+						os << *mapName << "-";
 
-					GameZone *gameZone = pPlayer->context.getGameZone(uint32(itr->FloorId));
-					if (gameZone != nullptr)
-						os << gameZone->name <<"-";
+					std::string *zoneName = pPlayer->context.getGameAreaName(uint32(itr->MapAreaId));
+					if (zoneName != nullptr)
+						os << *zoneName <<"-";
 
-					GameArea *gameArea = pPlayer->context.getGameArea(uint32(itr->MapAreaId));
-					if (gameArea != nullptr)
-						os << gameArea->name<<"[";
+					std::string *areName = pPlayer->context.getGameAreaName(uint32(itr->FloorId));
+					if (areName != nullptr)
+						os << *areName << "[";
 
 					for (auto itr2 = itr->points.begin(); count < 19 && itr2 != itr->points.end(); ++itr2, count++)
 					{
@@ -429,10 +420,10 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	typedef tbb::concurrent_vector<Quest const*> QuestList;
 	void hearthstone_prepare_quest_list(Player* pPlayer, Item* pItem, QuestList& recommendResult){
 		pPlayer->PrepareGossipMenu(pPlayer, 65535);
-		std::string& areaname = getAreaName(pPlayer);
+		std::string* areaname = getAreaName(pPlayer);
 		if (recommendResult.size() == 0)
 		{		
-			std::string msg = pPlayer->GetMangosString(-2800592) + ((&areaname)?areaname:"");
+			std::string msg = pPlayer->GetMangosString(-2800592) + ((areaname==nullptr)?"":*areaname);
 			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域已经没有可以推荐的任务。
 		}
 
@@ -442,7 +433,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			std::string  title = "";
 			pPlayer->context.GetQuestTitleLocale(recommendResult.at(i)->GetQuestId(), &title);
 			std::ostringstream os;
-			os << ((&areaname) ? areaname : "") << "." << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
+			os << ((areaname==nullptr) ? "":*areaname) << "." << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, recommendResult.at(i)->GetQuestId());//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
