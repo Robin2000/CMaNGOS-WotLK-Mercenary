@@ -571,6 +571,9 @@
     <ClCompile Include="..\..\src\game\MercenaryMgr.cpp">
       <Filter>Mercenary</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\game\PlayerContext.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\game\AccountMgr.h">
@@ -1083,6 +1086,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\MercenaryMgr.h">
       <Filter>Mercenary</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\PlayerContext.h">
+      <Filter>PR</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
