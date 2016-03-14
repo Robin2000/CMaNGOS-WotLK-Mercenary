@@ -298,7 +298,7 @@ GameObjectData* PlayerContext::findGameObjectDataByEntry(uint32 entry){ return s
 CreatureData* PlayerContext::findQuestStarterCreature(uint32 quest_id){ return sObjectMgr.findQuestStarterCreature(quest_id); }
 GameObjectData* PlayerContext::findQuestStarterGameObject(uint32 quest_id){ return sObjectMgr.findQuestStarterGameObject(quest_id); }
 
-inline std::string & PlayerContext::getSpellName(uint32 idx){
+std::string & PlayerContext::getSpellName(uint32 idx){
 	return sObjectMgr.getSpellName(idx);
 }
 
@@ -308,26 +308,7 @@ inline int32 PlayerContext::findQuestStarterCreatureOrGO(uint32 questid){
 inline void PlayerContext::findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result){
 	return sObjectMgr.findQuestInvolvedCreatureOrGO(questid, result);
 }
-tbb::concurrent_vector<WorldLocation> PlayerContext::getQuestPOI(uint32 questid){
-
-	questPOIVec.clear();
-
-	QuestPOIVector const* POI = sObjectMgr.GetQuestPOIVector(questid);
-	if (POI == nullptr)
-		return questPOIVec;
-	int count = 0;
-	for (QuestPOIVector::const_iterator itr = POI->begin(); count<10 && itr != POI->end(); ++itr)
-	{
-		for (tbb::concurrent_vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); count<10 && itr2 != itr->points.end(); ++itr2, count++)
-		{
-			WorldLocation loc;
-			loc.mapid = itr->MapId;
-			loc.coord_x = itr2->x;
-			loc.coord_y = itr2->y;
-			questPOIVec.push_back(loc);
-		}
-
-	}
-
+QuestPOIVector const*  PlayerContext::loadQuestPOI(uint32 questid){
+	questPOIVec = sObjectMgr.GetQuestPOIVector(questid);
 	return questPOIVec;
 }

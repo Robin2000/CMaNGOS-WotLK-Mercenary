@@ -35,6 +35,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	//炉石菜单大类标志
 	int gossipMenuType = -1;
+	//菜单Action分类标志
+	int gossipActionType = -1;
 	
 	//炉石菜单当前辅助任务
 	uint32 aux_questid=-1;
@@ -71,7 +73,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	tbb::concurrent_vector<Quest const*>& recommendQuestZone(int32 zone, uint32 num);
 
 	//取得特定任务相关NPC和GameObject列表
-	tbb::concurrent_vector<QuestNpcGO> *  GetQuestNpcGOVector(uint32 questid);
+	tbb::concurrent_vector<QuestNpcGO> * GetQuestNpcGOVector(uint32 questid);
 
 	//取得任务本地化标题
 	void GetQuestTitleLocale(uint32 quest_id, std::string * title);
@@ -98,13 +100,13 @@ class MANGOS_DLL_SPEC PlayerContext{
 	GameObjectData* findGameObjectDataByPOI(uint32 mapid, float x, float y);
 
 	//缓存任务POI向量
-	tbb::concurrent_vector<WorldLocation> questPOIVec;
+	QuestPOIVector const* questPOIVec;
 	
 	//取得特定任务POI
-	tbb::concurrent_vector<WorldLocation> getQuestPOI(uint32 questid);
+	QuestPOIVector const*  loadQuestPOI(uint32 questid);
 	
 	//取得整个任务POI向量
-	tbb::concurrent_vector<WorldLocation> getQuestPOI(){ return questPOIVec; }
+	QuestPOIVector const* getQuestPOI(){ return questPOIVec; }
 	
 	//取得技能本地化名
 	std::string & getSpellName(uint32 idx);

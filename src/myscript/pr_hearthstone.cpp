@@ -100,6 +100,7 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
 	pPlayer->context.gossipMenuType = -1;//出主菜单，就将玩家子菜单标志置为空
+	pPlayer->context.gossipActionType = -1;
 	return true;
 }
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
@@ -156,6 +157,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
 	{
 		pPlayer->context.gossipMenuType = 4;//任务辅助。
+		pPlayer->context.gossipActionType = -1;
 		hearthstone_prepare_quest_aux(pPlayer, pItem);
 		return true;
 	}
@@ -165,6 +167,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 14)//任务推荐
 	{
 		pPlayer->context.gossipMenuType = 5;//任务推荐。
+		pPlayer->context.gossipActionType = -1;
 		hearthstone_prepare_quest_area(pPlayer, pItem, pPlayer->GetAreaId());
 		return true;
 	}
