@@ -4,7 +4,9 @@
 #ifndef __PR_LANGUAGE_H
 
 #define __PR_LANGUAGE_H
-
+enum fastContextVar{
+	HEARTHSTONE_QUEST_DEF = 100,
+};
 enum PrStrings
 {
 	GO_TELE_TO_DALARAN_CRYSTAL_FAILED = -2800001,

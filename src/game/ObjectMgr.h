@@ -565,6 +565,7 @@ class ObjectMgr
 		typedef tbb::concurrent_unordered_map<uint32, GameZone> GameZones;
 		typedef tbb::concurrent_unordered_map<uint32, GameArea> GameAreas;
 		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
+
 		typedef tbb::concurrent_vector<QuestNpcGO> QuestNpcGOVector;
 		typedef tbb::concurrent_unordered_map<uint32, QuestNpcGOVector*> QuestNpcGOMaps;
 		typedef tbb::concurrent_unordered_map<uint32, uint32> QuestStarterNpcGOMaps;
@@ -738,17 +739,17 @@ class ObjectMgr
 		void LoadGameMaps();
 		void LoadGameZones();
 		void LoadGameAreas();
-
+		void LoadAreaQuestStart();
 		inline GameMaps & getGameMaps(){
 			return mGameMaps;
 		}
-		inline GameMap & getGameMaps(uint32 idx){
-			return mGameMaps[idx]; 
+		inline GameMap & getGameMap(uint32 map){
+			return mGameMaps[map];
 		}
-		inline GameZone & getGameZones(uint32 zone){
+		inline GameZone & getGameZone(uint32 zone){
 			return mGameZones[zone];
 		}
-		inline GameArea & getGameAreas(uint32 area){
+		inline GameArea & getGameArea(uint32 area){
 			return mGameAreas[area];
 		}
 		void LoadSpellNameMaps();
@@ -767,7 +768,7 @@ class ObjectMgr
 				return 0;
 			return itr->second;
 		}
-		QuestNpcGOVector *  GetQuestNpcGOVector(uint32 questid){
+		tbb::concurrent_vector<QuestNpcGO> *  GetQuestNpcGOVector(uint32 questid){
 			auto itr = mQuestNpcGOMaps.find(questid);
 			if (itr == mQuestNpcGOMaps.end())
 				return nullptr;

@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
+#include "GameObject.h"
 
 struct AchievementEntry;
 struct AchievementCriteriaEntry;
@@ -97,11 +98,9 @@ class MANGOS_DLL_SPEC ChatHandler
 
         bool isValidChatMessage(const char* msg);
         bool HasSentErrorMessage() { return sentErrorMessage;}
-
-		/*一些工具方法*/
-		void getDefaultSpells(std::vector<uint32> & vec, uint8 race, uint8 cla, uint32 level);
-		void learnDefaultSpells(Pet* pet, uint8 race, uint8 cla, uint8 maxcount);
 		
+		//检查重命名宠物是否合法
+		bool checkPetName(std::string& name);
         /**
         * \brief Prepare SMSG_GM_MESSAGECHAT/SMSG_MESSAGECHAT
         *
@@ -145,8 +144,6 @@ class MANGOS_DLL_SPEC ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalSysMessage(const char* str);
-
-		bool ChatHandler::checkPetName(std::string& name);
 
         bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 security, std::string const& help);
         void ExecuteCommand(const char* text);
@@ -734,7 +731,7 @@ class MANGOS_DLL_SPEC ChatHandler
         std::string GenerateDeletedCharacterGUIDsWhereStr(DeletedInfoList::const_iterator& itr, DeletedInfoList::const_iterator const& itr_end);
         void HandleCharacterDeletedListHelper(DeletedInfoList const& foundList);
         void HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo);
-
+		
         void SetSentErrorMessage(bool val) { sentErrorMessage = val;};
     private:
         WorldSession* m_session;                            // != nullptr for chat command call and nullptr for CLI command

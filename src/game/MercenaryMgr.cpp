@@ -224,7 +224,7 @@ std::string MercenaryMgr::GetSpellIcon(uint32 entry, Player* player) const
     if (!icon)
         ss << "Interface/ICONS/InventoryItems/WoWUnknownItem01";
     ss << ":" << 32 << ":" << 32 << ":" << -18 << ":" << 0 << "|t";
-	ss << "|cff0000ff|Hspell:" << entry << "|h[" << player->getSpellName(entry) << "]|h|r";
+	ss << "|cff0000ff|Hspell:" << entry << "|h[" << player->context.getSpellName(entry) << "]|h|r";
     return ss.str();
 }
 

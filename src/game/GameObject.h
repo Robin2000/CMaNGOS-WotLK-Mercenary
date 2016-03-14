@@ -31,10 +31,14 @@
 #else
 #pragma pack(push,1)
 #endif
-struct GameMap{
+
+struct GameArea{
 	uint32 id;
+	uint32 map;
+	uint32 zone;
 	std::string name;
-	tbb::concurrent_vector<GameZone> zonelist;
+	uint32 areaLevel;
+	tbb::concurrent_vector<uint32> questlist;
 };
 struct GameZone{
 	uint32 id;
@@ -43,19 +47,16 @@ struct GameZone{
 	uint32 areaLevel;
 	tbb::concurrent_vector<GameArea> arealist;
 };
-struct GameArea{
+struct GameMap{
 	uint32 id;
-	uint32 map;
-	uint32 zone;
 	std::string name;
-	uint32 areaLevel;
+	tbb::concurrent_vector<GameZone> zonelist;
 };
 struct QuestNpcGO{
 	uint32 quest;
 	uint32 npcgo;
 	uint8 ntype;
 };
-
 // from `gameobject_template`
 struct GameObjectInfo
 {

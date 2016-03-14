@@ -68,7 +68,6 @@
 #include "Calendar.h"
 #include "LootMgr.h"
 #include "LootMgr.h"
-#include "MercenaryMgr.h"
 
 #include <cmath>
 
@@ -394,8 +393,9 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
 UpdateMask Player::updateVisualBits;
 
-Player::Player(WorldSession* session) : Unit(), m_mover(this), m_camera(this), m_achievementMgr(this), m_reputationMgr(this),gamePointMgr(this)
+Player::Player(WorldSession* session) : Unit(), m_mover(this), m_camera(this), m_achievementMgr(this), m_reputationMgr(this), context(this)
 {
+
     m_transport = 0;
 
     m_speakTime = 0;
@@ -622,6 +622,7 @@ Player::~Player()
 
     delete m_declinedname;
     delete m_runes;
+
 }
 
 void Player::CleanupsBeforeDelete()
@@ -13290,73 +13291,6 @@ Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* pQuest)
 
     return nullptr;
 }
-Quest const* Player::GetQuest(uint32 quest_id){
-	return sObjectMgr.GetQuestTemplate(quest_id);
-}
-void Player::GetQuestTitleLocale(uint32 quest_id, std::string * title){
-	Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
-	int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-	*title = pQuest->GetTitle();
-	sObjectMgr.GetQuestLocaleStrings(pQuest->GetQuestId(), loc_idx, title);
-}
-
-void Player::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name){
-	if (entry > 0)//creature
-		sObjectMgr.GetCreatureLocaleStrings(entry, m_session->GetSessionDbLocaleIndex(), name);
-	else if (entry < 0)//gameobject
-		sObjectMgr.GetGameObjectLocaleStrings(0-entry, m_session->GetSessionDbLocaleIndex(), name);
-	else
-		*name = "error";
-}
-tbb::concurrent_vector<QuestNpcGO> const*  Player::GetQuestNpcGOVector(uint32 questid,bool refresh){
-	if (refresh)
-		selQuestNpcGOVector = sObjectMgr.GetQuestNpcGOVector(questid);
-	return selQuestNpcGOVector;
-}
-
-CreatureData* Player::findCreatureDataByPOI(uint32 mapid, float x, float y){ return sObjectMgr.findCreatureDataByPOI(mapid, x, y); }
-GameObjectData* Player::findGameObjectDataByPOI(uint32 mapid, float x, float y){ return sObjectMgr.findGameObjectDataByPOI(mapid, x, y); }
-CreatureData* Player::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }
-GameObjectData* Player::findGameObjectDataByEntry(uint32 entry){ return sObjectMgr.findGameObjectDataByEntry(entry); }
-CreatureData* Player::findQuestStarterCreature(uint32 quest_id){ return sObjectMgr.findQuestStarterCreature(quest_id); }
-GameObjectData* Player::findQuestStarterGameObject(uint32 quest_id){ return sObjectMgr.findQuestStarterGameObject(quest_id); }
-
-inline std::string & Player::getSpellName(uint32 idx){
-	return sObjectMgr.getSpellName(idx);
-}
-inline std::string & Player::getGameMaps(uint32 idx){
-	return sObjectMgr.getGameMaps(idx);
-}
-
-inline int32 Player::findQuestStarterCreatureOrGO(uint32 questid){
-	return sObjectMgr.findQuestStarterCreatureOrGO(questid);
-}
-inline void Player::findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result){
-	return sObjectMgr.findQuestInvolvedCreatureOrGO(questid, result);
-}
-tbb::concurrent_vector<WorldLocation> Player::getQuestPOI(uint32 questid){
-
-	questPOIVec.clear();
-
-	QuestPOIVector const* POI = sObjectMgr.GetQuestPOIVector(questid);
-	if (POI == nullptr)
-		return questPOIVec;
-	int count = 0;
-	for (QuestPOIVector::const_iterator itr = POI->begin(); count<10 && itr != POI->end(); ++itr)
-	{
-		for (tbb::concurrent_vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); count<10 && itr2 != itr->points.end(); ++itr2, count++)
-		{
-			WorldLocation loc;
-			loc.mapid = itr->MapId;
-			loc.coord_x = itr2->x;
-			loc.coord_y = itr2->y;
-			questPOIVec.push_back(loc);
-		}
-
-	}
-
-	return questPOIVec;
-}
 /**
  * Check if a player could see a start quest
  * Basic Quest-taking requirements: Class, Race, Skill, Quest-Line, ...
@@ -15629,10 +15563,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 
 	// 积分
-	gamePointMgr._LoadAccountBalance(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE));
-	gamePointMgr._LoadCharacterExt(holder->GetResult(PLAYER_LOGIN_QUERY_CHARACTEREXT));
+	context.gamePointMgr._LoadAccountBalance(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE));
+	context.gamePointMgr._LoadCharacterExt(holder->GetResult(PLAYER_LOGIN_QUERY_CHARACTEREXT));
 	//雇佣兵
-	mMercenary=sMercenaryMgr->LoadMercenarie(this);
+	context.loadMercenary();
     // Mail
     _LoadMails(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILS));
     _LoadMailedItems(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILEDITEMS));
@@ -15862,95 +15796,7 @@ void Player::_LoadActions(QueryResult* result)
         delete result;
     }
 }
-/*
-1、玩家当前等级依次往下，找到20个任务为止
-2、已经接过的任务被忽略
-*/
-void Player::recommendQuest(std::vector<Quest*>& vector,uint8 num){
-	
-	Quest* quest;
-	QuestStatusMap::const_iterator it;
 
-	uint32  zoneid=GetZoneId();
-	//uint32  mapid=GetMapId();
-	//uint32  areaid=GetAreaId();
-
-	uint32 curLevel = GetUInt32Value(UNIT_FIELD_LEVEL);
-	for (uint32 i = curLevel; i > 0 && vector.size() <= num; i--)
-	{
-		MinlevelQuestVector* v=sObjectMgr.getQuestVectorByMinLevel(i);
-		for (MinlevelQuestVector::const_iterator itr = v->begin(); vector.size() <= num && itr != v->end(); ++itr)
-		{
-			quest = *itr;
-
-			if (quest->GetRequiredRaces() == 0)/*大多任务是种族不符，优先排除*/
-				continue;
-			if ((quest->GetRequiredRaces()&getRace()) == 0)
-				continue;
-
-			int zoneOrSort = quest->GetZoneOrSort();
-			//                 季节性              悼念日             新年                 仲夏                    复活节                感恩节              情人节     战场
-			if (zoneOrSort == -22 || zoneOrSort == -41 || zoneOrSort == -366 || zoneOrSort == -369 || zoneOrSort == -374 || zoneOrSort == -375 || zoneOrSort == -376 || zoneOrSort == -25
-				//草药学						钓鱼                       锻造                 炼金            制皮                 工程学                 藏宝图            竞标赛
-				|| zoneOrSort == -24 || zoneOrSort == -101 || zoneOrSort == -121 || zoneOrSort == -181 || zoneOrSort == -182 || zoneOrSort == -201 || zoneOrSort == -221 || zoneOrSort == -241
-				//             裁缝              烹饪                急救                    暗月马戏            铭文                珠宝加工          美酒节                    特殊
-				|| zoneOrSort == -246 || zoneOrSort == -304 || zoneOrSort == -324 || zoneOrSort == -364 || zoneOrSort == -371 || zoneOrSort == -373 || zoneOrSort == -370 || zoneOrSort == -284
-			//		天灾入侵            安其拉战争
-			|| zoneOrSort == -368 || zoneOrSort == -365 )
-				continue;
-			
-			//if (zoneOrSort > 0 && zoneOrSort != this->GetZoneId())
-				//continue;
-
-			if (quest->IsDailyOrWeekly() || quest->IsRepeatable() || quest->IsMonthly())/*季节任务，日常任务和可重复任务，跳过*/
-				continue;
-
-			if (quest->GetMinLevel() > curLevel)
-				continue;
-			
-
-			if (SatisfyQuestStatus(quest, false) && SatisfyQuestExclusiveGroup(quest, false) &&
-				SatisfyQuestClass(quest, false)  &&
-				SatisfyQuestSkill(quest, false) && SatisfyQuestReputation(quest, false) &&
-				SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestTimed(quest, false) &&
-				SatisfyQuestNextChain(quest, false) && SatisfyQuestPrevChain(quest, false) && quest->IsActive())
-			{
-				int32 npcgo= sObjectMgr.GetQuestStarterNpcGOId(quest->GetQuestId());
-				if (npcgo == 0)/*无可用的任务开始者*/
-					continue;
-
-				if (npcgo > 0)
-				{
-					CreatureData* creature = sObjectMgr.findCreatureDataByEntry(npcgo);
-					if (creature != nullptr)
-					{
-						//if (quest->GetQuestLevel()<=30)/*新手区任务*/
-						if (GetTerrain()->GetZoneId(creature->posX, creature->posY, creature->posZ) != zoneid)
-								continue;
-						if (creature->faction==nullptr)
-							vector.push_back(quest);
-						else if (!creature->faction->IsHostileTo(*getFactionTemplateEntry()))//非敌视阵营
-							vector.push_back(quest);
-					}
-				}
-				else if (npcgo < 0){
-					GameObjectData* gameobject = sObjectMgr.findGameObjectDataByEntry(-npcgo);
-					if (gameobject != nullptr)
-					{
-						//if (quest->GetQuestLevel() <= 30)/*新手区任务*/
-						if (GetTerrain()->GetZoneId(gameobject->posX, gameobject->posY, gameobject->posZ) != zoneid)
-								continue;
-
-						if (gameobject->faction==nullptr)
-							vector.push_back(quest);
-						else if (!gameobject->faction->IsHostileTo(*getFactionTemplateEntry()))//非敌视阵营			
-							vector.push_back(quest);
-					}
-				}
-			}
-		}
-	}
-}
 void Player::_LoadAuras(QueryResult* result, uint32 timediff)
 {
     // RemoveAllAuras(); -- some spells casted before aura load, for example in LoadSkills, aura list explicitly cleaned early
@@ -17292,7 +17138,7 @@ void Player::SaveToDB()
     GetSession()->SaveTutorialsData();                      // changed only while character in game
     _SaveGlyphs();
     _SaveTalents();
-	gamePointMgr._SaveGamePoint();
+	context.gamePointMgr._SaveGamePoint();
 
     CharacterDatabase.CommitTransaction();
 
@@ -17306,7 +17152,7 @@ void Player::SaveToDB()
 	{
 		pet->SavePetToDB(PET_SAVE_AS_CURRENT);
 	}
-	sMercenaryMgr->OnSave(this);
+	context.OnSaveMercenary(); 
 }
 
 // fast save function for item/money cheating preventing - save only inventory and money state

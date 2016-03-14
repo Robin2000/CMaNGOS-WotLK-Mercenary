@@ -79,7 +79,7 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	//pPlayer->GetMotionMaster()->MovePoint(50000, pPlayer->GetPositionX() + 10, pPlayer->GetPositionY(), pPlayer->GetPositionZ(), true);
 
 	char * title = new char[1024];
-	sprintf(title, pPlayer->GetMangosString(-2800173), pPlayer->gamePointMgr.getGamePoint()); // 当前原力值：%d
+	sprintf(title, pPlayer->GetMangosString(-2800173), pPlayer->context.gamePointMgr.getGamePoint()); // 当前原力值：%d
 
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
@@ -99,7 +99,7 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->SEND_GOSSIP_MENU(16777213, pItem->GetObjectGuid()); //在线即可累积原力。
 
 	pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem);
-	pPlayer->gossipMenuType = -1;//出主菜单，就将玩家子菜单标志置为空
+	pPlayer->context.gossipMenuType = -1;//出主菜单，就将玩家子菜单标志置为空
 	return true;
 }
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
@@ -120,7 +120,6 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 
 	//////////////////////////////////////////雇佣兵招募
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 12){
-		pPlayer->gossipMenuType=1; ///雇佣兵招募
 		GossipHello_mercenary_npc_gossip(pPlayer, pItem);
 		return true;
 	}
@@ -129,67 +128,70 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		recallMercenary(pPlayer, pItem);
 		return true;
 	}
-	else if (pPlayer->gossipMenuType == 1)
+	else if (pPlayer->context.gossipMenuType == 1)
 		return GossipSelect_mercenary_npc_gossip(pPlayer, pItem,NULL , uiAction);
 
 	//////////////////////////////////////////地图传送。
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 8)
 	{
-		pPlayer->gossipMenuType = 2;//地图传送。
+		pPlayer->context.gossipMenuType = 2;//地图传送。
 		hearthstone_prepare_transport2(pPlayer, pItem, 21000);
 		return true;
 	}
-	else if (pPlayer->gossipMenuType == 2)
+	else if (pPlayer->context.gossipMenuType == 2)
 		return hearthstone_transport_case(pPlayer, pItem, uiAction);
 	
 	//////////////////////////////////////////原力商店
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 10)//原力商店
 	{
-		pPlayer->gossipMenuType = 3;//原力商店
+		pPlayer->context.gossipMenuType = 3;//原力商店
 		hearthstone_prepare_store(pPlayer, pItem);
 		return true;
 	}
-	else if (pPlayer->gossipMenuType == 3)
+	else if (pPlayer->context.gossipMenuType == 3)
 		return hearthstone_store_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////任务辅助
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
 	{
-		pPlayer->gossipMenuType = 4;//任务辅助。
-		hearthstone_prepare_quest(pPlayer, pItem);
+		pPlayer->context.gossipMenuType = 4;//任务辅助。
+		hearthstone_prepare_quest_aux(pPlayer, pItem);
 		return true;
 	}
+	else if (pPlayer->context.gossipMenuType == 4)
+		return hearthstone_quest_click(pPlayer, pItem, uiAction);
+
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 14)//任务推荐
 	{
-		pPlayer->gossipMenuType = 4;//任务推荐。
-		hearthstone_recommend_quest(pPlayer, pItem);
+		pPlayer->context.gossipMenuType = 5;//任务推荐。
+		hearthstone_prepare_quest_area(pPlayer, pItem, pPlayer->GetAreaId());
 		return true;
 	}
-	else if (pPlayer->gossipMenuType == 4)
+	else if (pPlayer->context.gossipMenuType == 5)
 		return hearthstone_quest_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////技能学习
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 13)//技能学习。
 	{
-		pPlayer->gossipMenuType = 5;//技能学习。
+		pPlayer->context.gossipMenuType = 6;//技能学习。
 		hearthstone_prepareLearn(pPlayer, pItem);
 		return true;
 	}
-	else if (pPlayer->gossipMenuType == 5)
+	else if (pPlayer->context.gossipMenuType == 6)
 		return hearthstone_learn_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////原力骑乘
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)//原力骑乘
 	{
-		pPlayer->gossipMenuType = 6;//原力骑乘
+		pPlayer->context.gossipMenuType = 7;//原力骑乘
 		hearthstone_prepare_mount(pPlayer, pItem);
 		return true;
 	}
-	else if (pPlayer->gossipMenuType == 6)
+	else if (pPlayer->context.gossipMenuType == 7)
 		return hearthstone_mount_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////其它
-	pPlayer->gossipMenuType = -1;/*默认值*/
+	pPlayer->context.gossipMenuType = -1;/*默认值*/
 
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
 	{
@@ -202,11 +204,11 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		hearthstone_prepare_gamedirect(pPlayer, pItem);
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 4){//设置返回点。（-3原力）
-		pPlayer->sendSplitMsg(pPlayer->gamePointMgr.nextGameTip());
+		pPlayer->sendSplitMsg(pPlayer->context.gamePointMgr.nextGameTip());
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 5){//设置返回点。（-3原力）
-		pPlayer->gamePointMgr.setReturnPoint(3);
-		if (pPlayer->gamePointMgr.setReturnPoint(3))
+		pPlayer->context.gamePointMgr.setReturnPoint(3);
+		if (pPlayer->context.gamePointMgr.setReturnPoint(3))
 		{
 			//pPlayer->PlayerTalkClass->SendPointOfInterest(pPlayer->GetPositionX(), pPlayer->GetPositionY(), 7, 39, 0, "ReturnPoint");
 			//pPlayer->SEND_GOSSIP_MENU(16777212, pItem->GetObjectGuid());//设置返回点成功,原力与你同在！
@@ -215,7 +217,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	}
 	else if (uiAction == GOSSIP_ACTION_INFO_DEF +6)//前往返回地点。（-2原力）
 	{
-		pPlayer->gamePointMgr.useReturnPoint(2);
+		pPlayer->context.gamePointMgr.useReturnPoint(2);
 	}else if (uiAction == GOSSIP_ACTION_INFO_DEF + 7)//回家。
 	{
 		pPlayer->TeleportToHomebind();
@@ -232,14 +234,14 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 
 
 bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction){
-	if (!pPlayer->gamePointMgr.checkPoint(500))
+	if (!pPlayer->context.gamePointMgr.checkPoint(500))
 		return false;
 	
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.HandleLearnAllMySpellsCommand((char*)"");
 	chatHandler.HandleLearnAllMyTalentsCommand((char*)"");
 
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
 	return true;
 }
 void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
@@ -270,7 +272,7 @@ void hearthstone_gamedirect(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 //explorecheat
 bool explorecheat(Player* pPlayer){
-	if (!pPlayer->gamePointMgr.checkPoint(500))
+	if (!pPlayer->context.gamePointMgr.checkPoint(500))
 		return false;
 
 	for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
@@ -279,24 +281,24 @@ bool explorecheat(Player* pPlayer){
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.PSendSysMessage(LANG_YOURS_EXPLORE_SET_ALL, chatHandler.GetNameLink().c_str());
 
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
 	return true;
 }
 //taxicheat
 bool taxicheat(Player* pPlayer){
-	if (!pPlayer->gamePointMgr.checkPoint(2))
+	if (!pPlayer->context.gamePointMgr.checkPoint(2))
 		return false;
 
 	pPlayer->SetTaxiCheater(true);
 	ChatHandler chatHandler(pPlayer);
 	chatHandler.PSendSysMessage(LANG_YOURS_TAXIS_ADDED, chatHandler.GetNameLink().c_str());
 
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TAXICHEAT, 2);
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TAXICHEAT, 2);
 	return true;
 }
 bool levelup(Player* pPlayer, int level, int point)
 {
-	if (!pPlayer->gamePointMgr.checkPoint(point))
+	if (!pPlayer->context.gamePointMgr.checkPoint(point))
 		return false;
 
 	if (level - pPlayer->getLevel() <= 0)
@@ -306,7 +308,7 @@ bool levelup(Player* pPlayer, int level, int point)
 	pPlayer->InitTalentForLevel();
 	pPlayer->SetUInt32Value(PLAYER_XP, 0);
 
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_LEVELUP, point);
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_LEVELUP, point);
 
 	return true;
 }

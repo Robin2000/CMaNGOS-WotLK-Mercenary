@@ -385,13 +385,10 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 }
 bool hearthstone_transport(Player* pPlayer, uint32 mapid, double x, double y, double z, double o)
 {
-	if (!pPlayer->gamePointMgr.checkPoint(1))
-	{
-		pPlayer->gossipMenuType = -1;/*还原默认值*/
+	if (!pPlayer->context.gamePointMgr.checkPoint(1))
 		return false;
-	}
+	
 	pPlayer->TeleportTo(mapid, x, y, z, o);
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TELE, 1);
-	pPlayer->gossipMenuType = -1;/*还原默认值*/
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_TELE, 1);
 	return true;
 }

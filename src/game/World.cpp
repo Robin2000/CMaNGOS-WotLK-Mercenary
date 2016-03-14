@@ -1244,7 +1244,7 @@ void World::SetInitialWorldSettings()
 	sObjectMgr.LoadGameMaps();
 	sObjectMgr.LoadGameZones();
 	sObjectMgr.LoadGameAreas();
-
+	sObjectMgr.LoadAreaQuestStart();
 	//sObjectMgr.LoadSpellNameMaps();
 	//clock_t time1 = clock();
 	if (!sObjectMgr.load_cache()){//-加载加密数据失败

@@ -61,12 +61,12 @@ bool hearthstone_mount_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	case GOSSIP_ACTION_INFO_DEF + 105:hearthstone_random_mount(pPlayer, tanMountSpell); break;
 	case GOSSIP_ACTION_INFO_DEF + 106:hearthstone_random_mount(pPlayer, tankeMountSpell); break;
 	}
-	pPlayer->gossipMenuType = -1;/*还原默认值*/
+
 	return true;
 }
 bool hearthstone_random_mount(Player* pPlayer, const int spellarray[])
 {
-	if (!pPlayer->gamePointMgr.checkPoint(1))
+	if (!pPlayer->context.gamePointMgr.checkPoint(1))
 		return false;
 
 	int size = sizeof(spellarray) / sizeof((int)1);
@@ -75,7 +75,7 @@ bool hearthstone_random_mount(Player* pPlayer, const int spellarray[])
 		return false;
 
 
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 1);
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 1);
 
 	return true;
 }

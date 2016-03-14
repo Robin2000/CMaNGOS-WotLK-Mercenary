@@ -40,11 +40,10 @@
 #include "Chat.h"
 #include "GameObject.h"
 #include "pr_threadpool.h"
-
+#include <boost/any.hpp>
 #include<string>
 #include<vector>
-#include "GamePointMgr.h"
-
+#include "PlayerContext.h"
 
 struct Mail;
 class Channel;
@@ -1024,7 +1023,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void CleanupsBeforeDelete() override;
 
-		Mercenary* mMercenary = nullptr;
+		PlayerContext context;
 
         static UpdateMask updateVisualBits;
         static void InitVisibleBits();
@@ -1085,15 +1084,9 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         PlayerTaxi m_taxi;
 		
-		//任务推荐
-		void recommendQuest(std::vector<Quest*>& vector, uint8 num);
-		//积分
-		GamePointMgr gamePointMgr;
+
 		const char* GetMangosString(uint32 entry);
 		const uint32 GetAccountId() { return GetSession()->GetAccountId(); }
-		//积分
-		int gossipMenuType = -1;/*炉石菜单大类标志*/
-		Quest const * hearthstoneQuest;/*炉石任务*/
 
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
@@ -1362,28 +1355,6 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         Quest const* GetNextQuest(ObjectGuid guid, Quest const* pQuest);
 		Quest const* GetQuest(uint32 quest_id);
-
-		tbb::concurrent_vector<QuestNpcGO> const*  GetQuestNpcGOVector(uint32 questid,bool refresh);
-
-		void GetQuestTitleLocale(uint32 quest_id, std::string * title);
-		void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
-		
-		CreatureData* findCreatureDataByEntry(uint32 entry);
-		GameObjectData* findGameObjectDataByEntry(uint32 entry);
-		CreatureData* findQuestStarterCreature(uint32 quest_id);
-		GameObjectData* findQuestStarterGameObject(uint32 quest_id);
-
-		CreatureData* findCreatureDataByPOI(uint32 mapid, float x, float y);
-		GameObjectData* findGameObjectDataByPOI(uint32 mapid, float x, float y);
-
-		
-		tbb::concurrent_vector<WorldLocation> questPOIVec;
-		tbb::concurrent_vector<WorldLocation> getQuestPOI(uint32 questid);
-		tbb::concurrent_vector<WorldLocation> getQuestPOI(){ return questPOIVec; }
-		inline std::string & getGameMaps(uint32 idx);
-		inline std::string & Player::getSpellName(uint32 idx);
-		inline int32 findQuestStarterCreatureOrGO(uint32 questid);
-		inline void findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result);
 
         bool CanSeeStartQuest(Quest const* pQuest) const;
         bool CanTakeQuest(Quest const* pQuest, bool msg) const;
@@ -2713,7 +2684,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 m_timeSyncServer;
 
         uint32 m_cachedGS;
-		tbb::concurrent_vector<QuestNpcGO> *  selQuestNpcGOVector;//菜单项缓存
 };
 
 void AddItemsSetItem(Player* player, Item* item);

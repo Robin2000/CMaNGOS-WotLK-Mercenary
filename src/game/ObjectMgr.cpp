@@ -361,6 +361,41 @@ void ObjectMgr::LoadGameAreas(){
 	sLog.outString(">> Loaded " SIZEFMTD " z_area strings", mGameAreas.size());
 	sLog.outString();
 }
+void ObjectMgr::LoadAreaQuestStart(){
+
+    // need for reload case
+
+	QueryResult* result = WorldDatabase.Query("SELECT quest,area FROM z_area_quest order by quest");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0 z_quest_npcgo_stater . DB table `z_area_quest` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+	int count = 0;
+	do
+	{
+		count++;
+
+		Field* fields = result->Fetch();
+		bar.step();
+
+		uint32 quest = fields[0].GetUInt32();
+		uint32 area = fields[1].GetUInt32();
+		mGameAreas[area].questlist.push_back(quest);
+
+
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " z_area_quest", count);
+	sLog.outString();
+}
 void ObjectMgr::LoadSpellNameMaps(){
 
 	mSpellNameMaps.clear();                             // need for reload case
@@ -421,7 +456,7 @@ void ObjectMgr::LoadQuestNpcGO(){
 
 	mQuestNpcGOMaps.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype FROM z_quest_npcgo_all order by ntype");
+	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype FROM z_quest_npcgo_all order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
 
 	if (!result)
 	{
@@ -454,7 +489,7 @@ void ObjectMgr::LoadQuestNpcGO(){
 			questNpcGOVector->push_back(questNpcGO);
 			mQuestNpcGOMaps[questNpcGO.quest] = questNpcGOVector;
 		}
-		else
+		else if (itr->second->size()<20)/*最多推荐19个*/
 			itr->second->push_back(questNpcGO);
 
 

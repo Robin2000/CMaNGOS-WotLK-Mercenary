@@ -322,10 +322,10 @@ insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原
 	bool hearthstone_store_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 		if (uiAction == GOSSIP_ACTION_INFO_DEF + 11){//36格子背包
-				if (!pPlayer->gamePointMgr.checkPoint(5)) 	return false;
+				if (!pPlayer->context.gamePointMgr.checkPoint(5)) 	return false;
 				ChatHandler(pPlayer).HandleAddItemCommand("23162");
-				pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_STORE_POCKET, 5);
-				pPlayer->gossipMenuType = -1;/*还原默认值*/
+				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_STORE_POCKET, 5);
+
 				return true;
 		}
 		if (uiAction == GOSSIP_ACTION_INFO_DEF + 119){//T1-T8
@@ -465,11 +465,9 @@ insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原
 	}
 
 	bool additemset(Player* pPlayer, uint32 itemset){
-		if (!pPlayer->gamePointMgr.checkPoint(500))
-		{
-			pPlayer->gossipMenuType = -1;/*还原默认值*/
+		if (!pPlayer->context.gamePointMgr.checkPoint(500))
 			return false;
-		}
+		
 		ChatHandler(pPlayer).addItemSet(itemset);
 		switch (pPlayer->getClass()){
 		case 1:pPlayer->learnSpell(750, true); break;//战士 学习板甲.learn 750
@@ -489,8 +487,7 @@ insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原
 			}
 		}
 
-		pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_ITEMSET, 500);
+		pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_ITEMSET, 500);
 
-		pPlayer->gossipMenuType = -1;/*还原默认值*/
 		return true;
 	}

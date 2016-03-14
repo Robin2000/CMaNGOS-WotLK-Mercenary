@@ -75,12 +75,11 @@ bool hearthstone_learn_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	case GOSSIP_ACTION_INFO_DEF + 143:learn_professional(pPlayer, 129, 3); break; //急救,生活技能有三个，可以随便学习
 	}
 
-	pPlayer->gossipMenuType = -1;/*默认值*/
 	return true;
 }
 bool learn_professional(Player* pPlayer, uint32 skillid, uint8 maxnum)//.learnsk 165 300 // 制皮  
 {
-	if (!pPlayer->gamePointMgr.checkPoint(500))
+	if (!pPlayer->context.gamePointMgr.checkPoint(500))
 		return false;
 
 	if (pPlayer->HasSkill(skillid))
@@ -107,7 +106,7 @@ bool learn_professional(Player* pPlayer, uint32 skillid, uint8 maxnum)//.learnsk
 
 	pPlayer->SetSkill(skillid, max, max);
 
-	pPlayer->gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
+	pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_MOUNT, 500);
 
 	return true;
 }

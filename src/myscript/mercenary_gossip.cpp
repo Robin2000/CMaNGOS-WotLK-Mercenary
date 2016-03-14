@@ -208,7 +208,7 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 		{
 			WorldSession* session = player->GetSession();
 			session->SendNotification(-2800633);//未能招募成功!
-			player->gossipMenuType = -1;/*还原默认值*/
+			player->context.gossipMenuType = -1;/*还原默认值*/
 			return false;
 		}
 	}
@@ -344,7 +344,7 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 			CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(),
 				mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
 			player->CLOSE_GOSSIP_MENU();
-			player->gossipMenuType = -1;/*还原默认值*/
+			player->context.gossipMenuType = -1;/*还原默认值*/
 			break;
 
 	}
@@ -374,7 +374,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 
 		case GOSSIP_ACTION_INFO_DEF + 999:////取消
 			player->CLOSE_GOSSIP_MENU();
-			player->gossipMenuType = -1;/*还原默认值*/
+			player->context.gossipMenuType = -1;/*还原默认值*/
 			break;
 	
 		case 94: // Hire Mercenary and choose what's best for it (and you)【选择招募最好的雇佣兵】
@@ -390,7 +390,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 			break;
 		case 41:
 			player->CLOSE_GOSSIP_MENU();
-			player->gossipMenuType = -1;/*还原默认值*/
+			player->context.gossipMenuType = -1;/*还原默认值*/
 			break;
 		case 96:
 			SendFeatureList(player, item, true);
