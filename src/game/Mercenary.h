@@ -225,10 +225,10 @@ public:
     void Initialize(Player* player, Pet* pet, bool create);
 
 	/*清理不匹配的技能*/
-	void Mercenary::cleanNoMatchSpell(Pet* pet);
+	void cleanNoMatchSpell(Pet* pet);
 
 	/*清理不匹配的装备*/
-	void Mercenary::clearnNoMatchEquipItem();
+	void clearnNoMatchEquipItem();
 
 	/*技能有效性判断*/
 	bool isValidSpell(uint32 spell);
