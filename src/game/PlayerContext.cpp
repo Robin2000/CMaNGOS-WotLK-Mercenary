@@ -119,8 +119,8 @@ void PlayerContext::getDefaultSpells(std::vector<uint32>& vec, uint8 race, uint8
 void PlayerContext::calculateZone_quest_npcgo_all_map(){
 
 	TerrainInfo* terrain = nullptr;
-											//        0   1    2          3            4
-	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_all_map");
+	uint32 oldmap = -1;										//        0   1    2          3            4
+	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_all_map where zone=0");
 	do
 	{
 		Field* fields = result->Fetch();
@@ -130,13 +130,16 @@ void PlayerContext::calculateZone_quest_npcgo_all_map(){
 		float y = fields[3].GetFloat();
 		float z = fields[4].GetFloat();
 
-		terrain = sTerrainMgr.LoadTerrain(map);
-		if (!MapManager::IsValidMapCoord(map, x, y))
-			continue;
+		if (oldmap != map){
+			terrain = sTerrainMgr.LoadTerrain(map);
+			oldmap = map;
+		}
+		//if (!MapManager::IsValidMapCoord(map, x, y))
+		//	continue;
 
 		uint32 zone = terrain->GetZoneId(x, y, z);
 		uint32 area = terrain->GetAreaId(x, y, z);
-		WorldDatabase.PExecute("UPDATE z_quest_npcgo_all_map SET zone = %u, area = %u WHERE id = %u", zone, area, id);
+		WorldDatabase.PExecute("UPDATE z_quest_npcgo_all_map SET zone = %u, area = %u WHERE id = %u order by map", zone, area, id);
 
 	} while (result->NextRow());
 
@@ -145,8 +148,9 @@ void PlayerContext::calculateZone_quest_npcgo_all_map(){
 void PlayerContext::calculateZone_quest_poi_points(){
 
 	TerrainInfo* terrain = nullptr;
+	uint32 oldmap = -1;
 												//        0     1    2   3
-	QueryResult* result = WorldDatabase.Query("SELECT A.prid,B.mapid,A.x,A.y FROM quest_poi_points A LEFT JOIN quest_poi B ON A.questId=B.questId AND A.poiId=B.poiId");
+	QueryResult* result = WorldDatabase.Query("SELECT A.prid,B.mapid,A.x,A.y FROM quest_poi_points A LEFT JOIN quest_poi B ON A.questId=B.questId AND A.poiId=B.poiId   where zone=0 order by map");
 	do
 	{
 		Field* fields = result->Fetch();
@@ -155,9 +159,13 @@ void PlayerContext::calculateZone_quest_poi_points(){
 		float x = fields[2].GetFloat();
 		float y = fields[3].GetFloat();
 
-		terrain = sTerrainMgr.LoadTerrain(map);		
-		if (!MapManager::IsValidMapCoord(map, x, y))
-			continue;
+		if (oldmap != map){
+			terrain = sTerrainMgr.LoadTerrain(map);
+			oldmap = map;
+		}
+	
+		//if (!MapManager::IsValidMapCoord(map, x, y))
+		//	continue;
 
 		float z = terrain->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
 		
