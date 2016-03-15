@@ -349,25 +349,26 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					return;
 				for (auto itr = POI->begin(); count<19 && itr != POI->end(); ++itr)
 				{
-					std::ostringstream os;
-					std::string *mapName = pPlayer->context.getGameMapsName(uint32(itr->MapId));
-					if (mapName != nullptr)
-						os << *mapName ;
-
-					std::string *zoneName = pPlayer->context.getGameAreaName(uint32(itr->MapAreaId));
-					if (zoneName != nullptr)
-						os << "-"<<*zoneName;
-
-					//std::string *areName = pPlayer->context.getGameAreaName(uint32(itr->FloorId));
-					//if (areName != nullptr)
-					//	os << *areName;
-
 					for (auto itr2 = itr->points.begin(); count < 19 && itr2 != itr->points.end(); ++itr2, count++)
 					{
 						if (pPlayer->context.findCreatureDataByPOI(itr->MapId, itr2->x, itr2->y) != nullptr)
 							continue;
 						if (pPlayer->context.findGameObjectDataByPOI(itr->MapId, itr2->x, itr2->y) != nullptr)
 							continue;
+				
+						std::ostringstream os;
+						std::string *mapName = pPlayer->context.getGameMapsName(uint32(itr->MapId));
+						if (mapName != nullptr)
+							os << *mapName;
+
+						std::string *zoneName = pPlayer->context.getGameAreaName(itr2->zone);
+						if (zoneName != nullptr)
+							os << "-" << *zoneName;
+
+						std::string *areaName = pPlayer->context.getGameAreaName(itr2->area);
+						if (areaName != nullptr)
+							os << *areaName;
+						
 						os << "["<<int32(itr2->x) << "," << int32(itr2->y) << "]";
 						pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + count);//
 
