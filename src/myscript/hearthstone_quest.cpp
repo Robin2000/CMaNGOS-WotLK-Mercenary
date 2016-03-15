@@ -212,7 +212,13 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		if (uiAction >= GOSSIP_ACTION_INFO_DEF + 960 && uiAction <= GOSSIP_ACTION_INFO_DEF + 979){
 			tbb::concurrent_vector<QuestNpcGO> const* npcgoV = pPlayer->context.GetQuestNpcGOVector(pPlayer->context.aux_questid);
 			if (npcgoV != nullptr)
-				transportByCreatureOrGO2(pPlayer, pItem, npcgoV->at(uiAction -GOSSIP_ACTION_INFO_DEF - 960).npcgo);
+			{
+				QuestNpcGO questNpcGO = npcgoV->at(uiAction - GOSSIP_ACTION_INFO_DEF - 960);
+				if (questNpcGO.zone == 0 && questNpcGO.area == 0)
+					return false;
+
+				pPlayer->TeleportTo(questNpcGO.map, questNpcGO.x, questNpcGO.y, questNpcGO.z, 0);
+			}
 		}
 		else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 980 && uiAction <= GOSSIP_ACTION_INFO_DEF+ 999)//兴趣点传送
 			transportByPOI(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 980);
@@ -255,7 +261,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			}
 		}
 	}
-	void transportToInvolved(Player* pPlayer, Item* pItem, int idx){
+/*	void transportToInvolved(Player* pPlayer, Item* pItem, int idx){
 		std::vector<int32> result;
 		pPlayer->context.findQuestInvolvedCreatureOrGO(pPlayer->context.aux_questid, result);
 		transportByCreatureOrGO2(pPlayer, pItem, result.at(idx));
@@ -264,6 +270,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		int32 creatureOrGO = pPlayer->context.findQuestStarterCreatureOrGO(pPlayer->context.aux_questid);
 		transportByCreatureOrGO2(pPlayer, pItem, creatureOrGO);
 	}
+*/
 	void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEntry){
 		if (!pPlayer->context.gamePointMgr.checkPoint(1))
 			return;
@@ -311,27 +318,31 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		if (npcgoV == nullptr)
 			return;
 
+			uint32 zone = pPlayer->GetZoneId();
+			
 			int i = 0;
 			for (auto itr = npcgoV->begin(); i<19&&itr != npcgoV->end(); ++itr,i++){
 				const char * name = "";
 				pPlayer->context.GetCreatureOrGOTitleLocale(itr->npcgo, &name);
 				
-				switch (itr->ntype)
+				std::string* area = pPlayer->context.getGameAreaName(itr->area);
+				
+					switch (itr->ntype)
 				{
-				 case 0:
-					 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800587) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+960 + i);//【任务开始】
-					 break;
-				 case 1:
-					 if (i<18)
-						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800588) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务目标】
-					 break;
-				 case 2:
-					 if (i<18)
-						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800589) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务物品】
-					 break;
-				 case 3:
-					 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800590) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务结束】
-					 break;
+					 case 0:
+						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800587) + ((area==nullptr)?"":*area) +"-"+ std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务开始】
+						 break;
+					 case 1:
+						 if (i<18)
+							 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800588) +((area == nullptr) ? "" : *area) + "-"+std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务目标】
+						 break;
+					 case 2:
+						 if (i<18 && zone == itr->zone)
+							 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800589) + ((area == nullptr) ? "" : *area) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务物品】
+						 break;
+					 case 3:
+						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800590) + ((area == nullptr) ? "" : *area) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务结束】
+						 break;
 				}
 				
 			}
