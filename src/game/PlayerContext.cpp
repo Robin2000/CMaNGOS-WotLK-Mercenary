@@ -118,17 +118,24 @@ void PlayerContext::getDefaultSpells(std::vector<uint32>& vec, uint8 race, uint8
 
 void PlayerContext::calculateZone_quest_npcgo_all_map(){
 
+	SqlStatementID updatenpcgo;
+	SqlStatement stmt = WorldDatabase.CreateStatement(updatenpcgo, "UPDATE z_quest_npcgo_all_map SET zone = ?, area = ? WHERE id = ? order by map");
+
 	TerrainInfo* terrain = nullptr;
+	Field* fields;
+	uint32 id, map;
+	float x, y, z;
+
 	uint32 oldmap = -1;										//        0   1    2          3            4
 	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_all_map where zone=0");
 	do
 	{
-		Field* fields = result->Fetch();
-		uint32 id = fields[0].GetUInt32();
-		uint32 map = fields[1].GetUInt32();
-		float x = fields[2].GetFloat();
-		float y = fields[3].GetFloat();
-		float z = fields[4].GetFloat();
+		fields = result->Fetch();
+		id = fields[0].GetUInt32();
+		map = fields[1].GetUInt32();
+		x = fields[2].GetFloat();
+		y = fields[3].GetFloat();
+		z = fields[4].GetFloat();
 
 		if (oldmap != map){
 			terrain = sTerrainMgr.LoadTerrain(map);
@@ -137,9 +144,8 @@ void PlayerContext::calculateZone_quest_npcgo_all_map(){
 		//if (!MapManager::IsValidMapCoord(map, x, y))
 		//	continue;
 
-		uint32 zone = terrain->GetZoneId(x, y, z);
-		uint32 area = terrain->GetAreaId(x, y, z);
-		WorldDatabase.PExecute("UPDATE z_quest_npcgo_all_map SET zone = %u, area = %u WHERE id = %u order by map", zone, area, id);
+		stmt.PExecute(terrain->GetZoneId(x, y, z), terrain->GetAreaId(x, y, z), id);
+		
 
 	} while (result->NextRow());
 
@@ -147,17 +153,24 @@ void PlayerContext::calculateZone_quest_npcgo_all_map(){
 }
 void PlayerContext::calculateZone_quest_poi_points(){
 
+	SqlStatementID updatenpcgo;
+	SqlStatement stmt = WorldDatabase.CreateStatement(updatenpcgo, "UPDATE quest_poi_points SET zone = ?, area = ? WHERE prid = ?");
+
 	TerrainInfo* terrain = nullptr;
 	uint32 oldmap = -1;
-												//        0     1    2   3
+	Field* fields;
+	uint32 id, map;
+	float x, y, z;
+			
+									//        0     1    2   3
 	QueryResult* result = WorldDatabase.Query("SELECT A.prid,B.mapid,A.x,A.y FROM quest_poi_points A LEFT JOIN quest_poi B ON A.questId=B.questId AND A.poiId=B.poiId   where zone=0 order by map");
 	do
 	{
-		Field* fields = result->Fetch();
-		uint32 id = fields[0].GetUInt32();
-		uint32 map = fields[1].GetUInt32();
-		float x = fields[2].GetFloat();
-		float y = fields[3].GetFloat();
+		fields = result->Fetch();
+		id = fields[0].GetUInt32();
+		map = fields[1].GetUInt32();
+		x = fields[2].GetFloat();
+		y = fields[3].GetFloat();
 
 		if (oldmap != map){
 			terrain = sTerrainMgr.LoadTerrain(map);
@@ -167,12 +180,9 @@ void PlayerContext::calculateZone_quest_poi_points(){
 		//if (!MapManager::IsValidMapCoord(map, x, y))
 		//	continue;
 
-		float z = terrain->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
+		z = terrain->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
 		
-		uint32 zone = terrain->GetZoneId(x, y, z);
-		uint32 area = terrain->GetAreaId(x, y, z);
-		
-		WorldDatabase.PExecute("UPDATE quest_poi_points SET zone = %u, area = %u WHERE prid = %u", zone, area, id);
+		stmt.PExecute(terrain->GetZoneId(x, y, z), terrain->GetAreaId(x, y, z), id);
 
 	} while (result->NextRow());
 
