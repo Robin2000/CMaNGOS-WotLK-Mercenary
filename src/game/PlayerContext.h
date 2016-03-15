@@ -53,9 +53,9 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//宠物取得种族职业的缺省技能
 	void getDefaultSpells( std::vector<uint32> & vec, uint8 race, uint8 cla, uint32 level);
 
-	//计算并更新z_quest_npcgo_stater表的任务区域信息
-	void calculateZoneArea();
-	void calculatePOIZoneArea();
+	//计算并更新表的任务区域信息
+	void calculateZone_quest_npcgo_all_map();
+	void calculateZone_quest_poi_points();
 	
 	inline std::string * getGameMapsName(uint32 map);
 	inline std::string * getGameAreaName(uint32 area);

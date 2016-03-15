@@ -88,6 +88,12 @@ struct GameMap{
 struct QuestNpcGO{
 	uint32 quest;
 	uint32 npcgo;
+	uint32 map;
+	uint32 zone;
+	uint32 area;
+	float x;
+	float y;
+	float z;
 	uint8 ntype;
 };
 // from `gameobject_template`

@@ -388,7 +388,7 @@ void ObjectMgr::LoadAreaQuestStart(){
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0 z_quest_npcgo_stater . DB table `z_area_quest` is empty.");
+		sLog.outString(">> Loaded 0 z_area_quest . DB table `z_area_quest` is empty.");
 		return;
 	}
 
@@ -473,14 +473,14 @@ void ObjectMgr::LoadGameTips(){
 void ObjectMgr::LoadQuestNpcGO(){
 
 	mQuestNpcGOMaps.clear();                             // need for reload case
-
-	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype FROM z_quest_npcgo_all order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
+	//													0    1     2    3    4    5    6            7         8
+	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype,map,zone,area,position_x,position_y,position_z FROM z_quest_npcgo_all_map order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
 
 	if (!result)
 	{
 		BarGoLink bar(1);
 		bar.step();
-		sLog.outString(">> Loaded 0 z_quest_npcgo_all . DB table `z_quest_npcgo_all` is empty.");
+		sLog.outString(">> Loaded 0 z_quest_npcgo_all_map . DB table `z_quest_npcgo_all_map` is empty.");
 		return;
 	}
 
@@ -495,6 +495,12 @@ void ObjectMgr::LoadQuestNpcGO(){
 		questNpcGO.quest = fields[0].GetUInt32();
 		questNpcGO.npcgo = fields[1].GetInt32();
 		questNpcGO.ntype = fields[2].GetUInt8();
+		questNpcGO.map = fields[3].GetInt32();
+		questNpcGO.zone = fields[4].GetInt32();
+		questNpcGO.area = fields[5].GetInt32();
+		questNpcGO.x = fields[6].GetFloat();
+		questNpcGO.y = fields[7].GetFloat();
+		questNpcGO.z = fields[8].GetFloat();
 
 		if (questNpcGO.ntype==0)
 			mQuestStarterNpcGOMaps[questNpcGO.quest] = questNpcGO.npcgo;
@@ -515,7 +521,8 @@ void ObjectMgr::LoadQuestNpcGO(){
 
 	delete result;
 
-	sLog.outString(">> Loaded " SIZEFMTD " z_quest_npcgo_all", mQuestNpcGOMaps.size());
+	sLog.outString(">> Loaded " SIZEFMTD " z_quest_npcgo_all_map", mQuestNpcGOMaps.size());
+	sLog.outString(">> Loaded " SIZEFMTD " quest Starter NpcGO ", mQuestStarterNpcGOMaps.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadCreatureLocales()

@@ -116,12 +116,11 @@ void PlayerContext::getDefaultSpells(std::vector<uint32>& vec, uint8 race, uint8
 		vec.push_back(itr->second->Id);
 }
 
-void PlayerContext::calculateZoneArea(){
+void PlayerContext::calculateZone_quest_npcgo_all_map(){
 
 	TerrainInfo* terrain = nullptr;
-	uint32 oldmap = -1;
 											//        0   1    2          3            4
-	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_stater order by map");
+	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_all_map");
 	do
 	{
 		Field* fields = result->Fetch();
@@ -130,20 +129,20 @@ void PlayerContext::calculateZoneArea(){
 		float x = fields[2].GetFloat();
 		float y = fields[3].GetFloat();
 		float z = fields[4].GetFloat();
-		if (oldmap != map)
-		{
-			terrain = sTerrainMgr.LoadTerrain(map);
-			oldmap = map;
-		}
+
+		terrain = sTerrainMgr.LoadTerrain(map);
+		if (!MapManager::IsValidMapCoord(map, x, y))
+			continue;
+
 		uint32 zone = terrain->GetZoneId(x, y, z);
 		uint32 area = terrain->GetAreaId(x, y, z);
-		WorldDatabase.PExecute("UPDATE z_quest_npcgo_stater SET zone = %u, area = %u WHERE id = %u", zone, area, id);
+		WorldDatabase.PExecute("UPDATE z_quest_npcgo_all_map SET zone = %u, area = %u WHERE id = %u", zone, area, id);
 
 	} while (result->NextRow());
 
 	delete result;
 }
-void PlayerContext::calculatePOIZoneArea(){
+void PlayerContext::calculateZone_quest_poi_points(){
 
 	TerrainInfo* terrain = nullptr;
 												//        0     1    2   3
@@ -155,8 +154,8 @@ void PlayerContext::calculatePOIZoneArea(){
 		uint32 map = fields[1].GetUInt32();
 		float x = fields[2].GetFloat();
 		float y = fields[3].GetFloat();
-		terrain = sTerrainMgr.LoadTerrain(map);
-		
+
+		terrain = sTerrainMgr.LoadTerrain(map);		
 		if (!MapManager::IsValidMapCoord(map, x, y))
 			continue;
 

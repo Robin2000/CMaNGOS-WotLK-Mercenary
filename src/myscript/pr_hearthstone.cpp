@@ -26,6 +26,7 @@ EndScriptData */
 #include "hearthstone_quest.h"
 #include "hearthstone_learn.h"
 #include "hearthstone_mount.h"
+#include "gmtools.h"
 /*
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
@@ -196,6 +197,16 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	}
 	else if (pPlayer->context.gossipMenuType == 7)
 		return hearthstone_mount_click(pPlayer, pItem, uiAction);
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 20){
+		pPlayer->context.gossipMenuType = 8;//GM_TOOLS
+		hearthstone_prepare_gmtools(pPlayer, pItem, uiAction);
+		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == 8)
+	{
+		hearthstone_click_gmtools(pPlayer, pItem, uiAction);
+		return true;
+	}
 
 	//////////////////////////////////////////其它
 	pPlayer->context.gossipMenuType = -1;/*默认值*/
@@ -233,9 +244,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	{
 		hearthstone_gamedirect(pPlayer, pItem, uiAction);
 	}
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 20){
-		pPlayer->context.calculatePOIZoneArea();
-	}
+
 
 	//pPlayer->HandleEmoteCommandHappy();
 	return true;

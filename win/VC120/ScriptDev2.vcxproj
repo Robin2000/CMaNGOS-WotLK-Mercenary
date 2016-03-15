@@ -215,6 +215,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\myscript\gmtools.cpp" />
     <ClCompile Include="..\..\src\myscript\hearthstone_learn.cpp" />
     <ClCompile Include="..\..\src\myscript\hearthstone_mount.cpp" />
     <ClCompile Include="..\..\src\myscript\hearthstone_quest.cpp" />
@@ -690,6 +691,7 @@
     <ClCompile Include="..\..\src\scriptdev2\ScriptMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\myscript\gmtools.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_learn.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_mount.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_quest.h" />

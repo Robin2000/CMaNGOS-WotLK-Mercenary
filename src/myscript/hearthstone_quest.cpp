@@ -175,9 +175,6 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			pPlayer->context.AREASEL = pPlayer->GetAreaId();
 			hearthstone_prepare_quest_area(pPlayer, pItem, pPlayer->context.AREASEL);
 			return true;
-		case  800:/*生成地图区域数据【开发工具】*/
-			pPlayer->context.calculateZoneArea();
-			return true;
 		case  748:	/*选择附近区域*/
 			pPlayer->context.MAPSEL = pPlayer->GetMapId();
 			pPlayer->context.ZONESEL = pPlayer->GetZoneId();
@@ -375,7 +372,6 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					}
 				}
 			}
-		//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "GenQuestMapZoneArea", GOSSIP_SENDER_MAIN,  800);//产生地图和区域数据
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}
