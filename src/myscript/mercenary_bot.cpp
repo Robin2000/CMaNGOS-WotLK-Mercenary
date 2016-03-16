@@ -280,8 +280,12 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		break;
 	case 39:
 	case 40:
-		if (mercenary)
+		Pet* pet = player->GetPet();
+		if (mercenary&&pet)
+		{
+			mercenary->cleanNoMatchSpell(pet);
 			addSpellMenu(player, mercenary, creature, actions);/*学习39或者遗忘40菜单*/
+		}
 		break;
 	}
 
