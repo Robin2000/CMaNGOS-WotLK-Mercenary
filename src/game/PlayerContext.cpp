@@ -4,6 +4,9 @@
 #include "SpellMgr.h"
 #include "GridMap.h"
 #include "MercenaryMgr.h"
+#include "tbb/parallel_for.h"
+#include "tbb/parallel_for_each.h"
+#include "Log.h"
 
 
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player){
@@ -116,10 +119,99 @@ void PlayerContext::getDefaultSpells(std::vector<uint32>& vec, uint8 race, uint8
 		vec.push_back(itr->second->Id);
 }
 
+/*数据量太大，采用并行算法提高效率*/
+struct Z_QuestNpcGo{
+	uint32 id;
+	uint32 map;
+	uint32 zone;
+	uint32 area;
+	uint32 quest;
+	int32 npcgo;
+	float x;
+	float y;
+	float z;
+	uint8 ntype;
+	int16 MinLevel;
+};
+typedef tbb::concurrent_vector<Z_QuestNpcGo*> QuestNpcGOQueue;
+typedef tbb::concurrent_unordered_map<uint32, QuestNpcGOQueue*> QuestNpcGOMap;
+typedef tbb::concurrent_unordered_map<uint32, TerrainInfo*> UpdateTerrainInfoMap;
+
+void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
+
+	FILE* log_file;
+	log_file = fopen("e:/data.txt", "w");
+
+
+	//SqlStatementID updatenpcgo;
+	//SqlStatement stmt = WorldDatabase.CreateStatement(updatenpcgo, "UPDATE z_quest_npcgo_all_map SET zone = ?, area = ? WHERE id = ?");
+
+											//        0   1    2          3            4       5     6     7     8
+	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z,quest,npcgo,ntype,MinLevel FROM z_quest_npcgo_all_map order by map");
+	
+	QuestNpcGOMap questNpcGOMap;
+	UpdateTerrainInfoMap updateTerrainInfoMap;
+	QuestNpcGOQueue* questNpcGOQueue =nullptr;
+
+	uint32 oldmap = -1;//标志变量，order by map，每张map改变一次
+	
+	do
+	{
+		Field* fields = result->Fetch();
+		Z_QuestNpcGo* questNpcGO = new Z_QuestNpcGo();
+		questNpcGO->id = fields[0].GetUInt32();//注意，这里使用quest字段保存id，是为了方便，实际使用时应看作id
+		questNpcGO->map = fields[1].GetUInt32();
+		questNpcGO->x = fields[2].GetFloat();
+		questNpcGO->y = fields[3].GetFloat();
+		questNpcGO->z = fields[4].GetFloat();
+		questNpcGO->quest = fields[5].GetUInt32();
+		questNpcGO->npcgo = fields[6].GetInt32();
+		questNpcGO->ntype = fields[7].GetUInt8();
+		questNpcGO->MinLevel = fields[8].GetInt16();
+		if (questNpcGO->MinLevel < 0)
+			questNpcGO->MinLevel = 0;
+
+		if (oldmap != questNpcGO->map){
+			oldmap = questNpcGO->map;
+
+			TerrainInfo* terrain = sTerrainMgr.LoadTerrain(questNpcGO->map);
+			updateTerrainInfoMap[questNpcGO->map] = terrain;
+
+			questNpcGOQueue = new QuestNpcGOQueue();
+			questNpcGOMap[questNpcGO->map] = questNpcGOQueue;
+
+		}
+		questNpcGOQueue->push_back(questNpcGO);
+
+	} while (result->NextRow());
+	delete result;
+	
+	sLog.outError("map0:size:%u", questNpcGOMap[0]->size());
+
+	sLog.outError("questNpcGOMap size:%u", questNpcGOMap.size());
+	for (QuestNpcGOMap::iterator itr = questNpcGOMap.begin(); itr != questNpcGOMap.end(); itr++){
+			if (itr->second->size() == 0)
+				continue;
+			TerrainInfo* terrain = updateTerrainInfoMap[itr->first];
+			sLog.outError("map:%u ,size:%u", itr->first, itr->second->size());
+			tbb::parallel_for_each(itr->second->begin(), itr->second->end(), [&](Z_QuestNpcGo *v) {
+				fprintf(log_file, "%u\t%u\t%u\t%u\t%u\t%d\t%f\t%f\t%f\t%u\t%u\n", v->id, v->map, terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z), v->quest, v->npcgo, v->x, v->y, v->z, v->ntype, v->MinLevel);
+				//SELECT * from z_id_zone_area INTO OUTFILE 'e:/data.txt';
+				//LOAD DATA INFILE 'e:/data.txt' INTO TABLE mangos.z_id_zone_area;
+				//stmt.PExecute(terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z), v->quest);
+				//sLog.outError("UPDATE z_quest_npcgo_all_map SET zone = u%, area = u% WHERE id = u% order by map;", terrain->GetZoneId(questNpcGO->x, questNpcGO->y, questNpcGO->z), terrain->GetAreaId(questNpcGO->x, questNpcGO->y, questNpcGO->z), questNpcGO->quest);
+				delete v;
+			});
+			delete itr->second;
+		}
+
+	
+	fclose(log_file);
+}
 void PlayerContext::calculateZone_quest_npcgo_all_map(){
 
 	SqlStatementID updatenpcgo;
-	SqlStatement stmt = WorldDatabase.CreateStatement(updatenpcgo, "UPDATE z_quest_npcgo_all_map SET zone = ?, area = ? WHERE id = ? order by map");
+	SqlStatement stmt = WorldDatabase.CreateStatement(updatenpcgo, "UPDATE z_quest_npcgo_all_map SET zone = ?, area = ? WHERE id = ?");
 
 	TerrainInfo* terrain = nullptr;
 	Field* fields;
@@ -127,7 +219,7 @@ void PlayerContext::calculateZone_quest_npcgo_all_map(){
 	float x, y, z;
 
 	uint32 oldmap = -1;										//        0   1    2          3            4
-	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_all_map where zone=0");
+	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z FROM z_quest_npcgo_all_map where zone=0  order by map");
 	do
 	{
 		fields = result->Fetch();
