@@ -64,7 +64,7 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 			continue;
 		std::string * name = pPlayer->context.getGameMapsName(it->first);
 		if (name!=nullptr)
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *name, GOSSIP_SENDER_MAIN, it->first);//选择map 100-299
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *name, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+it->first);//选择map 100-299
 	}
 
 	if (curPage>1)
@@ -73,7 +73,7 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	if (maps.size()> MAX_INDEX)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800599, GOSSIP_SENDER_MAIN,  651);//下一页
 
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
 }
@@ -97,7 +97,7 @@ bool showZoneMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	{
 		std::string* areaName = pPlayer->context.getGameAreaName(zonelist->at(i)->id);
 		if (mapName != nullptr&&areaName != nullptr)
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *mapName + "-" + *areaName, GOSSIP_SENDER_MAIN, zonelist->at(i)->id);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *mapName + "-" + *areaName, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+zonelist->at(i)->id);
 	}
 	if (curPage>1)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800598, GOSSIP_SENDER_MAIN,  699);//上一页
@@ -105,7 +105,7 @@ bool showZoneMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	if (countAll> MAX_INDEX)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800599, GOSSIP_SENDER_MAIN,  701);//下一页
 
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
 }
@@ -132,7 +132,7 @@ bool showAreaMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	{
 		std::string* areaName = pPlayer->context.getGameAreaName(arealist->at(i)->id);
 		if (zoneName!=nullptr&&areaName!=nullptr)
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *zoneName + "-" + *areaName, GOSSIP_SENDER_MAIN, arealist->at(i)->id);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *zoneName + "-" + *areaName, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+arealist->at(i)->id);
 	}
 	if (curPage>1)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800598, GOSSIP_SENDER_MAIN,  750);//上一页
@@ -140,7 +140,7 @@ bool showAreaMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	if (countAll> MAX_INDEX)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800599, GOSSIP_SENDER_MAIN,  751);//下一页
 
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
 }
@@ -190,7 +190,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				hearthstone_prepare_quest_zone(pPlayer, pItem, pPlayer->context.ZONESEL);
 			return true;
 	}
-	switch (pPlayer->context.gossipActionType)/*map选择*/
+	switch (pPlayer->context.gossipActionType)/*使用gossipActionType解决动态id的问题，动态id需要+GOSSIP_ACTION_INFO_DEF区分上面的固定id，固定id都小于GOSSIP_ACTION_INFO_DEF*/
 	{
 	case  MAP_SEL_ACTION:
 		pPlayer->context.MAPSEL = uiAction - GOSSIP_ACTION_INFO_DEF;
@@ -202,11 +202,11 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		return true;
 	case  AREA_SEL_ACTION:
 		pPlayer->context.AREASEL = uiAction - GOSSIP_ACTION_INFO_DEF;
-		hearthstone_prepare_quest_area(pPlayer, pItem, uiAction);
+		hearthstone_prepare_quest_area(pPlayer, pItem, pPlayer->context.AREASEL);
 		return true;
 	case  QUEST_SEL_ACTION:
 		pPlayer->context.aux_questid = uiAction - GOSSIP_ACTION_INFO_DEF;
-		hearthstone_quest(pPlayer, pItem, uiAction);
+		hearthstone_quest(pPlayer, pItem, pPlayer->context.aux_questid);
 		return true;
 	case NPCGO_SEL_ACTION:
 		if (uiAction >= GOSSIP_ACTION_INFO_DEF + 960 && uiAction <= GOSSIP_ACTION_INFO_DEF + 979){
@@ -245,12 +245,14 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			return;
 		
 		QuestPOIVector const*  POI = pPlayer->context.getQuestPOI();
-		int count = 0;
+
 		if (POI == nullptr)
 			return;
-		for (auto itr = POI->begin(); count < 15 && itr != POI->end(); ++itr)
+
+		int count = 0;
+		for (auto itr = POI->begin(); count < 20 && itr != POI->end(); ++itr)/*若干POI中有若干points，只能循环定位*/
 		{
-			for (auto itr2 = itr->points.begin(); count < 10 && itr2 != itr->points.end(); ++itr2, count++)
+			for (auto itr2 = itr->points.begin(); count < 20 && itr2 != itr->points.end(); ++itr2, count++)
 			{
 				if (count==idx)
 				{
@@ -318,8 +320,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		if (npcgoV == nullptr)
 			return;
 
-			uint32 zone = pPlayer->GetZoneId();
-			
+			int npcgocount = 0;
+			int itemcount = 0;
+
 			int i = 0;
 			for (auto itr = npcgoV->begin(); i<19&&itr != npcgoV->end(); ++itr,i++){
 				const char * name = "";
@@ -327,37 +330,47 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				
 				std::string* area = pPlayer->context.getGameAreaName(itr->area);
 				
-					switch (itr->ntype)
+				switch (itr->ntype)
 				{
 					 case 0:
 						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800587) + ((area==nullptr)?"":*area) +"-"+ std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务开始】
+						 npcgocount++;
 						 break;
 					 case 1:
-						 if (i<18)
+						 if (npcgocount<18)
 							 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800588) +((area == nullptr) ? "" : *area) + "-"+std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务目标】
+						 npcgocount++;
 						 break;
 					 case 2:
-						 if (i<18 && zone == itr->zone)
+						 if (npcgocount < 18 && itemcount++ < 6)/*最多允许5个item来源，太多也没有意义*/
+						 {
 							 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800589) + ((area == nullptr) ? "" : *area) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务物品】
+							 npcgocount++;
+						 }
+						 
 						 break;
 					 case 3:
 						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800590) + ((area == nullptr) ? "" : *area) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务结束】
+						 npcgocount++;
 						 break;
 				}
 				
 			}
 	
-
-			if (npcgoV->size() <= 2)
+			if (npcgocount <18)
 			{
 				//下面添加兴趣点
-				int count = 0;
+	
 				QuestPOIVector const*  POI = pPlayer->context.loadQuestPOI(questid);
 				if (POI == nullptr)
 					return;
-				for (auto itr = POI->begin(); count<19 && itr != POI->end(); ++itr)
+
+				int maxPOI = 19 - npcgocount;
+
+				int count = 0;
+				for (auto itr = POI->begin(); count<maxPOI && itr != POI->end(); ++itr)
 				{
-					for (auto itr2 = itr->points.begin(); count < 19 && itr2 != itr->points.end(); ++itr2, count++)
+					for (auto itr2 = itr->points.begin(); count < maxPOI && itr2 != itr->points.end(); ++itr2, count++)
 					{
 						if (pPlayer->context.findCreatureDataByPOI(itr->MapId, itr2->x, itr2->y) != nullptr)
 							continue;
@@ -383,7 +396,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					}
 				}
 			}
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}
 
@@ -417,11 +430,11 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			pPlayer->context.GetQuestTitleLocale(it->first, &title);
 			std::ostringstream os;
 			os << it->first << "." << title;
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
 
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}
 
@@ -442,7 +455,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			pPlayer->context.GetQuestTitleLocale(recommendResult.at(i)->GetQuestId(), &title);
 			std::ostringstream os;
 			os << ((areaname==nullptr) ? "":*areaname) << "." << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, recommendResult.at(i)->GetQuestId());//数据库中最大为26034，所以该项最大为46034，在uint32范围内
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+recommendResult.at(i)->GetQuestId());//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
 		if (pPlayer->context.ZONESEL != -1 && pPlayer->GetZoneId() != pPlayer->context.ZONESEL)
@@ -452,7 +465,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800594, GOSSIP_SENDER_MAIN,  748);//选择附近区域
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800595, GOSSIP_SENDER_MAIN,  698);//选择更远地区
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800596, GOSSIP_SENDER_MAIN,  650);//全地图选择
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN,  999);//返回主菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 
 	}
