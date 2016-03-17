@@ -9,6 +9,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 		PlayerContext(Player* player);
 		~PlayerContext();
 
+	bool firstQuestChecked = false;
+	void checkFirstGuideQuest();
 	//Ñ¡ÔñµÄmap
 	int MAPSEL = -1;
 

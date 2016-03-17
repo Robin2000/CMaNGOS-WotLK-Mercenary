@@ -108,7 +108,7 @@ bool LoginQueryHolder::Initialize()
 
 	//积分
 	res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE, "SELECT totalmoney, consumemoney,gametips FROM jf_account_balance WHERE id = '%u'", m_accountId);
-	res &= SetPQuery(PLAYER_LOGIN_QUERY_CHARACTEREXT, "SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation FROM jf_character_ext WHERE guid = '%u'", m_guid.GetCounter());
+	res &= SetPQuery(PLAYER_LOGIN_QUERY_CHARACTEREXT, "SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked FROM jf_character_ext WHERE guid = '%u'", m_guid.GetCounter());
 
     return res;
 }
@@ -806,9 +806,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         SendNotification(LANG_RESET_TALENTS);               // we can use SMSG_TALENTS_INVOLUNTARILY_RESET here
     }
 
-    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
-        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
-
+	if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+	{
+		pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
+		const Quest *quest = sObjectMgr.GetQuestTemplate(99999);/*新手指引任务*/
+		if (pCurrChar->CanAddQuest(quest, false))
+			pCurrChar->AddQuest(quest, pCurrChar);
+	}
     // show time before shutdown if shutdown planned.
     if (sWorld.IsShutdowning())
         sWorld.ShutdownMsg(true, pCurrChar);

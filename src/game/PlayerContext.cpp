@@ -14,6 +14,14 @@ PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(play
 }
 PlayerContext::~PlayerContext() {}
 
+void PlayerContext::checkFirstGuideQuest(){
+	if (!firstQuestChecked){
+		const Quest *quest = sObjectMgr.GetQuestTemplate(99999);/*新手指引任务*/
+		if (mPlayer->CanRewardQuest(quest, false))
+			mPlayer->RewardQuest(quest, 0, mPlayer, false);
+		mPlayer->context.firstQuestChecked = true;
+	}
+}
 void PlayerContext::loadMercenary(){
 	mMercenary = sMercenaryMgr->LoadMercenarie(mPlayer);
 }
