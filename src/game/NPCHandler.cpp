@@ -34,6 +34,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Chat.h"
+#include "MercenaryPet.h"
 
 enum StableResultCode
 {
@@ -736,7 +737,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recv_data)
     if (pet)
         pet->Unsummon(PET_SAVE_AS_DELETED, _player);
 
-    Pet* newpet = new Pet(HUNTER_PET);
+	MercenaryPet* newpet = new MercenaryPet(HUNTER_PET);
     if (!newpet->LoadPetFromDB(_player, creature_id, petnumber))
     {
         delete newpet;
@@ -848,7 +849,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recv_data)
     pet->Unsummon(pet->isAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED, _player);
 
     // summon unstabled pet
-    Pet* newpet = new Pet;
+	MercenaryPet* newpet = new MercenaryPet;
     if (!newpet->LoadPetFromDB(_player, creature_id, pet_number))
     {
         delete newpet;

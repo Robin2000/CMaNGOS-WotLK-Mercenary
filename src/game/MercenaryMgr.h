@@ -19,7 +19,6 @@ typedef tbb::concurrent_unordered_map<uint32, MercenarySpell*> MercenarySpellsIn
 typedef tbb::concurrent_unordered_map<uint32, std::vector<MercenaryRoleDef*>*> MercenaryRoleDefMap;/*key为雇佣兵职业class，value对应角色列表*/
 
 
-typedef std::vector<MercenaryStarterGear> MercenaryStartGear;
 typedef std::vector<MercenaryTalking> MercenaryTalk;
 typedef std::vector<MercenaryProficiency> MercenaryProficiencies;
 typedef std::unordered_map<uint32, Mercenary*> MercenaryMap;
@@ -100,8 +99,6 @@ public:
 
     MercenaryMap::const_iterator MercenaryBegin() const { return MercenaryContainer.begin(); }
     MercenaryMap::const_iterator MercenaryEnd() const { return MercenaryContainer.end(); }
-    MercenaryStartGear::const_iterator MercenaryStartGearBegin() const { return MercenaryStartGearContainer.begin(); }
-    MercenaryStartGear::const_iterator MercenaryStartGearEnd() const { return MercenaryStartGearContainer.end(); }
 	MercenarySpellsMap::const_iterator MercenarySpellsBegin() const { return mercenarySpellsMap.begin(); }
 	MercenarySpellsMap::const_iterator MercenarySpellsEnd() const { return mercenarySpellsMap.end(); }
     MercenaryTalk::const_iterator MercenaryTalkBegin() const { return MercenaryTalkContainer.begin(); }
@@ -203,18 +200,6 @@ public:
     }
 
     /*
-    * Returns Starter Gear for the specified creature entry
-    */
-    MercenaryStarterGear* GetStarterGearByEntry(uint32 entry)
-    {
-        for (MercenaryStartGear::iterator it = MercenaryStartGearContainer.begin(); it != MercenaryStartGearContainer.end(); ++it)
-            if (it->creature_entry == entry)
-                return &(*it);
-
-        return nullptr;
-    }
-
-    /*
     * Returns true if the Mercenary type can use that armor or weapon proficiency
     * If for example armor proficiency column is 0 and weapon proficiency column contains
     *     a value, that row will be loaded (considered) as weapon proficiency. Vice versa is implied here.
@@ -264,7 +249,6 @@ private:
 	MercenarySpellsInfo mercenarySpellsInfo;
 	MercenarySpellsMap mercenarySpellsMap;
 	MercenaryRoleDefMap mercenaryRoleDefMap;
-    MercenaryStartGear MercenaryStartGearContainer;
     MercenaryProficiencies MercenaryProficiencyContainer;
     MercenaryMap MercenaryContainer;
     MercenaryTalk MercenaryTalkContainer;
@@ -285,7 +269,6 @@ public:
 	static const char* GetMercenarySlotName(Player* player,uint8 slot);
 	static std::string GetMercenaryItemIcon(uint32 entry, bool rawPath = false);
 	static std::string GetMercenaryItemLink(uint32 entry, WorldSession* session);
-	static MercenaryStarterGear* GetMercenaryStarterGearByEntry(uint32 entry);
 	static const ItemPrototype* GetItemPrototype(uint32 entry);
 	static std::string GetMercenarySpellIcon(uint32 entry, Player* player);
 	static MercenaryWorld* GetMercenaryWorldData(uint32 entry);

@@ -60,6 +60,7 @@
 #include "Vehicle.h"
 #include "G3D/Vector3.h"
 #include "LootMgr.h"
+#include "MercenaryPet.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -5631,7 +5632,7 @@ bool Spell::DoSummonCritter(CreatureSummonPositions& list, SummonPropertiesEntry
     CreatureCreatePos pos(m_caster->GetMap(), list[0].x, list[0].y, list[0].z, m_caster->GetOrientation(), m_caster->GetPhaseMask());
 
     // summon new pet
-    Pet* critter = new Pet(MINI_PET);
+	MercenaryPet* critter = new MercenaryPet(MINI_PET);
 
     uint32 pet_number = sObjectMgr.GeneratePetNumber();
     if (!critter->Create(m_caster->GetMap()->GenerateLocalLowGuid(HIGHGUID_PET), pos, cInfo, pet_number))
@@ -5703,7 +5704,7 @@ bool Spell::DoSummonGuardian(CreatureSummonPositions& list, SummonPropertiesEntr
     // in another case summon new
     for (CreatureSummonPositions::iterator itr = list.begin(); itr != list.end(); ++itr)
     {
-        Pet* spawnCreature = new Pet(petType);
+		MercenaryPet* spawnCreature = new MercenaryPet(petType);
 
         CreatureCreatePos pos(m_caster->GetMap(), itr->x, itr->y, itr->z, -m_caster->GetOrientation(), m_caster->GetPhaseMask());
 
@@ -5890,7 +5891,7 @@ bool Spell::DoSummonPet(SpellEffectIndex eff_idx)
     }
 
     uint32 level = m_caster->getLevel();                    // TODO Engineering Pets have also caster-level? (if they exist)
-    Pet* spawnCreature = new Pet(SUMMON_PET);
+	MercenaryPet* spawnCreature = new MercenaryPet(SUMMON_PET);
 	Player* player = m_caster->ToPlayer();
 	if (m_caster->GetTypeId() == TYPEID_PLAYER && spawnCreature->LoadPetFromDB((Player*)m_caster, pet_entry, player->GetLastPetNumber(),true))//增加参数
     {
@@ -6578,7 +6579,7 @@ void Spell::EffectTameCreature(SpellEffectIndex /*eff_idx*/)
     // SendChannelUpdate(0);
     finish();
 
-    Pet* pet = new Pet(HUNTER_PET);
+	MercenaryPet* pet = new MercenaryPet(HUNTER_PET);
 
     if (!pet->CreateBaseAtCreature(creatureTarget))
     {
@@ -6679,7 +6680,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
         return;
     }
 
-    Pet* NewSummon = new Pet;
+	MercenaryPet* NewSummon = new MercenaryPet;
 
     // petentry==0 for hunter "call pet" (current pet summoned if any)
     if (m_caster->GetTypeId() == TYPEID_PLAYER && NewSummon->LoadPetFromDB((Player*)m_caster, petentry))
@@ -11908,7 +11909,7 @@ void Spell::EffectCreateTamedPet(SpellEffectIndex eff_idx)
         return;
     }
 
-    Pet* newTamedPet = new Pet;
+	MercenaryPet* newTamedPet = new MercenaryPet;
     CreatureCreatePos pos(unitTarget, unitTarget->GetOrientation());
 
     Map* map = unitTarget->GetMap();

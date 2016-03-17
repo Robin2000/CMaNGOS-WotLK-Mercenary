@@ -10,12 +10,14 @@
 #include "Chat.h"
 #include "Pet.h"
 #include "Spell.h"
-
-//#ifndef MANGOS
-//#include "SpellAuraEffects.h"
-//#else
+#include "MercenaryPet.h"
 #include "ObjectMgr.h"
-//#endif
+
+struct GearEntry{
+	uint32 itemguid;
+	uint32 itemid;
+};
+typedef tbb::concurrent_unordered_map<uint8, GearEntry*> GearMap;/*slot , GearEntry*/
 
 struct MercenaryRoleDef
 {
@@ -37,23 +39,6 @@ struct MercenarySpell
 	//uint32 spelllevel;
 	bool isDefaultAura;
     bool isActive;
-};
-
-
-struct MercenaryStarterGear
-{
-    uint8 mercenaryType;
-    uint8 mercenaryRole;
-    uint32 creature_entry;
-    uint32 headEntry;
-    uint32 shoulderEntry;
-    uint32 chestEntry;
-    uint32 legEntry;
-    uint32 handEntry;
-    uint32 feetEntry;
-    uint32 weaponEntry;
-    uint32 offHandEntry;
-    uint32 rangedEntry;
 };
 
 struct MercenaryTalking
@@ -111,14 +96,6 @@ update z_mercenary_spells set type=3 where type=8;
 update z_mercenary_spells set type=4 where type=9;
 update z_mercenary_spells set type=7 where type=10;
 
-update z_mercenary_start_gear set mercenaryType=5 where mercenaryType=3;
-update z_mercenary_start_gear set mercenaryType=6 where mercenaryType=4;
-update z_mercenary_start_gear set mercenaryType=9 where mercenaryType=5;
-update z_mercenary_start_gear set mercenaryType=8 where mercenaryType=6;
-update z_mercenary_start_gear set mercenaryType=11 where mercenaryType=7;
-update z_mercenary_start_gear set mercenaryType=3 where mercenaryType=8;
-update z_mercenary_start_gear set mercenaryType=4 where mercenaryType=9;
-update z_mercenary_start_gear set mercenaryType=7 where mercenaryType=10;
 
 */
 enum MercenaryType
@@ -173,6 +150,8 @@ public:
     Mercenary(uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type);
     ~Mercenary();
 
+	GearMap gearContainer;
+
     /*
     * Loads the Mercenary's gear from the database into a vector
     */
@@ -210,15 +189,15 @@ public:
     /*
     * Updates Mercenary's stats
     */
-    bool UpdateStats(Player* player, Stats /*stats*/, Pet* pet);
+    //bool UpdateStats(Player* player, Stats /*stats*/, Pet* pet);
     /*
     * Updates all Mercenary's stats
     */
-    bool UpdateAllStats(Player* player, Pet* pet);
+    //bool UpdateAllStats(Player* player, Pet* pet);
     /*
     * Returns true if the Mercenary can equip the specified item
     */
-    bool CanEquipItem(Player* player, Item* item);
+	bool EquipItemIfCan(Player* player, Item* item);
     /*
     * Initializes Mercenary's stats, gear and other summon values
     */
@@ -228,7 +207,9 @@ public:
 	void cleanNoMatchSpell(Pet* pet);
 
 	/*清理不匹配的装备*/
-	void clearnNoMatchEquipItem();
+	void clearnNoMatchEquipItem(Player * player);
+
+	void RemoveItemBySlot(Player* player, MercenaryPet* pet, uint32 editSlot);
 
 	/*技能有效性判断*/
 	bool isValidSpell(uint32 spell);
@@ -249,7 +230,7 @@ public:
     */
     void SetType(const uint8 newType) { 
 		if (type != newType)//职业切换，装备必须切换
-			GearContainer.clear();//穿戴时检查好些
+			gearContainer.clear();//穿戴时检查好些
 		type = newType; 
 	}
     /*
@@ -305,57 +286,22 @@ public:
     bool IsSummoned() const { return summoned; }
     uint8 GetEditSlot() const { return editSlot; }
 
-	typedef tbb::concurrent_unordered_map<uint8, uint32> Gear;/*slot , itemid*/
+	Item* GetItemByGuid(Player * player, uint32 guid);
 
-    Gear::const_iterator GearBegin() const { return GearContainer.begin(); }
-    Gear::const_iterator GearEnd() const { return GearContainer.end(); }
 
     /*
     * Returns an item entry Id by slotId. If no item is found, returns NULL
     * @slot: Requires CharacterSlot data type
     */
-    uint32 GetItemBySlot(uint8 slot) const
-    {
-		Gear::const_iterator itr = GearContainer.find(slot);
-		if (itr == GearContainer.end()) 
-			return NULL;
-		return itr->second;
-    }
-
+	GearEntry* GetItemBySlot(uint8 slot); 
+	uint32 getGearItemid(uint8 slot);
+	bool isItemsEquippable(Item* item, uint8 slot);
     /*
     * Returns a vector of item entryIds if any items are found that can be equipped on your Mercenary.
     * @player: The player that gets their inventory checked. Most likely the Mercenary owner.
     * @slot: Requires CharacterSlot data type
     */
-    std::vector<uint32> GetEquippableItems(Player* player, uint8 slot)
-    {
-        std::vector<uint32> tempVector;
-        for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
-        {
-            if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            {
-//#ifdef MANGOS
-                const ItemPrototype* proto = item->GetProto();
-//#else
-//                const ItemTemplate* proto = item->GetTemplate();
-//#endif
-                if (proto)
-                {
-                    uint8 invSlot = GetInvTypeSlot(slot);
-                    if (proto->InventoryType == invSlot && slot != SLOT_MAIN_HAND && slot != SLOT_OFF_HAND)
-                        tempVector.push_back(item->GetEntry());
-                    if ((proto->InventoryType == invSlot || proto->InventoryType == INVTYPE_2HWEAPON ||
-                        proto->InventoryType == INVTYPE_WEAPON) && slot == SLOT_MAIN_HAND)
-                        tempVector.push_back(item->GetEntry());
-                    if ((proto->InventoryType == invSlot || proto->InventoryType == INVTYPE_SHIELD ||
-                        proto->InventoryType == INVTYPE_HOLDABLE) && slot == SLOT_OFF_HAND)
-                        tempVector.push_back(item->GetEntry());
-                }
-            }
-        }
-
-        return tempVector;
-    }
+	std::vector<uint32> GetEquippableItems(Player* player, uint8 slot);
 
     /*
     * Returns true if the Mercenary has a weapon equipped, false if not.
@@ -364,7 +310,7 @@ public:
     */
     bool HasWeapon(bool offhand)
     {
-		return offhand ? (GearContainer[SLOT_OFF_HAND]>0) : (GearContainer[SLOT_MAIN_HAND]>0);
+		return offhand ? (gearContainer[SLOT_OFF_HAND]>0) : (gearContainer[SLOT_MAIN_HAND]>0);
     }
 	bool isRangedAttack(){
 		return type == MERCENARY_TYPE_HUNTER || type == MERCENARY_TYPE_MAGE || type == MERCENARY_TYPE_WARLOCK || role == 13 || role == 27 || role == 18;
@@ -380,7 +326,7 @@ private:
     bool summoned=false;
     uint8 editSlot;
 	std::vector<uint32>* defaultSpellVec;
-    Gear GearContainer;
+    
 };
 
 #endif

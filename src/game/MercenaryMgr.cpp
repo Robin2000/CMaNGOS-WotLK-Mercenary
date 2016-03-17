@@ -36,33 +36,7 @@ Mercenary*  MercenaryMgr::LoadMercenarie(Player* player)
 void MercenaryMgr::	LoadMercenaries()
 {
     sLog.outBasic("Loading Mercenaries...");
-    QueryResult* result = WorldDatabase.PQuery("SELECT mercenaryType, mercenaryRole, entry, headEntry, shoulderEntry, chestEntry, legEntry, handEntry, feetEntry, weaponEntry, "
-		"offHandEntry, rangedEntry FROM z_mercenary_start_gear");
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            MercenaryStarterGear starterGear;
-            starterGear.mercenaryType = fields[0].GetUInt8();
-            starterGear.mercenaryRole = fields[1].GetUInt8();
-            starterGear.creature_entry = fields[2].GetUInt32();
-            starterGear.headEntry = fields[3].GetUInt32();
-            starterGear.shoulderEntry = fields[4].GetUInt32();
-            starterGear.chestEntry = fields[5].GetUInt32();
-            starterGear.legEntry = fields[6].GetUInt32();
-            starterGear.handEntry = fields[7].GetUInt32();
-            starterGear.feetEntry = fields[8].GetUInt32();
-            starterGear.weaponEntry = fields[9].GetUInt32();
-            starterGear.offHandEntry = fields[10].GetUInt32();
-            starterGear.rangedEntry = fields[11].GetUInt32();
-
-            MercenaryStartGearContainer.push_back(starterGear);
-        } while (result->NextRow());
-    }
-
-	result = WorldDatabase.Query("SELECT type, role, healthpct, message FROM z_mercenary_talk");
+    QueryResult* result = WorldDatabase.Query("SELECT type, role, healthpct, message FROM z_mercenary_talk");
     if (result)
     {
         do
@@ -80,6 +54,7 @@ void MercenaryMgr::	LoadMercenaries()
     }
 	//										0   1      2          3            4       5         6 
 	result = WorldDatabase.Query("SELECT type, role, spellId, isDefaultAura, isActive,comment,spelllevel FROM z_mercenary_spells order by type,role,spelllevel desc");
+	//									 职业  角色   技能      是否默认     是否激活  名称    等级
     if (result)
     {
         do
@@ -345,7 +320,6 @@ std::string MercenaryUtil::GetMercenarySlotIcon(uint8 slot)  { return sMercenary
 const char* MercenaryUtil::GetMercenarySlotName(Player* player, uint8 slot)  { return sMercenaryMgr->GetSlotName(player,slot); }
 std::string MercenaryUtil::GetMercenaryItemIcon(uint32 entry, bool rawPath) { return sMercenaryMgr->GetItemIcon(entry, rawPath); }
 std::string MercenaryUtil::GetMercenaryItemLink(uint32 entry, WorldSession* session) { return sMercenaryMgr->GetItemLink(entry, session); }
-MercenaryStarterGear* MercenaryUtil::GetMercenaryStarterGearByEntry(uint32 entry){ return sMercenaryMgr->GetStarterGearByEntry(entry); }
 const ItemPrototype* MercenaryUtil::GetItemPrototype(uint32 entry){ return sObjectMgr.GetItemPrototype(entry); }
 std::string MercenaryUtil::GetMercenarySpellIcon(uint32 entry, Player* player) { return sMercenaryMgr->GetSpellIcon(entry, player); }
 MercenaryWorld* MercenaryUtil::GetMercenaryWorldData(uint32 entry){ return sMercenaryMgr->GetMercenaryWorldData(entry); }

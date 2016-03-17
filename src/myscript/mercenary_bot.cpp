@@ -6,9 +6,12 @@
 #include "PetAI.h"
 #include "Group.h"
 #include "mercenary_bot.h"
+#include "MercenaryPet.h"
 #include<stdlib.h>
 
-
+enum BOT_GOSSIP_ACTION_TYPE{
+	GOSSIP_REMOVE_ITEM = 100
+};
 enum menu_ction_base{
 	GOSSIP_ACTION_SPELL_DEF = 1000
 };
@@ -22,6 +25,7 @@ public:
 	bool removingSpell;
 	void static SendToHello(Player* player, Creature* creature, Mercenary* mercenary)
 	{
+		player->context.gossipActionType = -1;
 		//#ifndef MANGOS
 		//        if (mercenary->GetOwnerGUID() == player->GetGUID().GetCounter())
 		//#else
@@ -29,7 +33,7 @@ public:
 			//#endif
 		{
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800635, 0, 1);//更换装备
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800636, 0, 2);//查看装备
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800636, 0, 2);//移除装备
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800637, 0, 3); // 更换技能
 			player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, -2800584, 0, 37, player->GetMangosString(-2800584), 0, true);//雇佣兵改名
 		}
@@ -56,7 +60,7 @@ public:
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_MAIN_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_MAIN_HAND), 0, 8);
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_OFF_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_OFF_HAND), 0, 7);
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(player, SLOT_RANGED), 0, 6);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 36);//取消
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, GOSSIP_ACTION_SPELL_DEF+36);//取消
 		//#ifndef MANGOS
 		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -73,19 +77,19 @@ public:
 			if (Item* item = player->GetItemByEntry(*itr))
 			{
 				std::ostringstream ss;
-				if (mercenary->GetItemBySlot(slot) != item->GetEntry())
+				if (mercenary->getGearItemid(slot) != item->GetEntry())
 					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
 				else
 				{
 					ss << MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()) << player->GetMangosString(-2800638);// [|cff990000Already Equipped|r]
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + ss.str().c_str(), 0, 36);
+					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF+36);
 				}
 			}
 		}
 
-		if (slot == SLOT_OFF_HAND && mercenary->HasWeapon(true))
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800639, 0, 5);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
+		//if (slot == SLOT_OFF_HAND && mercenary->HasWeapon(true))
+			//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800639, 0, 5);移除副手装备
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF+36);//"Back to Main Menu"
 		//#ifndef MANGOS
 		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -97,7 +101,7 @@ public:
 	{
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800640, 0, 39);//教雇佣兵新技能法术
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800641, 0, 40);//遗忘雇佣兵的技能法术
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF+36);//"Back to Main Menu"
 		//#ifndef MANGOS
 		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -132,7 +136,7 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 		return false;
 
 	if (creature->removingSpell){
-		Pet* pet = (Pet*)creature;
+		MercenaryPet* pet = (MercenaryPet*)creature;
 		pet->removeSpell(spell, false);
 	}
 	else
@@ -148,7 +152,7 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 }
 
 void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
-	Pet* pet = (Pet*)creature;
+	MercenaryPet * pet = (MercenaryPet*)creature;
 	/*以下为数据库配置技能*/
 	GroupSpellsMap* groupSpells = MercenaryUtil::findGroupSpellsMapByClass(mercenary->GetType());
 	if (groupSpells == nullptr)
@@ -172,7 +176,7 @@ void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint
 		}
 	}
 
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, 36);//"Back to Main Menu"
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF+36);//"Back to Main Menu"
 	//#ifndef MANGOS
 	//                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 	//#else
@@ -201,7 +205,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 				if (actions == item->GetEntry())
 				{
 					player->CLOSE_GOSSIP_MENU();
-					if (!mercenary->CanEquipItem(player, item))
+					if (!mercenary->EquipItemIfCan(player, item))
 						return false;
 					else
 					{
@@ -214,6 +218,20 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 			}
 		}
 	}
+	if (actions == GOSSIP_ACTION_SPELL_DEF + 36)/*后退优先级最高*/
+	{
+		mercenary_bot::SendToHello(player, creature, mercenary);
+		return true;
+	}
+	if (player->context.gossipActionType == GOSSIP_REMOVE_ITEM)//移除装备
+	{
+		mercenary->RemoveItemBySlot(player, (MercenaryPet*)creature, actions);
+
+		player->context.gossipActionType = -1;
+
+		player->CLOSE_GOSSIP_MENU();
+		return true;
+	}
 
 	if (actions > GOSSIP_ACTION_SPELL_DEF)
 	{
@@ -223,19 +241,21 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		return true;
 	}
 
+
 	switch (actions)
 	{
 	case 1:
 		mercenary_bot::SendEquipGear(player, creature, mercenary);
 		break;
-	case 2:
-		for (auto itr = mercenary->GearBegin(); itr != mercenary->GearEnd(); ++itr)
+	case 2://移除装备
+		player->context.gossipActionType = GOSSIP_REMOVE_ITEM;
+		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); ++itr)
 		{
-			const ItemPrototype* proto = MercenaryUtil::GetItemPrototype(itr->second);
-			if (proto)
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second) + MercenaryUtil::GetMercenaryItemLink(itr->second, session), 0, 36);
+			Item* item = mercenary->GetItemByGuid(player, itr->second->itemguid);
+			if (item)
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second->itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second->itemid, session), 0, itr->first);
 		}
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, 36);//后退
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, GOSSIP_ACTION_SPELL_DEF+36);//后退
 		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
 		break;
 	case 3:
@@ -275,7 +295,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	case 14: // Equip Head
 		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_HEAD);
 		break;
-	case 36:
+	case GOSSIP_ACTION_SPELL_DEF+36:
 		mercenary_bot::SendToHello(player, creature, mercenary);
 		break;
 	case 39:

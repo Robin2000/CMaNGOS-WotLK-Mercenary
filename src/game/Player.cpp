@@ -67,8 +67,7 @@
 #include "Vehicle.h"
 #include "Calendar.h"
 #include "LootMgr.h"
-#include "LootMgr.h"
-
+#include "MercenaryPet.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -16251,7 +16250,7 @@ void Player::LoadPet()
     // just not added to the map
     if (IsInWorld())
     {
-        Pet* pet = new Pet;
+		MercenaryPet* pet = new MercenaryPet;
         if (!pet->LoadPetFromDB(this, 0, 0, true))
             delete pet;
     }
@@ -22115,7 +22114,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
     if (GetPetGuid())
         return;
 
-    Pet* NewPet = new Pet;
+	MercenaryPet* NewPet = new MercenaryPet;
     if (!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
         delete NewPet;
 

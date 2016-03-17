@@ -596,48 +596,7 @@ bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
 	return true;
 }
 
-bool OnGossipSelect_mercenary_world_gossip(Player* player, Creature* creature, uint32 /*sender*/, uint32 actions)
-{
-	player->PlayerTalkClass->ClearMenus();
-	//#ifndef MANGOS
-	//        Mercenary* mercenary = GetMercenaryByOwner(player->GetGUID().GetCounter());
-	//#else
-	Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
-	//#endif
-	if (mercenary)
-	{
-		//#ifdef MANGOS
-		creature->MonsterSay(player->GetMangosString(-2800645), LANG_UNIVERSAL);//"I thought you wanted me as your Mercenary? Get rid of your existing Mercenary!"
-		//#else
-		//            creature->Say("I thought you wanted me as your Mercenary? Get rid of your existing Mercenary!", LANG_UNIVERSAL);
-		//#endif
-		player->CLOSE_GOSSIP_MENU();
-		return false;
-	}
 
-	MercenaryStarterGear* gear = MercenaryUtil::GetMercenaryStarterGearByEntry(creature->GetEntry());
-	if (!gear)
-	{
-		player->CLOSE_GOSSIP_MENU();
-		return false;
-	}
-
-	MercenaryWorld* worldData = MercenaryUtil::GetMercenaryWorldData(creature->GetEntry());
-	if (!worldData)
-	{
-		player->CLOSE_GOSSIP_MENU();
-		return false;
-	}
-
-	if (actions == 1)
-	{
-		Mercenary* mercenary = new Mercenary();
-		mercenary_world_gossip::CreateMercenary(player, creature, mercenary, worldData->modelId, worldData->race, worldData->gender, gear->mercenaryRole, gear->mercenaryType);
-	}
-
-	player->CLOSE_GOSSIP_MENU();
-	return true;
-}
 CreatureAI* GetAI_mercenary_bot(Creature* creature)
 {
 	return new mercenary_bot_AI(creature);
@@ -676,11 +635,11 @@ void MercenarySetup()
 
 
 
-    s = new Script;
+   /* s = new Script;
 	s->Name = "mercenary_world_gossip";
 	s->GetAI = &GetAI_mercenary_world_gossip;
 	s->pGossipHello = &OnGossipHello_mercenary_world_gossip;
 	s->pGossipSelect = &OnGossipSelect_mercenary_world_gossip;
-    s->RegisterSelf();
+    s->RegisterSelf();*/
 //#endif
 }
