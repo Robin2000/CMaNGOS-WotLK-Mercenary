@@ -3207,6 +3207,11 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 	void MercenaryPet::SetSheath(SheathState sheathed)
 	{
+		if (!isMercenary())
+		{
+			Unit::SetSheath(sheathed);
+			return;
+		}
 		switch (sheathed)
 		{
 		case SHEATH_STATE_UNARMED:                          // no prepared weapon
