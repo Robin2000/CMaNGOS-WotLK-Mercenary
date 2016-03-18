@@ -15,9 +15,6 @@ Mercenary::Mercenary(uint32 model, uint8 r, uint8 g, uint8 role, uint8 type)
 
 Mercenary::~Mercenary()
 {
-    for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
-        delete &itr;
-
     gearContainer.clear();
 }
 
@@ -31,10 +28,10 @@ void Mercenary::LoadGearFromDB()
         do
         {
             Field* fields = result->Fetch();
-			GearEntry* gearEntry = new GearEntry();
-			gearEntry->itemguid = fields[1].GetUInt32();
-			gearEntry->itemid = fields[2].GetUInt32();
-			gearContainer[fields[0].GetUInt8()] = gearEntry;
+			GearEntry gearEntry;
+			gearEntry.itemguid = fields[1].GetUInt32();
+			gearEntry.itemid = fields[2].GetUInt32();
+			gearContainer.insert(std::make_pair(fields[0].GetUInt8(),gearEntry));
         } while (result->NextRow());
     }
 }
@@ -75,7 +72,8 @@ void Mercenary::SaveToDB()
     saveMerc.Execute();
 	CharacterDatabase.PExecute("DELETE FROM mercenary_gear WHERE guid = '%u'", GetOwnerGUID());
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
-		CharacterDatabase.PExecute("INSERT INTO mercenary_gear (guid, slot ,itemid ,itemguid ) VALUES ('%u', '%u', '%u', '%u')", GetOwnerGUID(), itr->first, itr->second->itemid,itr->second->itemguid);
+	if (itr->second.itemguid>0)
+		CharacterDatabase.PExecute("INSERT INTO mercenary_gear (guid, slot ,itemid ,itemguid ) VALUES ('%u', '%u', '%u', '%u')", GetOwnerGUID(), itr->first, itr->second.itemid,itr->second.itemguid);
 
 	CharacterDatabase.CommitTransaction();
 }
@@ -248,28 +246,31 @@ void Mercenary::clearnNoMatchEquipItem(Player * player)
 	std::vector<uint32> del_slots;
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
 	{
-		Item* item = GetItemByGuid(player,itr->second->itemguid);
+		Item* item = GetItemByGuid(player,itr->second.itemguid);
 		if (item == nullptr)
-			del_slots.push_back(itr->first);
+		{
+			itr->second.itemguid = 0;
+			itr->second.itemid = 0;
+		}
 		else{
 			ItemPrototype const* proto = item->GetProto();
 			if (proto == nullptr)
-				del_slots.push_back(itr->first);
+			{
+				itr->second.itemguid = 0;
+				itr->second.itemid = 0;
+			}
 			else if (!sMercenaryMgr->CheckProficiencies(type, proto->Class, proto->SubClass))
-				del_slots.push_back(itr->first);
+			{
+				itr->second.itemguid = 0;
+				itr->second.itemid = 0;
+			}
 			//itr->second->itemguid = item->GetGUIDLow();/*更新guid*/
 		}
 
 	}
-	if (del_slots.size()>0)
-	{
-		for (auto itr = del_slots.begin(); itr != del_slots.end(); ++itr)
-			gearContainer.unsafe_erase(*itr);
-	}
 }
 void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 {
-	clearnNoMatchEquipItem(player);/*初始化时清理掉不存在的装备*/
     if (!create)
     {
         pet->SetDisplayId(GetDisplay());
@@ -283,23 +284,39 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 
 		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
 
+
+		//由于武器不能自动显示出来，这里先将其设置为空，后面再重新装载
+		pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+		pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+		pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
+
+		SendMirrorImagePacket(pet);
+
+		clearnNoMatchEquipItem(player);/*初始化时清理掉不存在的装备*/
+
+		//开始重新装备
+		/*
+		for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)  //全部重新装载，如果必要
+			if (Item * item = GetItemByGuid(player,itr->second->itemguid))
+				EquipItemIfCan(player, item, true);
+		*/
+
+		//开始重新装备
 		for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
-        {
+		{
 			switch (itr->first)
 			{
 				case SLOT_MAIN_HAND:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->second->itemid);
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->second.itemid);
 					break;
 				case SLOT_OFF_HAND:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->second->itemid);
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->second.itemid);
 					break;
 				case SLOT_RANGED:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->second->itemid);
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->second.itemid);
 			}
-        }
-
+ 		}
 		InitStats(player, pet);
-
     }
     else
     {
@@ -350,107 +367,88 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 	pet->HandleEmoteCommandHappy();
 }
 
-bool Mercenary::EquipItemIfCan(Player* player, Item* item)
+bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
 {
-    WorldSession* session = player->GetSession();
-    if (!item)
-        return false;
+	if (!item)
+		return false;
+
+	MercenaryPet* pet = (MercenaryPet*)player->GetPet();
+	if (!pet)
+		return false;
 
     const ItemPrototype* proto = item->GetProto();
     if (!proto)
     {
-		ChatHandler(session).SendSysMessage(-2800648);//"Invalid item! Your mercenary could not equip this item."
-        sLog.outError("Tried to equip invalid item %u.Item does not have a template.", item->GetEntry());
+		if (!silenceUpdate)
+		{
+			ChatHandler(player->GetSession()).SendSysMessage(-2800648);//"Invalid item! Your mercenary could not equip this item."
+			sLog.outError("Tried to equip invalid item %u.Item does not have a template.", item->GetEntry());
+		}
         return false;
     }
-
-	MercenaryPet* pet = (MercenaryPet*)player->GetPet();
-    if (!pet)
-        return false;
 
     uint32 itemClass = proto->Class;
     uint32 itemSubClass = proto->SubClass;
     uint32 invType = proto->InventoryType;
-    bool isCorrectProficiency = sMercenaryMgr->CheckProficiencies(type, itemClass, itemSubClass);
-    bool isCorrectLevel = pet->getLevel() >= proto->RequiredLevel;
-    if (proto->RequiredLevel > 0 && !isCorrectLevel)
+
+	//等级检查
+    bool isCorrectLevel = player->getLevel() >= proto->RequiredLevel;
+	if (proto->RequiredLevel > 0 && !isCorrectLevel)
+	{
+		if (!silenceUpdate)
+			ChatHandler(player->GetSession()).PSendSysMessage(-2800649, proto->RequiredLevel);//"装备物品失败，物品等级太高。需要达到等级%u"
+		return false;
+	}
+
+	//插孔匹配检查
+	if (!InvToSlot(invType, editSlot))
+	{
+		if (!silenceUpdate)
+			ChatHandler(player->GetSession()).SendSysMessage(-2800652);//装备无法放入这个位置
+		return false;
+	}
+
+	//职业专精检查
+	bool isCorrectProficiency = sMercenaryMgr->CheckProficiencies(type, itemClass, itemSubClass);
+    if (!isCorrectProficiency)
     {
-		ChatHandler(session).PSendSysMessage(-2800649, proto->RequiredLevel);//"装备物品失败，物品等级太高。需要达到等级%u"
+		if (!silenceUpdate&&itemClass == ITEM_CLASS_ARMOR)
+			ChatHandler(player->GetSession()).SendSysMessage(-2800650);//装备物品失败，护甲专精不符。
+		else if (!silenceUpdate&&itemClass == ITEM_CLASS_WEAPON)
+			ChatHandler(player->GetSession()).SendSysMessage(-2800651);//装备物品失败，武器专精不符。
         return false;
     }
 
-    if (itemClass == ITEM_CLASS_ARMOR && (invType != INVTYPE_SHIELD && invType != INVTYPE_HOLDABLE) && !isCorrectProficiency)
-    {
-		ChatHandler(session).SendSysMessage(-2800650);//装备物品失败，护甲专精不符。
-        return false;
-    }
+	uint32 itemid = item->GetEntry();
 
-    if ((itemClass == ITEM_CLASS_WEAPON || (itemClass == ITEM_CLASS_ARMOR && (invType == INVTYPE_SHIELD || invType == INVTYPE_HOLDABLE))) && !isCorrectProficiency)
-    {
-		ChatHandler(session).SendSysMessage(-2800651);//装备物品失败，武器专精不符。
-        return false;
-    }
+	if (!silenceUpdate){
 
-    if (editSlot == SLOT_MAIN_HAND)
-    {
-        if (invType != INVTYPE_2HWEAPON && invType != INVTYPE_WEAPONMAINHAND && invType != INVTYPE_WEAPON)
-        {
-			ChatHandler(session).SendSysMessage(-2800652);//Equip failed. Cannot equip an off hand weapon in your Mercenary's main hand.
-            return false;
-        }
-    }
-    else if (editSlot == SLOT_OFF_HAND)
-    {
-        if (invType == INVTYPE_2HWEAPON && invType == INVTYPE_WEAPONMAINHAND && invType == INVTYPE_WEAPON)
-        {
-			ChatHandler(session).SendSysMessage(-2800653);//"Equip failed. Cannot equip a two handed, main hand or one handed in your Mercenary's off hand."
-            return false;
-        }
-    }
-
-        if (itemClass == ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS_WEAPON)
-        {
-			GearEntry * gearEntry=new GearEntry();
-			gearEntry->itemguid = item->GetGUIDLow();
-			gearEntry->itemid = item->GetEntry();
-			gearContainer[editSlot] = gearEntry;
+			gearContainer[editSlot].itemguid = item->GetGUIDLow();
+			gearContainer[editSlot].itemid = itemid;
 				
-			switch (editSlot)
-			{
-				case SLOT_MAIN_HAND:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, gearEntry->itemid);
-					break;
-				case SLOT_OFF_HAND:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearEntry->itemid);
-					break;
-				case SLOT_RANGED:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, gearEntry->itemid);
-			}
-
-
-			//((MercenaryPet*)pet)->UpdateAllStats();
-
-			//pet->_ApplyItemMods(item, editSlot, true);
-			pet->EquipItem(editSlot, item, true);
-			pet->AutoUnequipOffhandIfNeed();
-
-			//if (editSlot != SLOT_MAIN_HAND || editSlot != SLOT_OFF_HAND || editSlot != SLOT_RANGED)改为总是更新
-			SendMirrorImagePacket(pet);
-
-			//UpdateAllStats(player, pet);
+			pet->EquipItem(editSlot, item, true);//这里更新状态
+			pet->AutoUnequipOffhandIfNeed();		
     }
 
-
-
+	switch (editSlot)
+	{
+		case SLOT_MAIN_HAND:
+			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itemid);
+			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid);/*副手有可能被移除*/
+			break;
+		case SLOT_OFF_HAND:
+			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid);/*副手有可能被移除*/
+			break;
+		case SLOT_RANGED:
+			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itemid);
+			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid);/*副手有可能被移除*/
+	}
+	if (!silenceUpdate){
+		SendMirrorImagePacket(pet);
+	}
     return true;
 }
-GearEntry* Mercenary::GetItemBySlot(uint8 slot)
-{
-	GearMap::const_iterator itr = gearContainer.find(slot);
-	if (itr == gearContainer.end())
-		return nullptr;
-	return itr->second;
-}
+
 Item* Mercenary::GetItemByGuid(Player * player,uint32 guid) 
 {
 	/*for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
@@ -527,7 +525,7 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 	MercenaryPet * mercenaryPet = (MercenaryPet*)pet;
 	/*装备更新*/
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); itr++){
-		Item* item = GetItemByGuid(player, itr->second->itemguid);
+		Item* item = GetItemByGuid(player, itr->second.itemguid);
 		mercenaryPet->m_items[itr->first] = (item != nullptr) ? item : nullptr;
 	}
 	((MercenaryPet*)pet)->SetLevel(1);
@@ -739,18 +737,12 @@ void Mercenary::RemoveOffHand(Creature* creature)
 {
     if (!creature)
         return;
+	gearContainer[SLOT_OFF_HAND].itemguid = 0;
+	gearContainer[SLOT_OFF_HAND].itemid = 0;
 
-    for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
-    {
-        if (itr->first == SLOT_OFF_HAND)
-			itr->second = 0;
-    }
     creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
 }
-uint32 Mercenary::getGearItemid(uint8 slot){
-	GearEntry*	gearEntry = GetItemBySlot(slot);
-	return  (gearEntry == nullptr) ? 0 : gearEntry->itemid;
-}
+
 void Mercenary::SendMirrorImagePacket(Creature* creature)
 {
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
@@ -765,17 +757,28 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     data << uint8(0); // Hair color
     data << uint8(0); // Facial hair
     data << uint32(0);
-	data << uint32(sMercenaryMgr->GetItemDisplayId(getGearItemid(SLOT_HEAD)));
-	data << uint32(sMercenaryMgr->GetItemDisplayId(getGearItemid(SLOT_SHOULDERS)));
-    data << uint32(0); // Shirt?
-	data << uint32(sMercenaryMgr->GetItemDisplayId(getGearItemid(SLOT_CHEST)));
-    data << uint32(0); // Waist
-	data << uint32(sMercenaryMgr->GetItemDisplayId(getGearItemid(SLOT_LEGS)));
-	data << uint32(sMercenaryMgr->GetItemDisplayId(getGearItemid(SLOT_FEET)));
-    data << uint32(0); // Wrists
-	data << uint32(sMercenaryMgr->GetItemDisplayId(getGearItemid(SLOT_HANDS)));
-    data << uint32(0); // Cloak
-    data << uint32(0); // Tabard
+
+	if (creature->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
+		data << uint32(0);
+	else
+		data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HEAD].itemid));
+
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_SHOULDERS].itemid)); 
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_SHIRT].itemid)); // Shirt?
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_CHEST].itemid)); 
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_WAIST].itemid)); // Waist?
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_LEGS].itemid)); 
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_FEET].itemid)); 
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_WRISTS].itemid)); // Wrists?
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HANDS].itemid));
+	
+	if (creature->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
+		data << uint32(0);
+	else
+		data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
+
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_EMPTY].itemid)); // SLOT_EMPTY?
 
     creature->SendMessageToSet(&data, false);
 }
@@ -826,7 +829,7 @@ void Mercenary::UpdatePhysicalDamage(WeaponAttackType attackType, Pet* pet)
     {
         if (itr->first == SLOT_MAIN_HAND || itr->first == SLOT_OFF_HAND)
         {
-			const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second->itemid);
+			const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second.itemid);
             if (proto)
             {
                 mindamage += proto->Damage[0].DamageMin;
@@ -848,7 +851,7 @@ void Mercenary::UpdateArmor(Pet* pet)
 
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
     {
-        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second->itemid);
+        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itr->second.itemid);
         if (proto)
         {
             if (proto->Armor > 0)

@@ -17,7 +17,7 @@ struct GearEntry{
 	uint32 itemguid;
 	uint32 itemid;
 };
-typedef tbb::concurrent_unordered_map<uint8, GearEntry*> GearMap;/*slot , GearEntry*/
+typedef tbb::concurrent_unordered_map<uint8, GearEntry> GearMap;/*slot , GearEntry*/
 
 struct MercenaryRoleDef
 {
@@ -197,7 +197,7 @@ public:
     /*
     * Returns true if the Mercenary can equip the specified item
     */
-	bool EquipItemIfCan(Player* player, Item* item);
+	bool EquipItemIfCan(Player* player, Item* item, bool silenceUpdate = false);
     /*
     * Initializes Mercenary's stats, gear and other summon values
     */
@@ -294,8 +294,6 @@ public:
     * Returns an item entry Id by slotId. If no item is found, returns NULL
     * @slot: Requires CharacterSlot data type
     */
-	GearEntry* GetItemBySlot(uint8 slot); 
-	uint32 getGearItemid(uint8 slot);
 	bool isItemsEquippable(Item* item, uint8 slot);
     /*
     * Returns a vector of item entryIds if any items are found that can be equipped on your Mercenary.
@@ -311,7 +309,7 @@ public:
     */
     bool HasWeapon(bool offhand)
     {
-		return offhand ? (gearContainer[SLOT_OFF_HAND]>0) : (gearContainer[SLOT_MAIN_HAND]>0);
+		return offhand ? gearContainer[SLOT_OFF_HAND].itemid>0 : gearContainer[SLOT_MAIN_HAND].itemid>0;
     }
 	bool isRangedAttack(){
 		return type == MERCENARY_TYPE_HUNTER || type == MERCENARY_TYPE_MAGE || type == MERCENARY_TYPE_WARLOCK || role == 13 || role == 27 || role == 18;

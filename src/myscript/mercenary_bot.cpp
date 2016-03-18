@@ -48,9 +48,10 @@ public:
 	}
 	std::string static getSlotIcon(Mercenary* mercenary, uint8 slot)
 	{
-		auto it = mercenary->gearContainer.find(slot);
-		if (it != mercenary->gearContainer.end())
-			return MercenaryUtil::GetMercenaryItemIcon(it->second->itemid); 
+		uint32 size = mercenary->gearContainer.size();
+		uint32 itemid=mercenary->gearContainer[slot].itemid;
+		if (itemid>0)
+			return MercenaryUtil::GetMercenaryItemIcon(itemid);
 		
 		return MercenaryUtil::GetMercenarySlotIcon(slot);
 	}
@@ -103,7 +104,7 @@ public:
 			Item* item = *itr;
 
 			std::ostringstream ss;
-			if (mercenary->getGearItemid(slot) != item->GetEntry())
+			if (mercenary->gearContainer[slot].itemguid != item->GetGUIDLow())
 				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
 			else
 			{
@@ -276,7 +277,8 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		{
 			//Item* item = mercenary->GetItemByGuid(player, itr->second->itemguid);
 			//if (item)此时不应检查行李栏是否存在物品，因为物品可能丢弃了
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second->itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second->itemid, session), 0, itr->first);
+			if (itr->second.itemid>0)
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second.itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second.itemid, session), 0, itr->first);
 		}
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, GOSSIP_ACTION_SPELL_DEF+36);//后退
 		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());

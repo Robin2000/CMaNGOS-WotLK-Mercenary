@@ -675,17 +675,18 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 			data << uint8(0); // Hair color
 			data << uint8(0); // Facial hair
 			data << uint32(0);
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->getGearItemid(SLOT_HEAD)));
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->getGearItemid(SLOT_SHOULDERS)));
-			data << uint32(0); // Shirt?
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->getGearItemid(SLOT_CHEST)));
-			data << uint32(0); // Waist
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->getGearItemid(SLOT_LEGS)));
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->getGearItemid(SLOT_FEET)));
-			data << uint32(0); // Wrists
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->getGearItemid(SLOT_HANDS)));
-			data << uint32(0); // Cloak
-			data << uint32(0); // Tabard
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HEAD].itemid));
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHOULDERS].itemid));
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHIRT].itemid)); // Shirt?
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_CHEST].itemid));
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_WAIST].itemid)); // Waist
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_LEGS].itemid)); 
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_FEET].itemid)); 
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_WRISTS].itemid));  // Wrists
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HANDS].itemid));
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_BACK].itemid));  // Cloak
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_TABARD].itemid));  // Tabard
+			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_EMPTY].itemid));  // SLOT_EMPTY END
 			SendPacket(&data);
 			return;
 			}

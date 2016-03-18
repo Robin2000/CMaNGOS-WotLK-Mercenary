@@ -218,7 +218,7 @@ public:
 				if (itr.armorSubClass == 0 && !(itr.armorSubClass == 0 && itr.weaponSubClass == 0))//仅weaponSubClass不为0，不是针对护甲的
                     continue;
 
-                if (itr.armorSubClass >= itemSubClass)//将等于改为大于等于，表示预定义的专精大于物品实际的，例如：能穿板甲，就一定能穿锁甲
+                if (itr.armorSubClass == itemSubClass)//严格等于
                 {
                     check = true;
                     break;
