@@ -268,7 +268,7 @@ public:
     /*
     * Removes the Mercenary's off hand weapon
     */
-    void RemoveOffHand(Creature* creature);
+
 
 	void SetSheath(Pet* pet, SheathState sheathed);
 

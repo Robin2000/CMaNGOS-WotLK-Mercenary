@@ -289,10 +289,6 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	case 4:
 		player->CLOSE_GOSSIP_MENU();
 		break;
-	case 5:
-		mercenary->RemoveOffHand(player->GetPet());
-		player->CLOSE_GOSSIP_MENU();
-		break;
 	case 6: // Equip Ranged
 		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_RANGED);
 		break;

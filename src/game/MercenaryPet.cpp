@@ -2911,10 +2911,6 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 			UpdateExpertise(OFF_ATTACK);//更新副手攻击
 			UpdateArmorPenetration();//更新护甲穿透能力
 		}
-		else{
-			//更新护甲？
-			;
-		}
 
 		return pItem;
 	}
@@ -2975,9 +2971,9 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 			((itemProto->InventoryType != INVTYPE_2HWEAPON && !IsTwoHandUsed)))
 			return;
 		
-		ChatHandler(getPlayer()).PSendSysMessage(getPlayer()->GetMangosString(-2800653));//学习成功，右键点击宠物技能图标启用。
-		mercenary->gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid = 0;
-		mercenary->gearContainer[EQUIPMENT_SLOT_OFFHAND].itemguid = 0;
+		ChatHandler(getPlayer()).PSendSysMessage(getPlayer()->GetMangosString(-2800653));//系统提示：因主手装备不匹配(如长柄武器)，雇佣兵副手装备被自动移除。
+		RemoveItem(EQUIPMENT_SLOT_OFFHAND, true); //需调用此方法移除
+
 	}
 
 	void MercenaryPet::RemoveItem(uint8 slot, bool update)
@@ -3032,10 +3028,6 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		{
 			UpdateExpertise(OFF_ATTACK);//更新副手攻击
 			UpdateArmorPenetration();//更新护甲穿透能力
-		}
-		else{
-			//更新护甲？
-			;
 		}
 	
 	}

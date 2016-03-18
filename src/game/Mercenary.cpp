@@ -426,8 +426,9 @@ bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
 			gearContainer[editSlot].itemguid = item->GetGUIDLow();
 			gearContainer[editSlot].itemid = itemid;
 				
-			pet->EquipItem(editSlot, item, true);//这里更新状态
-			pet->AutoUnequipOffhandIfNeed();		
+			pet->EquipItem(editSlot, item, true);//这里更新状态，比较复杂，暂时不采用
+			pet->AutoUnequipOffhandIfNeed();		//一旦副手移除，要调用pet->RemoveItem(editSlot, true);
+			//pet->UpdateAllStats();//全面更新，无效
     }
 
 	switch (editSlot)
@@ -711,8 +712,10 @@ void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSl
 		return;
 
 
-	//gearContainer.unsafe_erase(editSlot);在RemoveItem方法中删除
 	
+	//gearContainer[editSlot].itemid = 0; 在RemoveItem方法中取得item后删除
+	//gearContainer[editSlot].itemguid = 0;
+
 	switch (editSlot)
 	{
 		case SLOT_MAIN_HAND:
@@ -727,21 +730,13 @@ void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSl
 
 
 
-	pet->RemoveItem(editSlot, true);//移除并更新统计状态
+	pet->RemoveItem(editSlot, true);//移除并更新统计状态，比较复杂
 
-	//pet->UpdateAllStats();
+	//pet->UpdateAllStats();//全部更新，无效
 
 	SendMirrorImagePacket(pet);
 }
-void Mercenary::RemoveOffHand(Creature* creature)
-{
-    if (!creature)
-        return;
-	gearContainer[SLOT_OFF_HAND].itemguid = 0;
-	gearContainer[SLOT_OFF_HAND].itemid = 0;
 
-    creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-}
 
 void Mercenary::SendMirrorImagePacket(Creature* creature)
 {
