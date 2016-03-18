@@ -240,7 +240,8 @@ std::string MercenaryMgr::GetSlotIcon(uint8 slot) const
 	switch (slot)
     {
         case SLOT_HEAD: ss << "UI-PaperDoll-Slot-Head"; break;
-        case SLOT_SHOULDERS: ss << "UI-PaperDoll-Slot-Shoulder"; break;
+		case SLOT_SHOULDERS: ss << "UI-PaperDoll-Slot-Shoulder"; break;
+		case SLOT_NECK: ss << "UI-PaperDoll-Slot-Neck"; break;
         case SLOT_SHIRT: ss << "UI-PaperDoll-Slot-Shirt"; break;
         case SLOT_CHEST: ss << "UI-PaperDoll-Slot-Chest"; break;
         case SLOT_WAIST: ss << "UI-PaperDoll-Slot-Waist"; break;
@@ -248,6 +249,12 @@ std::string MercenaryMgr::GetSlotIcon(uint8 slot) const
         case SLOT_FEET: ss << "UI-PaperDoll-Slot-Feet"; break;
         case SLOT_WRISTS: ss << "UI-PaperDoll-Slot-Wrists"; break;
         case SLOT_HANDS: ss << "UI-PaperDoll-Slot-Hands"; break;
+
+		case SLOT_FINGER1: ss << "UI-PaperDoll-Slot-Finger"; break;
+		case SLOT_FINGER2: ss << "UI-PaperDoll-Slot-Finger"; break;
+		case SLOT_TRINKET1: ss << "UI-PaperDoll-Slot-Trinket"; break;
+		case SLOT_TRINKET2: ss << "UI-PaperDoll-Slot-Trinket"; break;
+
         case SLOT_BACK: ss << "UI-PaperDoll-Slot-Chest"; break;
         case SLOT_MAIN_HAND: ss << "UI-PaperDoll-Slot-MainHand"; break;
         case SLOT_OFF_HAND: ss << "UI-PaperDoll-Slot-SecondaryHand"; break;
@@ -264,6 +271,7 @@ const char* MercenaryMgr::GetSlotName(Player* player,uint8 slot) const
     switch (slot)
     {
 	case SLOT_HEAD: return  player->GetMangosString(-2800654);// "Head";
+	case SLOT_NECK: return  player->GetMangosString(-2800668); //"Shoulders";
 	case SLOT_SHOULDERS: return  player->GetMangosString(-2800655); //"Shoulders";
 	case SLOT_SHIRT: return  player->GetMangosString(-2800656); //"Shirt";
 	case SLOT_CHEST: return  player->GetMangosString(-2800657); //"Chest";
@@ -272,6 +280,12 @@ const char* MercenaryMgr::GetSlotName(Player* player,uint8 slot) const
 	case SLOT_FEET: return player->GetMangosString(-2800660);// "Feet";
 	case SLOT_WRISTS: return player->GetMangosString(-2800661);// "Wrists";
 	case SLOT_HANDS: return player->GetMangosString(-2800662);// "Hands";
+
+	case SLOT_FINGER1: return player->GetMangosString(-2800662);// "Left FINGER";
+	case SLOT_FINGER2: return player->GetMangosString(-2800662);// "Right FINGER";
+	case SLOT_TRINKET1: return player->GetMangosString(-2800662);// "左手饰品";
+	case SLOT_TRINKET2: return player->GetMangosString(-2800662);// "右手饰品";
+
 	case SLOT_BACK: return player->GetMangosString(-2800663);// "Back";
 	case SLOT_MAIN_HAND: return  player->GetMangosString(-2800664); //"Main hand";
 	case SLOT_OFF_HAND: return player->GetMangosString(-2800665);// "Off hand";

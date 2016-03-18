@@ -46,20 +46,45 @@ public:
 		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
 		//#endif
 	}
-
+	std::string static getSlotIcon(Mercenary* mercenary, uint8 slot)
+	{
+		auto it = mercenary->gearContainer.find(slot);
+		if (it != mercenary->gearContainer.end())
+			return MercenaryUtil::GetMercenaryItemIcon(it->second->itemid); 
+		
+		return MercenaryUtil::GetMercenarySlotIcon(slot);
+	}
 	void static SendEquipGear(Player* player, Creature* creature, Mercenary* mercenary)
 	{
 		if (mercenary->GetEditSlot() != SLOT_EMPTY)
 			mercenary->SetEditSlot(SLOT_EMPTY);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HEAD) + MercenaryUtil::GetMercenarySlotName(player, SLOT_HEAD), 0, 14);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_SHOULDERS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_SHOULDERS), 0, 13);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_HANDS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_HANDS), 0, 12);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_FEET) + MercenaryUtil::GetMercenarySlotName(player, SLOT_FEET), 0, 11);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_LEGS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_LEGS), 0, 10);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_CHEST) + MercenaryUtil::GetMercenarySlotName(player, SLOT_CHEST), 0, 9);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_MAIN_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_MAIN_HAND), 0, 8);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_OFF_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_OFF_HAND), 0, 7);
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySlotIcon(SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(player, SLOT_RANGED), 0, 6);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary,SLOT_HEAD) + MercenaryUtil::GetMercenarySlotName(player, SLOT_HEAD), 0, 14);
+		
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_NECK) + MercenaryUtil::GetMercenarySlotName(player, SLOT_NECK), 0, 15);
+
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_SHOULDERS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_SHOULDERS), 0, 13);
+
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_SHIRT) + MercenaryUtil::GetMercenarySlotName(player, SLOT_SHIRT), 0, 16);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_CHEST) + MercenaryUtil::GetMercenarySlotName(player, SLOT_CHEST), 0, 9);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_WAIST) + MercenaryUtil::GetMercenarySlotName(player, SLOT_WAIST), 0, 17);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_LEGS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_LEGS), 0, 10);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_FEET) + MercenaryUtil::GetMercenarySlotName(player, SLOT_FEET), 0, 11);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_WRISTS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_WRISTS), 0, 18);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_HANDS) + MercenaryUtil::GetMercenarySlotName(player, SLOT_HANDS), 0, 12);
+		
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_FINGER1) + MercenaryUtil::GetMercenarySlotName(player, SLOT_FINGER1), 0, 19);//左手手指
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_FINGER2) + MercenaryUtil::GetMercenarySlotName(player, SLOT_FINGER2), 0, 20);//右手手指
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_TRINKET1) + MercenaryUtil::GetMercenarySlotName(player, SLOT_TRINKET1), 0, 21);//左手饰品
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_TRINKET2) + MercenaryUtil::GetMercenarySlotName(player, SLOT_TRINKET2), 0, 22);//右手饰品
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_BACK) + MercenaryUtil::GetMercenarySlotName(player, SLOT_BACK), 0, 23);//背
+		
+		
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_MAIN_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_MAIN_HAND), 0, 8);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_OFF_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_OFF_HAND), 0, 7);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(player, SLOT_RANGED), 0, 6);
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_TABARD) + MercenaryUtil::GetMercenarySlotName(player, SLOT_TABARD), 0, 24);
+		
+
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, GOSSIP_ACTION_SPELL_DEF+36);//取消
 		//#ifndef MANGOS
 		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
@@ -76,7 +101,7 @@ public:
 		for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
 		{
 			Item* item = *itr;
-			
+
 			std::ostringstream ss;
 			if (mercenary->getGearItemid(slot) != item->GetEntry())
 				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
@@ -293,6 +318,40 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	case 14: // Equip Head
 		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_HEAD);
 		break;
+
+	case 15: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_NECK);
+		break;
+	case 16: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_SHIRT);
+		break;
+	case 17: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_WAIST);
+		break;
+	case 18: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_WRISTS);
+		break;
+	case 19: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_FINGER1);
+		break;
+	case 20: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_FINGER2);
+		break;
+	case 21: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_TRINKET1);
+		break;
+	case 22: 
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_TRINKET2);
+		break;
+	case 23:
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_BACK);
+		break;
+
+	case 24:
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_TABARD);
+		break;
+
+		//
 	case GOSSIP_ACTION_SPELL_DEF+36:
 		mercenary_bot::SendToHello(player, creature, mercenary);
 		break;

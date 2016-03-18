@@ -131,6 +131,8 @@ public:
 	void RemoveItemDependentAurasAndCasts(Item* pItem);
 	bool HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item const* ignoreItem);
 	void GiveLevel(uint32 level);
+	void SetVirtualItemSlot(uint8 i, Item* item);
+	void SetSheath(SheathState sheathed);
 };
 
 #endif

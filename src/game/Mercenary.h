@@ -275,7 +275,8 @@ public:
     /*
     * Returns InventorySlot Id by supplying a CharacterSlot Id
     */
-    uint8 GetInvTypeSlot(uint8 characterSlot) const;
+    /*uint8 GetInvTypeSlot(uint8 characterSlot) const;*/
+	bool InvToSlot(uint8 invType, uint8 characterSlot);
 
     uint32 GetOwnerGUID() const { return ownerGUID; }
     uint8 GetRole() const { return role; }

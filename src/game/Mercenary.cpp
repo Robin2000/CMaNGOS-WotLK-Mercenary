@@ -560,9 +560,9 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	//if (isRangedAttack()){
-	//	SetSheath(pet,SHEATH_STATE_RANGED);
-	//}
+	if (isRangedAttack()){
+		SetSheath(pet,SHEATH_STATE_RANGED);
+	}
 
 	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
 	//((MercenaryPet*)pet)->UpdateAllStats();
@@ -572,47 +572,21 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 }
 void Mercenary::SetSheath(Pet* pet,SheathState sheathed)
 {
-	/*switch (sheathed)
+	if (!pet->isMercenary())
 	{
-	case SHEATH_STATE_UNARMED:                          // no prepared weapon
-		pet->SetVirtualItemSlot(0, nullptr);
-		pet->SetVirtualItemSlot(1, nullptr);
-		pet->SetVirtualItemSlot(2, nullptr);
-		break;
-	case SHEATH_STATE_MELEE:                            // prepared melee weapon
-	{
-		pet->SetVirtualItemSlot(0, GetWeaponForAttack(BASE_ATTACK, true, true));
-		pet->SetVirtualItemSlot(1, GetWeaponForAttack(OFF_ATTACK, true, true));
-		pet->SetVirtualItemSlot(2, nullptr);
-	};  break;
-	case SHEATH_STATE_RANGED:                           // prepared ranged weapon
-		pet->SetVirtualItemSlot(0, nullptr);
-		pet->SetVirtualItemSlot(1, nullptr);
-		pet->SetVirtualItemSlot(2, GetWeaponForAttack(RANGED_ATTACK, true, true));
-		break;
-	default:
-		pet->SetVirtualItemSlot(0, nullptr);
-		pet->SetVirtualItemSlot(1, nullptr);
-		pet->SetVirtualItemSlot(2, nullptr);
-		break;
-	}*/
-	pet->SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
+		pet->SetSheath(sheathed);
+		return;
+	}
+	((MercenaryPet*)pet)->SetSheath(sheathed);
+	
+	//pet->SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
 }
 bool Mercenary::isItemsEquippable(Item* item, uint8 slot){
 
 	const ItemPrototype* proto = item->GetProto();
 	if (!proto)
 		return false;
-
-	uint8 invSlot = GetInvTypeSlot(slot);
-	if (proto->InventoryType == invSlot && slot != SLOT_MAIN_HAND && slot != SLOT_OFF_HAND)
-		return true;
-	else if ((proto->InventoryType == invSlot || proto->InventoryType == INVTYPE_2HWEAPON || proto->InventoryType == INVTYPE_WEAPON) && slot == SLOT_MAIN_HAND)
-		return true;
-	else if ((proto->InventoryType == invSlot || proto->InventoryType == INVTYPE_SHIELD || proto->InventoryType == INVTYPE_HOLDABLE) && slot == SLOT_OFF_HAND)
-		return true;
-
-	return false;
+	return InvToSlot(proto->InventoryType, slot);
 }
 
 void Mercenary::GetEquippableItems(Player* player, uint8 slot, std::vector<Item*>& result)
@@ -919,6 +893,66 @@ void Mercenary::UpdateMaxPower(Powers power, Pet* pet)
     pet->SetMaxPower(power, uint32(value));
 }
 
+bool Mercenary::InvToSlot(uint8 invType, uint8 characterSlot)
+{
+	switch (characterSlot){
+		case SLOT_HEAD:
+			return invType == INVTYPE_HEAD;
+		case SLOT_NECK:
+			return 	invType==INVTYPE_NECK;
+		case SLOT_SHOULDERS:
+			return invType==INVTYPE_SHOULDERS;
+		case SLOT_SHIRT:
+			return invType == INVTYPE_BODY ;//衬衣
+		case SLOT_CHEST:
+			return invType == INVTYPE_CHEST || invType == INVTYPE_ROBE; //胸部，连衣裙
+		case SLOT_WAIST:
+			return invType==INVTYPE_WAIST;
+		case SLOT_LEGS:
+			return invType==INVTYPE_LEGS;
+		case SLOT_FEET:
+			return invType==INVTYPE_FEET;
+		case SLOT_WRISTS:
+			return invType==INVTYPE_WRISTS;
+		case SLOT_HANDS:
+			return invType==INVTYPE_HANDS;
+		case SLOT_FINGER1:
+			return invType==INVTYPE_FINGER;
+		case SLOT_FINGER2:
+			return invType==INVTYPE_FINGER;
+		case SLOT_TRINKET1:
+			return invType==INVTYPE_TRINKET;
+		case SLOT_TRINKET2:
+			return invType==INVTYPE_TRINKET;
+		case SLOT_BACK:
+			return invType == INVTYPE_CLOAK ;//披风，连衣裙
+		case SLOT_MAIN_HAND:
+			return invType == INVTYPE_WEAPON || invType == INVTYPE_WEAPONMAINHAND || invType == INVTYPE_2HWEAPON;//武器，主手武器，或双手武器
+		case SLOT_OFF_HAND:
+			return invType == INVTYPE_WEAPON || invType == INVTYPE_WEAPONOFFHAND || invType == INVTYPE_SHIELD || invType == INVTYPE_HOLDABLE;//副手武器或者盾牌
+		case SLOT_RANGED:
+			return invType == INVTYPE_RANGED || invType == INVTYPE_THROWN;//远程或投掷
+		case SLOT_TABARD:
+			return invType==INVTYPE_TABARD;//战袍徽章
+		case SLOT_EMPTY:
+			return invType == INVTYPE_AMMO || invType == INVTYPE_RANGEDRIGHT; //弹药或者远程武器右侧的
+	}
+
+	return false;
+}
+/*遗留问题
+
+SLOT_SHIRT---->INVTYPE_BODY = 4  对吗?
+SLOT_EMPTY---->INVTYPE_AMMO = 24,对吗?
+SLOT_EMPTY---->INVTYPE_RANGEDRIGHT = 26,
+
+INVTYPE_RELIC = 28 圣物不能装备
+INVTYPE_BAG = 18,不能装备
+INVTYPE_QUIVER = 27,和包裹一样，都不能装备到角色solot，只能放行李栏
+
+
+*/
+/*
 uint8 Mercenary::GetInvTypeSlot(uint8 characterSlot) const
 {
     static uint8 invSlots[] =
@@ -943,4 +977,5 @@ uint8 Mercenary::GetInvTypeSlot(uint8 characterSlot) const
         INVTYPE_RANGED
     };
     return invSlots[characterSlot];
-}
+	}
+*/

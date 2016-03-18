@@ -13,6 +13,8 @@ void hearthstone_prepare_gmtools(Player* pPlayer, Item* pItem, uint32 uiAction){
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "modify aspeed 1", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 105);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "gm fly on/off", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 106);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "clear bag", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 108);
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "test items", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 109);
+
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, -2800181, GOSSIP_SENDER_MAIN, 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
@@ -22,6 +24,23 @@ void modifySpeed(Player* pPlayer, float modSpeed){
 	pPlayer->UpdateSpeed(MOVE_SWIM, true, modSpeed);
 	// chr->UpdateSpeed(MOVE_TURN,   true, modSpeed);
 	pPlayer->UpdateSpeed(MOVE_FLIGHT, true, modSpeed);
+}
+void addItem(Player* player,uint32 itemid)
+{
+	for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+	if (Bag* pBag = (Bag*)player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+	for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+	if (Item* pItem = pBag->GetItemByPos(j))
+		player->RemoveItem(INVENTORY_SLOT_BAG_0, j, false);
+
+	int32 count = 1;
+	uint32 noSpaceForCount = 0;
+	ItemPosCountVec dest;
+	uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, 1, &noSpaceForCount);
+	if (msg != EQUIP_ERR_OK)                                // convert to possible store amount
+		count -= noSpaceForCount;
+
+	Item* item = player->StoreNewItem(dest, itemid, true, Item::GenerateItemRandomPropertyId(itemid));
 }
 void removeAllItem(Player* player){
 	for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
@@ -45,14 +64,31 @@ void removeAllItem(Player* player){
 		player->RemoveItem(INVENTORY_SLOT_BAG_0, j, false);
 
 
-	int32 count=1;
-	uint32 noSpaceForCount = 0;
-	ItemPosCountVec dest;
-	uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 6948, 1, &noSpaceForCount);
-	if (msg != EQUIP_ERR_OK)                                // convert to possible store amount
-		count -= noSpaceForCount;
+	addItem(player,6948);
 
-	Item* item = player->StoreNewItem(dest, 6948, true, Item::GenerateItemRandomPropertyId(6948));
+}
+void addTestItem(Player* player)
+{
+	addItem(player, 1020);
+	addItem(player, 27945);
+	addItem(player, 44090);
+	addItem(player, 45280);
+	addItem(player, 39048);
+	addItem(player, 26128);
+	addItem(player, 16165);
+	addItem(player, 21442);
+	addItem(player, 38496);
+	addItem(player, 26235);
+	addItem(player, 18970);
+	addItem(player, 8688);
+	addItem(player, 38469);
+
+	addItem(player, 26548);
+	addItem(player, 2903);
+	addItem(player, 27196);
+	addItem(player, 38480);
+
+	addItem(player, 2662);//箭袋
 
 }
 void hearthstone_click_gmtools(Player* pPlayer, Item* pItem, uint32 uiAction){
@@ -84,5 +120,9 @@ void hearthstone_click_gmtools(Player* pPlayer, Item* pItem, uint32 uiAction){
 			break;
 		case GOSSIP_ACTION_INFO_DEF + 108:
 			removeAllItem(pPlayer);
+			break;
+		case GOSSIP_ACTION_INFO_DEF + 109:
+			addTestItem(pPlayer);
+			break;
 	}
 }
