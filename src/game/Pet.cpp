@@ -200,7 +200,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         case SUMMON_PET:
             petlevel = owner->getLevel();
 
-			SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); // class = mage
+			if (!isMercenary())
+				SetUInt32Value(UNIT_FIELD_BYTES_0, 0x800); // class = mage
 			SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 			// this enables popup window (pet dismiss, cancel)【允许解散和取消宠物】
 
@@ -228,9 +229,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         SetFFAPvP(true);
 
     SetCanModifyStats(true);
-    InitStatsForLevel(petlevel);
-    InitTalentForLevel();                                   // set original talents points before spell loading
-
+	if (!isMercenary()){
+		InitStatsForLevel(petlevel);
+		InitTalentForLevel();                                   // set original talents points before spell loading
+	}
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr)));
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetCreatorGuid(owner->GetObjectGuid());
@@ -306,7 +308,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     // Spells should be loaded after pet is added to map, because in CheckCast is check on it
     _LoadSpells();
-    InitLevelupSpellsForLevel();
+	if (!isMercenary())
+		InitLevelupSpellsForLevel();
 
     CleanupActionBar();                                     // remove unknown spells from action bar after load
 

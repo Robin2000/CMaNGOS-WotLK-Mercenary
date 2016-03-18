@@ -125,12 +125,12 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	}
 
 	//////////////////////////////////////////雇佣兵招募
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 12){
+	if (pPlayer->context.gossipMenuType == -1&&uiAction == GOSSIP_ACTION_INFO_DEF + 12){
 		pPlayer->context.gossipMenuType = 1;
 		GossipHello_mercenary_npc_gossip(pPlayer, pItem);
 		return true;
 	}
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 998)///召唤雇佣兵
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 998)///召唤雇佣兵
 	{
 		recallMercenary(pPlayer, pItem);
 		return true;
@@ -139,7 +139,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return GossipSelect_mercenary_npc_gossip(pPlayer, pItem,NULL , uiAction);
 
 	//////////////////////////////////////////地图传送。
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 8)
+	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 8)
 	{
 		pPlayer->context.gossipMenuType = 2;//地图传送。
 		hearthstone_prepare_transport2(pPlayer, pItem, 21000);
@@ -149,7 +149,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return hearthstone_transport_case(pPlayer, pItem, uiAction);
 	
 	//////////////////////////////////////////原力商店
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 10)//原力商店
+	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 10)//原力商店
 	{
 		pPlayer->context.gossipMenuType = 3;//原力商店
 		hearthstone_prepare_store(pPlayer, pItem);
@@ -159,7 +159,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return hearthstone_store_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////任务辅助
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
+	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
 	{
 		pPlayer->context.gossipMenuType = 4;//任务辅助。
 		pPlayer->context.gossipActionType = -1;
@@ -169,7 +169,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	else if (pPlayer->context.gossipMenuType == 4)
 		return hearthstone_quest_click(pPlayer, pItem, uiAction);
 
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 14)//任务推荐
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 14)//任务推荐
 	{
 		pPlayer->context.gossipMenuType = 5;//任务推荐。
 		pPlayer->context.gossipActionType = -1;
@@ -180,7 +180,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return hearthstone_quest_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////技能学习
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 13)//技能学习。
+	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 13)//技能学习。
 	{
 		pPlayer->context.gossipMenuType = 6;//技能学习。
 		hearthstone_prepareLearn(pPlayer, pItem);
@@ -190,7 +190,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return hearthstone_learn_click(pPlayer, pItem, uiAction);
 
 	//////////////////////////////////////////原力骑乘
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)//原力骑乘
+	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 2)//原力骑乘
 	{
 		pPlayer->context.gossipMenuType = 7;//原力骑乘
 		hearthstone_prepare_mount(pPlayer, pItem);
@@ -198,7 +198,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	}
 	else if (pPlayer->context.gossipMenuType == 7)
 		return hearthstone_mount_click(pPlayer, pItem, uiAction);
-	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 20){
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 20){
 		pPlayer->context.gossipMenuType = 8;//GM_TOOLS
 		hearthstone_prepare_gmtools(pPlayer, pItem, uiAction);
 		return true;

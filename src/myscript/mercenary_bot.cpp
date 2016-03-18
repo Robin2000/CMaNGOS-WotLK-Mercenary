@@ -71,20 +71,21 @@ public:
 	void static SendItemList(Player* player, Creature* creature, Mercenary* mercenary, uint8 slot)
 	{
 		mercenary->SetEditSlot(slot);
-		std::vector<uint32> tempVector = mercenary->GetEquippableItems(player, slot);
+		std::vector<Item*> tempVector;
+		mercenary->GetEquippableItems(player, slot, tempVector);
 		for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
 		{
-			if (Item* item = player->GetItemByEntry(*itr))
+			Item* item = *itr;
+			
+			std::ostringstream ss;
+			if (mercenary->getGearItemid(slot) != item->GetEntry())
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
+			else
 			{
-				std::ostringstream ss;
-				if (mercenary->getGearItemid(slot) != item->GetEntry())
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()), 0, item->GetEntry());
-				else
-				{
-					ss << MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()) << player->GetMangosString(-2800638);// [|cff990000Already Equipped|r]
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF+36);
-				}
+				ss << MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), player->GetSession()) << player->GetMangosString(-2800638);// [|cff990000Already Equipped|r]
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(item->GetEntry()) + ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF+36);
 			}
+			
 		}
 
 		//if (slot == SLOT_OFF_HAND && mercenary->HasWeapon(true))
@@ -186,37 +187,34 @@ void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint
 bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*sender*/, uint32 actions)
 {
 	player->PlayerTalkClass->ClearMenus();
-	//#ifndef MANGOS
-	//        Mercenary* mercenary = GetMercenaryByOwner(player->GetGUID().GetCounter());
-	//#else
+
 	Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
-	//#endif
 	WorldSession* session = player->GetSession();
-
-
 
 	if (mercenary->GetEditSlot() != SLOT_EMPTY) /*mercenary中标记变量editSlot标明actions是否为编辑装备*/
 	{
-		std::vector<uint32> tempVector = mercenary->GetEquippableItems(player, mercenary->GetEditSlot());
+		std::vector<Item*> tempVector;
+		mercenary->GetEquippableItems(player, mercenary->GetEditSlot(), tempVector);
 		for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
 		{
-			if (Item* item = player->GetItemByEntry(*itr))
+			Item* item =*itr;
+			
+			if (actions == item->GetEntry())
 			{
-				if (actions == item->GetEntry())
+				player->CLOSE_GOSSIP_MENU();
+				if (!mercenary->EquipItemIfCan(player, item))
+					return false;
+				else
 				{
-					player->CLOSE_GOSSIP_MENU();
-					if (!mercenary->EquipItemIfCan(player, item))
-						return false;
-					else
-					{
-						//成功给你的雇佣兵装备了 %s !
-						ChatHandler(session).PSendSysMessage(player->GetMangosString(-2800642), MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), session).c_str());
-						mercenary->SetEditSlot(SLOT_EMPTY);
-						return false;
-					}
+					//成功给你的雇佣兵装备了 %s !
+					ChatHandler(session).PSendSysMessage(player->GetMangosString(-2800642), MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), session).c_str());
+					mercenary->SetEditSlot(SLOT_EMPTY);
+					return false;
 				}
 			}
+			
 		}
+
 	}
 	if (actions == GOSSIP_ACTION_SPELL_DEF + 36)/*后退优先级最高*/
 	{
@@ -251,9 +249,9 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		player->context.gossipActionType = GOSSIP_REMOVE_ITEM;
 		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); ++itr)
 		{
-			Item* item = mercenary->GetItemByGuid(player, itr->second->itemguid);
-			if (item)
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second->itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second->itemid, session), 0, itr->first);
+			//Item* item = mercenary->GetItemByGuid(player, itr->second->itemguid);
+			//if (item)此时不应检查行李栏是否存在物品，因为物品可能丢弃了
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second->itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second->itemid, session), 0, itr->first);
 		}
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, GOSSIP_ACTION_SPELL_DEF+36);//后退
 		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());

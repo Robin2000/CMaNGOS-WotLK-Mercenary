@@ -301,7 +301,7 @@ public:
     * @player: The player that gets their inventory checked. Most likely the Mercenary owner.
     * @slot: Requires CharacterSlot data type
     */
-	std::vector<uint32> GetEquippableItems(Player* player, uint8 slot);
+	void GetEquippableItems(Player* player, uint8 slot, std::vector<Item*>& result);
 
     /*
     * Returns true if the Mercenary has a weapon equipped, false if not.

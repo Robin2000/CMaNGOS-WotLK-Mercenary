@@ -106,18 +106,33 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 
     if (!player)
         return false;
+	if (mercType >= MAX_MERCENARY_TYPES || mercType == MERCENARY_TYPE_NONE)
+		return false;
+
+	Pet *petOld=player->GetPet();
+
+	if (petOld != nullptr&&!petOld->isMercenary())//有宠物但不是雇佣兵
+	{
+		ChatHandler(player->GetSession()).SendSysMessage(-2800634);//必须首先解散你的宠物
+		return false;
+	}
+
+	
+	if (petOld != nullptr&&petOld->isMercenary())//有宠物且是雇佣兵
+	{
+		if (petOld->GetMapId() == player->GetMapId())
+		{
+			petOld->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+			return false;
+		}
+		else
+		{
+			petOld->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());//不在同一个地图使用NearTeleportTo会如何？
+			return false;
+		}
+	}
 
 	MercenaryPet * pet = new MercenaryPet;
-    if (!pet)
-        return false;
-
-    if (mercType >= MAX_MERCENARY_TYPES || mercType == MERCENARY_TYPE_NONE)
-    {
-        delete pet;
-        return false;
-    }
-	
-	//pet->SetOwnerGuid(player->GetObjectGuid());//我加的，会失败
 
     float x, y, z, o = 0;
     player->GetPosition(x, y, z);
@@ -158,7 +173,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	if (!name.empty())
 		pet->SetName(name);
 
-	sMercenaryMgr->SaveToList(this);
+	//sMercenaryMgr->SaveToList(this);在create的时候已经放入列表
 
     Initialize(player, pet, true);
 
@@ -291,14 +306,14 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
         pet->SetOwnerGuid(player->GetObjectGuid());
         pet->SetCreatorGuid(player->GetObjectGuid());
-        pet->SetPowerType(POWER_MANA);
+        //pet->SetPowerType(POWER_MANA);
         pet->setPetType(SUMMON_PET);
         pet->GetCharmInfo()->SetPetNumber(GetOwnerGUID(), true);
         pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
         pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         pet->SetDisplayId(GetDisplay());
         pet->SetNativeDisplayId(GetDisplay());
-        pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+        //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
         if (player->IsPvP())
             pet->SetPvP(true);
@@ -309,7 +324,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
             pet->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 #endif
         
-		pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
+		//pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
         pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
         pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
         pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL)));
@@ -319,7 +334,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 		
 		pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
         pet->InitPetCreateSpells();
-        pet->SetHealth(pet->GetMaxHealth());        
+        //pet->SetHealth(pet->GetMaxHealth());        
 
 		pet->AIM_Initialize();
         player->GetMap()->Add((Creature*)pet);
@@ -329,6 +344,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 		InitStats(player, pet);
     }
 
+	pet->SetStandState(UNIT_STAND_STATE_STAND);
 
 	SendMirrorImagePacket(pet);
 	pet->HandleEmoteCommandHappy();
@@ -477,15 +493,15 @@ Item* Mercenary::GetItemByGuid(Player * player,uint32 guid)
 bool Mercenary::InitStats(Player* player, Pet* pet)
 {
     uint8 mercenaryLevel = player->getLevel();
-    CreatureInfo const* creatureInfo = pet->GetCreatureInfo();
-    if (!creatureInfo)
-    {
-        sLog.outError("Failed to load creature info for Mercenary");
-        return false;
-    }
+    //CreatureInfo const* creatureInfo = pet->GetCreatureInfo();
+    //if (!creatureInfo)
+    //{
+     //   sLog.outError("Failed to load creature info for Mercenary");
+     //   return false;
+    //}
 
-    pet->SetLevel(mercenaryLevel);
-    pet->SetMeleeDamageSchool(SpellSchools(creatureInfo->DamageSchool));
+  
+    //pet->SetMeleeDamageSchool(SpellSchools(creatureInfo->DamageSchool));
 
     //@TODO Below, Change by stats (gear)
     //pet->SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(mercenaryLevel * 50));
@@ -496,15 +512,15 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     //pet->SetObjectScale(1.0f);
 
-    int32 createResistance[MAX_SPELL_SCHOOL] = { 0, 0, 0, 0, 0, 0, 0 };
-    createResistance[SPELL_SCHOOL_HOLY] = creatureInfo->ResistanceHoly;
-    createResistance[SPELL_SCHOOL_FIRE] = creatureInfo->ResistanceFire;
-    createResistance[SPELL_SCHOOL_NATURE] = creatureInfo->ResistanceNature;
-    createResistance[SPELL_SCHOOL_FROST] = creatureInfo->ResistanceFrost;
-    createResistance[SPELL_SCHOOL_SHADOW] = creatureInfo->ResistanceShadow;
-    createResistance[SPELL_SCHOOL_ARCANE] = creatureInfo->ResistanceArcane;
-    for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        pet->SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
+    //int32 createResistance[MAX_SPELL_SCHOOL] = { 0, 0, 0, 0, 0, 0, 0 };
+    //createResistance[SPELL_SCHOOL_HOLY] = creatureInfo->ResistanceHoly;
+    //createResistance[SPELL_SCHOOL_FIRE] = creatureInfo->ResistanceFire;
+    //createResistance[SPELL_SCHOOL_NATURE] = creatureInfo->ResistanceNature;
+    //createResistance[SPELL_SCHOOL_FROST] = creatureInfo->ResistanceFrost;
+    //createResistance[SPELL_SCHOOL_SHADOW] = creatureInfo->ResistanceShadow;
+    //createResistance[SPELL_SCHOOL_ARCANE] = creatureInfo->ResistanceArcane;
+    //for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+       //pet->SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
 
 
 	/*初始化开始mitems*/
@@ -514,10 +530,12 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 		Item* item = GetItemByGuid(player, itr->second->itemguid);
 		mercenaryPet->m_items[itr->first] = (item != nullptr) ? item : nullptr;
 	}
+	((MercenaryPet*)pet)->SetLevel(1);
+	((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
+	((MercenaryPet*)pet)->GiveLevel(mercenaryLevel);
 
-
-    pet->SetCreateHealth(uint32(((float(creatureInfo->MaxLevelHealth) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
-    pet->SetCreateMana(uint32(((float(creatureInfo->MaxLevelMana) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
+    //pet->SetCreateHealth(uint32(((float(creatureInfo->MaxLevelHealth) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
+    //pet->SetCreateMana(uint32(((float(creatureInfo->MaxLevelMana) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
 
     //pet->SetCreateStat(STAT_STRENGTH, 22);
     //pet->SetCreateStat(STAT_AGILITY, 22);
@@ -542,12 +560,14 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	if (isRangedAttack()){
-		SetSheath(pet,SHEATH_STATE_RANGED);
-	}
+	//if (isRangedAttack()){
+	//	SetSheath(pet,SHEATH_STATE_RANGED);
+	//}
 
-	((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
-	((MercenaryPet*)pet)->UpdateAllStats();
+	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
+	//((MercenaryPet*)pet)->UpdateAllStats();
+
+	pet->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
     return true;
 }
 void Mercenary::SetSheath(Pet* pet,SheathState sheathed)
@@ -594,9 +614,9 @@ bool Mercenary::isItemsEquippable(Item* item, uint8 slot){
 
 	return false;
 }
-std::vector<uint32> Mercenary::GetEquippableItems(Player* player, uint8 slot)
+
+void Mercenary::GetEquippableItems(Player* player, uint8 slot, std::vector<Item*>& result)
 {
-	std::vector<uint32> tempVector;
 	/*for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
 	if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	if (isItemsEquippable(item, slot))
@@ -611,28 +631,27 @@ std::vector<uint32> Mercenary::GetEquippableItems(Player* player, uint8 slot)
 	for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
 	if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	if (isItemsEquippable(item, slot))
-		tempVector.push_back(item->GetEntry());//行李栏
+		result.push_back(item);//行李栏
 
 	for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
 	if (Bag* pBag = (Bag*)player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
 	if (Item* item = pBag->GetItemByPos(j))
 	if (isItemsEquippable(item, slot))
-		tempVector.push_back(item->GetEntry());//行李栏包裹
+		result.push_back(item);//行李栏包裹
 
 	for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
 	if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	if (isItemsEquippable(item, slot))
-		tempVector.push_back(item->GetEntry());//银行
+		result.push_back(item);//银行
 
 	for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
 	if (Bag* pBag = (Bag*)player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
 	if (Item* item = pBag->GetItemByPos(j))
 	if (isItemsEquippable(item, slot))
-		tempVector.push_back(item->GetEntry());//银行包裹
+		result.push_back(item);//银行包裹
 
-	return tempVector;
 }/*
 bool Mercenary::UpdateStats(Player* player, Stats stat, Pet* pet)
 {
@@ -720,13 +739,8 @@ void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSl
 		return;
 
 
-	if (GearEntry* gearEntry = GetItemBySlot(editSlot)){
-		if (Item* item = GetItemByGuid(player, gearEntry->itemguid)){
-			//pet->_ApplyItemMods(item, editSlot, false);
-			pet->RemoveItem(editSlot,true);
-		}
-	}
-	gearContainer.unsafe_erase(editSlot);
+	//gearContainer.unsafe_erase(editSlot);在RemoveItem方法中删除
+	
 	switch (editSlot)
 	{
 		case SLOT_MAIN_HAND:
@@ -738,8 +752,13 @@ void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSl
 		case SLOT_RANGED:
 			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
 	}
-	
+
+
+
+	pet->RemoveItem(editSlot, true);//移除并更新统计状态
+
 	//pet->UpdateAllStats();
+
 	SendMirrorImagePacket(pet);
 }
 void Mercenary::RemoveOffHand(Creature* creature)

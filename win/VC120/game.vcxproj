@@ -426,6 +426,7 @@
     <ClCompile Include="..\..\src\game\MassMailMgr.cpp" />
     <ClCompile Include="..\..\src\game\Mercenary.cpp" />
     <ClCompile Include="..\..\src\game\MercenaryMgr.cpp" />
+    <ClCompile Include="..\..\src\game\MercenaryPet.cpp" />
     <ClCompile Include="..\..\src\game\MiscHandler.cpp" />
     <ClCompile Include="..\..\src\game\MotionMaster.cpp" />
     <ClCompile Include="..\..\src\game\MoveMap.cpp" />
@@ -604,6 +605,7 @@
     <ClInclude Include="..\..\src\game\MassMailMgr.h" />
     <ClInclude Include="..\..\src\game\Mercenary.h" />
     <ClInclude Include="..\..\src\game\MercenaryMgr.h" />
+    <ClInclude Include="..\..\src\game\MercenaryPet.h" />
     <ClInclude Include="..\..\src\game\MotionMaster.h" />
     <ClInclude Include="..\..\src\game\MoveMap.h" />
     <ClInclude Include="..\..\src\game\MoveMapSharedDefines.h" />

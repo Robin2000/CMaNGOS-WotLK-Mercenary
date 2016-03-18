@@ -204,7 +204,7 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 	if (!mercenary)
 	{
 		mercenary = new Mercenary;
-		if (!mercenary->Create(player))
+		if (!mercenary->Create(player))/*创建并放入列表，下次直接获取不再创建*/
 		{
 			WorldSession* session = player->GetSession();
 			session->SendNotification(-2800633);//未能招募成功!
@@ -502,7 +502,7 @@ struct mercenary_bot_AI : public PetAI
 	{
 
 		if (Unit* owner = m_creature->GetOwner()){
-			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))// && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)
 			{
 				if (mercenary->isRangedAttack())
 					m_creature->GetMotionMaster()->MoveFollow(owner, 4 * PET_FOLLOW_DIST, M_PI_F*3.0f / 4.0f);

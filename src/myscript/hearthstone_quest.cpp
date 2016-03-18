@@ -187,7 +187,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		case  751:/*area下一页*/
 			return showAreaMenu(pPlayer, pItem, pPlayer->context.AREASELPAGE+ 1);
 		case  2000:
-				hearthstone_prepare_quest_zone(pPlayer, pItem, pPlayer->context.ZONESEL);
+			hearthstone_prepare_quest_zone(pPlayer, pItem, pPlayer->context.ZONESEL);/*推荐zone下所有区域的任务*/
 			return true;
 	}
 	switch (pPlayer->context.gossipActionType)/*使用gossipActionType解决动态id的问题，动态id需要+GOSSIP_ACTION_INFO_DEF区分上面的固定id，固定id都小于GOSSIP_ACTION_INFO_DEF*/
@@ -483,5 +483,12 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			zone=pPlayer->GetZoneId();
 		
 		QuestList& recommendResult = pPlayer->context.recommendQuestZone(zone, 15);
+		if (recommendResult.size() == 0)
+		{
+			std::string* zonename = pPlayer->context.getGameAreaName(zone);
+			std::string msg = pPlayer->GetMangosString(-2800592) + ((zonename == nullptr) ? "" : *zonename);
+			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域已经没有可以推荐的任务。
+			return;
+		}
 		hearthstone_prepare_quest_list(pPlayer, pItem, recommendResult);
 	}
