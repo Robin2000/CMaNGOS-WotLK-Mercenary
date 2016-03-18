@@ -431,19 +431,7 @@ bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
 			//pet->UpdateAllStats();//全面更新，无效
     }
 
-	switch (editSlot)
-	{
-		case SLOT_MAIN_HAND:
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itemid);
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid);/*副手有可能被移除*/
-			break;
-		case SLOT_OFF_HAND:
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid);/*副手有可能被移除*/
-			break;
-		case SLOT_RANGED:
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itemid);
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, gearContainer[EQUIPMENT_SLOT_OFFHAND].itemid);/*副手有可能被移除*/
-	}
+
 	if (!silenceUpdate){
 		SendMirrorImagePacket(pet);
 	}
@@ -716,17 +704,6 @@ void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSl
 	//gearContainer[editSlot].itemid = 0; 在RemoveItem方法中取得item后删除
 	//gearContainer[editSlot].itemguid = 0;
 
-	switch (editSlot)
-	{
-		case SLOT_MAIN_HAND:
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-			break;
-		case SLOT_OFF_HAND:
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-			break;
-		case SLOT_RANGED:
-			pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
-	}
 
 
 

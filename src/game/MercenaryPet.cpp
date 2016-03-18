@@ -2890,6 +2890,18 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 	Item* MercenaryPet::EquipItem(uint16 slot, Item* pItem, bool update)
 	{
+		switch (slot)
+		{
+			case SLOT_MAIN_HAND:
+				SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, pItem->GetEntry());
+				break;
+			case SLOT_OFF_HAND:
+				SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, pItem->GetEntry());/*副手有可能被移除*/
+				break;
+			case SLOT_RANGED:
+				SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, pItem->GetEntry());
+		}
+
 		m_items[slot] = pItem;
 
 		AddEnchantmentDurations(pItem);
@@ -2978,6 +2990,18 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 	void MercenaryPet::RemoveItem(uint8 slot, bool update)
 	{
+		switch (slot)
+		{
+			case SLOT_MAIN_HAND:
+				SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+				break;
+			case SLOT_OFF_HAND:
+				SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+				break;
+			case SLOT_RANGED:
+				SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
+		}
+
 		m_items[slot] = nullptr;
 
 		Mercenary *mercenary = getMercenary();
