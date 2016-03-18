@@ -361,8 +361,9 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 		InitStats(player, pet);
     }
 
-	pet->SetStandState(UNIT_STAND_STATE_STAND);
+	((MercenaryPet*)pet)->_ApplyAllStatBonuses();
 
+	pet->SetStandState(UNIT_STAND_STATE_STAND);
 	SendMirrorImagePacket(pet);
 	pet->HandleEmoteCommandHappy();
 }
@@ -513,13 +514,18 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 	/*初始化开始mitems*/
 	MercenaryPet * mercenaryPet = (MercenaryPet*)pet;
 	/*装备更新*/
+	
+	for (int i = 0; i < PLAYER_SLOTS_COUNT;i++)
+		mercenaryPet->m_items[i]=nullptr;
+
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); itr++){
 		Item* item = GetItemByGuid(player, itr->second.itemguid);
 		mercenaryPet->m_items[itr->first] = (item != nullptr) ? item : nullptr;
 	}
-	((MercenaryPet*)pet)->SetLevel(1);
-	((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
+	
+	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
 	((MercenaryPet*)pet)->GiveLevel(mercenaryLevel);
+	
 
     //pet->SetCreateHealth(uint32(((float(creatureInfo->MaxLevelHealth) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
     //pet->SetCreateMana(uint32(((float(creatureInfo->MaxLevelMana) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
@@ -547,9 +553,9 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	if (isRangedAttack()){
-		SetSheath(pet,SHEATH_STATE_RANGED);
-	}
+	//if (isRangedAttack()){
+	//	SetSheath(pet,SHEATH_STATE_RANGED);
+	//}
 
 	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
 	//((MercenaryPet*)pet)->UpdateAllStats();

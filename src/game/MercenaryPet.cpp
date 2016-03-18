@@ -180,6 +180,9 @@ bool MercenaryPet::UpdateAllStats()
 
 
 	/*装备更新*/
+	for (int i = 0; i < PLAYER_SLOTS_COUNT; i++)
+		m_items[i] = nullptr;
+
 	for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); itr++){
 		Item* item = mercenary->GetItemByGuid(getPlayer(), itr->second.itemguid);
 		m_items[itr->first] = (item != nullptr) ? item : nullptr;
@@ -2533,6 +2536,9 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 
 		/*装备更新*/
+		for (int i = 0; i < PLAYER_SLOTS_COUNT; i++)
+			m_items[i] = nullptr;
+
 		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); itr++){
 			Item* item = mercenary->GetItemByGuid(getPlayer(), itr->second.itemguid);
 			m_items[itr->first] = (item != nullptr) ? item : nullptr;
