@@ -913,7 +913,7 @@ bool Mercenary::InvToSlot(uint8 invType, uint8 characterSlot)
 		case SLOT_OFF_HAND:
 			return invType == INVTYPE_WEAPON || invType == INVTYPE_WEAPONOFFHAND || invType == INVTYPE_SHIELD || invType == INVTYPE_HOLDABLE;//副手武器或者盾牌
 		case SLOT_RANGED:
-			return invType == INVTYPE_RANGED || invType == INVTYPE_THROWN;//远程或投掷
+			return invType == INVTYPE_RANGED || invType == INVTYPE_THROWN || invType == INVTYPE_RANGEDRIGHT;//远程或投掷
 		case SLOT_TABARD:
 			return invType==INVTYPE_TABARD;//战袍徽章
 		//case SLOT_EMPTY:
