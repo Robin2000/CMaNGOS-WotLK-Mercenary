@@ -686,7 +686,7 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HANDS].itemid));
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_BACK].itemid));  // Cloak
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_TABARD].itemid));  // Tabard
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_EMPTY].itemid));  // SLOT_EMPTY END
+			data << uint32(0);  // SLOT_EMPTY END
 			SendPacket(&data);
 			return;
 			}

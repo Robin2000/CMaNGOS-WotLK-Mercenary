@@ -553,9 +553,10 @@ bool Mercenary::InitStats(Player* player, Pet* pet)
 
     //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	//if (isRangedAttack()){
-	//	SetSheath(pet,SHEATH_STATE_RANGED);
-	//}
+	if (isRangedAttack())
+		SetSheath(pet,SHEATH_STATE_RANGED);
+	else
+		SetSheath(pet, SHEATH_STATE_MELEE);
 
 	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
 	//((MercenaryPet*)pet)->UpdateAllStats();
@@ -756,7 +757,7 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
 		data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
-	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_EMPTY].itemid)); // SLOT_EMPTY?
+	data << uint32(0); // SLOT_EMPTY?
 
     creature->SendMessageToSet(&data, false);
 }
@@ -915,8 +916,8 @@ bool Mercenary::InvToSlot(uint8 invType, uint8 characterSlot)
 			return invType == INVTYPE_RANGED || invType == INVTYPE_THROWN;//远程或投掷
 		case SLOT_TABARD:
 			return invType==INVTYPE_TABARD;//战袍徽章
-		case SLOT_EMPTY:
-			return invType == INVTYPE_AMMO || invType == INVTYPE_RANGEDRIGHT; //弹药或者远程武器右侧的
+		//case SLOT_EMPTY:
+			//return invType == INVTYPE_AMMO || invType == INVTYPE_RANGEDRIGHT; //弹药或者远程武器右侧的
 	}
 
 	return false;

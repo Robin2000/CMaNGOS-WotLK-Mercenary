@@ -207,7 +207,10 @@ public:
     */
     bool CheckProficiencies(uint8 type, uint32 itemClass, uint32 itemSubClass)
     {
-        bool check = false;
+		if (itemClass == ITEM_CLASS_ARMOR&&itemSubClass == 0)//护甲的情况，itemSubClass为0表示不限
+			return true;
+
+
         for (auto& itr : MercenaryProficiencyContainer)
         {
             if (itr.type != type)
@@ -215,29 +218,24 @@ public:
 
             if (itemClass == ITEM_CLASS_ARMOR)
             {
-				if (itr.armorSubClass == 0 && !(itr.armorSubClass == 0 && itr.weaponSubClass == 0))//仅weaponSubClass不为0，不是针对护甲的
+				if (itr.armorSubClass == 0 &&itr.weaponSubClass > 0)//仅weaponSubClass不为0，不是针对护甲的
                     continue;
 
-                if (itr.armorSubClass == itemSubClass)//严格等于
-                {
-                    check = true;
-                    break;
-                }
+                if (itr.armorSubClass == itemSubClass)//严格等于，例如猎人 1，2，3，5，可以拿小圆盾5，但没有4板甲
+					return true;
+
             }
             else if (itemClass == ITEM_CLASS_WEAPON)
             {
-                if (itr.weaponSubClass == 0 && !(itr.weaponSubClass == 0 && itr.armorSubClass == 0))//仅armorSubClass不为0，不是针对武器的
+                if (itr.weaponSubClass == 0 &&  itr.armorSubClass >= 0)//仅armorSubClass不为0，不是针对武器的。同时为0的情况，也不适合。
                     continue;
 
 				if (itr.weaponSubClass == itemSubClass)//武器必须精确等于，用杖的只能用杖
-                {
-                    check = true;
-                    break;
-                }
+					return true;
             }
         }
 
-        return check;
+        return false;
     }
 
     Random random;

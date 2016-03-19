@@ -84,7 +84,7 @@ public:
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_OFF_HAND) + MercenaryUtil::GetMercenarySlotName(player, SLOT_OFF_HAND), 0, 7);
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_RANGED) + MercenaryUtil::GetMercenarySlotName(player, SLOT_RANGED), 0, 6);
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_TABARD) + MercenaryUtil::GetMercenarySlotName(player, SLOT_TABARD), 0, 24);
-		
+		//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, getSlotIcon(mercenary, SLOT_EMPTY) + MercenaryUtil::GetMercenarySlotName(player, SLOT_EMPTY), 0, 25);//µ¯Ò©£¿
 
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, GOSSIP_ACTION_SPELL_DEF+36);//È¡Ïû
 		//#ifndef MANGOS
@@ -344,11 +344,12 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	case 23:
 		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_BACK);
 		break;
-
 	case 24:
 		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_TABARD);
 		break;
-
+	case 25:
+		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_EMPTY);
+		break;
 		//
 	case GOSSIP_ACTION_SPELL_DEF+36:
 		mercenary_bot::SendToHello(player, creature, mercenary);
