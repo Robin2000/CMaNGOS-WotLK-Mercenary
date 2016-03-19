@@ -8736,6 +8736,7 @@ void Unit::SetDeathState(DeathState s)
     {
         CombatStop();
         DeleteThreatList();
+		getHostileRefManager().deleteReferences();//²Î¿¼trinityÔö¼Ó
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
         if (IsNonMeleeSpellCasted(false))
