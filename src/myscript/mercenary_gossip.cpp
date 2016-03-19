@@ -437,12 +437,14 @@ struct mercenary_bot_AI : public PetAI
 					m_creature->SetSheath(SHEATH_STATE_RANGED);
 					m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
 					//m_creature->addUnitState(UNIT_STAT_FLEEING);
+					SetCombatMovement(false);
 
 				}
 				else
 				{
 					m_creature->SetSheath(SHEATH_STATE_MELEE);
 					m_creature->addUnitState(UNIT_STAT_MELEE_ATTACKING);
+					SetCombatMovement(true);
 				}
 
 			}
@@ -450,6 +452,8 @@ struct mercenary_bot_AI : public PetAI
 		}
 	}
 	void caseSpell(Unit* target, uint32 spell,const uint32 uiDiff){
+		if (spell == 0)
+			return;
 			// Cast spell one on our current target.
 		if (DoCastSpellIfCan(target, spell) == CAST_OK)
 				spellTimer = 5000;
