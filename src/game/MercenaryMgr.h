@@ -12,11 +12,17 @@
 #include <unordered_map>
 #include "SharedDefines.h"
 
+//key为groupid，value为每个技能组中技能的等级信息
+typedef tbb::concurrent_unordered_map<uint32,MercenarySpellGroup*> GroupSpellsMap;
 
-typedef tbb::concurrent_unordered_map<std::string,MercenarySpellGroup*> GroupSpellsMap;
-typedef tbb::concurrent_unordered_map<uint32, GroupSpellsMap*> MercenarySpellsMap;/*key为雇佣兵职业class,value对应技能组*/
-typedef tbb::concurrent_unordered_map<uint32, MercenarySpell*> MercenarySpellsInfo;/*key为技能*/
-typedef tbb::concurrent_unordered_map<uint32, std::vector<MercenaryRoleDef*>*> MercenaryRoleDefMap;/*key为雇佣兵职业class，value对应角色列表*/
+//key为雇佣兵职业class*1000+rolt,value对应技能组
+typedef tbb::concurrent_unordered_map<uint32, GroupSpellsMap*> MercenarySpellsMap;
+
+//key为技能,value对应技能信息
+typedef tbb::concurrent_unordered_map<uint32, MercenarySpell*> MercenarySpellsInfo;
+
+//key为雇佣兵职业class，value对应角色列表
+typedef tbb::concurrent_unordered_map<uint32, std::vector<MercenaryRoleDef*>*> MercenaryRoleDefMap;
 
 
 typedef std::vector<MercenaryTalking> MercenaryTalk;
@@ -136,8 +142,8 @@ public:
 
         return nullptr;
     }
-	GroupSpellsMap* findGroupSpellsMapByClass(uint32 classType){
-		auto itr = mercenarySpellsMap.find(classType);
+	GroupSpellsMap* findGroupSpellsMapByClass(uint8 classType,uint8 role){
+		auto itr = mercenarySpellsMap.find(uint32(classType) * 1000 + role);
 		if (itr == mercenarySpellsMap.end())
 			return nullptr;
 		return itr->second;
@@ -155,6 +161,7 @@ public:
 			return nullptr;
 		return itr->second;
 	} 
+	std::string & getSpellName(uint32 spellid);
     /*
     *  Returns a vector of the correct talk sayings for that Mercenary type and role
     */
@@ -259,7 +266,7 @@ class MANGOS_DLL_SPEC MercenaryUtil{
 public:
 	static Random GetMercenaryRandom();
 	static Mercenary* GetMercenaryByOwner(uint32 ownerGUID);
-	static GroupSpellsMap* MercenaryUtil::findGroupSpellsMapByClass(uint32 classType);
+	static GroupSpellsMap* MercenaryUtil::findGroupSpellsMapByClass(uint8 classType,uint8 role);
 	static std::vector<MercenaryRoleDef*>* MercenaryUtil::findRoleVectorByClass(uint32 classType);
 	static MercenarySpell* MercenaryUtil::findMercenarySpellsInfoBySpell(uint32 spellid);
 	static std::vector<MercenaryTalking> MercenaryGetTalk(uint8 type, uint8 role);
@@ -269,6 +276,7 @@ public:
 	static std::string GetMercenaryItemLink(uint32 entry, WorldSession* session);
 	static const ItemPrototype* GetItemPrototype(uint32 entry);
 	static std::string GetMercenarySpellIcon(uint32 entry, Player* player);
+	static std::string & getSpellName(uint32 spellid);
 	static MercenaryWorld* GetMercenaryWorldData(uint32 entry);
 };
 

@@ -741,9 +741,8 @@ class ObjectMgr
 			return mGameAreas[area];
 		}
 		void LoadSpellNameMaps();
-		inline std::string & getSpellName(uint32 idx){
-			return mSpellNameMaps[idx];
-		}
+		std::string & getSpellNameByGroupid(uint32 groupidid);
+
 		void LoadGameTips();
 		
 		inline std::string & getGameTips(uint32 idx){ return mGameTipsVector[idx]; }

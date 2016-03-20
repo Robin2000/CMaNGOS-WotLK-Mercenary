@@ -115,14 +115,14 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//取得整个任务POI向量
 	QuestPOIVector const* getQuestPOI(){ return questPOIVec; }
 	
-	//取得技能本地化名
-	std::string & getSpellName(uint32 idx);
-	
 	//寻找任务开始NPC或GO
 	int32 findQuestStarterCreatureOrGO(uint32 questid);
 	
 	//寻找任务结束NPC或GO
 	void findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result);
+
+	//取得技能本地化名
+	std::string& getSpellName(uint32 spellid);
 
 	Player* mPlayer;
 

@@ -11,7 +11,7 @@
 #include "ScriptMgr.h"
 #include "mercenary_bot.h"
 #include "mercenary_gossip.h"
-
+#include "mercenaryAI.hpp"
 class ObjectAccessor;
 //#include "ScriptedGossip.h"
 
@@ -411,222 +411,16 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct mercenary_bot_AI : public PetAI
-{
-	mercenary_bot_AI(Creature* creature) : PetAI(creature) { Reset(); }
-
-	uint32 talkTimer = 0;
-	uint32 spellTimer=0;
-	int currentSpell = 0;
-
-	void Reset() //注意，这里有个overide，发现父类没有该方法，Reset何时调用，必须考虑
-	{
-		talkTimer = urand(35000, 120000);
-		lastMessage = "";
-
-		if (Unit* owner = m_creature->GetOwner())
-		{
-			mercenary = MercenaryUtil::GetMercenaryByOwner(owner->GetGUIDLow());
-			if (mercenary)
-			{
-
-				if (mercenary->isRangedAttack())
-				{
-					m_creature->SetSheath(SHEATH_STATE_RANGED);
-					m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
-					//m_creature->addUnitState(UNIT_STAT_FLEEING);
-					SetCombatMovement(false);
-
-				}
-				else
-				{
-					m_creature->SetSheath(SHEATH_STATE_MELEE);
-					m_creature->addUnitState(UNIT_STAT_MELEE_ATTACKING);
-					SetCombatMovement(true);
-				}
-
-			}
-
-		}
-	}
-	void caseSpell(Unit* target, uint32 spell,const uint32 uiDiff){
-		if (spell == 0)
-			return;
-			// Cast spell one on our current target.
-		if (DoCastSpellIfCan(target, spell) == CAST_OK)
-				spellTimer = 5000;
-	}
-	bool DoRangeAttackIfReady(const uint32 diff){
-
-		uint8 spellCount = m_creature->GetPetAutoSpellSize();
-		
-		if (spellCount <= 0)
-			return false;
-
-		Unit* target = m_creature->getVictim();
-		//if (!target)
-			//target = m_creature->SelectRandomUnfriendlyTarget();
-		if (!target)
-			return false;
-
-		Player* master = m_creature->GetOwner()->ToPlayer();
-		if (!master)
-			return false;
-
-		
-		mercenary = MercenaryUtil::GetMercenaryByOwner(master->GetGUIDLow());
-		//#endif
-		if (!mercenary)
-			return false;
-		
-		if (spellTimer < diff)
-		{
-			if (rand() % 50 > 10)//有10%可能随机施法
-			{
-				uint8 randSpell = rand() % (spellCount+1);
-				caseSpell(target, m_creature->GetPetAutoSpellOnPos(randSpell), diff);
-			}
-			else 
-			{
-				if (currentSpell >= spellCount)
-					currentSpell = 0;
-				caseSpell(target, m_creature->GetPetAutoSpellOnPos(currentSpell), diff);
-				currentSpell++;
-			}
-			
-		}else 
-			spellTimer -= diff;
-
-		return true;
-	};
-
-	void UpdateAI(const uint32 diff) override
-	{
-
-		if (Unit* owner = m_creature->GetOwner()){
-			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))// && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)
-			{
-				if (mercenary->isRangedAttack())
-					m_creature->GetMotionMaster()->MoveFollow(owner, 4 * PET_FOLLOW_DIST, M_PI_F*3.0f / 4.0f);
-				else
-					m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
-			}
-		}
-		if (mercenary)
-		{
-			if (talkTimer <= 0)
-			{
-				std::vector<MercenaryTalking> tempVector = MercenaryUtil::MercenaryGetTalk(mercenary->GetType(), mercenary->GetRole());
-				if (tempVector.size() > 0)
-				{
-					int rnd = MercenaryUtil::GetMercenaryRandom().Next(0, tempVector.size() - 1);
-					int rnd2 = MercenaryUtil::GetMercenaryRandom().Next(0, 100);
-					mercenaryTalk = tempVector[rnd];
-					if (rnd2 <= 50 && mercenaryTalk.healthPercentageToTalk == 100 && lastMessage != mercenaryTalk.text)
-					{
-						//#ifndef MANGOS
-						//                            me->Say(mercenaryTalk.text.c_str(), LANG_UNIVERSAL);
-						//#else
-						m_creature->MonsterSay(mercenaryTalk.text.c_str(), LANG_UNIVERSAL);
-						//#endif
-						lastMessage = mercenaryTalk.text;
-					}
-				}
-				talkTimer = urand(35000, 120000);
-			}
-			else
-				talkTimer -= diff;
-		}
-
-		if (mercenary->isRangedAttack())
-		{
-			//m_creature->SetSheath(SHEATH_STATE_RANGED);
-			m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
-			//m_creature->addUnitState(UNIT_STAT_FLEEING);
-			DoRangeAttackIfReady(diff);
-		}else
-			DoMeleeAttackIfReady();
-	}
-private:
-	Mercenary* mercenary;
-	MercenaryTalking mercenaryTalk;
-	std::string lastMessage;
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct mercenary_world_gossip : public CreatureAI
-{
-public:
-	mercenary_world_gossip(Creature* pCreature) : CreatureAI(pCreature) {  }
-
-	void static CreateMercenary(Player* player, Creature* creature, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type)
-	{
-		if (!mercenary->Create(player, model, race, gender, type, role, creature->GetName()))
-		{
-			player->GetSession()->SendNotification(-2800643);//不能招募这个雇佣兵!
-			player->CLOSE_GOSSIP_MENU();
-			return;
-		}
-	}
-
-};
-
-bool OnGossipHello_mercenary_world_gossip(Player* player, Creature* creature)
-{
-	player->PlayerTalkClass->ClearMenus();
-	if (player->isInCombat())
-	{
-		player->GetSession()->SendNotification(23);
-		return false;
-	}
-
-	if (Pet* pet = player->GetPet())
-	{
-		if (pet->GetEntry() != MERCENARY_DEFAULT_ENTRY)
-		{
-			player->GetSession()->SendNotification(player->GetMangosString(-2800634));//"You must dismiss your pet for a Mercenary."
-			return false;
-		}
-	}
-
-	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 2);
-	//#ifndef MANGOS
-	//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-	//#else
-	player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-	//#endif
-	return true;
-}
-
 
 CreatureAI* GetAI_mercenary_bot(Creature* creature)
 {
 	return new mercenary_bot_AI(creature);
 }
-CreatureAI* GetAI_mercenary_world_gossip(Creature* pCreature)
-{
-	return new mercenary_world_gossip(pCreature);
-}
 
 void MercenarySetup()
 {
-/*#ifndef MANGOS
-    new mercenary_npc_gossip;
-    new mercenary_bot;
-    new mercenary_world_load;
-    new mercenary_player;
-    new mercenary_world_gossip;
-#else*/
+
     Script* s;
-	//s = new Script;
-	//s->Name = "mercenary_npc_gossip";
-	//s->GetAI = &GetAI_mercenary_npc_gossip;
-	//s->pGossipHello = &GossipHello_mercenary_npc_gossip;
-	//s->pGossipSelect = &GossipSelect_mercenary_npc_gossip;
-	//s->pGossipSelectWithCode = &OnGossipSelectWithCode_mercenary_bot;
-    //s->RegisterSelf();
 
 	s = new Script;
 	s->Name = "mercenary_bot";
@@ -636,14 +430,4 @@ void MercenarySetup()
 	s->pGossipSelectWithCode = &OnGossipSelectWithCode_mercenary_bot;
     s->RegisterSelf();
 
-
-
-
-   /* s = new Script;
-	s->Name = "mercenary_world_gossip";
-	s->GetAI = &GetAI_mercenary_world_gossip;
-	s->pGossipHello = &OnGossipHello_mercenary_world_gossip;
-	s->pGossipSelect = &OnGossipSelect_mercenary_world_gossip;
-    s->RegisterSelf();*/
-//#endif
 }

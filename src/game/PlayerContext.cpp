@@ -451,8 +451,8 @@ GameObjectData* PlayerContext::findGameObjectDataByEntry(uint32 entry){ return s
 CreatureData* PlayerContext::findQuestStarterCreature(uint32 quest_id){ return sObjectMgr.findQuestStarterCreature(quest_id); }
 GameObjectData* PlayerContext::findQuestStarterGameObject(uint32 quest_id){ return sObjectMgr.findQuestStarterGameObject(quest_id); }
 
-std::string & PlayerContext::getSpellName(uint32 idx){
-	return sObjectMgr.getSpellName(idx);
+std::string & PlayerContext::getSpellName(uint32 spellid){
+	return MercenaryUtil::getSpellName(spellid);
 }
 
 inline int32 PlayerContext::findQuestStarterCreatureOrGO(uint32 questid){

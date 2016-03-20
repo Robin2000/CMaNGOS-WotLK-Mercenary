@@ -1,8 +1,4 @@
-/*
-    ?013-2016 EmuDevs <http://www.emudevs.com/>
-    MaNGOS <http://getmangos.eu>
-    TrinityCore <http://www.trinitycore.org>
-*/
+
 #include "Mercenary.h"
 #include "MercenaryMgr.h"
 #include "ObjectMgr.h"
@@ -284,14 +280,6 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 
 		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
 
-
-		//由于武器不能自动显示出来，这里先将其设置为空，后面再重新装载
-		pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-		pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-		pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
-
-		SendMirrorImagePacket(pet);
-
 		clearnNoMatchEquipItem(player);/*初始化时清理掉不存在的装备*/
 
 		//开始重新装备
@@ -301,21 +289,7 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 				EquipItemIfCan(player, item, true);
 		*/
 
-		//开始重新装备
-		for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
-		{
-			switch (itr->first)
-			{
-				case SLOT_MAIN_HAND:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, itr->second.itemid);
-					break;
-				case SLOT_OFF_HAND:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, itr->second.itemid);
-					break;
-				case SLOT_RANGED:
-					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, itr->second.itemid);
-			}
- 		}
+
 		InitStats(player, pet);
     }
     else

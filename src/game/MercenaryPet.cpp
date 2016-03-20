@@ -2703,7 +2703,8 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		uint16 maxconfskill = sWorld.GetConfigMaxSkillValue();
 		uint32 maxSkill = GetMaxSkillValueForLevel();
 
-		bool alwaysMaxSkill = sWorld.getConfig(CONFIG_BOOL_ALWAYS_MAX_SKILL_FOR_LEVEL);
+		//bool alwaysMaxSkill = sWorld.getConfig(CONFIG_BOOL_ALWAYS_MAX_SKILL_FOR_LEVEL);
+		bool alwaysMaxSkill = true; /*雇佣兵总是最大技能*/
 
 		for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
 		{

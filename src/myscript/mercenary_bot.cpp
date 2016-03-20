@@ -178,38 +178,50 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 	return true;
 }
 
-void addSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
+//order by type,role,spelllevel desc
+void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
 	MercenaryPet * pet = (MercenaryPet*)creature;
 	/*以下为数据库配置技能*/
-	GroupSpellsMap* groupSpells = MercenaryUtil::findGroupSpellsMapByClass(mercenary->GetType());
+	GroupSpellsMap* groupSpells = MercenaryUtil::findGroupSpellsMapByClass(mercenary->GetType(), mercenary->GetRole());
 	if (groupSpells == nullptr)
 		return;
 
-	for (auto it = groupSpells->begin(); it != groupSpells->end(); ++it)
+	for (auto it = groupSpells->begin(); it != groupSpells->end(); ++it)//等级由高到低匹配
 	{
-		for (auto itr = it->second->spellLevelVector.begin(), itr2 = it->second->spellIdVector.begin(); itr != it->second->spellLevelVector.end(); ++itr, ++itr2)
+		//uint32 groupid=it->first;
+		//MercenarySpellGroup * mercenarySpellGroup = it->second;
+		for (int i = 0;i<it->second->spellLevelVector.size(); i++)
+		if (it->second->spellLevelVector.at(i) <= player->getLevel())
 		{
-			if (*itr <= player->getLevel())
-			{
-				if (actions == 39)
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr2, player) + it->first, 0, GOSSIP_ACTION_SPELL_DEF + *itr2);
-				else if (pet->HasSpell(*itr2))
-				{
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(*itr2, player) + it->first, 0, GOSSIP_ACTION_SPELL_DEF + *itr2);//遗忘
-					creature->removingSpell = true;
-				}
-				break;
-			}
+			uint32 spellid = it->second->spellIdVector.at(i);
+			std::ostringstream ss;
+			ss << MercenaryUtil::GetMercenarySpellIcon(spellid, player) << player->context.getSpellName(it->first) << "(Lvl:" << MercenaryUtil::findMercenarySpellsInfoBySpell(spellid)->spellLevel << ")";
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF + spellid);//学习
+			break;
 		}
 	}
 
 	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF+36);//"Back to Main Menu"
-	//#ifndef MANGOS
-	//                player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-	//#else
 	player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-	//#endif
+
 }
+void addUnLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
+	MercenaryPet * pet = (MercenaryPet*)creature;
+
+	uint8 spellCount= pet->GetPetAutoSpellSize();
+	for (int i = 0; i < spellCount; i++)
+	{
+		uint32 spellid = pet->GetPetAutoSpellOnPos(i);
+		std::string & spellName = player->context.getSpellName(spellid);
+		if (!spellName.empty())
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(spellid, player) + spellName, 0, GOSSIP_ACTION_SPELL_DEF + spellid);//遗忘
+
+	}
+
+	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF + 36);//"Back to Main Menu"
+	player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
+}
+
 bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*sender*/, uint32 actions)
 {
 	player->PlayerTalkClass->ClearMenus();
@@ -355,12 +367,17 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		mercenary_bot::SendToHello(player, creature, mercenary);
 		break;
 	case 39:
-	case 40:
-		Pet* pet = player->GetPet();
-		if (mercenary&&pet)
+		if (mercenary&&player->GetPet())
 		{
-			mercenary->cleanNoMatchSpell(pet);
-			addSpellMenu(player, mercenary, creature, actions);/*学习39或者遗忘40菜单*/
+			mercenary->cleanNoMatchSpell(player->GetPet());
+			addLearnSpellMenu(player, mercenary, creature, actions);/*39:学习菜单*/
+		}
+		break;
+	case 40:
+		if (mercenary&&player->GetPet())
+		{
+			mercenary->cleanNoMatchSpell(player->GetPet());
+			addUnLearnSpellMenu(player, mercenary, creature, actions);/*40:遗忘菜单*/
 		}
 		break;
 	}

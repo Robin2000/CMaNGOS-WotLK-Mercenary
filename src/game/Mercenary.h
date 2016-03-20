@@ -35,8 +35,9 @@ struct MercenarySpell
     uint8 type;
     uint8 role;
     uint32 spellId;
+	uint32 groupid; //每个技能可取得其guoupid，再取得本组其它技能
 	//std::string comment;
-	//uint32 spelllevel;
+	uint32 spellLevel;
 	bool isDefaultAura;
     bool isActive;
 };
@@ -77,27 +78,6 @@ struct RandomMercenaryTypeRole
     uint8 role;
 };
 
-/*将雇佣兵的职业修改为一致
-update z_mercenary_proficiencies set type=5 where type=3;
-update z_mercenary_proficiencies set type=6 where type=4;
-update z_mercenary_proficiencies set type=9 where type=5;
-update z_mercenary_proficiencies set type=8 where type=6;
-update z_mercenary_proficiencies set type=11 where type=7;
-update z_mercenary_proficiencies set type=3 where type=8;
-update z_mercenary_proficiencies set type=4 where type=9;
-update z_mercenary_proficiencies set type=7 where type=10;
-
-update z_mercenary_spells set type=5 where type=3;
-update z_mercenary_spells set type=6 where type=4;
-update z_mercenary_spells set type=9 where type=5;
-update z_mercenary_spells set type=8 where type=6;
-update z_mercenary_spells set type=11 where type=7;
-update z_mercenary_spells set type=3 where type=8;
-update z_mercenary_spells set type=4 where type=9;
-update z_mercenary_spells set type=7 where type=10;
-
-
-*/
 enum MercenaryType
 {
     MERCENARY_TYPE_NONE=0,

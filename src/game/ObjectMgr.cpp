@@ -418,7 +418,7 @@ void ObjectMgr::LoadSpellNameMaps(){
 
 	mSpellNameMaps.clear();                             // need for reload case
 
-	QueryResult* result = WorldDatabase.Query("SELECT id,name FROM z_locales_spell");
+	QueryResult* result = WorldDatabase.Query("SELECT groupid,name FROM z_locales_spell");
 
 	if (!result)
 	{
@@ -434,13 +434,16 @@ void ObjectMgr::LoadSpellNameMaps(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		mSpellNameMaps[fields[0].GetUInt32()] = fields[1].GetCppString();
+		mSpellNameMaps.insert(std::make_pair(fields[0].GetUInt32(),fields[1].GetCppString()));
 	} while (result->NextRow());
 
 	delete result;
 
 	sLog.outString(">> Loaded " SIZEFMTD " z_locales_spell strings", mSpellNameMaps.size());
 	sLog.outString();
+}
+std::string & ObjectMgr::getSpellNameByGroupid(uint32 groupid){
+	return mSpellNameMaps[groupid];
 }
 void ObjectMgr::LoadGameTips(){
 
