@@ -1086,6 +1086,13 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Weather Data...");
     sWeatherMgr.LoadWeatherZoneChances();
 
+	sLog.outString("Loading Localization strings...");/*加载LoadQuestNpcGO前必须先加载GameAreas*/
+	sObjectMgr.LoadGameTips();
+	sObjectMgr.LoadGameMaps();
+	sObjectMgr.LoadGameZones();
+	sObjectMgr.LoadGameAreas();
+	sObjectMgr.LoadSpellNameMaps();
+
 	sLog.outString("Loading QuestNpcGO...");/*在任务加载前先准备可推荐任务*/
 	sObjectMgr.LoadQuestNpcGO();
 
@@ -1239,13 +1246,6 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading GameTeleports...");
     sObjectMgr.LoadGameTele();
 
-	sLog.outString("Loading Localization strings...");
-	sObjectMgr.LoadGameTips();
-	sObjectMgr.LoadGameMaps();
-	sObjectMgr.LoadGameZones();
-	sObjectMgr.LoadGameAreas();
-	sObjectMgr.LoadAreaQuestStart();
-	sObjectMgr.LoadSpellNameMaps();
 	//clock_t time1 = clock();
 	if (!sObjectMgr.load_cache()){//-加载加密数据失败
 		///- Loading localization data		

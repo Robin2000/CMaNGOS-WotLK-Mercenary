@@ -124,9 +124,12 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//取得技能本地化名
 	std::string& getSpellName(uint32 spellid);
 
+	//取得执业对应的种族列表
+	tbb::concurrent_unordered_set<uint32> & GetRaceSetByClass(uint32 charClass);
+
 	Player* mPlayer;
 
 private :
-	bool recommendQuestByQuestList(tbb::concurrent_vector<uint32>* questlist, uint32 num);
+	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<uint32>* questlist, uint32 num);
 };
 #endif

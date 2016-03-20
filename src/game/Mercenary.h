@@ -120,7 +120,20 @@ enum RaceModels
     DRAENEI_MALE_MODEL = 16125,
     DRAENEI_FEMALE_MODEL = 16126
 };
-
+enum RaceKey
+{
+	HUMAN = 1,
+	ORC = 2,
+	DWARF = 3,
+	NIGHTELF = 4,
+	SCOURGE = 5,
+	TAUREN = 6,
+	GNOME = 7,
+	TROLL = 8,
+	GGBLIN =9,
+	BLOODELF = 10,
+	DRAENEI = 11
+};
 #define MERCENARY_DEFAULT_ENTRY 70000
 
 class MANGOS_DLL_SPEC Mercenary

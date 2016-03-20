@@ -45,8 +45,12 @@ public:
 */
 enum menu_ction_base{
 	GOSSIP_ACTION_SPELL_DEF = 1000,
-	GOSSIP_SEL_ROLE_DEF = 900
+	GOSSIP_ACTION_RACE_DEF = 1001,
+	GOSSIP_SEL_ROLE_DEF = 900,
+	MAX_RACE_SEL=100
 };
+
+
 
 	void SendHireList(Player* player, Item* item)
 	{
@@ -107,25 +111,17 @@ enum menu_ction_base{
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800606, 0, 98); // Send to SendHireList后退
         }
         else
-        {
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800607, 0, 16);//血精灵（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800608, 0, 17);//血精灵（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800609, 0, 18); //德莱尼（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800610, 0, 19);//德莱尼（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800611, 0, 20);//小矮人（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800612, 0, 21);//小矮人（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800613, 0, 22);//侏儒（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800614, 0, 23);//侏儒（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800615, 0, 24);//人类（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800616, 0, 25);//人类（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800617, 0, 26);//暗夜精灵（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800618, 0, 27);//暗夜精灵（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800619, 0, 28);//兽人（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800620, 0, 29);//兽人（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800621, 0, 30); //牛头人（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800622, 0, 31);//牛头人（女）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800623, 0, 32);//巨魔（男）
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800624, 0, 33);//巨魔（女）
+		{
+			player->context.gossipActionType = GOSSIP_ACTION_RACE_DEF;
+			Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
+			tbb::concurrent_unordered_set<uint32> & raceSet=player->context.GetRaceSetByClass(mercenary->GetType());
+			for (auto it = raceSet.begin(); it != raceSet.end(); it++)
+			{
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800607, 0, *it + MAX_RACE_SEL);//女
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800607, 0, *it );//男
+			}
+
+
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800606, 0, 97); // Send to SendFeatureList后退
         }
 
@@ -192,7 +188,57 @@ bool GossipHello_mercenary_npc_gossip(Player* player, Item* item)
 
 	return true;
 }
-
+uint32 getCharFemailModel(uint32 race){
+	switch (race){
+			case HUMAN:
+				return HUMAN_FEMALE_MODEL;
+			case ORC:
+				return ORC_FEMALE_MODEL;
+			case DWARF:
+				return DWARF_FEMALE_MODEL;
+			case NIGHTELF:
+				return NIGHTELF_FEMALE_MODEL;
+			case SCOURGE:
+				return SCOURGE_FEMALE_MODEL;
+			case TAUREN:
+				return TAUREN_FEMALE_MODEL;
+			case GNOME:
+				return GNOME_FEMALE_MODEL;
+			case TROLL:
+				return TROLL_FEMALE_MODEL;
+			case BLOODELF:
+				return BLOODELF_FEMALE_MODEL;
+			case DRAENEI:
+				return DRAENEI_FEMALE_MODEL;
+			default:
+				return HUMAN_FEMALE_MODEL;
+		}
+	}
+uint32 getCharMaleModel(uint32 race){
+	switch (race){
+		case HUMAN:
+			return HUMAN_MALE_MODEL;
+		case ORC:
+			return ORC_MALE_MODEL;
+		case DWARF:
+			return DWARF_MALE_MODEL;
+		case NIGHTELF:
+			return NIGHTELF_MALE_MODEL;
+		case SCOURGE:
+			return SCOURGE_MALE_MODEL;
+		case TAUREN:
+			return TAUREN_MALE_MODEL;
+		case GNOME:
+			return GNOME_MALE_MODEL;
+		case TROLL:
+			return TROLL_MALE_MODEL;
+		case BLOODELF:
+			return BLOODELF_MALE_MODEL;
+		case DRAENEI:
+			return DRAENEI_MALE_MODEL;
+	};
+	return HUMAN_MALE_MODEL;
+}
 bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actions)
 {
 	//#ifndef MANGOS
@@ -212,6 +258,18 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 			return false;
 		}
 	}
+	if (player->context.gossipActionType = GOSSIP_ACTION_RACE_DEF)//选择种族
+	{
+		if (actions > MAX_RACE_SEL)
+			mercenary->SetValues(getCharFemailModel(actions - MAX_RACE_SEL), actions - MAX_RACE_SEL, GENDER_FEMALE);
+		else
+			mercenary->SetValues(getCharMaleModel(actions), actions, GENDER_MALE);
+
+		SendRoleList(player, item, mercenary->GetType());
+
+		player->context.gossipActionType = -1;
+		return true;
+	}
 	if (actions >= GOSSIP_SEL_ROLE_DEF&&actions <= GOSSIP_SEL_ROLE_DEF+5){//
 		std::vector<MercenaryRoleDef*>* roles = MercenaryUtil::findRoleVectorByClass(mercenary->GetType());
 		uint8 i = 0;
@@ -224,6 +282,7 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 			return true;
 		}
 	}
+
 	switch (actions)
 	{
 		case 106:
@@ -265,79 +324,6 @@ bool GossipSelect_mercenary_npc_gossip2(Player* player, Item* item, uint32 actio
 		case 115:
 			mercenary->SetType(MERCENARY_TYPE_MAGE);
 			SendFeatureList(player, item);
-			break;
-			
-		case 16:
-			mercenary->SetValues(BLOODELF_MALE_MODEL, RACE_BLOODELF, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 17:
-			mercenary->SetValues(BLOODELF_FEMALE_MODEL, RACE_BLOODELF, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 18:
-			mercenary->SetValues(DRAENEI_MALE_MODEL, RACE_DRAENEI, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 19:
-			mercenary->SetValues(DRAENEI_FEMALE_MODEL, RACE_DRAENEI, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 20:
-			mercenary->SetValues(DWARF_MALE_MODEL, RACE_DWARF, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 21:
-			mercenary->SetValues(DWARF_FEMALE_MODEL, RACE_DWARF, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 22:
-			mercenary->SetValues(GNOME_MALE_MODEL, RACE_GNOME, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 23:
-			mercenary->SetValues(GNOME_FEMALE_MODEL, RACE_GNOME, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 24:
-			mercenary->SetValues(HUMAN_MALE_MODEL, RACE_HUMAN, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 25:
-			mercenary->SetValues(HUMAN_FEMALE_MODEL, RACE_HUMAN, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 26:
-			mercenary->SetValues(NIGHTELF_MALE_MODEL, RACE_NIGHTELF, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 27:
-			mercenary->SetValues(NIGHTELF_FEMALE_MODEL, RACE_NIGHTELF, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 28:
-			mercenary->SetValues(ORC_MALE_MODEL, RACE_ORC, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 29:
-			mercenary->SetValues(ORC_FEMALE_MODEL, RACE_ORC, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 30:
-			mercenary->SetValues(TAUREN_MALE_MODEL, RACE_TAUREN, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 31:
-			mercenary->SetValues(TAUREN_FEMALE_MODEL, RACE_TAUREN, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 32:
-			mercenary->SetValues(TROLL_MALE_MODEL, RACE_TROLL, GENDER_MALE);
-			SendRoleList(player, item, mercenary->GetType());
-			break;
-		case 33:
-			mercenary->SetValues(TROLL_FEMALE_MODEL, RACE_TROLL, GENDER_FEMALE);
-			SendRoleList(player, item, mercenary->GetType());
 			break;
 		
 		case 39:

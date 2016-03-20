@@ -73,7 +73,7 @@ struct GameArea{
 	uint32 map;
 	uint32 zone;
 	uint32 areaLevel;
-	tbb::concurrent_vector<uint32>* questlist;
+	tbb::concurrent_unordered_set<uint32>* questlist;
 };
 struct GameZone{
 	uint32 id;

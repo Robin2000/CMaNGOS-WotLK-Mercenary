@@ -539,6 +539,12 @@ class ObjectMgr
 		typedef tbb::concurrent_unordered_map<uint32, QuestNpcGOVector*> QuestNpcGOMaps;
 		typedef tbb::concurrent_unordered_map<uint32, uint32> QuestStarterNpcGOMaps;
 
+		//key为职业petClass，value为<种族,PlayerInfo*>
+		typedef tbb::concurrent_unordered_map<uint32, tbb::concurrent_unordered_set<uint32>> ClassRaceMaps;//职业对应可选种族列表
+		tbb::concurrent_unordered_set<uint32> & GetRaceSetByClass(uint32 charClass){
+			return mClassRaceMaps[charClass];
+		}
+
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo* goinfo);
 
@@ -708,7 +714,6 @@ class ObjectMgr
 		void LoadGameMaps();
 		void LoadGameZones();
 		void LoadGameAreas();
-		void LoadAreaQuestStart();
 
 		std::string * getGameMapsName(uint32 map){
 			auto it=mapIDName.find(map);
@@ -1419,7 +1424,7 @@ class ObjectMgr
 		
 		SpellNameMaps mSpellNameMaps;
 
-		
+		ClassRaceMaps mClassRaceMaps;
 
 		QuestNpcGOMaps mQuestNpcGOMaps;
 		QuestStarterNpcGOMaps mQuestStarterNpcGOMaps;

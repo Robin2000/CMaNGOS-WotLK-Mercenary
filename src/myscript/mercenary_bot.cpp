@@ -36,10 +36,11 @@ public:
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800636, 0, 2);//移除装备
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800637, 0, 3); // 更换技能
 			player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, -2800584, 0, 37, player->GetMangosString(-2800584), 0, true);//雇佣兵改名
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800673, 0, 4); // 解雇我
 		}
 		else
 			player->CLOSE_GOSSIP_MENU();
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 4);//取消
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800602, 0, 5);//取消
 		//#ifndef MANGOS
 		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		//#else
@@ -299,8 +300,14 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		mercenary_bot::SendSpellList(player, creature, mercenary);
 		break;
 	case 4:
+		if (Pet *pet = player->GetPet())
+			pet->Unsummon(PET_SAVE_AS_CURRENT, player);
+		break;
+
+	case 5:
 		player->CLOSE_GOSSIP_MENU();
 		break;
+
 	case 6: // Equip Ranged
 		mercenary_bot::SendItemList(player, creature, mercenary, SLOT_RANGED);
 		break;

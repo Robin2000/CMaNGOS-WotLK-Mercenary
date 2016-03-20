@@ -318,7 +318,7 @@ Quest const* PlayerContext::findAuxQuest(){
 	return sObjectMgr.GetQuestTemplate(aux_questid);
 }
 //返回true结束，false可继续
-bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_vector<uint32>* questlist, uint32 num){
+bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint32>* questlist, uint32 num){
 
 	Quest const * quest;
 	uint32 curLevel = mPlayer->getLevel();
@@ -401,7 +401,7 @@ tbb::concurrent_vector<Quest const*>& PlayerContext::recommendQuestZone(int32 zo
 
 	for (auto itr = gameZone->arealist->begin(); itr != gameZone->arealist->end(); itr++)
 	{
-		tbb::concurrent_vector<uint32>* qlist = (*itr)->questlist;
+		tbb::concurrent_unordered_set<uint32>* qlist = (*itr)->questlist;
 		if (recommendQuestByQuestList(qlist, num))
 			return recommentQuestList;
 	}
@@ -464,4 +464,8 @@ inline void PlayerContext::findQuestInvolvedCreatureOrGO(uint32 questid, std::ve
 QuestPOIVector const*  PlayerContext::loadQuestPOI(uint32 questid){
 	questPOIVec = sObjectMgr.GetQuestPOIVector(questid);
 	return questPOIVec;
+}
+
+tbb::concurrent_unordered_set<uint32> & PlayerContext::GetRaceSetByClass(uint32 charClass){
+	return sObjectMgr.GetRaceSetByClass(charClass);
 }

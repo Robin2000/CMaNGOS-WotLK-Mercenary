@@ -361,7 +361,7 @@ void ObjectMgr::LoadGameAreas(){
 
 		if (fields[5].GetUInt8() == 1){
 			GameArea* gameArea = new GameArea();
-			gameArea->questlist = new tbb::concurrent_vector<uint32>();
+			gameArea->questlist = new tbb::concurrent_unordered_set<uint32>();
 			gameArea->id = id;
 			gameArea->map = fields[2].GetUInt32();
 			gameArea->zone = fields[3].GetUInt32();
@@ -378,42 +378,7 @@ void ObjectMgr::LoadGameAreas(){
 	sLog.outString(">> Loaded " SIZEFMTD " z_area strings", mGameAreas.size());
 	sLog.outString();
 }
-void ObjectMgr::LoadAreaQuestStart(){
 
-    // need for reload case
-
-	QueryResult* result = WorldDatabase.Query("SELECT quest,area FROM z_area_quest order by quest");
-
-	if (!result)
-	{
-		BarGoLink bar(1);
-		bar.step();
-		sLog.outString(">> Loaded 0 z_area_quest . DB table `z_area_quest` is empty.");
-		return;
-	}
-
-	BarGoLink bar(result->GetRowCount());
-	int count = 0;
-	do
-	{
-		count++;
-
-		Field* fields = result->Fetch();
-		bar.step();
-
-		uint32 quest = fields[0].GetUInt32();
-		uint32 area = fields[1].GetUInt32();
-		if (mGameAreas.find(area) != mGameAreas.end())
-			mGameAreas[area]->questlist->push_back(quest);
-
-
-	} while (result->NextRow());
-
-	delete result;
-
-	sLog.outString(">> Loaded " SIZEFMTD " z_area_quest", count);
-	sLog.outString();
-}
 void ObjectMgr::LoadSpellNameMaps(){
 
 	mSpellNameMaps.clear();                             // need for reload case
@@ -519,6 +484,18 @@ void ObjectMgr::LoadQuestNpcGO(){
 		else if (itr->second->size()<20)/*最多推荐19个*/
 			itr->second->push_back(questNpcGO);
 
+		//构造地区表的任务集
+		if (questNpcGO.ntype == 0)//任务开始NPC
+		{
+			auto it=mGameAreas.find(questNpcGO.area);
+			if (it == mGameAreas.end())
+			{
+				sLog.outError("ERROR: z_quest_npcgo_all_map has area=%u ,But not found in z_area", questNpcGO.area);//z_quest_npcgo_all_map中存在任务开始NPC，但z_area中没有对应的记录。				
+				continue;
+			}
+			if (it->second->questlist->find(questNpcGO.quest) == it->second->questlist->end())
+				it->second->questlist->insert(questNpcGO.quest);
+		}
 
 	} while (result->NextRow());
 
@@ -3227,6 +3204,8 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
+			
+
             PlayerInfo* pInfo = &playerInfo[current_race][current_class];
 
             pInfo->mapId       = mapId;
@@ -3238,6 +3217,10 @@ void ObjectMgr::LoadPlayerInfo()
 
             pInfo->displayId_m = rEntry->model_m;
             pInfo->displayId_f = rEntry->model_f;
+
+
+			mClassRaceMaps[current_class].insert(current_race);
+
 
             bar.step();
             ++count;
