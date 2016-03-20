@@ -14,6 +14,9 @@ struct mercenary_bot_AI : public PetAI
 	int currentSpell = 0;
 	int updatePetMercenaryMirrorTimer = 5000;//5秒检查1次
 	bool updatePetMercenaryMirrorCheck = true;
+	
+	int checkCancelStealthAuraTimer = 5000;//5秒检查1次是否要取消隐身
+	bool checkCancelStealthAura = false;
 
 	void Reset() //注意，这里有个overide，发现父类没有该方法，Reset何时调用，必须考虑
 	{
@@ -101,21 +104,47 @@ struct mercenary_bot_AI : public PetAI
 
 		return true;
 	};
+	void updateStealth(const uint32 diff){
 
+		if (m_creature->GetOwner()->HasStealthAura())
+		{
+			if (!checkCancelStealthAura){
+				//m_creature->SetVisibility(VISIBILITY_GROUP_STEALTH);//设置潜行		
+				m_creature->CastSpell(m_creature, 1784, true);
+				checkCancelStealthAura = true; //设置需要检查主人隐身是否取消
+				
+			}
+		}
+		else if (checkCancelStealthAura) //如果没有隐身，而且需要检查是否取消隐身
+		{
+			if (checkCancelStealthAuraTimer <= 0)
+			{
+				//m_creature->SetVisibility(VISIBILITY_ON);//取消潜行		
+				m_creature->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+				checkCancelStealthAuraTimer = 5000;//设置检查间隔5秒
+				checkCancelStealthAura = false;	   //不再检查
+				
+			}
+			else{
+				checkCancelStealthAuraTimer -= diff;
+			}
+		}
+	}
 	void UpdateAI(const uint32 diff) override
 	{
 
-		if (mercenary)
-		{
+		if (!mercenary)
+			return;
 
-			if (Unit* owner = m_creature->GetOwner()){
-				if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))// && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)
-				{
+		updateStealth(diff);
+
+		if (Unit* owner = m_creature->GetOwner())
+			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))// && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)
+			{
 					if (mercenary->isRangedAttack())
 						m_creature->GetMotionMaster()->MoveFollow(owner, 4 * PET_FOLLOW_DIST, M_PI_F*3.0f / 4.0f);
 					else
 						m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
-				}
 			}
 
 
@@ -163,7 +192,7 @@ struct mercenary_bot_AI : public PetAI
 			}
 			else
 				talkTimer -= diff;
-		}
+		
 
 		if (mercenary->isRangedAttack())
 		{

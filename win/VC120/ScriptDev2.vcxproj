@@ -696,6 +696,7 @@
     <ClInclude Include="..\..\src\myscript\hearthstone_mount.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_quest.h" />
     <ClInclude Include="..\..\src\myscript\hearthstone_store.h" />
+    <ClInclude Include="..\..\src\myscript\mercenaryAI.hpp" />
     <ClInclude Include="..\..\src\myscript\mercenary_bot.h" />
     <ClInclude Include="..\..\src\myscript\mercenary_gossip.h" />
     <ClInclude Include="..\..\src\myscript\pr_hearthstone.h" />

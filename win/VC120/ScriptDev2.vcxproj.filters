@@ -1981,5 +1981,8 @@
     <ClInclude Include="..\..\src\myscript\gmtools.h">
       <Filter>scripts\custom</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\myscript\mercenaryAI.hpp">
+      <Filter>scripts\custom</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
