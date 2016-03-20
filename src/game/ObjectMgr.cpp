@@ -3218,9 +3218,16 @@ void ObjectMgr::LoadPlayerInfo()
             pInfo->displayId_m = rEntry->model_m;
             pInfo->displayId_f = rEntry->model_f;
 
-
-			mClassRaceMaps[current_class].insert(current_race);
-
+			//typedef tbb::concurrent_unordered_map<uint32, tbb::concurrent_unordered_set<uint32>> ClassRaceMaps;//职业对应可选种族列表
+			auto it = mClassRaceMaps.find(current_class);
+			if (it == mClassRaceMaps.end())
+				mClassRaceMaps[current_class].insert(current_race);
+			else 
+			{
+				auto it2 = it->second.find(current_race);
+				if (it2 == it->second.end())
+					it->second.insert(current_race);
+			}
 
             bar.step();
             ++count;
