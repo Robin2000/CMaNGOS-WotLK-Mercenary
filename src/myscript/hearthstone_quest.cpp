@@ -344,13 +344,13 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					 case 2:
 						 if (npcgocount < 18 && itemcount++ < 6)/*最多允许5个item来源，太多也没有意义*/
 						 {
-							 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800589) + ((area == nullptr) ? "" : *area) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务物品】
+							 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800589) + ((area == nullptr) ? "" : *area) + "-" + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务物品】
 							 npcgocount++;
 						 }
 						 
 						 break;
 					 case 3:
-						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800590) + ((area == nullptr) ? "" : *area) + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务结束】
+						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800590) + ((area == nullptr) ? "" : *area) + "-" + std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务结束】
 						 npcgocount++;
 						 break;
 				}
@@ -426,27 +426,23 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->context.gossipActionType = QUEST_SEL_ACTION;
 		for (QuestStatusMap::const_iterator it = readMap.begin(); it != readMap.end(); it++)
 		{
+			Quest const* quest=pPlayer->context.findQuest(it->first);
+			if (quest == nullptr)
+				continue;
 			std::string  title = "";
 			pPlayer->context.GetQuestTitleLocale(it->first, &title);
 			std::ostringstream os;
-			os << it->first << "." << title;
+			os << getQuestType(pPlayer, quest->GetType()) << title;
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
-
 
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}
 
 	typedef tbb::concurrent_vector<Quest const*> QuestList;
-	void hearthstone_prepare_quest_list(Player* pPlayer, Item* pItem, QuestList& recommendResult){
+	void hearthstone_prepare_quest_list(std::string* areaOrZone,Player * pPlayer, Item* pItem, QuestList& recommendResult){//显示推荐任务列表
 		pPlayer->PrepareGossipMenu(pPlayer, 65535);
-		std::string* areaname = getAreaName(pPlayer);
-		if (recommendResult.size() == 0)
-		{		
-			std::string msg = pPlayer->GetMangosString(-2800592) + ((areaname==nullptr)?"":*areaname);
-			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域已经没有可以推荐的任务。
-		}
 
 		pPlayer->context.gossipActionType = QUEST_SEL_ACTION;
 		for (int i = 0; i < recommendResult.size(); i++)
@@ -454,7 +450,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			std::string  title = "";
 			pPlayer->context.GetQuestTitleLocale(recommendResult.at(i)->GetQuestId(), &title);
 			std::ostringstream os;
-			os << ((areaname==nullptr) ? "":*areaname) << "." << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
+			os << "【" << ((areaOrZone == nullptr) ? "" : *areaOrZone) << "】" << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+recommendResult.at(i)->GetQuestId());//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
@@ -474,21 +470,31 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		if (area == -1)
 			area = pPlayer->GetAreaId();
 
+		std::string* areaname = pPlayer->context.getGameAreaName(area);
 		QuestList& recommendResult = pPlayer->context.recommendQuestArea(area, 15);
-		hearthstone_prepare_quest_list(pPlayer, pItem, recommendResult);
+		if (recommendResult.size() == 0)
+		{
+			
+			std::string msg = pPlayer->GetMangosString(-2800592) + ((areaname == nullptr) ? "" : *areaname);
+			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域没有可以推荐的任务。
+			return;
+		}
+
+		hearthstone_prepare_quest_list(areaname,pPlayer, pItem, recommendResult);
 	}
 	//推荐zone下所有区域
 	void hearthstone_prepare_quest_zone(Player* pPlayer, Item* pItem, int zone){
 		if (zone == -1)
 			zone=pPlayer->GetZoneId();
 		
+		std::string* zonename = pPlayer->context.getGameAreaName(zone);
 		QuestList& recommendResult = pPlayer->context.recommendQuestZone(zone, 15);
 		if (recommendResult.size() == 0)
 		{
-			std::string* zonename = pPlayer->context.getGameAreaName(zone);
+			
 			std::string msg = pPlayer->GetMangosString(-2800592) + ((zonename == nullptr) ? "" : *zonename);
-			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域已经没有可以推荐的任务。
+			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域没有可以推荐的任务。
 			return;
 		}
-		hearthstone_prepare_quest_list(pPlayer, pItem, recommendResult);
+		hearthstone_prepare_quest_list(zonename,pPlayer, pItem, recommendResult);
 	}
