@@ -69,6 +69,7 @@
 #include "LootMgr.h"
 #include "MercenaryPet.h"
 #include <cmath>
+#include "pr_quest_plugin.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -1205,6 +1206,8 @@ void Player::Update(uint32 update_diff, uint32 p_time)
 {
     if (!IsInWorld())
         return;
+
+	context.Update(update_diff,p_time);
 
     // Remove failed timed Achievements
     GetAchievementMgr().DoFailedTimedAchievementCriterias();
@@ -13632,6 +13635,8 @@ void Player::AddQuest(Quest const* pQuest, Object* questGiver)
         itr->second->ApplyOrRemoveSpellIfCan(this, zone, area, true);
 
     UpdateForQuestWorldObjects();
+
+	prQuestPlugin.AddQuest(this, quest_id);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -13650,6 +13655,8 @@ void Player::CompleteQuest(uint32 quest_id)
                 RewardQuest(qInfo, 0, this, false);
         }
     }
+
+	prQuestPlugin.CompleteQuest(this, quest_id);
 }
 
 void Player::IncompleteQuest(uint32 quest_id)
@@ -13662,6 +13669,8 @@ void Player::IncompleteQuest(uint32 quest_id)
         if (log_slot < MAX_QUEST_LOG_SIZE)
             RemoveQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
     }
+
+	prQuestPlugin.IncompleteQuest(this, quest_id);
 }
 
 void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver, bool announce)
@@ -13848,6 +13857,8 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
         itr->second->ApplyOrRemoveSpellIfCan(this, zone, area, false);*/
 	SendQuestUpdate(quest_id);
 
+	prQuestPlugin.rewardQuest(this, quest_id);
+
 }
 void Player::SendQuestUpdate(uint32 questId)
 {
@@ -13902,7 +13913,11 @@ void Player::FailQuest(uint32 questId)
         }
         else
             SendQuestFailed(questId);
+
+		prQuestPlugin.FailQuest(this, questId);
     }
+
+	
 }
 
 bool Player::SatisfyQuestSkill(Quest const* qInfo, bool msg) const

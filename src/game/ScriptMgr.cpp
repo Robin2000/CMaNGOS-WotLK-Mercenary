@@ -2127,7 +2127,7 @@ bool ScriptAction::HandleScriptStep()
 			if (!pPlayer)
 				break;
 
-			otherObj->DestroyForPlayer(pPlayer);//改为从地图删除
+			otherObj->DestroyForPlayer(pPlayer);//仅对玩家不显示
 			break;
 		}
         default:

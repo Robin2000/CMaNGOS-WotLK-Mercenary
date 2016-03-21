@@ -7,12 +7,44 @@
 #include "tbb/parallel_for.h"
 #include "tbb/parallel_for_each.h"
 #include "Log.h"
+#include "PlayerContext.h"
 
 
-PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player){
+void DelayedAction::Update(uint32 update_diff){
+
+	if (timeout)
+		return;
+
+	timelimit -= update_diff;
+	DETAIL_LOG("time: %d", timelimit);
+	if (timelimit < 0)
+	{
+		timeout = true;
+		run();
+	}
+}
+PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0){
 
 }
-PlayerContext::~PlayerContext() {}
+
+void PlayerContext::Update(uint32 update_diff, uint32 time){
+	
+	DelayedAction *action;
+	if (delayActionQueue.pop(action))
+	{
+		action->Update(update_diff);
+
+		if (!action->timeout)
+			delayActionQueue.push(action);
+		else
+			delete action;
+	}
+
+}
+void PlayerContext::addDelayedAction(DelayedAction * action){
+	delayActionQueue.push(action);
+}
+
 
 void PlayerContext::checkFirstGuideQuest(){
 	if (!firstQuestChecked){
@@ -469,3 +501,4 @@ QuestPOIVector const*  PlayerContext::loadQuestPOI(uint32 questid){
 tbb::concurrent_unordered_set<uint32> & PlayerContext::GetRaceSetByClass(uint32 charClass){
 	return sObjectMgr.GetRaceSetByClass(charClass);
 }
+

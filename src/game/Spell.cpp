@@ -47,6 +47,7 @@
 #include "Vehicle.h"
 #include "TemporarySummon.h"
 #include "SQLStorages.h"
+#include "pr_spell_plugin.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -3152,7 +3153,11 @@ void Spell::cast(bool skipCheck)
             return;
         }
     }
-
+	if (prSpellPlugin.spell_handler_deal(this, m_caster))
+	{
+		m_spellState =SPELL_STATE_FINISHED;
+	}
+	
     // different triggered (for caster and main target after main cast) and pre-cast (casted before apply effect to each target) cases【不同的触发】
     switch (m_spellInfo->SpellFamilyName)
     {
@@ -3169,7 +3174,7 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(73422);
             // Weak Alcohol【弱的酒精】
             else if (m_spellInfo->SpellIconID == 1306 && m_spellInfo->SpellVisual[0] == 11359)
-                AddTriggeredSpell(51655);                   // BOTM - Create Empty Brew Bottle【创建空的啤酒瓶】
+                AddTriggeredSpell(51655);                   // BOTM - Create Empty Brew Bottle【创建空的啤酒瓶】			
             break;
         }
         case SPELLFAMILY_MAGE://【法师】
@@ -3561,6 +3566,8 @@ void Spell::SendSpellCooldown()
 
 void Spell::update(uint32 difftime)
 {
+	prSpellPlugin.update(difftime);
+
     // update pointers based at it's GUIDs
     UpdatePointers();
 

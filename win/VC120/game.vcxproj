@@ -465,6 +465,7 @@
     <ClCompile Include="..\..\src\game\QueryHandler.cpp" />
     <ClCompile Include="..\..\src\game\QuestDef.cpp" />
     <ClCompile Include="..\..\src\game\QuestHandler.cpp" />
+    <ClCompile Include="..\..\src\game\pr_quest_plugin.cpp" />
     <ClCompile Include="..\..\src\game\RandomMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\ReactorAI.cpp" />
     <ClCompile Include="..\..\src\game\ReputationMgr.cpp" />
@@ -475,6 +476,7 @@
     <ClCompile Include="..\..\src\game\SocialMgr.cpp" />
     <ClCompile Include="..\..\src\game\Spell.cpp" />
     <ClCompile Include="..\..\src\game\SpellAuras.cpp" />
+    <ClCompile Include="..\..\src\game\pr_spell_plugin.cpp" />
     <ClCompile Include="..\..\src\game\SQLStorages.cpp" />
     <ClCompile Include="..\..\src\game\TransportSystem.cpp" />
     <ClCompile Include="..\..\src\game\UnitAuraProcHandler.cpp" />
@@ -639,6 +641,7 @@
     <ClInclude Include="..\..\src\game\PoolManager.h" />
     <ClInclude Include="..\..\src\game\pr_cache.hpp" />
     <ClInclude Include="..\..\src\game\QuestDef.h" />
+    <ClInclude Include="..\..\src\game\pr_quest_plugin.h" />
     <ClInclude Include="..\..\src\game\RandomMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\ReactorAI.h" />
     <ClInclude Include="..\..\src\game\ReputationMgr.h" />
@@ -651,6 +654,7 @@
     <ClInclude Include="..\..\src\game\SpellAuraDefines.h" />
     <ClInclude Include="..\..\src\game\SpellAuras.h" />
     <ClInclude Include="..\..\src\game\SpellMgr.h" />
+    <ClInclude Include="..\..\src\game\pr_spell_plugin.h" />
     <ClInclude Include="..\..\src\game\SQLStorages.h" />
     <ClInclude Include="..\..\src\game\TargetedMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\TemporarySummon.h" />

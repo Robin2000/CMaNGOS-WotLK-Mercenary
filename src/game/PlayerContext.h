@@ -1,15 +1,38 @@
-#ifndef _PLAYERContext_H
-#define _PLAYERContext_H
+#ifndef PR_PLAYERContext_H
+#define PR_PLAYERContext_H
+
 #include "GameObject.h"
 #include "GamePointMgr.h"
+#include <boost/lockfree/queue.hpp>
 
+class MANGOS_DLL_SPEC DelayedAction
+{
+public:
+	explicit DelayedAction(int _timelimit) :timelimit(_timelimit){}
+
+	void Update(uint32 update_diff);
+
+	virtual void run() = 0;
+
+	bool timeout = false;
+	int timelimit;
+};
+
+typedef boost::lockfree::queue<DelayedAction *, boost::lockfree::fixed_sized<false>> DelayActionQueue;
 typedef tbb::concurrent_vector<Quest const*> RecommentQuestList;
+
+
+
+
 class MANGOS_DLL_SPEC PlayerContext{
+
 	public:
 		PlayerContext(Player* player);
-		~PlayerContext();
+
+	DelayActionQueue delayActionQueue;
 
 	bool firstQuestChecked = false;
+
 	void checkFirstGuideQuest();
 	//选择的map
 	int MAPSEL = -1;
@@ -126,6 +149,11 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	//取得执业对应的种族列表
 	tbb::concurrent_unordered_set<uint32> & GetRaceSetByClass(uint32 charClass);
+
+	//更新状态时间
+	void Update(uint32 update_diff, uint32 time);
+
+	void addDelayedAction(DelayedAction * action);
 
 	Player* mPlayer;
 
