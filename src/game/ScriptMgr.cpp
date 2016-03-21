@@ -740,6 +740,39 @@ void ScriptMgr::LoadScripts(ScriptMapMapName& scripts, const char* tablename)
             }
             case SCRIPT_COMMAND_RESET_GO:                   // 43
                 break;
+			case SCRIPT_COMMAND_DESPAWN_OTHERGO:           // 44
+			{
+				uint32 goEntry = 0;
+
+				if (!tmp.GetGOGuid())
+				{
+					if (!tmp.buddyEntry)
+					{
+						sLog.outErrorDb("Table `%s` has no gameobject nor buddy defined in %s for script id %u", tablename, (tmp.command == SCRIPT_COMMAND_DESPAWN_OTHERGO ? "SCRIPT_COMMAND_DESPAWN_OTHERGO" : "SCRIPT_COMMAND_DESPAWN_OTHERGO"), tmp.id);
+						continue;
+					}
+					goEntry = tmp.buddyEntry;
+				}
+				else
+				{
+					GameObjectData const* data = sObjectMgr.GetGOData(tmp.GetGOGuid());
+					if (!data)
+					{
+						sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), (tmp.command == SCRIPT_COMMAND_DESPAWN_OTHERGO ? "SCRIPT_COMMAND_DESPAWN_OTHERGO" : "SCRIPT_COMMAND_DESPAWN_OTHERGO"), tmp.id);
+						continue;
+					}
+					goEntry = data->id;
+				}
+
+				GameObjectInfo const* info = ObjectMgr::GetGameObjectInfo(goEntry);
+				if (!info)
+				{
+					sLog.outErrorDb("Table `%s` has gameobject with invalid entry (GUID: %u Entry: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), goEntry, (tmp.command == SCRIPT_COMMAND_DESPAWN_OTHERGO ? "SCRIPT_COMMAND_DESPAWN_OTHERGO" : "SCRIPT_COMMAND_DESPAWN_OTHERGO"), tmp.id);
+					continue;
+				}
+
+				break;
+			}
             default:
             {
                 sLog.outErrorDb("Table `%s` unknown command %u, skipping.", tablename, tmp.command);
@@ -2005,7 +2038,7 @@ bool ScriptAction::HandleScriptStep()
 
             // ToDo: Change this to pGo->ForcedDespawn() when function is implemented!
             ((GameObject*)pTarget)->SetLootState(GO_JUST_DEACTIVATED);
-            break;
+			break;
         }
         case SCRIPT_COMMAND_RESPAWN:                        // 41
         {
@@ -2058,7 +2091,45 @@ bool ScriptAction::HandleScriptStep()
                     break;
             }
             break;
-        }
+		}case SCRIPT_COMMAND_DESPAWN_OTHERGO:
+		{
+			GameObject* otherObj;
+			uint32 time_to_reset = m_script->despawnOtherGO.resetDelay < 15 ? 15 : m_script->despawnOtherGO.resetDelay;
+
+			if (m_script->despawnOtherGO.goGuid)
+			{
+				GameObjectData const* goData = sObjectMgr.GetGOData(m_script->despawnOtherGO.goGuid);
+				if (!goData)                                // checked at load
+					break;
+
+				// TODO - Was a change, before random map
+				otherObj = m_map->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, goData->id, m_script->despawnOtherGO.goGuid));
+			}
+			else
+			{
+				if (LogIfNotGameObject(pSource))
+					break;
+
+				otherObj = (GameObject*)pSource;
+			}
+
+			if (!otherObj)
+			{
+				sLog.outErrorDb(" DB-SCRIPTS: Process table `%s` id %u, command %u failed for gameobject(guid: %u, buddyEntry: %u).", m_table, m_script->id, m_script->command, m_script->changeDoor.goGuid, m_script->buddyEntry);
+				break;
+			}
+
+			if (otherObj->GetGoState() != GO_STATE_READY)
+				break;                                      // to be opened door already open, or to be closed door already closed
+			
+			//((GameObject*)otherObj)->SetLootState(GO_JUST_DEACTIVATED);
+			Player* pPlayer = GetPlayerTargetOrSourceAndLog(pSource, pTarget);
+			if (!pPlayer)
+				break;
+
+			otherObj->DestroyForPlayer(pPlayer);//改为从地图删除
+			break;
+		}
         default:
             sLog.outErrorDb(" DB-SCRIPTS: Process table `%s` id %u, command %u unknown command used.", m_table, m_script->id, m_script->command);
             break;
