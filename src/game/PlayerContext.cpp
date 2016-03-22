@@ -36,7 +36,7 @@ PlayerContext::~PlayerContext(){
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
 	DelayedAction *action;
-	while (delayActionQueue.pop(action))
+	if (delayActionQueue.pop(action))
 	{
 		action->Update(update_diff);
 

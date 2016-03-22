@@ -71,6 +71,7 @@
 #include <cmath>
 #include "pr_quest_plugin.h"
 #include "pr_event_plugin.h"
+#include "SharedDefines.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -23226,4 +23227,23 @@ float Player::GetCollisionHeight(bool mounted) const
 
         return modelData->CollisionHeight;
     }
+}
+
+void Player::changeCamera(WorldObject* target, int32 duration, float radius, float orientation){
+
+
+	DynamicObject* dynObj = new DynamicObject;
+
+	// set radius to 0: spell not expected to work as persistent aura  43975 ÇÐ“QÒ•½Ç 	
+	if (!dynObj->Create(GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), this,
+		43975, EFFECT_INDEX_0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), duration, radius, DYNAMIC_OBJECT_FARSIGHT_FOCUS, orientation))
+	{
+		delete dynObj;
+		return;
+	}
+
+	AddDynObject(dynObj);
+	GetMap()->Add(dynObj);
+
+	GetCamera().SetView(dynObj);
 }
