@@ -89,6 +89,8 @@ class MANGOS_DLL_SPEC ChatHandler
 
         virtual void SendSysMessage(const char* str);
 
+		bool HandleAuraSelf(uint32 spellID);
+
         void SendSysMessage(int32     entry);
         void PSendSysMessage(const char* format, ...) ATTR_PRINTF(2, 3);
         void PSendSysMessage(int32     entry, ...);

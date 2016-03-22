@@ -4050,7 +4050,34 @@ bool ChatHandler::HandleAuraCommand(char* args)
 
     return true;
 }
+bool ChatHandler::HandleAuraSelf(uint32 spellID)
+{
+	
+	SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellID);
+	if (!spellInfo)
+		return false;
 
+	Player * player = m_session->GetPlayer();
+
+	SpellAuraHolder* holder = CreateSpellAuraHolder(spellInfo, player, player);
+
+	for (uint32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+	{
+		uint8 eff = spellInfo->Effect[i];
+		if (eff >= TOTAL_SPELL_EFFECTS)
+			continue;
+		if (IsAreaAuraEffect(eff) ||
+			eff == SPELL_EFFECT_APPLY_AURA ||
+			eff == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+		{
+			Aura* aur = CreateAura(spellInfo, SpellEffectIndex(i), nullptr, holder, player);
+			holder->AddAura(aur, SpellEffectIndex(i));
+		}
+	}
+	player->AddSpellAuraHolder(holder);
+
+	return true;
+}
 bool ChatHandler::HandleUnAuraCommand(char* args)
 {
     Unit* target = getSelectedUnit();

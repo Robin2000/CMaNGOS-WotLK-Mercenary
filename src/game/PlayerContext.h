@@ -28,6 +28,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	public:
 		PlayerContext(Player* player);
+		~PlayerContext();
 
 	DelayActionQueue delayActionQueue;
 

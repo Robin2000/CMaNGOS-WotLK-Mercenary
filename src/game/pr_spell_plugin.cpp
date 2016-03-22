@@ -10,27 +10,10 @@ public:
 	PlayerGhostAction(Player * _player, int _timelimit) : player(_player), DelayedAction(_timelimit){}
 
 	void run() override{
-
-		player->RemoveAllAurasOnDeath();
-		player->RemoveGuardians();
-		player->RemoveMiniPet();
-		player->UnsummonAllTotems();
-		player->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-		player->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
-		// remove aurastates allowing special moves
-		player->ClearAllReactives();
-		player->ClearDiminishings();
-
-
-		player->StopMirrorTimers();                                     // disable timers(bars)
-
+		ChatHandler(player).HandleAuraSelf(8326);
 		player->SetDeathState(CORPSE);
-
-		player->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-
-		// update visibility
-		//player->SetDeathState(DEAD);
 		player->GetCamera().ResetView(false);
+		player->GetCamera().UpdateVisibilityForOwner();
 		player->UpdateObjectVisibility();
 	};
 
@@ -58,11 +41,12 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell, Unit* caster){
 		//m_caster->RemoveSpellsCausingAura(SPELL_AURA_FEIGN_DEATH);
 		
 		player->GetCamera().SetView(player, false);
+		player->GetCamera().UpdateVisibilityForOwner();
 
 		player->HandleEmoteCommand(92);//ºÈÒ©¶¯×÷
 		ChatHandler(player).SendSysMessage(-2800677);
-		player->context.addDelayedAction(new PlayerTakeMedicine(player, 3000));
-		player->context.addDelayedAction(new PlayerGhostAction(player, 6000));
+		player->context.addDelayedAction(new PlayerTakeMedicine(player, 2000));
+		player->context.addDelayedAction(new PlayerGhostAction(player, 4000));
 
 		return true;
 	}

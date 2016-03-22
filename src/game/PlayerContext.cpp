@@ -26,7 +26,13 @@ void DelayedAction::Update(uint32 update_diff){
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0){
 
 }
-
+PlayerContext::~PlayerContext(){
+	DelayedAction *action;
+	while (delayActionQueue.pop(action))
+	{
+		delete action;
+	}
+}
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
 	DelayedAction *action;
