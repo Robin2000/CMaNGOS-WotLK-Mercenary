@@ -24,7 +24,7 @@
 #include "WorldSession.h"
 #include "Formulas.h"
 
-GossipMenu::GossipMenu(WorldSession* session) : m_session(session)
+GossipMenu::GossipMenu(WorldSession* session) : m_session(session) , m_gItems(20), m_gItemsData(20)
 {
     m_gItems.reserve(16);                                   // can be set for max from most often sizes to speedup push_back and less memory use
     m_gMenuId = 0;
@@ -37,6 +37,7 @@ GossipMenu::~GossipMenu()
 
 void GossipMenu::AddMenuItem(uint8 Icon, const std::string& Message, uint32 dtSender, uint32 dtAction, const std::string& BoxMessage, uint32 BoxMoney, bool Coded)
 {
+
     //MANGOS_ASSERT(m_gItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 	if (m_gItems.size() > GOSSIP_MAX_MENU_ITEMS)
 		return;
