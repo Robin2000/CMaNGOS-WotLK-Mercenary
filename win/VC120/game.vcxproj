@@ -462,6 +462,7 @@
     <ClCompile Include="..\..\src\game\PlayerDump.cpp" />
     <ClCompile Include="..\..\src\game\PointMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\PoolManager.cpp" />
+    <ClCompile Include="..\..\src\game\pr_event_plugin.cpp" />
     <ClCompile Include="..\..\src\game\QueryHandler.cpp" />
     <ClCompile Include="..\..\src\game\QuestDef.cpp" />
     <ClCompile Include="..\..\src\game\QuestHandler.cpp" />
@@ -640,6 +641,7 @@
     <ClInclude Include="..\..\src\game\PointMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\PoolManager.h" />
     <ClInclude Include="..\..\src\game\pr_cache.hpp" />
+    <ClInclude Include="..\..\src\game\pr_event_plugin.h" />
     <ClInclude Include="..\..\src\game\QuestDef.h" />
     <ClInclude Include="..\..\src\game\pr_quest_plugin.h" />
     <ClInclude Include="..\..\src\game\RandomMovementGenerator.h" />

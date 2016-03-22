@@ -583,6 +583,9 @@
     <ClCompile Include="..\..\src\game\pr_quest_plugin.cpp">
       <Filter>PR</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\game\pr_event_plugin.cpp">
+      <Filter>PR</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\game\AccountMgr.h">
@@ -1106,6 +1109,9 @@
       <Filter>PR</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\pr_quest_plugin.h">
+      <Filter>PR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\pr_event_plugin.h">
       <Filter>PR</Filter>
     </ClInclude>
   </ItemGroup>

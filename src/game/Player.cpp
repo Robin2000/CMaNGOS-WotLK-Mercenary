@@ -70,6 +70,7 @@
 #include "MercenaryPet.h"
 #include <cmath>
 #include "pr_quest_plugin.h"
+#include "pr_event_plugin.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -15774,9 +15775,19 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
 
     _LoadEquipmentSets(holder->GetResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
+	//_sendInprogressQuestList();无法在登录进程中发送事件，只能延迟执行
+	context.getEventPlugin().sendEvent(P_LOGIN_EVENT);
     return true;
 }
 
+//登录发送未完成任务的状态更新，刷新客户端任务列表
+void Player::_sendInprogressQuestList(){
+	for (auto it = mQuestStatus.begin(); it != mQuestStatus.end(); it++)
+	if (it->second.m_status != QUEST_STATUS_COMPLETE)
+		it->second.uState = QUEST_CHANGED;
+
+	UpdateForQuestWorldObjects();
+}
 void Player::_LoadActions(QueryResult* result)
 {
     for (int i = 0; i < MAX_TALENT_SPEC_COUNT; ++i)

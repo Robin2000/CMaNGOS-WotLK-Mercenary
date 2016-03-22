@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "GamePointMgr.h"
 #include <boost/lockfree/queue.hpp>
+#include "pr_event_plugin.h"
 
 class MANGOS_DLL_SPEC DelayedAction
 {
@@ -155,10 +156,13 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void Update(uint32 update_diff, uint32 time);
 
 	void addDelayedAction(DelayedAction * action);
-
+	
+	PrEventPlugin & getEventPlugin(){return eventPlugin;}
+	
 	Player* mPlayer;
 
 private :
 	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<uint32>* questlist, uint32 num);
+	PrEventPlugin eventPlugin;
 };
 #endif

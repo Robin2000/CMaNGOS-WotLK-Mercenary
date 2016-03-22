@@ -23,7 +23,7 @@ void DelayedAction::Update(uint32 update_diff){
 		run();
 	}
 }
-PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0){
+PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
 
 }
 PlayerContext::~PlayerContext(){
@@ -36,7 +36,7 @@ PlayerContext::~PlayerContext(){
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
 	DelayedAction *action;
-	if (delayActionQueue.pop(action))
+	while (delayActionQueue.pop(action))
 	{
 		action->Update(update_diff);
 
