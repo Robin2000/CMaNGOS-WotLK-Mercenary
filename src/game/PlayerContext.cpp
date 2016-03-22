@@ -16,7 +16,7 @@ void DelayedAction::Update(uint32 update_diff){
 		return;
 
 	timelimit -= update_diff;
-	DETAIL_LOG("time: %d", timelimit);
+	//DETAIL_LOG("time: %d", timelimit);
 	if (timelimit < 0)
 	{
 		timeout = true;
