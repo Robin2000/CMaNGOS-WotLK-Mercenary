@@ -25,6 +25,7 @@ void DelayedAction::Update(uint32 update_diff){
 }
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
 	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint const*> ();
+	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
 }
 PlayerContext::~PlayerContext(){
 	DelayedAction *action;
@@ -33,6 +34,7 @@ PlayerContext::~PlayerContext(){
 		delete action;
 	}
 	delete questPOIVec;
+	delete questNpcGOVec;
 }
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
@@ -500,17 +502,65 @@ inline void PlayerContext::findQuestInvolvedCreatureOrGO(uint32 questid, std::ve
 }
 void PlayerContext::loadQuestAux(uint32 questid){
 	
-	questNpcGOVec= sObjectMgr.GetQuestNpcGOVector(questid);//加载questNpcGOVec
+	questNpcGOVec->clear();
+
+	tbb::concurrent_vector<QuestNpcGO> * tmp;
+
+	tmp=sObjectMgr.GetQuestNpcGOVector(questid);//加载questNpcGOVec
+	std::set<int32> itemEntrySet;//再准备一个item排重的set
+
+	for (auto it = tmp->begin(); it != tmp->end(); it++)
+	{
+		if (it->ntype != 3)
+		{
+			questNpcGOVec->push_back(&*it);
+			continue;
+		}
+		if (itemEntrySet.find(it->npcgo) == itemEntrySet.end())
+		{
+			itemEntrySet.insert(it->npcgo);
+			if (it->ntype == 2 && it->npcgo < 0)//如果是游戏对象暴物品
+			{
+				GameObjectInfo const* info = sObjectMgr.GetGameObjectInfo(0 - it->npcgo);
+				switch (info->type)
+				{
+					case GAMEOBJECT_TYPE_CHEST:
+						if(info->chest.questId == questid) //游戏对象宝箱，必须和本任务有关。
+							questNpcGOVec->push_back(&*it);
+						break;
+					case GAMEOBJECT_TYPE_GENERIC:
+						if (info->_generic.questID == questid) //游戏对象宝箱，必须和本任务有关。
+							questNpcGOVec->push_back(&*it);
+						break;
+					case GAMEOBJECT_TYPE_GOOBER:
+						if (info->goober.questId == questid) //游戏对象宝箱，必须和本任务有关。
+							questNpcGOVec->push_back(&*it);
+						break;
+					default:
+						questNpcGOVec->push_back(&*it);
+				}
+			}
+			else if(it->ntype == 2 && it->npcgo > 0){//如果是怪物暴物品，怪物不允许超过玩家等级10级。
+				CreatureInfo const* info=sObjectMgr.GetCreatureTemplate(it->npcgo);
+				if (info->MinLevel<=mPlayer->getLevel()+10)
+					questNpcGOVec->push_back(&*it);
+			}
+			else
+				questNpcGOVec->push_back(&*it);
+		}
+	}
+	
+//////////////////////////////////////////////////////////////
 
 	std::set<uint64> uniqueMapXYSet;//准备一个排重的set
 	std::set<int32> uniqueEntrySet;//再准备一个排重的set
 
 	for (auto it = questNpcGOVec->begin(); it != questNpcGOVec->end(); it++)
 	{
-		if (uniqueMapXYSet.find(it->mapxy) == uniqueMapXYSet.end())
-			uniqueMapXYSet.insert(it->mapxy);
-		if (uniqueEntrySet.find(it->npcgo) == uniqueEntrySet.end())
-			uniqueEntrySet.insert(it->npcgo);
+		if (uniqueMapXYSet.find((*it)->mapxy) == uniqueMapXYSet.end())
+			uniqueMapXYSet.insert((*it)->mapxy);
+		if (uniqueEntrySet.find((*it)->npcgo) == uniqueEntrySet.end())
+			uniqueEntrySet.insert((*it)->npcgo);
 	}
 	uint32 map = mPlayer->GetMapId();
 	uint32 zone = mPlayer->GetZoneId();
@@ -535,6 +585,102 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	}
 	return;
 }
+
+void PlayerContext::deletePOIFromDB(uint32 questId,QuestPOIPoint const* point){	
+	
+	QuestPOIVector * POI = sObjectMgr.GetQuestPOIVector(questId);
+	if (POI == nullptr)
+		return;
+
+	WorldDatabase.BeginTransaction();
+	WorldDatabase.PExecute("DELETE FROM quest_poi_points WHERE prid='%u'", point->prid);
+
+	bool find = false;
+
+	std::vector<QuestPOIPoint> tmp;
+	for (auto it = POI->begin(); it != POI->end(); it++)
+	{
+		tmp.clear();
+
+		for (auto it2 = it->points.begin(); it2 != it->points.end(); it2++)
+		{
+			if (it2->prid != point->prid)
+				tmp.push_back(*it2);
+			else
+				find = true;
+		}
+		
+		if (find)
+		{
+			it->points.clear();
+
+			for (auto it2 = tmp.begin(); it2 != tmp.end(); it2++)
+				it->points.push_back(*it2);
+
+			break;
+		}		
+	}
+	WorldDatabase.CommitTransaction();
+	ChatHandler(mPlayer).PSendSysMessage("delete quest_poi_points sucess!prid=%u", point->prid);
+
+	loadQuestAux(questId);//重新load
+}
+
+void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
+{
+	uint32 map = target->GetMapId();
+	uint32 area = target->GetAreaId();
+	uint32 zone = target->GetZoneId();
+	
+
+	float _x = target->GetPositionX();
+	float _y = target->GetPositionY();
+	int x = (_x > 0) ? uint16(0.5 + _x) : uint16(0.5 - _x);
+	int y = (_y > 0) ? uint16(0.5 + _y) : uint16(0.5 - _y);
+
+	QuestPOIVector * POIV = sObjectMgr.GetQuestPOIVector(questId);
+	QuestPOI* poi=nullptr;
+	if (POIV != nullptr){
+	for (auto it = POIV->begin(); it != POIV->end(); it++)
+		if (it->MapId == target->GetMapId() && it->MapAreaId == area)
+		{
+			poi = &*it;
+			break;
+		}
+	}
+	if (poi == nullptr){
+		WorldDatabase.PExecute("INSERT into quest_poi(questId,poiId,objIndex,mapId,mapAreaId,floorId,unk3,unk4) values ('%u',0,0,'%u','%u',0,0,1)", questId, map, area);
+		poi = new QuestPOI(0, 0, map, area, 0, 0, 1);
+		sObjectMgr.addQuestPOIVector(questId, poi);
+	}
+
+	//下面添加point
+	QuestPOIPoint point(x, y, zone, area);
+
+	point.map = map;//补充map信息
+	point.mapxy = makeMapXY(point.map, float(point.x), float(point.y));//提前准备好校对数据
+
+	CreatureData* creatureData = sObjectMgr.findCreatureDataByPOI(point.mapxy);
+	if (creatureData != nullptr)
+		point.npcgo = creatureData->id;
+	else
+	{
+		GameObjectData* goData = sObjectMgr.findGameObjectDataByPOI(point.mapxy);
+		if (goData != nullptr)
+			point.npcgo = 0 - goData->id;
+	}
+
+	QueryResult* result = WorldDatabase.Query("SELECT max(prid) FROM quest_poi_points");
+	Field* fields = result->Fetch();
+	point.prid = fields[0].GetUInt32(); //用于删除点
+	
+	poi->points.push_back(point);
+	delete result;
+
+	ChatHandler(mPlayer).SendSysMessage("add quest_poi_points sucess!");
+	loadQuestAux(questId);//重新load
+}
+
 
 tbb::concurrent_unordered_set<uint32> & PlayerContext::GetRaceSetByClass(uint32 charClass){
 	return sObjectMgr.GetRaceSetByClass(charClass);

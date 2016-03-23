@@ -210,26 +210,26 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		return true;
 	case NPCGO_SEL_CAMERA_NPCGO://npcgo镜头+传送执行
 	{
-		tbb::concurrent_vector<QuestNpcGO> const* npcgoV = pPlayer->context.GetQuestNpcGOVector();
-		const QuestNpcGO& questNpcGO = npcgoV->at(pPlayer->context.aux_npcgo_idx);
+		tbb::concurrent_vector<QuestNpcGO const *> const* npcgoV = pPlayer->context.GetQuestNpcGOVector();
+		QuestNpcGO const * questNpcGO = npcgoV->at(pPlayer->context.aux_npcgo_idx);
 		switch (uiAction)
 		{
 			case GOSSIP_ACTION_INFO_DEF + 1111://显示目标场景，不关闭菜单，可反复观看
-				pPlayer->changeCamera(questNpcGO.x, questNpcGO.y, questNpcGO.z, 0.0f, 15000, 50.0f);//切换镜头
+				pPlayer->changeCamera(questNpcGO->x, questNpcGO->y, questNpcGO->z, 0.0f, 15000, 50.0f);//切换镜头
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 960 + pPlayer->context.aux_npcgo_idx);//重新显示菜单
 				return true;
 			case GOSSIP_ACTION_INFO_DEF + 1112://传送我到达目标(-3点原力)
 				if (!pPlayer->context.gamePointMgr.checkPoint(3))
 					return false;
-				pPlayer->TeleportTo(questNpcGO.map, questNpcGO.x, questNpcGO.y, questNpcGO.z, 0);
+				pPlayer->TeleportTo(questNpcGO->map, questNpcGO->x, questNpcGO->y, questNpcGO->z, 0);
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
 			case GOSSIP_ACTION_INFO_DEF + 1113://传送我到达目标(-1点原力)
 				if (!pPlayer->context.gamePointMgr.checkPoint(1))
 					return false;
-				pPlayer->TeleportTo(questNpcGO.map, questNpcGO.x, questNpcGO.y, questNpcGO.z, 0);
+				pPlayer->TeleportTo(questNpcGO->map, questNpcGO->x, questNpcGO->y, questNpcGO->z, 0);
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
@@ -270,29 +270,50 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			case GOSSIP_ACTION_INFO_DEF + 1114://上一页
 				hearthstone_quest(pPlayer, pItem, pPlayer->context.aux_questid);
 				return true;
+			case GOSSIP_ACTION_INFO_DEF + 1118://GM delete this POI
+				pPlayer->context.deletePOIFromDB(pPlayer->context.aux_questid,point);
+				break;
 			default:
 				return true;
 		}
 	}
 	case NPCGO_SEL_ACTION:
-		if (uiAction >= GOSSIP_ACTION_INFO_DEF + 960 && uiAction <= GOSSIP_ACTION_INFO_DEF + 979){//NPCGO镜头+传送菜单
-			tbb::concurrent_vector<QuestNpcGO> *  npcgoV = pPlayer->context.GetQuestNpcGOVector();
+		if (uiAction == GOSSIP_ACTION_INFO_DEF + 1116)//add selected target to POI
+		{
+			ObjectGuid guid = pPlayer->GetSelectionGuid();
+			if (!guid)
+				return false;
+
+			WorldObject * target = pPlayer->GetMap()->GetWorldObject(guid);
+			if (!target)
+				return false;
+
+			pPlayer->context.addSelectedToPOI(pPlayer->context.aux_questid, target);
+			return true;
+		}
+		else if (uiAction == GOSSIP_ACTION_INFO_DEF + 1117)//add me to POI
+		{
+			pPlayer->context.addSelectedToPOI(pPlayer->context.aux_questid, pPlayer);
+			return true;
+		}
+		else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 960 && uiAction <= GOSSIP_ACTION_INFO_DEF + 979){//NPCGO镜头+传送菜单
+			tbb::concurrent_vector<QuestNpcGO const *> *  npcgoV = pPlayer->context.GetQuestNpcGOVector();
 			if (npcgoV != nullptr)
 			{
 				pPlayer->context.aux_npcgo_idx=uiAction - GOSSIP_ACTION_INFO_DEF - 960;
-				const QuestNpcGO& questNpcGO = npcgoV->at(pPlayer->context.aux_npcgo_idx);
-				if (questNpcGO.zone == 0 && questNpcGO.area == 0)
+				QuestNpcGO const * questNpcGO = npcgoV->at(pPlayer->context.aux_npcgo_idx);
+				if (questNpcGO->zone == 0 && questNpcGO->area == 0)
 				{
 					ChatHandler(pPlayer).SendSysMessage(-2800185);//该点没有地理信息
 					return false;
 				}
 				
 				const char * name = "";
-				pPlayer->context.GetCreatureOrGOTitleLocale(questNpcGO.npcgo, &name);
+				pPlayer->context.GetCreatureOrGOTitleLocale(questNpcGO->npcgo, &name);
 
 				pPlayer->context.gossipActionType = NPCGO_SEL_CAMERA_NPCGO;
 
-				if (questNpcGO.map == pPlayer->GetMapId())
+				if (questNpcGO->map == pPlayer->GetMapId())
 				{
 					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT,pPlayer->GetMangosString(-2800679) + std::string(name) ,GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1111);//显示目标场景：
 					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI,pPlayer->GetMangosString(-2800680) + std::string(name) ,GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1112);//传送我到达目标(-3点原力)：
@@ -322,6 +343,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				}
 				else
 					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, pPlayer->GetMangosString(-2800681) + os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1113);//传送我到达目标(-1点原力)：
+				
+				if (pPlayer->isGameMaster())
+					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "delete this POI", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1118);
 
 			}
 			//transportByPOI(pPlayer, pItem, uiAction - GOSSIP_ACTION_INFO_DEF - 980);
@@ -335,53 +359,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 	return true;
 }
-/*
-void transportByPOI(Player* pPlayer, Item* pItem, int idx)
-{
-		pPlayer->context.aux_poi_idx = idx;
-		pPlayer->context.gossipActionType = NPCGO_SEL_CAMERA_POI;
 
-		tbb::concurrent_vector<QuestPOIPoint const*> * POI = pPlayer->context.GetQuestPOI();
-
-		QuestPOIPoint const* point=POI->at(idx);
-		ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
-}
-*/	
-/*
-	void transportByCreatureOrGO2(Player* pPlayer, Item* pItem, int32 creatureOrGOEntry){
-		if (!pPlayer->context.gamePointMgr.checkPoint(1))
-			return;
-
-		if (creatureOrGOEntry>0)
-		{
-			CreatureData* data = pPlayer->context.findCreatureDataByEntry(creatureOrGOEntry);
-			if (data == nullptr)
-			{
-				ChatHandler(pPlayer).SendSysMessage(-2800185);//系统提示：本次操作失败。
-				return;
-			}
-			pPlayer->TeleportTo(data->mapid, data->posX, data->posY, data->posZ, 0);
-		}
-		else if (creatureOrGOEntry < 0)
-		{
-			uint32 gameobject = 0 - creatureOrGOEntry;
-			GameObjectData* data = pPlayer->context.findGameObjectDataByEntry(gameobject);
-			if (data == nullptr)
-			{
-				ChatHandler(pPlayer).SendSysMessage(-2800185);//系统提示：本次操作失败。
-				return;
-			}
-			pPlayer->TeleportTo(data->mapid, data->posX, data->posY, data->posZ, 0);
-		}
-		pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_TARGET, 1);
-	}
-	void transportByCreatureOrGO(Player* pPlayer, Item* pItem, int idx){
-
-		Quest const* quest = pPlayer->context.findAuxQuest();
-		int32 creature = quest->ReqCreatureOrGOId[idx];
-		transportByCreatureOrGO2(pPlayer, pItem, creature);
-	}
-	*/
 	/*任务辅助或推荐的点击条目*/
 	void hearthstone_quest(Player* pPlayer, Item* pItem, uint32 questid)
 	{
@@ -395,7 +373,7 @@ void transportByPOI(Player* pPlayer, Item* pItem, int idx)
 		pPlayer->context.loadQuestAux(questid);
 
 		//下面添加QuestNpcGO
-		tbb::concurrent_vector<QuestNpcGO> * npcgoV = pPlayer->context.GetQuestNpcGOVector();
+		tbb::concurrent_vector<QuestNpcGO const *> * npcgoV = pPlayer->context.GetQuestNpcGOVector();
 
 		if (npcgoV == nullptr)
 			return;
@@ -407,11 +385,11 @@ void transportByPOI(Player* pPlayer, Item* pItem, int idx)
 			for (auto itr = npcgoV->begin(); i<19&&itr != npcgoV->end(); ++itr,i++){
 
 				const char * name = "";
-				pPlayer->context.GetCreatureOrGOTitleLocale(itr->npcgo, &name);
+				pPlayer->context.GetCreatureOrGOTitleLocale((*itr)->npcgo, &name);
 				
-				std::string* area = pPlayer->context.getGameAreaName(itr->area);
+				std::string* area = pPlayer->context.getGameAreaName((*itr)->area);
 				
-				switch (itr->ntype)
+				switch ((*itr)->ntype)
 				{
 					 case 0://任务开始
 						 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pPlayer->GetMangosString(-2800587) + ((area==nullptr)?"":*area) +"-"+ std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 960 + i);//【任务开始】
@@ -460,6 +438,14 @@ void transportByPOI(Player* pPlayer, Item* pItem, int idx)
 
 				}
 			}
+
+			if (pPlayer->isGameMaster())
+			{
+				pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "add selected target to POI", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1116);
+				pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "add me to POI", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1117);
+			}
+
+
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 			pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}

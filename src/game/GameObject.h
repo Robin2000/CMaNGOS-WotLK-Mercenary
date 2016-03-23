@@ -35,6 +35,7 @@
 
 struct QuestPOIPoint
 {
+	uint32 prid;//ÓÃÓÚÉ¾³ı
 	int32 x;
 	int32 y;
 	uint32 map;

@@ -132,7 +132,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	GameObjectData* findGameObjectDataByPOI(uint64 mapxy);
 
 	//缓存任务NPCGO向量，改变量指向sObjectMgr，仅引用，不维护生命周期
-	tbb::concurrent_vector<QuestNpcGO> * questNpcGOVec;
+	tbb::concurrent_vector<QuestNpcGO const *> * questNpcGOVec;
 
 	//缓存任务POI向量，改变量需要维护生命周期
 	tbb::concurrent_vector<QuestPOIPoint const*> * questPOIVec;
@@ -141,7 +141,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	tbb::concurrent_vector<QuestPOIPoint const*> * GetQuestPOI(){ return questPOIVec; }
 
 	//取得特定任务相关NPC和GameObject列表,需先调用loadQuestAux准备数据
-	tbb::concurrent_vector<QuestNpcGO> * GetQuestNpcGOVector(){ return questNpcGOVec; }
+	tbb::concurrent_vector<QuestNpcGO const *> * GetQuestNpcGOVector(){ return questNpcGOVec; }
 
 	//根据任务获得POI和NPCGO
 	void loadQuestAux(uint32 questid);
@@ -160,6 +160,10 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	//更新状态时间
 	void Update(uint32 update_diff, uint32 time);
+
+	void deletePOIFromDB(uint32 questId, QuestPOIPoint const* point);//删除无用的POI
+
+	void addSelectedToPOI(uint32 questId,WorldObject * target); //添加目标位置到POI
 
 	void addDelayedAction(DelayedAction * action);
 	

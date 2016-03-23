@@ -7140,8 +7140,8 @@ void ObjectMgr::LoadQuestPOI()
     while (result->NextRow());
 
     delete result;
-
-    QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y,zone,area FROM quest_poi_points");
+	//													0        1    2  3  4    5    6
+    QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y,zone,area,prid FROM quest_poi_points");
 
 	CreatureData* creatureData;
 	GameObjectData* goData;
@@ -7166,6 +7166,9 @@ void ObjectMgr::LoadQuestPOI()
                     continue;
 
                 QuestPOIPoint point(x, y,zone,area);
+				
+				point.prid = pointFields[6].GetUInt32(); //用于删除点
+
 				point.map = itr->MapId;//补充map信息
 				point.mapxy = makeMapXY(point.map, float(point.x), float(point.y));//提前准备好校对数据
 				
