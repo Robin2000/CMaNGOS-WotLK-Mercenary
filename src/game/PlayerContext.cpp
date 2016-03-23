@@ -502,11 +502,16 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	
 	questNpcGOVec= sObjectMgr.GetQuestNpcGOVector(questid);//加载questNpcGOVec
 
-	std::set<uint64> uniqueSet;//准备一个排重的set
-	for (auto it = questNpcGOVec->begin(); it != questNpcGOVec->end();it++)
-	if (uniqueSet.find(it->mapxy) == uniqueSet.end())
-		uniqueSet.insert(it->mapxy);
+	std::set<uint64> uniqueMapXYSet;//准备一个排重的set
+	std::set<int32> uniqueEntrySet;//再准备一个排重的set
 
+	for (auto it = questNpcGOVec->begin(); it != questNpcGOVec->end(); it++)
+	{
+		if (uniqueMapXYSet.find(it->mapxy) == uniqueMapXYSet.end())
+			uniqueMapXYSet.insert(it->mapxy);
+		if (uniqueEntrySet.find(it->npcgo) == uniqueEntrySet.end())
+			uniqueEntrySet.insert(it->npcgo);
+	}
 	uint32 map = mPlayer->GetMapId();
 	uint32 zone = mPlayer->GetZoneId();
 	uint32 area = mPlayer->GetAreaId();
@@ -515,33 +520,18 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	sObjectMgr.loadQuestPOIVector(&temp, questid);//加载questPOIVec
 
 	questPOIVec->clear();
-	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //优先添加本area
-		if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
-			if ((*it2)->area == area){
-				uniqueSet.insert((*it2)->mapxy);
+
+	for (auto it2 = temp.begin(); it2 != temp.end(); it2++)
+	{
+		if (uniqueMapXYSet.find((*it2)->mapxy) == uniqueMapXYSet.end())//对mapxy排重
+		{
+			uniqueMapXYSet.insert((*it2)->mapxy);
+			if ((*it2)->npcgo == 0 || uniqueEntrySet.find((*it2)->npcgo) == uniqueEntrySet.end())//对npcgo排重
+			{
+				uniqueEntrySet.insert((*it2)->npcgo);
 				questPOIVec->push_back(*it2);
 			}
-
-	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //再添加本zone
-	if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
-		if ((*it2)->zone == zone){
-			uniqueSet.insert((*it2)->mapxy);
-			questPOIVec->push_back(*it2);
 		}
-
-	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //再添加本map
-	if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
-		if ((*it2)->map == map)
-		{
-			uniqueSet.insert((*it2)->mapxy);
-			questPOIVec->push_back(*it2);
-		}
-
-	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //再全部添加
-	if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
-	{
-		uniqueSet.insert((*it2)->mapxy);
-		questPOIVec->push_back(*it2);
 	}
 	return;
 }

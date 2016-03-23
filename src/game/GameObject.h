@@ -41,6 +41,7 @@ struct QuestPOIPoint
 	uint32 zone;
 	uint32 area;
 	uint64 mapxy;
+	int32 npcgo=0;
 	QuestPOIPoint() : x(0), y(0),zone(0),area(0) {}
 	QuestPOIPoint(int32 _x, int32 _y,uint32 _zone,uint32 _area) : x(_x), y(_y), zone(_zone), area(_area) {}
 };

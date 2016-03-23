@@ -7143,6 +7143,8 @@ void ObjectMgr::LoadQuestPOI()
 
     QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y,zone,area FROM quest_poi_points");
 
+	CreatureData* creatureData;
+	GameObjectData* goData;
     if (points)
     {
         do
@@ -7166,6 +7168,16 @@ void ObjectMgr::LoadQuestPOI()
                 QuestPOIPoint point(x, y,zone,area);
 				point.map = itr->MapId;//补充map信息
 				point.mapxy = makeMapXY(point.map, float(point.x), float(point.y));//提前准备好校对数据
+				
+				creatureData=findCreatureDataByPOI(point.mapxy);
+				if (creatureData != nullptr)
+					point.npcgo = creatureData->id;
+				else
+				{
+					goData = findGameObjectDataByPOI(point.mapxy);
+					if (goData != nullptr)
+						point.npcgo = 0 - goData->id;
+				}
 
                 itr->points.push_back(point);
                 break;
