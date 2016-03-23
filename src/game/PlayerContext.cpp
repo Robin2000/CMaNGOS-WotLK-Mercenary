@@ -24,7 +24,7 @@ void DelayedAction::Update(uint32 update_diff){
 	}
 }
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
-
+	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint const*> ();
 }
 PlayerContext::~PlayerContext(){
 	DelayedAction *action;
@@ -32,6 +32,7 @@ PlayerContext::~PlayerContext(){
 	{
 		delete action;
 	}
+	delete questPOIVec;
 }
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
@@ -459,9 +460,7 @@ tbb::concurrent_vector<Quest const*>& PlayerContext::recommendQuestArea(int32 ar
 }
 
 
-tbb::concurrent_vector<QuestNpcGO> * PlayerContext::GetQuestNpcGOVector(uint32 questid){
-	return sObjectMgr.GetQuestNpcGOVector(questid);
-}
+
 
 Quest const* Player::GetQuest(uint32 quest_id){
 	return sObjectMgr.GetQuestTemplate(quest_id);
@@ -482,8 +481,8 @@ void PlayerContext::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name)
 		*name = "error";
 }
 
-CreatureData* PlayerContext::findCreatureDataByPOI(uint32 mapid, float x, float y){ return sObjectMgr.findCreatureDataByPOI(mapid, x, y); }
-GameObjectData* PlayerContext::findGameObjectDataByPOI(uint32 mapid, float x, float y){ return sObjectMgr.findGameObjectDataByPOI(mapid, x, y); }
+CreatureData* PlayerContext::findCreatureDataByPOI(uint64 mapxy){ return sObjectMgr.findCreatureDataByPOI(mapxy); }
+GameObjectData* PlayerContext::findGameObjectDataByPOI(uint64 mapxy){ return sObjectMgr.findGameObjectDataByPOI(mapxy); }
 CreatureData* PlayerContext::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }
 GameObjectData* PlayerContext::findGameObjectDataByEntry(uint32 entry){ return sObjectMgr.findGameObjectDataByEntry(entry); }
 CreatureData* PlayerContext::findQuestStarterCreature(uint32 quest_id){ return sObjectMgr.findQuestStarterCreature(quest_id); }
@@ -499,9 +498,52 @@ inline int32 PlayerContext::findQuestStarterCreatureOrGO(uint32 questid){
 inline void PlayerContext::findQuestInvolvedCreatureOrGO(uint32 questid, std::vector<int32> &result){
 	return sObjectMgr.findQuestInvolvedCreatureOrGO(questid, result);
 }
-QuestPOIVector const*  PlayerContext::loadQuestPOI(uint32 questid){
-	questPOIVec = sObjectMgr.GetQuestPOIVector(questid);
-	return questPOIVec;
+void PlayerContext::loadQuestAux(uint32 questid){
+	
+	questNpcGOVec= sObjectMgr.GetQuestNpcGOVector(questid);//加载questNpcGOVec
+
+	std::set<uint64> uniqueSet;//准备一个排重的set
+	for (auto it = questNpcGOVec->begin(); it != questNpcGOVec->end();it++)
+	if (uniqueSet.find(it->mapxy) == uniqueSet.end())
+		uniqueSet.insert(it->mapxy);
+
+	uint32 map = mPlayer->GetMapId();
+	uint32 zone = mPlayer->GetZoneId();
+	uint32 area = mPlayer->GetAreaId();
+
+	std::vector<QuestPOIPoint const*> temp;
+	sObjectMgr.loadQuestPOIVector(&temp, questid);//加载questPOIVec
+
+	questPOIVec->clear();
+	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //优先添加本area
+		if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
+			if ((*it2)->area == area){
+				uniqueSet.insert((*it2)->mapxy);
+				questPOIVec->push_back(*it2);
+			}
+
+	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //再添加本zone
+	if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
+		if ((*it2)->zone == zone){
+			uniqueSet.insert((*it2)->mapxy);
+			questPOIVec->push_back(*it2);
+		}
+
+	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //再添加本map
+	if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
+		if ((*it2)->map == map)
+		{
+			uniqueSet.insert((*it2)->mapxy);
+			questPOIVec->push_back(*it2);
+		}
+
+	for (auto it2 = temp.begin(); it2 != temp.end(); it2++) //再全部添加
+	if (uniqueSet.find((*it2)->mapxy) == uniqueSet.end())
+	{
+		uniqueSet.insert((*it2)->mapxy);
+		questPOIVec->push_back(*it2);
+	}
+	return;
 }
 
 tbb::concurrent_unordered_set<uint32> & PlayerContext::GetRaceSetByClass(uint32 charClass){

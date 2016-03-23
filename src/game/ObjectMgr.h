@@ -670,12 +670,27 @@ class ObjectMgr
             return nullptr;
         }
 
-        QuestPOIVector const* GetQuestPOIVector(uint32 questId)
+		QuestPOIVector const* GetQuestPOIVector(uint32 questId)
+		{
+			QuestPOIMap::const_iterator itr = mQuestPOIMap.find(questId);
+			if (itr != mQuestPOIMap.end())
+				return &itr->second;
+			return nullptr;
+		}
+
+		void loadQuestPOIVector(std::vector<QuestPOIPoint const*> * questPOIVec, uint32 questId)
         {
+			questPOIVec->clear();
             QuestPOIMap::const_iterator itr = mQuestPOIMap.find(questId);
-            if (itr != mQuestPOIMap.end())
-                return &itr->second;
-            return nullptr;
+            if (itr == mQuestPOIMap.end())
+                return;
+
+			QuestPOIVector const* POI = &itr->second;
+			for (auto itr = POI->begin(); itr != POI->end(); ++itr)
+			for (auto itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
+				questPOIVec->push_back(&*itr2);
+
+			return;
         }
 
         // Static wrappers for various accessors
@@ -1206,15 +1221,15 @@ class ObjectMgr
 
 		CreaturePOIMap mCreaturePOIMap;//新定义用于坐标定位npc
 		GameObjectPOIMap mGameObjectPOIMap;//新定义用于坐标定位gameobject
-		CreatureData* findCreatureDataByPOI(uint32 mapid, float x, float y){
-			CreaturePOIMap::const_iterator itr = mCreaturePOIMap.find(makeMapXY(mapid, x, y));
+		CreatureData* findCreatureDataByPOI(uint64 mapxy){
+			CreaturePOIMap::const_iterator itr = mCreaturePOIMap.find(mapxy);
 			if (itr != mCreaturePOIMap.end())
 				return &(itr->second);
 			
 			return nullptr;
 		}
-		GameObjectData* findGameObjectDataByPOI(uint32 mapid,float x,float y){
-			GameObjectPOIMap::const_iterator itr = mGameObjectPOIMap.find(makeMapXY(mapid, x, y));
+		GameObjectData* findGameObjectDataByPOI(uint64 mapxy){
+			GameObjectPOIMap::const_iterator itr = mGameObjectPOIMap.find(mapxy);
 			if (itr != mGameObjectPOIMap.end())
 				return &(itr->second);
 

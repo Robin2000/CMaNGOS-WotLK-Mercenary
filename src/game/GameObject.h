@@ -37,9 +37,10 @@ struct QuestPOIPoint
 {
 	int32 x;
 	int32 y;
+	uint32 map;
 	uint32 zone;
 	uint32 area;
-
+	uint64 mapxy;
 	QuestPOIPoint() : x(0), y(0),zone(0),area(0) {}
 	QuestPOIPoint(int32 _x, int32 _y,uint32 _zone,uint32 _area) : x(_x), y(_y), zone(_zone), area(_area) {}
 };
@@ -94,6 +95,7 @@ struct QuestNpcGO{
 	float x;
 	float y;
 	float z;
+	uint64 mapxy;
 	uint8 ntype;
 };
 // from `gameobject_template`

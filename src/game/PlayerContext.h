@@ -67,6 +67,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	
 	//炉石菜单当前辅助任务
 	uint32 aux_questid=-1;
+	uint32 aux_npcgo_idx = -1;
+	uint32 aux_poi_idx = -1;//使用POI快速定位
 
 	Quest const* findAuxQuest();
 	
@@ -104,8 +106,6 @@ class MANGOS_DLL_SPEC PlayerContext{
 	tbb::concurrent_vector<Quest const*>& recommendQuestArea(int32 area, uint32 num);
 	tbb::concurrent_vector<Quest const*>& recommendQuestZone(int32 zone, uint32 num);
 
-	//取得特定任务相关NPC和GameObject列表
-	tbb::concurrent_vector<QuestNpcGO> * GetQuestNpcGOVector(uint32 questid);
 
 	//取得任务本地化标题
 	void GetQuestTitleLocale(uint32 quest_id, std::string * title);
@@ -126,20 +126,26 @@ class MANGOS_DLL_SPEC PlayerContext{
 	GameObjectData* findQuestStarterGameObject(uint32 quest_id);
 
 	//通过POI查找生物
-	CreatureData* findCreatureDataByPOI(uint32 mapid, float x, float y);
+	CreatureData* findCreatureDataByPOI(uint64 mapxy);
 
 	//通过POI查找游戏对象
-	GameObjectData* findGameObjectDataByPOI(uint32 mapid, float x, float y);
+	GameObjectData* findGameObjectDataByPOI(uint64 mapxy);
 
-	//缓存任务POI向量
-	QuestPOIVector const* questPOIVec;
-	
-	//取得特定任务POI
-	QuestPOIVector const*  loadQuestPOI(uint32 questid);
-	
-	//取得整个任务POI向量
-	QuestPOIVector const* getQuestPOI(){ return questPOIVec; }
-	
+	//缓存任务NPCGO向量，改变量指向sObjectMgr，仅引用，不维护生命周期
+	tbb::concurrent_vector<QuestNpcGO> * questNpcGOVec;
+
+	//缓存任务POI向量，改变量需要维护生命周期
+	tbb::concurrent_vector<QuestPOIPoint const*> * questPOIVec;
+
+	//取得缓存任务POI向量,需先调用loadQuestAux准备数据
+	tbb::concurrent_vector<QuestPOIPoint const*> * GetQuestPOI(){ return questPOIVec; }
+
+	//取得特定任务相关NPC和GameObject列表,需先调用loadQuestAux准备数据
+	tbb::concurrent_vector<QuestNpcGO> * GetQuestNpcGOVector(){ return questNpcGOVec; }
+
+	//根据任务获得POI和NPCGO
+	void loadQuestAux(uint32 questid);
+
 	//寻找任务开始NPC或GO
 	int32 findQuestStarterCreatureOrGO(uint32 questid);
 	
@@ -158,7 +164,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void addDelayedAction(DelayedAction * action);
 	
 	PrEventPlugin & getEventPlugin(){return eventPlugin;}
-	
+
 	Player* mPlayer;
 
 private :

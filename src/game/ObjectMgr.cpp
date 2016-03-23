@@ -469,6 +469,7 @@ void ObjectMgr::LoadQuestNpcGO(){
 		questNpcGO.x = fields[6].GetFloat();
 		questNpcGO.y = fields[7].GetFloat();
 		questNpcGO.z = fields[8].GetFloat();
+		questNpcGO.mapxy = makeMapXY(questNpcGO.map, float(questNpcGO.x), float(questNpcGO.y));//提前准备好校对数据
 
 		if (questNpcGO.ntype==0)
 			mQuestStarterNpcGOMaps[questNpcGO.quest] = questNpcGO.npcgo;
@@ -7163,6 +7164,9 @@ void ObjectMgr::LoadQuestPOI()
                     continue;
 
                 QuestPOIPoint point(x, y,zone,area);
+				point.map = itr->MapId;//补充map信息
+				point.mapxy = makeMapXY(point.map, float(point.x), float(point.y));//提前准备好校对数据
+
                 itr->points.push_back(point);
                 break;
             }
