@@ -480,7 +480,7 @@ void PlayerContext::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name)
 	else if (entry < 0)//gameobject
 		sObjectMgr.GetGameObjectLocaleStrings(0 - entry, mPlayer->GetSession()->GetSessionDbLocaleIndex(), name);
 	else
-		*name = "error";
+		*name = "";
 }
 
 CreatureData* PlayerContext::findCreatureDataByPOI(uint64 mapxy){ return sObjectMgr.findCreatureDataByPOI(mapxy); }
@@ -511,17 +511,15 @@ void PlayerContext::loadQuestAux(uint32 questid){
 
 	for (auto it = tmp->begin(); it != tmp->end(); it++)
 	{
-		if (it->ntype != 3)
-		{
-			questNpcGOVec->push_back(&*it);
-			continue;
-		}
 		if (itemEntrySet.find(it->npcgo) == itemEntrySet.end())
 		{
 			itemEntrySet.insert(it->npcgo);
 			if (it->ntype == 2 && it->npcgo < 0)//如果是游戏对象暴物品
 			{
 				GameObjectInfo const* info = sObjectMgr.GetGameObjectInfo(0 - it->npcgo);
+				if (info == nullptr)
+					continue;
+
 				switch (info->type)
 				{
 					case GAMEOBJECT_TYPE_CHEST:
@@ -542,6 +540,9 @@ void PlayerContext::loadQuestAux(uint32 questid){
 			}
 			else if(it->ntype == 2 && it->npcgo > 0){//如果是怪物暴物品，怪物不允许超过玩家等级10级。
 				CreatureInfo const* info=sObjectMgr.GetCreatureTemplate(it->npcgo);
+				if (info == nullptr)
+					continue;
+
 				if (info->MinLevel<=mPlayer->getLevel()+10)
 					questNpcGOVec->push_back(&*it);
 			}
@@ -592,10 +593,10 @@ void PlayerContext::deletePOIFromDB(uint32 questId,QuestPOIPoint const* point){
 	if (POI == nullptr)
 		return;
 
-	WorldDatabase.BeginTransaction();
-	WorldDatabase.PExecute("DELETE FROM quest_poi_points WHERE prid='%u'", point->prid);
+	SqlStatementID delpoi;
+	SqlStatement stmt = WorldDatabase.CreateStatement(delpoi, "DELETE FROM quest_poi_points WHERE prid = ?");
+	stmt.PExecute(point->prid);
 
-	bool find = false;
 
 	std::vector<QuestPOIPoint> tmp;
 	for (auto it = POI->begin(); it != POI->end(); it++)
@@ -606,21 +607,16 @@ void PlayerContext::deletePOIFromDB(uint32 questId,QuestPOIPoint const* point){
 		{
 			if (it2->prid != point->prid)
 				tmp.push_back(*it2);
-			else
-				find = true;
 		}
 		
-		if (find)
-		{
-			it->points.clear();
 
-			for (auto it2 = tmp.begin(); it2 != tmp.end(); it2++)
-				it->points.push_back(*it2);
+		it->points.clear();
 
-			break;
-		}		
+		for (auto it2 = tmp.begin(); it2 != tmp.end(); it2++)
+			it->points.push_back(*it2);
+	
 	}
-	WorldDatabase.CommitTransaction();
+
 	ChatHandler(mPlayer).PSendSysMessage("delete quest_poi_points sucess!prid=%u", point->prid);
 
 	loadQuestAux(questId);//重新load
@@ -649,7 +645,10 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 		}
 	}
 	if (poi == nullptr){
-		WorldDatabase.PExecute("INSERT into quest_poi(questId,poiId,objIndex,mapId,mapAreaId,floorId,unk3,unk4) values ('%u',0,0,'%u','%u',0,0,1)", questId, map, area);
+		SqlStatementID insertpoi;
+		SqlStatement stmt = WorldDatabase.CreateStatement(insertpoi, "INSERT into quest_poi(questId,poiId,objIndex,mapId,mapAreaId,floorId,unk3,unk4) values (?,0,0,?,?,0,0,1)");
+		stmt.PExecute(questId, map, area);
+
 		poi = new QuestPOI(0, 0, map, area, 0, 0, 1);
 		sObjectMgr.addQuestPOIVector(questId, poi);
 	}

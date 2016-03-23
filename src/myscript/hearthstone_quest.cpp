@@ -246,24 +246,52 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			return false;
 
 		QuestPOIPoint const* point = POI->at(pPlayer->context.aux_poi_idx);
+		
+		float z = 0;
+
+		if (point->npcgo > 0)
+		{
+			if (CreatureData* data = pPlayer->context.findCreatureDataByPOI(point->mapxy))
+				z = data->posZ;
+		}
+		else if (point->npcgo < 0)
+		{
+			if (GameObjectData* data = pPlayer->context.findGameObjectDataByPOI(point->mapxy))
+				z = data->posZ;
+		}
 		switch (uiAction)
 		{
 			case GOSSIP_ACTION_INFO_DEF + 1111://显示目标场景，不关闭菜单，可反复观看
-				pPlayer->changeCamera(point->x, point->y, 0.0f, 15000, 50.0f);//切换镜头
+				
+				if (z == 0)
+					pPlayer->changeCamera(point->x, point->y, 0.0f, 15000, 50.0f);//切换镜头
+				else
+					pPlayer->changeCamera(point->x, point->y, z , 0.0f, 15000, 50.0f);//切换镜头
+
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 980 + pPlayer->context.aux_poi_idx);//重新显示菜单
 				return true;
 			case GOSSIP_ACTION_INFO_DEF + 1112://传送我到达目标(-3点原力)
 				if (!pPlayer->context.gamePointMgr.checkPoint(3))
 					return false;
-				ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
+
+				if (z==0)
+					ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
+				else
+					pPlayer->TeleportTo(point->map, point->x, point->y, z, 0);
+
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
 			case GOSSIP_ACTION_INFO_DEF + 1113://传送我到达目标(-1点原力)
 				if (!pPlayer->context.gamePointMgr.checkPoint(1))
 					return false;
-				ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
+				
+				if (z == 0)
+					ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
+				else
+					pPlayer->TeleportTo(point->map, point->x, point->y, z, 0);
+
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
@@ -334,7 +362,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				pPlayer->context.gossipActionType = NPCGO_SEL_CAMERA_POI;
 
 				std::ostringstream os;
-				getPOIName(pPlayer, point->map, point->zone, point->area, point->x, point->y, os);
+				getPOIName(pPlayer, point,point->map, point->zone, point->area, point->x, point->y, os);
 				if (point->map == pPlayer->GetMapId())
 				{
 					std::string name = os.str();
@@ -432,7 +460,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				{
 					QuestPOIPoint const* point = POI->at(i);
 					std::ostringstream os;
-					getPOIName(pPlayer, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
+					getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
 						
 					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
 
@@ -450,7 +478,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}
 
-	void getPOIName(Player * pPlayer, uint32 map, uint32 zone, uint32 area, int32 x, int32 y, std::ostringstream& os)
+	void getPOIName(Player * pPlayer, QuestPOIPoint const* point , uint32 map, uint32 zone, uint32 area, int32 x, int32 y, std::ostringstream& os)
 	{
 		std::string *mapName = pPlayer->context.getGameMapsName(map);
 		if (mapName != nullptr)
@@ -461,10 +489,17 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			os << "-" << *zoneName;
 
 		std::string *areaName = pPlayer->context.getGameAreaName(area);
-		if (areaName != nullptr)
+		if (areaName != nullptr&&areaName != zoneName)
 			os << *areaName;
 
-		os << "[" << x << "," << y << "]";
+		const char * name = "";
+		if (point->npcgo!=0)
+			pPlayer->context.GetCreatureOrGOTitleLocale(point->npcgo, &name);
+		
+		if (name == "")
+			os << "[" << x << "," << y << "]";
+		else
+			os << "-" << name;
 
 	}
 	/*任务辅助主菜单*/
