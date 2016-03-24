@@ -462,20 +462,18 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				tbb::concurrent_vector<QuestPOIPoint const*> * POI = pPlayer->context.GetQuestPOI();
 
 				int size = POI->size();
-				if (size == 0)
-					return;
-
-				int maxPOI = 19 - npcgocount;
-
-				
-				for (int i = 0; i < size&&i<maxPOI; i++)
+				if (size > 0)
 				{
-					QuestPOIPoint const* point = POI->at(i);
-					std::ostringstream os;
-					getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
-						
-					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+					int maxPOI = 19 - npcgocount;
+					for (int i = 0; i < size&&i < maxPOI; i++)
+					{
+						QuestPOIPoint const* point = POI->at(i);
+						std::ostringstream os;
+						getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
 
+						pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+
+					}
 				}
 			}
 

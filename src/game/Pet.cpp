@@ -278,7 +278,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     _LoadAuras(timediff);
 
     // init AB
-    if (is_temporary_summoned)
+    if (is_temporary_summoned||isMercenary())
     {
         // Temporary summoned pets always have initial spell list at load
         InitPetCreateSpells();
@@ -311,7 +311,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 	if (!isMercenary())
 		InitLevelupSpellsForLevel();
 
-    CleanupActionBar();                                     // remove unknown spells from action bar after load
+	if (!isMercenary())
+		CleanupActionBar();                                     // remove unknown spells from action bar after load
 
     _LoadSpellCooldowns();
 
