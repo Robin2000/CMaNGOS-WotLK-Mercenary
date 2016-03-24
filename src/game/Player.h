@@ -1392,6 +1392,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
 		void SendQuestUpdate(uint32 questId);
+		void SendQuestUpdateAddObjectiveCount(uint32 questid, uint32 itemGoCreatureEntry, uint16 count);
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
 
         void SetDailyQuestStatus(uint32 quest_id);

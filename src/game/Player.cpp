@@ -13890,6 +13890,12 @@ void Player::SendQuestUpdate(uint32 questId)
 
 	UpdateForQuestWorldObjects();
 }
+void Player::SendQuestUpdateAddObjectiveCount(uint32 questid, uint32 itemGoCreatureEntry, uint16 count)
+{
+	uint16 log_slot = FindQuestSlot(questid);
+	if (log_slot < MAX_QUEST_LOG_SIZE)
+		SetQuestSlotCounter(log_slot, itemGoCreatureEntry, count);
+}
 void Player::FailQuest(uint32 questId)
 {
     if (Quest const* pQuest = sObjectMgr.GetQuestTemplate(questId))
@@ -14519,7 +14525,8 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
             continue;
 
         Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
-        if (!qInfo || !qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))
+        //if (!qInfo || !qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))去掉标志检测
+		if (!qInfo)
             continue;
 
         for (int j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
@@ -14533,12 +14540,20 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 {
                     uint32 additemcount = (curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount);
                     q_status.m_itemcount[j] += additemcount;
-                    if (q_status.uState != QUEST_NEW)
-                        q_status.uState = QUEST_CHANGED;
+					if (q_status.uState != QUEST_NEW)
+						q_status.uState = QUEST_CHANGED;
+
+					
+					SendQuestUpdateAddObjectiveCount(questid, entry, q_status.m_itemcount[j]);//返回前更新任务.会级联UpdateForQuestWorldObjects
+					//SendQuestUpdate(questid);
                 }
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
-                return;
+				else
+					IncompleteQuest(questid); //这句有用？
+				
+				return;
+				
             }
         }
     }
@@ -14555,8 +14570,8 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
         Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
         if (!qInfo)
             continue;
-        if (!qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))
-            continue;
+        //if (!qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))取消此标志
+          //  continue;
 
         for (int j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
         {
@@ -14576,6 +14591,9 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                     uint32 remitemcount = (curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount);
                     q_status.m_itemcount[j] = curitemcount - remitemcount;
                     if (q_status.uState != QUEST_NEW) q_status.uState = QUEST_CHANGED;
+
+					SendQuestUpdateAddObjectiveCount(questid, entry, q_status.m_itemcount[j]);//返回前更新任务.会级联UpdateForQuestWorldObjects
+					//SendQuestUpdate(questid);
 
                     IncompleteQuest(questid);
                 }
