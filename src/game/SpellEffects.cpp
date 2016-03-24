@@ -5549,8 +5549,13 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
         if (summon_prop->FactionId)
             itr->creature->setFaction(summon_prop->FactionId);
         // Else set faction to summoner's faction for pet-like summoned
-        else if ((summon_prop->Flags & SUMMON_PROP_FLAG_INHERIT_FACTION) || !itr->creature->IsTemporarySummon())
-            itr->creature->setFaction(responsibleCaster ? responsibleCaster->getFaction() : m_caster->getFaction());
+		else if ((summon_prop->Flags & SUMMON_PROP_FLAG_INHERIT_FACTION) || !itr->creature->IsTemporarySummon())
+		{
+			itr->creature->setFaction(responsibleCaster ? responsibleCaster->getFaction() : m_caster->getFaction());//相当于魅惑了一个creature
+			Player *player=responsibleCaster ? responsibleCaster->ToPlayer() : m_caster->ToPlayer();
+			if (player != nullptr)
+				player->KilledMonster(itr->creature->GetCreatureInfo(), itr->creature->GetObjectGuid());
+		}
 
         if (!itr->creature->IsTemporarySummon())
         {

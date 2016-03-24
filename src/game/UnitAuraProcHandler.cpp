@@ -3171,7 +3171,7 @@ SpellAuraProcResult Unit::HandleProcTriggerSpellAuraProc(Unit* pVictim, uint32 d
                 }
             }
             // Cheat Death
-            else if (auraSpellInfo->Id == 28845)
+            else if (auraSpellInfo->Id == 28845)//血色礦工食屍鬼變形
             {
                 // When your health drops below 20% ....
                 int32 health20 = int32(GetMaxHealth()) / 5;
