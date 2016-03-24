@@ -278,7 +278,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 		return true;
 	}
 
-	if (player->context.gossipActionType = GOSSIP_ACTION_RACE_DEF)//选择种族
+	if (player->context.gossipActionType == GOSSIP_ACTION_RACE_DEF)//选择种族
 	{
 		if (actions > MAX_RACE_SEL)
 			mercenary->SetValues(getCharFemalModel(actions - MAX_RACE_SEL), actions - MAX_RACE_SEL, GENDER_FEMALE);
@@ -288,7 +288,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 		SendRoleList(player, item, mercenary->GetType());
 		return true;
 	}
-	if (player->context.gossipActionType = GOSSIP_ACTION_ROLE_DEF){//选择角色
+	if (player->context.gossipActionType == GOSSIP_ACTION_ROLE_DEF){//选择角色
 		std::vector<MercenaryRoleDef*>* roles = MercenaryUtil::findRoleVectorByClass(mercenary->GetType());
 		uint8 i = 0;
 		for (auto itr = roles->begin(); itr != roles->end(); itr++, i++)
