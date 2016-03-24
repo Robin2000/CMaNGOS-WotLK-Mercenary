@@ -215,7 +215,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		switch (uiAction)
 		{
 			case GOSSIP_ACTION_INFO_DEF + 1111://显示目标场景，不关闭菜单，可反复观看
-				pPlayer->changeCamera(questNpcGO->x, questNpcGO->y, questNpcGO->z, 0.0f, 15000, 50.0f);//切换镜头
+				pPlayer->changeCamera(questNpcGO->x, questNpcGO->y, questNpcGO->z, 0.0f, 15000, 30.0f);//切换镜头
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 960 + pPlayer->context.aux_npcgo_idx);//重新显示菜单
 				return true;
@@ -246,27 +246,39 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			return false;
 
 		QuestPOIPoint const* point = POI->at(pPlayer->context.aux_poi_idx);
-		
+		float x = point->x;
+		float y = point->y;
 		float z = 0;
+		uint32 map = point->map;
 
 		if (point->npcgo > 0)
 		{
 			if (CreatureData* data = pPlayer->context.findCreatureDataByPOI(point->mapxy))
+			{
+				map = data->mapid;
+				x = data->posX;
+				y = data->posY;
 				z = data->posZ;
+			}
 		}
 		else if (point->npcgo < 0)
 		{
 			if (GameObjectData* data = pPlayer->context.findGameObjectDataByPOI(point->mapxy))
+			{
+				map = data->mapid;
+				x = data->posX;
+				y = data->posY;
 				z = data->posZ;
+			}
 		}
 		switch (uiAction)
 		{
 			case GOSSIP_ACTION_INFO_DEF + 1111://显示目标场景，不关闭菜单，可反复观看
 				
 				if (z == 0)
-					pPlayer->changeCamera(point->x, point->y, 0.0f, 15000, 50.0f);//切换镜头
+					pPlayer->changeCamera(x, y, 0.0f, 15000, 30.0f);//切换镜头
 				else
-					pPlayer->changeCamera(point->x, point->y, z , 0.0f, 15000, 50.0f);//切换镜头
+					pPlayer->changeCamera(x, y, z , 0.0f, 15000, 30.0f);//切换镜头
 
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 980 + pPlayer->context.aux_poi_idx);//重新显示菜单
@@ -276,9 +288,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					return false;
 
 				if (z==0)
-					ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
+					ChatHandler(pPlayer).HandleGoHelper(pPlayer, map, x, y);
 				else
-					pPlayer->TeleportTo(point->map, point->x, point->y, z, 0);
+					pPlayer->TeleportTo(map, x,y, z, 0);
 
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
@@ -288,9 +300,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					return false;
 				
 				if (z == 0)
-					ChatHandler(pPlayer).HandleGoHelper(pPlayer, point->map, point->x, point->y);
+					ChatHandler(pPlayer).HandleGoHelper(pPlayer, map, x, y);
 				else
-					pPlayer->TeleportTo(point->map, point->x, point->y, z, 0);
+					pPlayer->TeleportTo(map, x, y, z, 0);
 
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/

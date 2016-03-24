@@ -648,9 +648,11 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 		SqlStatementID insertpoi;
 		SqlStatement stmt = WorldDatabase.CreateStatement(insertpoi, "INSERT into quest_poi(questId,poiId,objIndex,mapId,mapAreaId,floorId,unk3,unk4) values (?,0,0,?,?,0,0,1)");
 		stmt.PExecute(questId, map, area);
+		ChatHandler(mPlayer).PSendSysMessage("add quest_poi sucess!questid=%u,PoiId=0", questId);
 
 		poi = new QuestPOI(0, 0, map, area, 0, 0, 1);
 		sObjectMgr.addQuestPOIVector(questId, poi);
+
 	}
 
 	//下面添加point
@@ -669,6 +671,10 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 			point.npcgo = 0 - goData->id;
 	}
 
+	SqlStatementID insertpoint;
+	SqlStatement stmt = WorldDatabase.CreateStatement(insertpoint, "INSERT into quest_poi_points(questId,poiId,x,y,zone,area) values (?,?,?,?,?,?)");
+	stmt.PExecute(questId, poi->PoiId, x,y,zone,area);
+
 	QueryResult* result = WorldDatabase.Query("SELECT max(prid) FROM quest_poi_points");
 	Field* fields = result->Fetch();
 	point.prid = fields[0].GetUInt32(); //用于删除点
@@ -676,7 +682,7 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 	poi->points.push_back(point);
 	delete result;
 
-	ChatHandler(mPlayer).SendSysMessage("add quest_poi_points sucess!");
+	ChatHandler(mPlayer).PSendSysMessage("add quest_poi_points sucess!prid=" + point.prid);
 	loadQuestAux(questId);//重新load
 }
 
