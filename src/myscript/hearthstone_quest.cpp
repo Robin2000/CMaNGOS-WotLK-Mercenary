@@ -215,7 +215,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		switch (uiAction)
 		{
 			case GOSSIP_ACTION_INFO_DEF + 1111://显示目标场景，不关闭菜单，可反复观看
-				pPlayer->changeCamera(questNpcGO->x, questNpcGO->y, questNpcGO->z, 0.0f, 15000, 30.0f);//切换镜头
+				pPlayer->changeCamera(questNpcGO->x, questNpcGO->y, questNpcGO->z, 0.0f, 15000, 45.0f);//切换镜头
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 960 + pPlayer->context.aux_npcgo_idx);//重新显示菜单
 				return true;
@@ -276,9 +276,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			case GOSSIP_ACTION_INFO_DEF + 1111://显示目标场景，不关闭菜单，可反复观看
 				
 				if (z == 0)
-					pPlayer->changeCamera(x, y, 0.0f, 15000, 30.0f);//切换镜头
+					pPlayer->changeCamera(x, y, 0.0f, 15000, 45.0f);//切换镜头
 				else
-					pPlayer->changeCamera(x, y, z , 0.0f, 15000, 30.0f);//切换镜头
+					pPlayer->changeCamera(x, y, z , 0.0f, 15000, 45.0f);//切换镜头
 
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 980 + pPlayer->context.aux_poi_idx);//重新显示菜单
