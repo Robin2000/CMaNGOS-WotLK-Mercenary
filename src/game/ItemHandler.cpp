@@ -267,7 +267,12 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recv_data)
         _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, nullptr, nullptr);
         return;
     }
-
+	//检查任务物品不允许手动删除
+	if (pItem->GetProto()->Bonding == BIND_QUEST_ITEM)
+	{
+		ChatHandler(_player).SendSysMessage(-2800682);
+		return;
+	}
     if (count)
     {
         uint32 i_count = count;

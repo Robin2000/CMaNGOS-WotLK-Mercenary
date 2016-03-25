@@ -567,7 +567,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			std::string  title = "";
 			pPlayer->context.GetQuestTitleLocale(recommendResult.at(i)->GetQuestId(), &title);
 			std::ostringstream os;
-			os << "【" << ((areaOrZone == nullptr) ? "" : *areaOrZone) << "】" << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
+			os << ((areaOrZone == nullptr) ? "" : *areaOrZone) << ":" << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+recommendResult.at(i)->GetQuestId());//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
