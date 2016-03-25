@@ -597,28 +597,8 @@ void PlayerContext::deletePOIFromDB(uint32 questId,QuestPOIPoint const* point){
 	SqlStatement stmt = WorldDatabase.CreateStatement(delpoi, "DELETE FROM quest_poi_points WHERE prid = ?");
 	stmt.PExecute(point->prid);
 
-
-	std::vector<QuestPOIPoint> tmp;
-	for (auto it = POI->begin(); it != POI->end(); it++)
-	{
-		tmp.clear();
-
-		for (auto it2 = it->points.begin(); it2 != it->points.end(); it2++)
-		{
-			if (it2->prid != point->prid)
-				tmp.push_back(*it2);
-		}
-		
-
-		it->points.clear();
-
-		for (auto it2 = tmp.begin(); it2 != tmp.end(); it2++)
-			it->points.push_back(*it2);
-	
-	}
-
 	ChatHandler(mPlayer).PSendSysMessage("delete quest_poi_points sucess!prid=%u", point->prid);
-
+	sObjectMgr.LoadQuestPOI();
 	loadQuestAux(questId);//重新load
 }
 
@@ -636,53 +616,41 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 
 	QuestPOIVector * POIV = sObjectMgr.GetQuestPOIVector(questId);
 	QuestPOI* poi=nullptr;
-	if (POIV != nullptr){
+
+	int max_poi_id = -1;
+	if (POIV != nullptr)
 	for (auto it = POIV->begin(); it != POIV->end(); it++)
+	{
 		if (it->MapId == target->GetMapId() && it->MapAreaId == area)
-		{
 			poi = &*it;
-			break;
-		}
+
+		if (int(it->PoiId) > max_poi_id)
+			max_poi_id = it->PoiId;//取得当前最大的poi_id，如果map和area没有匹配的，将以最大poi_id+1
 	}
 	if (poi == nullptr){
+		uint32 new_poi_id = max_poi_id + 1;
 		SqlStatementID insertpoi;
-		SqlStatement stmt = WorldDatabase.CreateStatement(insertpoi, "INSERT into quest_poi(questId,poiId,objIndex,mapId,mapAreaId,floorId,unk3,unk4) values (?,0,0,?,?,0,0,1)");
-		stmt.PExecute(questId, map, area);
-		ChatHandler(mPlayer).PSendSysMessage("add quest_poi sucess!questid=%u,PoiId=0", questId);
+		SqlStatement stmt = WorldDatabase.CreateStatement(insertpoi, "INSERT into quest_poi(questId,poiId,objIndex,mapId,mapAreaId,floorId,unk3,unk4) values (?,?,0,?,?,0,0,1)");
+		stmt.PExecute(questId, new_poi_id , map, area);
+		ChatHandler(mPlayer).PSendSysMessage("add quest_poi sucess!questid=%u,PoiId=%u", questId, new_poi_id);
 
-		poi = new QuestPOI(0, 0, map, area, 0, 0, 1);
+		poi = new QuestPOI(new_poi_id, 0, map, area, 0, 0, 1);
 		sObjectMgr.addQuestPOIVector(questId, poi);
 
 	}
-
-	//下面添加point
-	QuestPOIPoint point(x, y, zone, area);
-
-	point.map = map;//补充map信息
-	point.mapxy = makeMapXY(point.map, float(point.x), float(point.y));//提前准备好校对数据
-
-	CreatureData* creatureData = sObjectMgr.findCreatureDataByPOI(point.mapxy);
-	if (creatureData != nullptr)
-		point.npcgo = creatureData->id;
-	else
-	{
-		GameObjectData* goData = sObjectMgr.findGameObjectDataByPOI(point.mapxy);
-		if (goData != nullptr)
-			point.npcgo = 0 - goData->id;
-	}
-
 	SqlStatementID insertpoint;
 	SqlStatement stmt = WorldDatabase.CreateStatement(insertpoint, "INSERT into quest_poi_points(questId,poiId,x,y,zone,area) values (?,?,?,?,?,?)");
-	stmt.PExecute(questId, poi->PoiId, x,y,zone,area);
+	stmt.PExecute(questId, poi->PoiId, x, y, zone, area);
+
+
 
 	QueryResult* result = WorldDatabase.Query("SELECT max(prid) FROM quest_poi_points");
 	Field* fields = result->Fetch();
-	point.prid = fields[0].GetUInt32(); //用于删除点
-	
-	poi->points.push_back(point);
+	uint32 prid = fields[0].GetUInt32(); //用于显示
 	delete result;
 
-	ChatHandler(mPlayer).PSendSysMessage("add quest_poi_points sucess!prid=" + point.prid);
+	ChatHandler(mPlayer).PSendSysMessage("add quest_poi_points sucess!prid=%u", prid);
+	sObjectMgr.LoadQuestPOI();
 	loadQuestAux(questId);//重新load
 }
 

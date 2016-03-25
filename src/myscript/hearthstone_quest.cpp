@@ -222,14 +222,14 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			case GOSSIP_ACTION_INFO_DEF + 1112://传送我到达目标(-3点原力)
 				if (!pPlayer->context.gamePointMgr.checkPoint(3))
 					return false;
-				pPlayer->TeleportTo(questNpcGO->map, questNpcGO->x, questNpcGO->y, questNpcGO->z, 0);
+				pPlayer->TeleportTo(questNpcGO->map, questNpcGO->x+0.5f, questNpcGO->y, questNpcGO->z + 2.0f, 0);
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
 			case GOSSIP_ACTION_INFO_DEF + 1113://传送我到达目标(-1点原力)
 				if (!pPlayer->context.gamePointMgr.checkPoint(1))
 					return false;
-				pPlayer->TeleportTo(questNpcGO->map, questNpcGO->x, questNpcGO->y, questNpcGO->z, 0);
+				pPlayer->TeleportTo(questNpcGO->map, questNpcGO->x+0.5f, questNpcGO->y, questNpcGO->z+2.0f, 0);
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
@@ -278,7 +278,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				if (z == 0)
 					pPlayer->changeCamera(x, y, 0.0f, 15000, 45.0f);//切换镜头
 				else
-					pPlayer->changeCamera(x, y, z , 0.0f, 15000, 45.0f);//切换镜头
+					pPlayer->changeCamera(x, y, z , 0.0f, 15000, 45.0f);//切换镜头，镜头适当抬高2.0f
 
 				pPlayer->context.gossipActionType = NPCGO_SEL_ACTION;//重新显示菜单
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 980 + pPlayer->context.aux_poi_idx);//重新显示菜单
@@ -290,7 +290,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				if (z==0)
 					ChatHandler(pPlayer).HandleGoHelper(pPlayer, map, x, y);
 				else
-					pPlayer->TeleportTo(map, x,y, z, 0);
+					pPlayer->TeleportTo(map, x + 0.5f, y, z + 2.0f, 0);//z高度增加10.0f避免掉地下
 
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
@@ -302,7 +302,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				if (z == 0)
 					ChatHandler(pPlayer).HandleGoHelper(pPlayer, map, x, y);
 				else
-					pPlayer->TeleportTo(map, x, y, z, 0);
+					pPlayer->TeleportTo(map, x+0.5f, y, z + 2.0f, 0); //z高度增加10.0f避免掉地下
 
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
@@ -322,11 +322,17 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		{
 			ObjectGuid guid = pPlayer->GetSelectionGuid();
 			if (!guid)
+			{
+				ChatHandler(pPlayer).SendSysMessage(200);
 				return false;
+			}
 
 			WorldObject * target = pPlayer->GetMap()->GetWorldObject(guid);
-			if (!target)
+			if (target == nullptr)
+			{
+				ChatHandler(pPlayer).SendSysMessage(200);
 				return false;
+			}
 
 			pPlayer->context.addSelectedToPOI(pPlayer->context.aux_questid, target);
 			return true;
@@ -588,7 +594,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			
 			std::string msg = pPlayer->GetMangosString(-2800592) + ((areaname == nullptr) ? "" : *areaname);
 			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域没有可以推荐的任务。
-			return;
+			//return;仍然需要显示列表
 		}
 
 		hearthstone_prepare_quest_list(areaname,pPlayer, pItem, recommendResult);
@@ -605,7 +611,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			
 			std::string msg = pPlayer->GetMangosString(-2800592) + ((zonename == nullptr) ? "" : *zonename);
 			ChatHandler(pPlayer).SendSysMessage(msg.c_str());//系统提示：此区域没有可以推荐的任务。
-			return;
+			//return;仍然需要显示列表
 		}
 		hearthstone_prepare_quest_list(zonename,pPlayer, pItem, recommendResult);
 	}

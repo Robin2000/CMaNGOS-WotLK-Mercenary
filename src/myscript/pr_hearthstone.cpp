@@ -71,7 +71,7 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 	if (pPlayer->isInCombat())
 	{
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
-		return false;
+		return true;
 	}
 	pPlayer->context.checkFirstGuideQuest();
 	return hearthstone_click2(pPlayer, pItem);

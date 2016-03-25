@@ -139,7 +139,7 @@ struct mercenary_bot_AI : public PetAI
 		updateStealth(diff);
 
 		if (Unit* owner = m_creature->GetOwner())
-			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))// && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)
+			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
 			{
 					if (mercenary->isRangedAttack())
 						m_creature->GetMotionMaster()->MoveFollow(owner, 4 * PET_FOLLOW_DIST, M_PI_F*3.0f / 4.0f);
