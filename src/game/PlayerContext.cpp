@@ -8,10 +8,102 @@
 #include "tbb/parallel_for_each.h"
 #include "Log.h"
 #include "PlayerContext.h"
+#include "MovementGenerator.h"
+#include "movement/MoveSplineInit.h"
+#include "movement/MoveSplineInitArgs.h"
+#include "movement/MoveSpline.h"
+#include "DynamicObject.h"
+#include "MoveMap.h"                                        // for mmap manager
 
+const static int tanMountSpell[7] = {//毯
+	61309,
+	61442,
+	61444,
+	61446,
+	61451,
+	75387,
+	75596
+};
+void TransportStopAction::run(){
+	player->Unmount(false);
+}
+void TransportAction::run(){
+	float px = player->GetPositionX();
+	float py = player->GetPositionY();
+	float pz = player->GetPositionX();
+	float po = player->GetOrientation();
 
+	float distance = (x - px) * (x - px) + (y - py) * (y - py) + (z - pz) * (z - pz);
+	float speed = sqrt(distance) / 10.0f;//总是10秒到达，无论多远
+	//float speed = 24.0f;
+	if (speed < 24.0f)
+		speed = 24.0f;
+	//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
+
+	//TransportStopAction * transportStopAction = new TransportStopAction(mPlayer, x, y, z, orientation, speed, STOP_EVENT_FLY_TO_SKY);
+	//addDelayedAction(new TransportAction(mPlayer, mPlayer->GetPositionX(), mPlayer->GetPositionY(), mPlayer->GetPositionZ() + 72.0f, orientation, 24.0f, 1000, transportStopAction));//0秒后，每秒 800.0f米
+	//Movement::MoveSplineInit init(*mPlayer);
+	//init.MoveTo(x, y, z, true, true);
+	//init.MovebyPath(const PointsArray& controls, int32 path_offset)
+
+	//init.SetVelocity(speed);
+	//init.Launch();
+
+	if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(player->GetMapId()))
+	{
+		ChatHandler(player).SendSysMessage("NavMesh not loaded for current map.");
+		return;
+	}
+
+	// units
+
+	// path
+	PathFinder path(player);
+	path.setUseStrightPath(true);
+	path.calculate(x + 1.0f, y + 1.0f, z);
+
+	PointsArray pointPath = path.getPath();
+
+	Vector3 start = path.getStartPosition();
+	Vector3 end = path.getEndPosition();
+	Vector3 actualEnd = path.getActualEndPosition();
+
+	for (uint32 i = 1; i < pointPath.size() - 1; ++i)//增加高度防止掉地下
+		pointPath[i].z = pointPath[i].z + 80.0f;
+
+	if (!player->isGameMaster())
+		ChatHandler(player).SendSysMessage("Enable GM mode to see the path points.");
+
+	for (uint32 i = 0; i < pointPath.size(); ++i)
+		player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+	
+
+	//mPlayer->SetVehicleId(774, 40725);//小型观光火箭VehicleTemplate=774,entry=40725
+	//Creature* helper = mPlayer->SummonCreature(40725, x, y, z, po, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3600);
+	
+	Movement::MoveSplineInit init(*player);
+	init.MovebyPath(pointPath);
+	init.SetVelocity(speed);
+	init.setStopAction(new TransportStopAction(player));
+	init.SetWalk(false);
+	init.SetFly();
+	//init.SetBoardVehicle();
+	//init.SetSmooth();
+	init.Launch();
+
+	//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
+}
+void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation){
+
+	if (area == mPlayer->GetAreaId()){
+		mPlayer->Mount(31992);//火箭
+		addDelayedAction(new TransportAction(mPlayer, x, y, z, orientation,2000));
+	}
+	else
+		mPlayer->TeleportTo(mapid, x + 1.5f, y + 1.5f, z + 2.0f, orientation);
+}
 void DelayedAction::Update(uint32 update_diff){
-
+	
 	if (timeout)
 		return;
 
@@ -24,7 +116,7 @@ void DelayedAction::Update(uint32 update_diff){
 	}
 }
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
-	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint const*> ();
+	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *> ();
 	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
 }
 PlayerContext::~PlayerContext(){
@@ -38,6 +130,9 @@ PlayerContext::~PlayerContext(){
 }
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
+	if (heart_stone_cooldown > 0)
+		heart_stone_cooldown -= update_diff;
+
 	DelayedAction *action;
 	if (delayActionQueue.pop(action))
 	{
@@ -179,6 +274,7 @@ struct Z_QuestNpcGo{
 	float x;
 	float y;
 	float z;
+	float orientation;
 	uint8 ntype;
 	int16 MinLevel;
 };
@@ -195,8 +291,8 @@ void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
 	//SqlStatementID updatenpcgo;
 	//SqlStatement stmt = WorldDatabase.CreateStatement(updatenpcgo, "UPDATE z_quest_npcgo_all_map SET zone = ?, area = ? WHERE id = ?");
 
-											//        0   1    2          3            4       5     6     7     8
-	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z,quest,npcgo,ntype,MinLevel FROM z_quest_npcgo_all_map order by map");
+											//        0   1    2          3            4       5           6     7     8       9
+	QueryResult* result = WorldDatabase.Query("SELECT id,map,position_x,position_y,position_z,orientation,quest,npcgo,ntype,MinLevel FROM z_quest_npcgo_all_map order by map");
 	
 	QuestNpcGOMap questNpcGOMap;
 	UpdateTerrainInfoMap updateTerrainInfoMap;
@@ -208,15 +304,17 @@ void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
 	{
 		Field* fields = result->Fetch();
 		Z_QuestNpcGo* questNpcGO = new Z_QuestNpcGo();
-		questNpcGO->id = fields[0].GetUInt32();//注意，这里使用quest字段保存id，是为了方便，实际使用时应看作id
+		questNpcGO->id = fields[0].GetUInt32();
 		questNpcGO->map = fields[1].GetUInt32();
 		questNpcGO->x = fields[2].GetFloat();
 		questNpcGO->y = fields[3].GetFloat();
 		questNpcGO->z = fields[4].GetFloat();
-		questNpcGO->quest = fields[5].GetUInt32();
-		questNpcGO->npcgo = fields[6].GetInt32();
-		questNpcGO->ntype = fields[7].GetUInt8();
-		questNpcGO->MinLevel = fields[8].GetInt16();
+		questNpcGO->orientation = fields[5].GetFloat();
+		questNpcGO->quest = fields[6].GetUInt32();
+		questNpcGO->npcgo = fields[7].GetInt32();
+		questNpcGO->ntype = fields[8].GetUInt8();
+		questNpcGO->MinLevel = fields[9].GetInt16();
+		
 		if (questNpcGO->MinLevel < 0)
 			questNpcGO->MinLevel = 0;
 
@@ -244,7 +342,7 @@ void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
 			TerrainInfo* terrain = updateTerrainInfoMap[itr->first];
 			sLog.outError("map:%u ,size:%u", itr->first, itr->second->size());
 			tbb::parallel_for_each(itr->second->begin(), itr->second->end(), [&](Z_QuestNpcGo *v) {
-				fprintf(log_file, "%u\t%u\t%u\t%u\t%u\t%d\t%f\t%f\t%f\t%u\t%u\n", v->id, v->map, terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z), v->quest, v->npcgo, v->x, v->y, v->z, v->ntype, v->MinLevel);
+				fprintf(log_file, "%u\t%u\t%u\t%u\t%u\t%d\t%f\t%f\t%f\t%f\t%u\t%u\n", v->id, v->map, terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z), v->quest, v->npcgo, v->x, v->y, v->z, v->orientation, v->ntype, v->MinLevel);
 				//SELECT * from z_id_zone_area INTO OUTFILE 'e:/data.txt';
 				//LOAD DATA INFILE 'e:/data.txt' INTO TABLE mangos.z_id_zone_area;
 				//stmt.PExecute(terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z), v->quest);
@@ -567,7 +665,7 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	uint32 zone = mPlayer->GetZoneId();
 	uint32 area = mPlayer->GetAreaId();
 
-	std::vector<QuestPOIPoint const*> temp;
+	std::vector<QuestPOIPoint *> temp;
 	sObjectMgr.loadQuestPOIVector(&temp, questid);//加载questPOIVec
 
 	questPOIVec->clear();
@@ -587,7 +685,7 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	return;
 }
 
-void PlayerContext::deletePOIFromDB(uint32 questId,QuestPOIPoint const* point){	
+void PlayerContext::deletePOIFromDB(uint32 questId,QuestPOIPoint * point){	
 	
 	QuestPOIVector * POI = sObjectMgr.GetQuestPOIVector(questId);
 	if (POI == nullptr)
@@ -653,9 +751,122 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 	sObjectMgr.LoadQuestPOI();
 	loadQuestAux(questId);//重新load
 }
+void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureData* data){
+	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ, data->orientation);
+}
+void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data){
+	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ, data->orientation);
+}
 
+void PlayerContext::moveFast(QuestNpcGO const * questNpcGO){
+	if (questNpcGO->npcgo > 0)
+	{
+		if (CreatureData* data = findCreatureDataByPOI(questNpcGO->mapxy))
+			moveFast(questNpcGO->map, questNpcGO->zone, questNpcGO->area,data);
+	}
+	else if (questNpcGO->npcgo < 0)
+	{
+		if (GameObjectData* data = findGameObjectDataByPOI(questNpcGO->mapxy))
+			moveFast(questNpcGO->map, questNpcGO->zone, questNpcGO->area, data);
+	}else
+		ChatHandler(mPlayer).SendSysMessage(-2800678);//该点没有地理信息。
+}
+void PlayerContext::moveFast(QuestPOIPoint * point){
 
+	if (point->npcgo > 0)
+	{
+		if (CreatureData* data = findCreatureDataByPOI(point->mapxy))
+			moveFast(point->map, point->zone, point->area,data);
+	}
+	else if (point->npcgo < 0)
+	{
+		if (GameObjectData* data =findGameObjectDataByPOI(point->mapxy))
+			moveFast(point->map, point->zone, point->area, data);
+	}
+	else
+	{
+		if (point->groundZ == 0){
+			TerrainInfo const* map = sTerrainMgr.LoadTerrain(point->map);	
+			point->groundZ = map->GetWaterOrGroundLevel(point->x, point->y, MAX_HEIGHT);
+		}
+		//ChatHandler(mPlayer).HandleGoHelper(mPlayer, point->map, point->x, point->y);
+		moveFast(point->map, point->zone, point->area, point->x, point->y, point->groundZ, 0);
+	}
+}
+
+void PlayerContext::changeCamera(QuestNpcGO const * questNpcGO){
+	if (questNpcGO->npcgo > 0)
+	{
+		if (CreatureData* data = findCreatureDataByPOI(questNpcGO->mapxy))
+			changeCamera(data->mapid, data->posX, data->posY, data->posZ, 0.0f-data->orientation, 15000, 45.0f);
+	}
+	else if (questNpcGO->npcgo < 0)
+	{
+		if (GameObjectData* data = findGameObjectDataByPOI(questNpcGO->mapxy))
+			changeCamera(data->mapid, data->posX, data->posY, data->posZ, 0.0f-data->orientation, 15000, 45.0f);
+	}
+	else
+		ChatHandler(mPlayer).SendSysMessage(-2800678);//该点没有地理信息。
+	
+}
+void PlayerContext::changeCamera(QuestPOIPoint * point){
+	if (point->npcgo>0)
+	if (CreatureData* data = findCreatureDataByPOI(point->mapxy))
+	{
+		changeCamera(data->mapid, data->posX, data->posY, data->posZ - 2.0f, 0.0f-data->orientation, 15000, 45.0f);//切换镜头，镜头适当降低2.0f
+		return;
+	}
+
+	if (point->npcgo<0)
+	if (GameObjectData* data = findGameObjectDataByPOI(point->mapxy))
+	{
+		changeCamera(data->mapid, data->posX, data->posY, data->posZ - 2.0f, 0.0f-data->orientation, 15000, 45.0f);//切换镜头，镜头适当降低2.0f
+		return;
+	}
+	if (point->groundZ == 0)
+	{
+		TerrainInfo const* map = sTerrainMgr.LoadTerrain(point->map);
+		point->groundZ = map->GetWaterOrGroundLevel(point->x, point->y, MAX_HEIGHT);
+	}
+
+	changeCamera(point->map, point->x, point->y, point->groundZ, 0.0f, 15000, 45.0f);//切换镜头
+
+}
 tbb::concurrent_unordered_set<uint32> & PlayerContext::GetRaceSetByClass(uint32 charClass){
 	return sObjectMgr.GetRaceSetByClass(charClass);
 }
 
+void PlayerContext::changeCamera(WorldObject* target, int32 duration, float radius, float orientation){
+
+	DynamicObject* dynObj = new DynamicObject;
+
+	// set radius to 0: spell not expected to work as persistent aura  43975 切換視角 	
+	if (!dynObj->Create(target->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), mPlayer,
+		43975, EFFECT_INDEX_0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), duration, radius, DYNAMIC_OBJECT_FARSIGHT_FOCUS, orientation))
+	{
+		delete dynObj;
+		return;
+	}
+
+	mPlayer->AddDynObject(dynObj);
+	target->GetMap()->Add(dynObj);
+
+	mPlayer->GetCamera().SetView(dynObj);
+}
+void PlayerContext::changeCamera(uint32 mapid, float x, float y, float z, float orientation, int32 duration, float radius){
+
+	DynamicObject* dynObj = new DynamicObject;
+
+	// set radius to 0: spell not expected to work as persistent aura  43975 切換視角 	
+	if (!dynObj->Create(mPlayer->GetMap()->GenerateLocalLowGuid(HIGHGUID_DYNAMICOBJECT), mPlayer,
+		43975, EFFECT_INDEX_0, x, y, z, duration, radius, DYNAMIC_OBJECT_FARSIGHT_FOCUS, orientation))
+	{
+		delete dynObj;
+		return;
+	}
+
+	mPlayer->AddDynObject(dynObj);
+	mPlayer->GetMap()->Add(dynObj);
+
+	mPlayer->GetCamera().SetView(dynObj);
+}

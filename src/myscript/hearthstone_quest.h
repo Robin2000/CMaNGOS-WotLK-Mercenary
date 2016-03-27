@@ -20,6 +20,6 @@ void hearthstone_prepare_quest_area(Player* pPlayer, Item* pItem, int area);
 //推荐zone下所有区域
 void hearthstone_prepare_quest_zone(Player* pPlayer, Item* pItem, int zone);
 
-void getPOIName(Player * pPlayer, QuestPOIPoint const* point, uint32 map, uint32 zone, uint32 area, int32 x, int32 y, std::ostringstream& os);
+void getPOIName(Player * pPlayer, QuestPOIPoint * point, uint32 map, uint32 zone, uint32 area, int32 x, int32 y, std::ostringstream& os);
 
 #endif

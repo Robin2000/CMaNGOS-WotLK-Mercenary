@@ -441,8 +441,8 @@ void ObjectMgr::LoadGameTips(){
 void ObjectMgr::LoadQuestNpcGO(){
 
 	mQuestNpcGOMaps.clear();                             // need for reload case
-	//													0    1     2    3    4    5    6            7         8
-	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype,map,zone,area,position_x,position_y,position_z FROM z_quest_npcgo_all_map order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
+	//													0    1     2    3    4    5    6            7         8            9
+	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype,map,zone,area,position_x,position_y,position_z,orientation FROM z_quest_npcgo_all_map order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
 
 	if (!result)
 	{
@@ -463,13 +463,17 @@ void ObjectMgr::LoadQuestNpcGO(){
 		questNpcGO.quest = fields[0].GetUInt32();
 		questNpcGO.npcgo = fields[1].GetInt32();
 		questNpcGO.ntype = fields[2].GetUInt8();
-		questNpcGO.map = fields[3].GetInt32();
-		questNpcGO.zone = fields[4].GetInt32();
-		questNpcGO.area = fields[5].GetInt32();
-		questNpcGO.x = fields[6].GetFloat();
-		questNpcGO.y = fields[7].GetFloat();
-		questNpcGO.z = fields[8].GetFloat();
-		questNpcGO.mapxy = makeMapXY(questNpcGO.map, float(questNpcGO.x), float(questNpcGO.y));//提前准备好校对数据
+
+		questNpcGO.map = fields[3].GetUInt32();
+		questNpcGO.zone = fields[4].GetUInt32();
+		questNpcGO.area = fields[5].GetUInt32();
+		
+		float x = fields[6].GetFloat();
+		float y = fields[7].GetFloat();
+		//float z = fields[8].GetFloat();
+		//float orientation = fields[9].GetFloat();
+
+		questNpcGO.mapxy = makeMapXY(questNpcGO.map, x, y);//提前准备好校对数据
 
 		if (questNpcGO.ntype==0)
 			mQuestStarterNpcGOMaps[questNpcGO.quest] = questNpcGO.npcgo;
@@ -7140,8 +7144,8 @@ void ObjectMgr::LoadQuestPOI()
     while (result->NextRow());
 
     delete result;
-	//													0        1    2  3  4    5    6
-    QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y,zone,area,prid FROM quest_poi_points");
+	//													0        1    2  3  4    5    6    7
+    QueryResult* points = WorldDatabase.Query("SELECT questId, poiId, x, y,zone,area,prid,groundZ FROM quest_poi_points");
 
 	CreatureData* creatureData;
 	GameObjectData* goData;
@@ -7168,18 +7172,26 @@ void ObjectMgr::LoadQuestPOI()
                 QuestPOIPoint point(x, y,zone,area);
 				
 				point.prid = pointFields[6].GetUInt32(); //用于删除点
+				point.groundZ = pointFields[7].GetFloat();
 
 				point.map = itr->MapId;//补充map信息
 				point.mapxy = makeMapXY(point.map, float(point.x), float(point.y));//提前准备好校对数据
-				
+				point.npcgo = 0;//初始为0
+
 				creatureData=findCreatureDataByPOI(point.mapxy);
 				if (creatureData != nullptr)
+				{
 					point.npcgo = creatureData->id;
+					point.groundZ = creatureData->posZ;
+				}
 				else
 				{
 					goData = findGameObjectDataByPOI(point.mapxy);
 					if (goData != nullptr)
+					{
 						point.npcgo = 0 - goData->id;
+						point.groundZ = goData->posZ;
+					}
 				}
 
                 itr->points.push_back(point);

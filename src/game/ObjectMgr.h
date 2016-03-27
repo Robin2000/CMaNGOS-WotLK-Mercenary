@@ -679,14 +679,14 @@ class ObjectMgr
 		}
 		void addQuestPOIVector(uint32 questId, QuestPOI* POI){mQuestPOIMap[questId].push_back(*POI);}
 
-		void loadQuestPOIVector(std::vector<QuestPOIPoint const*> * questPOIVec, uint32 questId)
+		void loadQuestPOIVector(std::vector<QuestPOIPoint *> * questPOIVec, uint32 questId)
         {
 			questPOIVec->clear();
             QuestPOIMap::const_iterator itr = mQuestPOIMap.find(questId);
             if (itr == mQuestPOIMap.end())
                 return;
 
-			QuestPOIVector const* POI = &itr->second;
+			QuestPOIVector * POI = &itr->second;
 			for (auto itr = POI->begin(); itr != POI->end(); ++itr)
 			for (auto itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
 				questPOIVec->push_back(&*itr2);

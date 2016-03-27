@@ -581,7 +581,10 @@ void WorldSession::SendSetPhaseShift(uint32 PhaseShift)
     data << uint32(PhaseShift);
     SendPacket(&data);
 }
-
+void WorldSession::SetSessionDbcLocale(LocaleConstant locale){
+	m_sessionDbcLocale = locale;
+	m_sessionDbLocaleIndex = sObjectMgr.GetIndexForLocale(locale);
+}
 const char* WorldSession::GetMangosString(int32 entry) const
 {
     return sObjectMgr.GetMangosString(entry, GetSessionDbLocaleIndex());

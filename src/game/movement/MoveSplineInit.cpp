@@ -144,6 +144,13 @@ namespace Movement
         unit.m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEFLAG_FORWARD | MOVEFLAG_SPLINE_ENABLED));
         move_spline.Initialize(args);
 
+		//发送服务端AOP事件
+		if (stopAction != nullptr)
+		{
+			stopAction->run();
+			delete stopAction;
+		}
+
         WorldPacket data(SMSG_MONSTER_MOVE, 64);
         data << unit.GetPackGUID();
 
@@ -161,8 +168,9 @@ namespace Movement
         unit.SendMessageToSet(&data, true);
     }
 
-    MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
+	MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
     {
+		stopAction = nullptr;
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEFLAG_WALK_MODE);
         args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEFLAG_CAN_FLY | MOVEFLAG_FLYING | MOVEFLAG_LEVITATING));

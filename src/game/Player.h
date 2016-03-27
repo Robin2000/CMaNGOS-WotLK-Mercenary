@@ -2266,9 +2266,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void HandleStealthedUnitsDetection();
 
         Camera& GetCamera() { return m_camera; }
-		void changeCamera(WorldObject* target, int32 duration, float radius, float orientation);
-		void changeCamera(float x, float y, float z, float orientation, int32 duration, float radius);
-		void changeCamera(float x, float y, float orientation, int32 duration, float radius);
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update) override;// overwrite Unit::SetPhaseMask
 

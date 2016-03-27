@@ -68,9 +68,17 @@ insert into gossip_menu(entry,text_id) values(65535,16777213);
 */
 bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*scTargets*/)
 {
+	if (pPlayer->context.heart_stone_cooldown > 0)
+	{
+		ChatHandler(pPlayer).SendSysMessage(pPlayer->GetMangosString(-2800684));//23 系统提示：炉石冷却中。
+		return true;
+	}
 	if (pPlayer->isInCombat())
 	{
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
+		pPlayer->RemoveAllAttackers();
+		pPlayer->CombatStop();
+		pPlayer->context.heart_stone_cooldown = 6000;//设置6秒冷却
 		return true;
 	}
 	pPlayer->context.checkFirstGuideQuest();
@@ -99,6 +107,12 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);//前往返回点。（-2原力）
 	if (pPlayer->isGameMaster())
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, "TOOLS", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);//更新数据库表。
+	
+	if(pPlayer->GetSession()->GetSessionDbcLocale() == LOCALE_zhCN)
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "English", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
+	if (pPlayer->GetSession()->GetSessionDbcLocale() == LOCALE_enUS)
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800683, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
+
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);//回家。
 
 	pPlayer->SEND_GOSSIP_MENU(16777213, pItem->GetObjectGuid()); //在线即可累积原力。
@@ -202,6 +216,13 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		pPlayer->context.gossipMenuType = 8;//GM_TOOLS
 		hearthstone_prepare_gmtools(pPlayer, pItem, uiAction);
 		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 21){
+		if (pPlayer->GetSession()->GetSessionDbcLocale() == LOCALE_zhCN)
+			pPlayer->GetSession()->SetSessionDbcLocale(LOCALE_enUS);
+		else
+			pPlayer->GetSession()->SetSessionDbcLocale(LOCALE_zhCN);
+		pPlayer->UpdateForQuestWorldObjects();
 	}
 	else if (pPlayer->context.gossipMenuType == 8)
 	{

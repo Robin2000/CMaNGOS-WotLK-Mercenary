@@ -59,7 +59,7 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell, Unit* caster){
 		//player->GetMotionMaster()->MoveIdle();
 		
 		//WorldObject* target = player->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, uint32(300021), uint32(99879)));//加基森墓地,  
-		player->changeCamera(player, 10000, 20.0f, player->GetOrientation()*M_PI_F*1.0f / 2.0f);
+		player->context.changeCamera(player, 10000, 20.0f, player->GetOrientation()*M_PI_F*1.0f / 2.0f);
 
 		player->HandleEmoteCommand(92);//喝药动作
 		

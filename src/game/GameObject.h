@@ -38,6 +38,7 @@ struct QuestPOIPoint
 	uint32 prid;//ÓÃÓÚÉ¾³ı
 	int32 x;
 	int32 y;
+	float groundZ;
 	uint32 map;
 	uint32 zone;
 	uint32 area;
@@ -90,13 +91,14 @@ struct GameMap{
 };
 struct QuestNpcGO{
 	uint32 quest;
-	uint32 npcgo;
+	int32 npcgo;
 	uint32 map;
 	uint32 zone;
 	uint32 area;
-	float x;
+	/*float x;
 	float y;
 	float z;
+	float orientation;*/
 	uint64 mapxy;
 	uint8 ntype;
 };

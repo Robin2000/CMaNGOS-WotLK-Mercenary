@@ -6,6 +6,15 @@
 #include <boost/lockfree/queue.hpp>
 #include "pr_event_plugin.h"
 
+/*结束动作*/
+class MANGOS_DLL_SPEC StopAction
+{
+public:
+	explicit StopAction(){}
+	virtual void run() = 0;
+};
+
+/*延迟执行动作*/
 class MANGOS_DLL_SPEC DelayedAction
 {
 public:
@@ -19,10 +28,32 @@ public:
 	int timelimit;
 };
 
+class TransportStopAction :public StopAction{
+
+public:
+	TransportStopAction(Player * _player) :player(_player){};
+	void run() override;
+private:
+	Player * player;
+};
+class TransportAction :public DelayedAction{
+
+public:
+	TransportAction(Player * _player, float _x, float _y, float _z, float _orientation, int _timelimit) : player(_player), DelayedAction(_timelimit), x(_x), y(_y), z(_z), orientation(_orientation){}
+
+	void run() override;
+
+	float x;
+	float y;
+	float z;
+	float orientation;
+	Player * player;
+};
+
+
+/////////////////////////////////
 typedef boost::lockfree::queue<DelayedAction *, boost::lockfree::fixed_sized<false>> DelayActionQueue;
 typedef tbb::concurrent_vector<Quest const*> RecommentQuestList;
-
-
 
 
 class MANGOS_DLL_SPEC PlayerContext{
@@ -69,6 +100,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	uint32 aux_questid=-1;
 	uint32 aux_npcgo_idx = -1;
 	uint32 aux_poi_idx = -1;//使用POI快速定位
+
+	int heart_stone_cooldown = 6000;
 
 	Quest const* findAuxQuest();
 	
@@ -135,10 +168,10 @@ class MANGOS_DLL_SPEC PlayerContext{
 	tbb::concurrent_vector<QuestNpcGO const *> * questNpcGOVec;
 
 	//缓存任务POI向量，改变量需要维护生命周期
-	tbb::concurrent_vector<QuestPOIPoint const*> * questPOIVec;
+	tbb::concurrent_vector<QuestPOIPoint *> * questPOIVec;
 
 	//取得缓存任务POI向量,需先调用loadQuestAux准备数据
-	tbb::concurrent_vector<QuestPOIPoint const*> * GetQuestPOI(){ return questPOIVec; }
+	tbb::concurrent_vector<QuestPOIPoint *> * GetQuestPOI(){ return questPOIVec; }
 
 	//取得特定任务相关NPC和GameObject列表,需先调用loadQuestAux准备数据
 	tbb::concurrent_vector<QuestNpcGO const *> * GetQuestNpcGOVector(){ return questNpcGOVec; }
@@ -158,10 +191,24 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//取得执业对应的种族列表
 	tbb::concurrent_unordered_set<uint32> & GetRaceSetByClass(uint32 charClass);
 
+	void moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation);
+
+	void moveFast(QuestNpcGO const * questNpcGO);
+	void moveFast(QuestPOIPoint * point);
+	void moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureData* data);
+	void moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data);
+
+	void changeCamera(QuestNpcGO const* questNpcGO);
+	void changeCamera(QuestPOIPoint * point);
+	void changeCamera(CreatureData* data);
+	void changeCamera(GameObjectData* data);
+	void changeCamera(WorldObject* target, int32 duration, float radius, float orientation);
+	void changeCamera(uint32 mapid, float x, float y, float z, float orientation, int32 duration, float radius);
+
 	//更新状态时间
 	void Update(uint32 update_diff, uint32 time);
 
-	void deletePOIFromDB(uint32 questId, QuestPOIPoint const* point);//删除无用的POI
+	void deletePOIFromDB(uint32 questId, QuestPOIPoint * point);//删除无用的POI
 
 	void addSelectedToPOI(uint32 questId,WorldObject * target); //添加目标位置到POI
 

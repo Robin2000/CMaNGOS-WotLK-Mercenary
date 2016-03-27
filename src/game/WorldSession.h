@@ -409,6 +409,7 @@ class MANGOS_DLL_SPEC WorldSession
         // Locales
         LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
         int GetSessionDbLocaleIndex() const { return m_sessionDbLocaleIndex; }
+		void SetSessionDbcLocale(LocaleConstant locale);
         const char* GetMangosString(int32 entry) const;
 
         uint32 GetLatency() const { return m_latency; }

@@ -21,12 +21,13 @@
 
 #include "MoveSplineInitArgs.h"
 #include "PathFinder.h"
+#include "PlayerContext.h"
 
 class Unit;
 
 namespace Movement
 {
-    enum AnimType
+	enum AnimType
     {
         ToGround    = 0, // 460 = ToGround, index of AnimationData.dbc
         FlyToFly    = 1, // 461 = FlyToFly?
@@ -123,9 +124,10 @@ namespace Movement
              */
             void SetExitVehicle();
 
+			void setStopAction(StopAction* _stopAction){ stopAction = _stopAction; }
             PointsArray& Path() { return args.path; }
         protected:
-
+			StopAction* stopAction;
             MoveSplineInitArgs args;
             Unit&  unit;
     };
