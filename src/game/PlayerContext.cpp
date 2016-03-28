@@ -113,7 +113,9 @@ public:
 		Movement::MoveSplineInit init(*player);
 		init.MovebyPath(pointPath);
 		init.SetVelocity(speed);
-
+		init.SetFly();
+		init.SetWalk(false);
+		init.Launch();
 
 		if (player->context.transportStopAction != nullptr)
 			delete player->context.transportStopAction;//清理上次的
@@ -122,11 +124,7 @@ public:
 			player->context.transportStopAction = new TransportStopAction(player, path);
 		else
 			player->context.transportStopAction = new TransportStopAction(player, points);
-		init.SetFly();	
-		init.SetWalk(false);
-		//init.SetBoardVehicle();
-		//init.SetSmooth();
-		init.Launch();
+
 
 		player->context.isMovesplineStop = false;
 	}
@@ -153,7 +151,15 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 
 		float dx = x - mPlayer->GetPositionX();
 		float dy = y - mPlayer->GetPositionY();
-		if (dx*dx+dy*dy>500*500)//500码之外飞行
+		float dz = z - mPlayer->GetPositionZ();
+
+		float dsqr = dx*dx + dy*dy+dz*dz;
+		if (dsqr<24.0 * 24.0)
+		{
+			ChatHandler(mPlayer).SendSysMessage(-2800685);
+			return;
+		}
+		else if (dsqr>500 * 500)//500码之外飞行
 		{
 			PointsArray* result = new PointsArray();
 
@@ -184,16 +190,25 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 				teleport(mapid, x, y, z, orientation);
 				return;
 			}
-			Movement::MoveSplineInit init(*mPlayer); //500码之内跑过去
+			
 			PointsArray& result=path->getPath();
 			for (int i = 0; i < result.size(); i++)
-				result[i].z += 1.0; //避免掉地下
+				result[i].z += 0.5; //避免掉地下
 
+			Movement::MoveSplineInit init(*mPlayer); //500码之内跑过去
 			init.MovebyPath(result);
 			init.SetVelocity(24.0f);
 			init.SetWalk(false);
 			init.Launch();
-			
+
+			if (Pet * pet=mPlayer->GetPet())
+			if (pet->isMercenary()){
+				Movement::MoveSplineInit init(*pet); //500码之内跑过去
+				init.MovebyPath(result);
+				init.SetVelocity(24.0f);
+				init.SetWalk(false);
+				init.Launch();
+			}
 		}
 		//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
 
