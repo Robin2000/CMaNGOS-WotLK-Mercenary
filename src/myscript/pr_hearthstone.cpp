@@ -82,7 +82,8 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 		return true;
 	}
 	pPlayer->context.checkFirstGuideQuest();
-	return hearthstone_click2(pPlayer, pItem);
+	hearthstone_click2(pPlayer, pItem);
+	return true;
 }
 bool hearthstone_click2(Player* pPlayer, Item* pItem)
 {
@@ -130,7 +131,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	if (pPlayer->isInCombat())
 	{
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
-		return false;
+		return true;
 	}
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 999)
 	{
@@ -160,7 +161,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 2)
-		return hearthstone_transport_case(pPlayer, pItem, uiAction);
+	{
+		hearthstone_transport_case(pPlayer, pItem, uiAction);
+		return true;
+	}
 	
 	//////////////////////////////////////////原力商店
 	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 10)//原力商店
@@ -170,7 +174,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 3)
-		return hearthstone_store_click(pPlayer, pItem, uiAction);
+	{
+		hearthstone_store_click(pPlayer, pItem, uiAction);
+		return true;
+	}
 
 	//////////////////////////////////////////任务辅助
 	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 9)//任务辅助。
@@ -181,7 +188,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 4)
-		return hearthstone_quest_click(pPlayer, pItem, uiAction);
+	{
+		hearthstone_quest_click(pPlayer, pItem, uiAction);
+		return true;
+	}
 
 	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 14)//任务推荐
 	{
@@ -191,7 +201,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 5)
-		return hearthstone_quest_click(pPlayer, pItem, uiAction);
+	{
+		hearthstone_quest_click(pPlayer, pItem, uiAction);
+		return true;
+	}
 
 	//////////////////////////////////////////技能学习
 	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 13)//技能学习。
@@ -201,7 +214,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 6)
-		return hearthstone_learn_click(pPlayer, pItem, uiAction);
+	{
+		hearthstone_learn_click(pPlayer, pItem, uiAction);
+		return true;
+	}
 
 	//////////////////////////////////////////原力骑乘
 	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 2)//原力骑乘
@@ -211,7 +227,10 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 7)
-		return hearthstone_mount_click(pPlayer, pItem, uiAction);
+	{
+		hearthstone_mount_click(pPlayer, pItem, uiAction);
+		return true;
+	}
 	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 20){
 		pPlayer->context.gossipMenuType = 8;//GM_TOOLS
 		hearthstone_prepare_gmtools(pPlayer, pItem, uiAction);
@@ -223,6 +242,8 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		else
 			pPlayer->GetSession()->SetSessionDbcLocale(LOCALE_zhCN);
 		pPlayer->UpdateForQuestWorldObjects();
+
+		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 8)
 	{

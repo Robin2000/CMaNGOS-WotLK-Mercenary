@@ -124,10 +124,8 @@ namespace Movement
              */
             void SetExitVehicle();
 
-			void setStopAction(StopAction* _stopAction){ stopAction = _stopAction; }
             PointsArray& Path() { return args.path; }
         protected:
-			StopAction* stopAction;
             MoveSplineInitArgs args;
             Unit&  unit;
     };

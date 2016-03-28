@@ -166,7 +166,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	type = mercType;
 	if (!name.empty())
 		pet->SetName(name);
-
+	
 	//sMercenaryMgr->SaveToList(this);在create的时候已经放入列表
 
     Initialize(player, pet, true);
@@ -279,6 +279,8 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 		pet->SetByteValue(UNIT_FIELD_BYTES_0, 1, GetType());
 
 		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
+
+		player->SetPet(pet);
 
 		clearnNoMatchEquipItem(player);/*初始化时清理掉不存在的装备*/
 

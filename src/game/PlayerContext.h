@@ -28,29 +28,6 @@ public:
 	int timelimit;
 };
 
-class TransportStopAction :public StopAction{
-
-public:
-	TransportStopAction(Player * _player) :player(_player){};
-	void run() override;
-private:
-	Player * player;
-};
-class TransportAction :public DelayedAction{
-
-public:
-	TransportAction(Player * _player, float _x, float _y, float _z, float _orientation, int _timelimit) : player(_player), DelayedAction(_timelimit), x(_x), y(_y), z(_z), orientation(_orientation){}
-
-	void run() override;
-
-	float x;
-	float y;
-	float z;
-	float orientation;
-	Player * player;
-};
-
-
 /////////////////////////////////
 typedef boost::lockfree::queue<DelayedAction *, boost::lockfree::fixed_sized<false>> DelayActionQueue;
 typedef tbb::concurrent_vector<Quest const*> RecommentQuestList;
@@ -191,6 +168,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//取得执业对应的种族列表
 	tbb::concurrent_unordered_set<uint32> & GetRaceSetByClass(uint32 charClass);
 
+	void teleport(uint32 mapid, float x, float y, float z, float orientation);
 	void moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation);
 
 	void moveFast(QuestNpcGO const * questNpcGO);
@@ -204,6 +182,11 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void changeCamera(GameObjectData* data);
 	void changeCamera(WorldObject* target, int32 duration, float radius, float orientation);
 	void changeCamera(uint32 mapid, float x, float y, float z, float orientation, int32 duration, float radius);
+
+	//任务传送
+	bool checkMovespline = false;
+
+	StopAction* transportStopAction = nullptr;
 
 	//更新状态时间
 	void Update(uint32 update_diff, uint32 time);

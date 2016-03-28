@@ -13,94 +13,203 @@
 #include "movement/MoveSplineInitArgs.h"
 #include "movement/MoveSpline.h"
 #include "DynamicObject.h"
-#include "MoveMap.h"                                        // for mmap manager
+#include "MoveMap.h"     
+#include "Vehicle.h"
+                                   // for mmap manager
 
-const static int tanMountSpell[7] = {//毯
-	61309,
-	61442,
-	61444,
-	61446,
-	61451,
-	75387,
-	75596
-};
-void TransportStopAction::run(){
-	player->Unmount(false);
-}
-void TransportAction::run(){
+
+void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
+{
 	float px = player->GetPositionX();
 	float py = player->GetPositionY();
-	float pz = player->GetPositionX();
-	float po = player->GetOrientation();
+	float stepX = (x-px)/50.0f;
+	float stepY = (y-py)/50.0f;
 
-	float distance = (x - px) * (x - px) + (y - py) * (y - py) + (z - pz) * (z - pz);
-	float speed = sqrt(distance) / 10.0f;//总是10秒到达，无论多远
-	//float speed = 24.0f;
-	if (speed < 24.0f)
-		speed = 24.0f;
-	//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
+	result->push_back(Vector3(px, py, player->GetPositionZ()));
 
-	//TransportStopAction * transportStopAction = new TransportStopAction(mPlayer, x, y, z, orientation, speed, STOP_EVENT_FLY_TO_SKY);
-	//addDelayedAction(new TransportAction(mPlayer, mPlayer->GetPositionX(), mPlayer->GetPositionY(), mPlayer->GetPositionZ() + 72.0f, orientation, 24.0f, 1000, transportStopAction));//0秒后，每秒 800.0f米
-	//Movement::MoveSplineInit init(*mPlayer);
-	//init.MoveTo(x, y, z, true, true);
-	//init.MovebyPath(const PointsArray& controls, int32 path_offset)
+	const TerrainInfo* info = player->GetMap()->GetTerrain();
+	for (float i = px, j = py; ((px<x) ? i < x : i>x) && ((py<y) ? j<y:j>y); i += stepX, j += stepY)
+		result->push_back(Vector3(i, j, 40.0f+info->GetWaterOrGroundLevel(i, j, MAX_HEIGHT)));
 
-	//init.SetVelocity(speed);
-	//init.Launch();
-
-	if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(player->GetMapId()))
-	{
-		ChatHandler(player).SendSysMessage("NavMesh not loaded for current map.");
-		return;
-	}
-
-	// units
-
-	// path
-	PathFinder path(player);
-	path.setUseStrightPath(true);
-	path.calculate(x + 1.0f, y + 1.0f, z);
-
-	PointsArray pointPath = path.getPath();
-
-	Vector3 start = path.getStartPosition();
-	Vector3 end = path.getEndPosition();
-	Vector3 actualEnd = path.getActualEndPosition();
-
-	for (uint32 i = 1; i < pointPath.size() - 1; ++i)//增加高度防止掉地下
-		pointPath[i].z = pointPath[i].z + 80.0f;
-
-	if (!player->isGameMaster())
-		ChatHandler(player).SendSysMessage("Enable GM mode to see the path points.");
-
-	for (uint32 i = 0; i < pointPath.size(); ++i)
-		player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-	
-
-	//mPlayer->SetVehicleId(774, 40725);//小型观光火箭VehicleTemplate=774,entry=40725
-	//Creature* helper = mPlayer->SummonCreature(40725, x, y, z, po, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3600);
-	
-	Movement::MoveSplineInit init(*player);
-	init.MovebyPath(pointPath);
-	init.SetVelocity(speed);
-	init.setStopAction(new TransportStopAction(player));
-	init.SetWalk(false);
-	init.SetFly();
-	//init.SetBoardVehicle();
-	//init.SetSmooth();
-	init.Launch();
-
-	//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
+	result->push_back(Vector3(x, y, z));
 }
+class TransportStopAction :public StopAction{
+
+public:
+	TransportStopAction(Player * _player, PathFinder* _path) :player(_player), path(_path){};
+	TransportStopAction(Player * _player, PointsArray* _points) :player(_player), points(_points){};
+
+	~TransportStopAction(){ 
+		if (points)
+			delete points; 
+		else
+			delete path; 
+	}
+	void run() override{
+
+
+		//player->GetVehicleInfo()->UnBoard(player, false);
+		// remove vehicle accessories on map change
+		//if (player->IsVehicle())
+			//player->GetVehicleInfo()->RemoveAccessoriesFromMap();
+
+		player->Unmount(false);//取消骑乘
+		player->UpdateForQuestWorldObjects();
+	}
+private:
+	PathFinder* path;
+	PointsArray* points;
+	Player * player;
+};
+class TransportAction :public DelayedAction{
+
+public:
+	TransportAction(Player * _player, PathFinder* _path, int _timelimit) : DelayedAction(_timelimit), player(_player), path(_path){}
+	TransportAction(Player * _player, PointsArray* _points, int _timelimit) : DelayedAction(_timelimit), player(_player), points(_points){}
+	
+	void run() override{
+
+		PointsArray& pointPath = (points == nullptr) ? path->getPath() : *points;
+		
+		float speed = 24.0f;
+
+		//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
+
+		//TransportStopAction * transportStopAction = new TransportStopAction(mPlayer, x, y, z, orientation, speed, STOP_EVENT_FLY_TO_SKY);
+		//addDelayedAction(new TransportAction(mPlayer, mPlayer->GetPositionX(), mPlayer->GetPositionY(), mPlayer->GetPositionZ() + 72.0f, orientation, 24.0f, 1000, transportStopAction));//0秒后，每秒 800.0f米
+		//Movement::MoveSplineInit init(*mPlayer);
+		//init.MoveTo(x, y, z, true, true);
+		//init.MovebyPath(const PointsArray& controls, int32 path_offset)
+
+		//init.SetVelocity(speed);
+		//init.Launch();
+
+
+
+		//Vector3 start = path.getStartPosition();
+		//Vector3 end = path.getEndPosition();
+		//Vector3 actualEnd = path.getActualEndPosition();
+
+
+		if (!player->isGameMaster())
+			ChatHandler(player).SendSysMessage("Enable GM mode to see the path points.");
+
+		for (uint32 i = 0; i < pointPath.size(); ++i)
+			player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+
+		//mPlayer->SetVehicleId(774, 40725);//小型观光火箭VehicleTemplate=774,entry=40725
+
+		/*uint32 size = pointPath.size();
+		if (size>2){
+			for (uint32 i = 1; i <pointPath.size() - 1; ++i)//增加高度防止掉地下
+			pointPath[i].z += 20.0f;
+		}
+		else if (size==2)
+		{
+			Vector3 second(pointPath[0].x, pointPath[0].y, pointPath[0].z+20.0f);
+			Vector3 third(pointPath[1].x, pointPath[1].y, pointPath[1].z + 20.0f);
+			pointPath.insert(pointPath.begin() + 1, second);
+			pointPath.insert(pointPath.begin() + 2, third);
+		}*/
+		Movement::MoveSplineInit init(*player);
+		init.MovebyPath(pointPath);
+		init.SetVelocity(speed);
+
+
+		if (player->context.transportStopAction != nullptr)
+			delete player->context.transportStopAction;//清理上次的
+
+		if (points==nullptr)
+			player->context.transportStopAction = new TransportStopAction(player, path);
+		else
+			player->context.transportStopAction = new TransportStopAction(player, points);
+		init.SetFly();	
+		init.SetWalk(false);
+		//init.SetBoardVehicle();
+		//init.SetSmooth();
+		init.Launch();
+
+		player->context.checkMovespline = true;
+	}
+	PathFinder* path;
+	PointsArray* points;
+	Player * player;
+};
+
 void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation){
 
-	if (area == mPlayer->GetAreaId()){
-		mPlayer->Mount(31992);//火箭
-		addDelayedAction(new TransportAction(mPlayer, x, y, z, orientation,2000));
+
+	//if (area == mPlayer->GetAreaId()){
+	//	addDelayedAction(new TransportAction(mPlayer, x, y, z, orientation,2000));
+	//}
+	//else 
+	if (zone == mPlayer->GetZoneId()){
+
+
+		if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mPlayer->GetMapId()))
+		{
+			teleport(mapid, x, y, z, orientation);
+			return;
+		}
+
+		float dx = x - mPlayer->GetPositionX();
+		float dy = y - mPlayer->GetPositionY();
+		if (dx*dx+dy*dy>500*500)//500码之外飞行
+		{
+			PointsArray* result = new PointsArray();
+
+			findFlyPath(mPlayer, x+1.0, y+1.0, z+1.0, result);
+			
+			addDelayedAction(new TransportAction(mPlayer, result, 800));
+			
+			mPlayer->Unmount();
+			const static int tanMountSpell[5] = { 33848, 27593, 26164, 40725, 26192 };//[33848]X-53型观光火箭,[27593]火箭推进弹头,[26164]X-51虚空火箭特别加强版,[40725]X-53型观光火箭 [26192]X-51虚空火箭
+			mPlayer->Mount(tanMountSpell[rand() % 7]);//火箭
+		}
+		else
+		{
+			PathFinder* path = new PathFinder(mPlayer);
+			path->setUseStrightPath(true);
+			//path->setPathLengthLimit(8.0f);
+			path->calculate(x + 1.0, y + 1.0, z + 1.0, true); // true为强制到达目标点
+			//path->BuildPolyPath(path->getStartPosition(), path->getEndPosition());
+
+			if (!(path->getPathType() & PATHFIND_NORMAL || path->getPathType() & PATHFIND_NOT_USING_PATH))
+			{
+				delete path;
+				teleport(mapid, x, y, z, orientation);
+				return;
+			}
+			Movement::MoveSplineInit init(*mPlayer); //500码之内跑过去
+			PointsArray& result=path->getPath();
+			for (int i = 0; i < result.size(); i++)
+				result[i].z += 1.0; //避免掉地下
+
+			init.MovebyPath(result);
+			init.SetVelocity(24.0f);
+			init.SetWalk(false);
+			init.Launch();
+			
+		}
+		//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
+
+		//mPlayer->SetVehicleId(774, 40725);//小型观光火箭VehicleTemplate=774,entry=40725
+		//mPlayer->GetVehicleInfo()->Initialize();
+		//mPlayer->GetVehicleInfo()->Board(mPlayer);
+		
+		//
+		
 	}
+else
+	teleport(mapid, x, y, z, orientation);
+}
+void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orientation){
+	if (mapid == mPlayer->GetMapId())
+		mPlayer->NearTeleportTo(x + 1.0f, y + 1.0f, z + 2.0f, 0.0f - orientation);
 	else
-		mPlayer->TeleportTo(mapid, x + 1.5f, y + 1.5f, z + 2.0f, orientation);
+		mPlayer->TeleportTo(mapid, x + 1.0f, y + 1.0f, z + 2.0f, 0.0f - orientation);
+
+	mPlayer->UpdateForQuestWorldObjects();
 }
 void DelayedAction::Update(uint32 update_diff){
 	
@@ -118,6 +227,7 @@ void DelayedAction::Update(uint32 update_diff){
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
 	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *> ();
 	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
+	checkMovespline = false;
 }
 PlayerContext::~PlayerContext(){
 	DelayedAction *action;
@@ -125,11 +235,31 @@ PlayerContext::~PlayerContext(){
 	{
 		delete action;
 	}
+	
+	if (transportStopAction != nullptr)
+		delete transportStopAction;
+
 	delete questPOIVec;
 	delete questNpcGOVec;
 }
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
+	if (checkMovespline&&mPlayer->movespline->Finalized())
+	{
+		//计算距离进行确认抵达
+		Vector3 des=mPlayer->movespline->FinalDestination();
+		float dx = des.x - mPlayer->GetPositionX();
+		float dy = des.y - mPlayer->GetPositionY();
+		float dz = des.z - mPlayer->GetPositionZ();
+		if (dx*dx + dy*dy + dz*dz < 9.0f) //3.0的2次方
+		{
+			checkMovespline = false;
+			if (transportStopAction != nullptr)
+				transportStopAction->run();
+		}
+
+	}
+
 	if (heart_stone_cooldown > 0)
 		heart_stone_cooldown -= update_diff;
 
