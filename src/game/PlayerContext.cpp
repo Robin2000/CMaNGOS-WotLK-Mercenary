@@ -17,7 +17,6 @@
 #include "Vehicle.h"
                                    // for mmap manager
 
-
 void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 {
 	float px = player->GetPositionX();
@@ -162,9 +161,14 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			
 			addDelayedAction(new TransportAction(mPlayer, result, 800));
 			
+
 			mPlayer->Unmount();
-			const static int tanMountSpell[5] = { 33848, 27593, 26164, 40725, 26192 };//[33848]X-53型观光火箭,[27593]火箭推进弹头,[26164]X-51虚空火箭特别加强版,[40725]X-53型观光火箭 [26192]X-51虚空火箭
-			mPlayer->Mount(tanMountSpell[rand() % 7]);//火箭
+
+			//此处为modelid
+			const static uint32 mount_model[5] = { 28890, 26611, 23647, 31992, 23656 };//[28890]X-53型观光火箭,[26611]火箭推进弹头,[23647]X-51虚空火箭特别加强版,[31992]X-53型观光火箭 [23656]X-51虚空火箭
+			
+			mPlayer->Mount(rand() % 5);//随机
+
 		}
 		else
 		{
