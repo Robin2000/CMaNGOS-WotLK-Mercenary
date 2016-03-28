@@ -128,7 +128,7 @@ public:
 		//init.SetSmooth();
 		init.Launch();
 
-		player->context.checkMovespline = true;
+		player->context.isMovesplineStop = false;
 	}
 	PathFinder* path;
 	PointsArray* points;
@@ -161,13 +161,13 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			
 			addDelayedAction(new TransportAction(mPlayer, result, 800));
 			
-
-			mPlayer->Unmount();
+			if (mPlayer->IsMounted())
+				mPlayer->Unmount();
 
 			//此处为modelid
 			const static uint32 mount_model[5] = { 28890, 26611, 23647, 31992, 23656 };//[28890]X-53型观光火箭,[26611]火箭推进弹头,[23647]X-51虚空火箭特别加强版,[31992]X-53型观光火箭 [23656]X-51虚空火箭
 			
-			mPlayer->Mount(rand() % 5);//随机
+			mPlayer->Mount(mount_model[rand() % 5]);//随机
 
 		}
 		else
@@ -231,7 +231,7 @@ void DelayedAction::Update(uint32 update_diff){
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
 	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *> ();
 	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
-	checkMovespline = false;
+	isMovesplineStop = false;
 }
 PlayerContext::~PlayerContext(){
 	DelayedAction *action;
@@ -248,20 +248,11 @@ PlayerContext::~PlayerContext(){
 }
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
-	if (checkMovespline&&mPlayer->movespline->Finalized())
+	if (isMovesplineStop)
 	{
-		//计算距离进行确认抵达
-		Vector3 des=mPlayer->movespline->FinalDestination();
-		float dx = des.x - mPlayer->GetPositionX();
-		float dy = des.y - mPlayer->GetPositionY();
-		float dz = des.z - mPlayer->GetPositionZ();
-		if (dx*dx + dy*dy + dz*dz < 9.0f) //3.0的2次方
-		{
-			checkMovespline = false;
-			if (transportStopAction != nullptr)
-				transportStopAction->run();
-		}
-
+		isMovesplineStop = false;
+		if (transportStopAction!=nullptr)
+			transportStopAction->run();
 	}
 
 	if (heart_stone_cooldown > 0)
