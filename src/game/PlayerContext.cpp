@@ -46,14 +46,34 @@ public:
 	}
 	void run() override{
 
+		if (Pet *pet = player->GetPet())
+		if (pet->isMercenary())
+		{
+			if(player->GetVehicleInfo()->HasOnBoard(pet))
+				player->GetVehicleInfo()->UnBoard(pet,false);
 
-		//player->GetVehicleInfo()->UnBoard(player, false);
-		// remove vehicle accessories on map change
-		//if (player->IsVehicle())
-			//player->GetVehicleInfo()->RemoveAccessoriesFromMap();
+			pet->Relocate(player->GetPositionX() + 1.5f, player->GetPositionY() + 1.5f, player->GetPositionZ() + 0.5f);
+			//if (pet->IsMounted())
+				//pet->Unmount(false);//取消骑乘
+		}
+			
+		if (player->IsMounted())
+			player->Unmount(false);//取消骑乘
 
-		player->Unmount(false);//取消骑乘
+		if (player->GetVehicleInfo()->HasOnBoard(player))
+			player->GetVehicleInfo()->UnBoard(player, false);
+
+		player->GetVehicleInfo()->RemoveAccessoriesFromMap();
+
+		player->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+
+		player->SetVehicleId(0, 0);
+
+		//delete player->GetVehicleInfo();
+
 		player->UpdateForQuestWorldObjects();
+
+		player->ResummonPetTemporaryUnSummonedIfAny();
 	}
 private:
 	PathFinder* path;
@@ -110,12 +130,46 @@ public:
 			pointPath.insert(pointPath.begin() + 1, second);
 			pointPath.insert(pointPath.begin() + 2, third);
 		}*/
+
+		if (player->IsMounted())
+			player->Unmount();
+
+		//此处为modelid
+		//const static uint32 mount_model[5] = { 28890, 26611, 23647, 31992, 23656 };//[28890]X-53型观光火箭,[26611]火箭推进弹头,[23647]X-51虚空火箭特别加强版,[31992]X-53型观光火箭 [23656]X-51虚空火箭
+
+		//uint32 model = mount_model[rand() % 5];
+		player->Mount(31992);//随机
+
+		if (player->GetVehicleInfo() == nullptr)
+		{
+			player->SetVehicleId(774, 40725);//小型观光火箭VehicleTemplate=774,entry=40725 model=31992
+			player->GetVehicleInfo()->Initialize();
+			player->GetVehicleInfo()->Board(player,0);
+		}
+
+		if (Pet *pet = player->GetPet()){
+			if (pet->isMercenary()){
+
+				//pet->Mount(model);//随机
+				player->GetVehicleInfo()->Board(pet,1);
+
+				/*Movement::MoveSplineInit init(*pet);
+				init.MovebyPath(pointPath);
+				init.SetVelocity(speed);
+				init.SetFly();
+				init.SetWalk(false);
+				init.Launch();*/
+			}
+		}
+
 		Movement::MoveSplineInit init(*player);
 		init.MovebyPath(pointPath);
 		init.SetVelocity(speed);
 		init.SetFly();
 		init.SetWalk(false);
 		init.Launch();
+
+
 
 		if (player->context.transportStopAction != nullptr)
 			delete player->context.transportStopAction;//清理上次的
@@ -126,7 +180,8 @@ public:
 			player->context.transportStopAction = new TransportStopAction(player, points);
 
 
-		player->context.isMovesplineStop = false;
+		player->context.isMovesplineStopNow = false;
+		player->context.isMovesplineRunning = true;
 	}
 	PathFinder* path;
 	PointsArray* points;
@@ -166,14 +221,6 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			findFlyPath(mPlayer, x+1.0, y+1.0, z+1.0, result);
 			
 			addDelayedAction(new TransportAction(mPlayer, result, 800));
-			
-			if (mPlayer->IsMounted())
-				mPlayer->Unmount();
-
-			//此处为modelid
-			const static uint32 mount_model[5] = { 28890, 26611, 23647, 31992, 23656 };//[28890]X-53型观光火箭,[26611]火箭推进弹头,[23647]X-51虚空火箭特别加强版,[31992]X-53型观光火箭 [23656]X-51虚空火箭
-			
-			mPlayer->Mount(mount_model[rand() % 5]);//随机
 
 		}
 		else
@@ -246,7 +293,8 @@ void DelayedAction::Update(uint32 update_diff){
 PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
 	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *> ();
 	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
-	isMovesplineStop = false;
+	isMovesplineStopNow = false;
+	isMovesplineRunning = false;
 }
 PlayerContext::~PlayerContext(){
 	DelayedAction *action;
@@ -263,9 +311,10 @@ PlayerContext::~PlayerContext(){
 }
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
-	if (isMovesplineStop)
+	if (isMovesplineStopNow)
 	{
-		isMovesplineStop = false;
+		isMovesplineStopNow = false;
+		isMovesplineRunning = false;
 		if (transportStopAction!=nullptr)
 			transportStopAction->run();
 	}

@@ -184,7 +184,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void changeCamera(uint32 mapid, float x, float y, float z, float orientation, int32 duration, float radius);
 
 	//任务传送
-	bool isMovesplineStop = false;
+	bool isMovesplineStopNow = false;//结束的瞬间
+	bool isMovesplineRunning = false;//进行中
 
 	StopAction* transportStopAction = nullptr;
 

@@ -201,7 +201,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
 {
-	GetPlayer()->context.isMovesplineStop = true;
+	GetPlayer()->context.isMovesplineStopNow = true;
 
 	DEBUG_LOG("WORLD: Received opcode CMSG_MOVE_SPLINE_DONE");
 

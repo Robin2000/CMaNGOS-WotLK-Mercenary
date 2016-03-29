@@ -8019,8 +8019,12 @@ void Unit::Mount(uint32 mount, uint32 spellId)
     if (GetTypeId() == TYPEID_PLAYER)
     {
         // Called by Taxi system / GM command
-        if (!spellId)
-            ((Player*)this)->UnsummonPetTemporaryIfAny();
+		if (!spellId)
+		{
+			Pet* pet = GetPet();
+			if (pet!=nullptr&&!pet->isMercenary())//不是雇佣兵才unsummon
+				((Player*)this)->UnsummonPetTemporaryIfAny();
+		}
         // Called by mount aura
         else if (SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId))
         {
@@ -8033,7 +8037,12 @@ void Unit::Mount(uint32 mount, uint32 spellId)
                 if (pet->IsPermanentPetFor((Player*)this) && !((Player*)this)->InArena() &&
                         sWorld.getConfig(CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT))
                 {
-                    ((Player*)this)->UnsummonPetTemporaryIfAny();
+					if (pet->isMercenary())
+					{
+						//pet->ApplyModeFlags(PET_MODE_DISABLE_ACTIONS, true);//雇佣兵禁止移动，通过mount移动
+						//return;
+					}else
+						((Player*)this)->UnsummonPetTemporaryIfAny();
                 }
                 else
                     pet->ApplyModeFlags(PET_MODE_DISABLE_ACTIONS, true);
@@ -11254,12 +11263,23 @@ void Unit::ScheduleAINotify(uint32 delay)
 
 void Unit::OnRelocated()
 {
+
+	float limitdisq=World::GetRelocationLowerLimitSq();
+
+	
+	if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->context.isMovesplineRunning)
+		return;//飞行中，速度太快24.0f ，为了保证雇佣兵距离不会导致unsumon
+	else if (GetTypeId() == TYPEID_UNIT)
+		if (Unit * unit = GetOwner())
+		if (unit->GetTypeId() == TYPEID_PLAYER && ((Player*)unit)->context.isMovesplineRunning)
+			return;
+		
     // switch to use G3D::Vector3 is good idea, maybe
     float dx = m_last_notified_position.x - GetPositionX();
     float dy = m_last_notified_position.y - GetPositionY();
     float dz = m_last_notified_position.z - GetPositionZ();
     float distsq = dx * dx + dy * dy + dz * dz;
-    if (distsq > World::GetRelocationLowerLimitSq())
+	if (distsq > limitdisq)
     {
         m_last_notified_position.x = GetPositionX();
         m_last_notified_position.y = GetPositionY();
