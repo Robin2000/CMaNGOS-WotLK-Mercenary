@@ -196,7 +196,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 	//	addDelayedAction(new TransportAction(mPlayer, x, y, z, orientation,2000));
 	//}
 	//else 
-	if (zone == mPlayer->GetZoneId()){
+	if (!disableFindPath&&zone == mPlayer->GetZoneId()){
 
 
 		if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mPlayer->GetMapId()))

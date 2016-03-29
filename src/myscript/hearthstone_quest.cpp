@@ -250,6 +250,10 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			case GOSSIP_ACTION_INFO_DEF + 1114://上一页
 				hearthstone_quest(pPlayer, pItem, pPlayer->context.aux_questid);
 				return true;
+			case GOSSIP_ACTION_INFO_DEF + 1210:
+			case GOSSIP_ACTION_INFO_DEF + 1211:
+				pPlayer->context.disableFindPath = !pPlayer->context.disableFindPath;
+				return true;
 			default:
 				return true;
 		}
@@ -346,6 +350,12 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				}
 				else
 					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, pPlayer->GetMangosString(-2800681) +std::string(name), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1113);//传送我到达目标(-1点原力)：
+				
+				if (pPlayer->context.disableFindPath)
+					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800687, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1210);//开启寻路模式
+				else
+					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800686, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1211);//关闭寻路模式
+
 			}
 		}
 		else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 980 && uiAction <= GOSSIP_ACTION_INFO_DEF + 999)//兴趣点镜头+传送菜单

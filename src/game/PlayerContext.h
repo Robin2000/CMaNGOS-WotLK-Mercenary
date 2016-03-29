@@ -186,6 +186,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//任务传送
 	bool isMovesplineStopNow = false;//结束的瞬间
 	bool isMovesplineRunning = false;//进行中
+	bool disableFindPath = false;//禁止寻路
 
 	StopAction* transportStopAction = nullptr;
 
