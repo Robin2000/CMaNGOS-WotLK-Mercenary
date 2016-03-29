@@ -116,13 +116,13 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	{
 		if (petOld->GetMapId() == player->GetMapId())
 		{
-			petOld->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-			return false;
+			petOld->NearTeleportTo(player->GetPositionX() + 1.0f, player->GetPositionY() + 1.0f, player->GetPositionZ()+0.5f, player->GetOrientation());
+			return true;
 		}
 		else
 		{
-			petOld->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());//不在同一个地图使用NearTeleportTo会如何？
-			return false;
+			petOld->NearTeleportTo(player->GetPositionX() + 1.0f, player->GetPositionY() + 1.0f, player->GetPositionZ() + 0.5f, player->GetOrientation());//不在同一个地图使用NearTeleportTo会如何？
+			return true;
 		}
 	}
 
@@ -132,7 +132,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     player->GetPosition(x, y, z);
 
 
-    pet->Relocate(x, y, z, o);
+	pet->Relocate(x + 1.0, y + 1.0, z+0.5, o);
     if (!pet->IsPositionValid())
     {
         delete pet;
@@ -140,7 +140,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     }
 
     Map* map = player->GetMap();
-    CreatureCreatePos pos(player, player->GetOrientation());
+    CreatureCreatePos pos(player, player->GetOrientation(),1.0f);
     CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(MERCENARY_DEFAULT_ENTRY);
     if (!creatureInfo)
     {

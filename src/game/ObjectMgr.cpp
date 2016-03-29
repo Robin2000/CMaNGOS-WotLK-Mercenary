@@ -441,8 +441,8 @@ void ObjectMgr::LoadGameTips(){
 void ObjectMgr::LoadQuestNpcGO(){
 
 	mQuestNpcGOMaps.clear();                             // need for reload case
-	//													0    1     2    3    4    5    6            7         8            9
-	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype,map,zone,area,position_x,position_y,position_z,orientation FROM z_quest_npcgo_all_map order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
+	//													0    1     2    3    4    5    6            7   
+	QueryResult* result = WorldDatabase.Query("SELECT quest,npcgo,ntype,map,zone,area,position_x,position_y FROM z_quest_npcgo_all_map order by ntype,minLevel");//MinLevel顺序确保优先使用低等级的
 
 	if (!result)
 	{

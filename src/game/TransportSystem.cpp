@@ -46,6 +46,10 @@ TransportBase::TransportBase(WorldObject* owner) :
 
 TransportBase::~TransportBase()
 {
+
+	for (auto itr = m_passengers.begin(); itr != m_passengers.end();itr++)
+		this->UnBoardPassenger(itr->first);
+
     MANGOS_ASSERT(m_passengers.size() == 0);
 }
 

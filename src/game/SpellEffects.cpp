@@ -6698,7 +6698,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
         return;
     }
 
-    CreatureCreatePos pos(m_caster, m_caster->GetOrientation());
+    CreatureCreatePos pos(m_caster, m_caster->GetOrientation(),1.5f);
 
     Map* map = m_caster->GetMap();
     uint32 pet_number = sObjectMgr.GeneratePetNumber();

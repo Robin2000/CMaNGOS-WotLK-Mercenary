@@ -52,7 +52,8 @@ public:
 			if(player->GetVehicleInfo()->HasOnBoard(pet))
 				player->GetVehicleInfo()->UnBoard(pet,false);
 
-			pet->Relocate(player->GetPositionX() + 1.5f, player->GetPositionY() + 1.5f, player->GetPositionZ() + 0.5f);
+			if (Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow()))
+				mercenary->Create(player, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetType(), mercenary->GetRole());
 			//if (pet->IsMounted())
 				//pet->Unmount(false);//取消骑乘
 		}
@@ -61,19 +62,18 @@ public:
 			player->Unmount(false);//取消骑乘
 
 		if (player->GetVehicleInfo()->HasOnBoard(player))
+		{
 			player->GetVehicleInfo()->UnBoard(player, false);
+			player->GetVehicleInfo()->RemoveAccessoriesFromMap();
+			player->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+			player->SetVehicleId(0, 0);
+		}
 
-		player->GetVehicleInfo()->RemoveAccessoriesFromMap();
-
-		player->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
-
-		player->SetVehicleId(0, 0);
 
 		//delete player->GetVehicleInfo();
 
 		player->UpdateForQuestWorldObjects();
-
-		player->ResummonPetTemporaryUnSummonedIfAny();
+		
 	}
 private:
 	PathFinder* path;
@@ -136,6 +136,7 @@ public:
 
 		//此处为modelid
 		//const static uint32 mount_model[5] = { 28890, 26611, 23647, 31992, 23656 };//[28890]X-53型观光火箭,[26611]火箭推进弹头,[23647]X-51虚空火箭特别加强版,[31992]X-53型观光火箭 [23656]X-51虚空火箭
+		//const static uint32 mount_vehicle[5] = { 28890, 26611, 23647, 31992, 23656 };//[28890]X-53型观光火箭,[26611]火箭推进弹头,[23647]X-51虚空火箭特别加强版,[31992]X-53型观光火箭 [23656]X-51虚空火箭
 
 		//uint32 model = mount_model[rand() % 5];
 		player->Mount(31992);//随机
@@ -226,7 +227,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 		else
 		{
 			PathFinder* path = new PathFinder(mPlayer);
-			path->setUseStrightPath(true);
+			path->setUseStrightPath(false);
 			//path->setPathLengthLimit(8.0f);
 			path->calculate(x + 1.0, y + 1.0, z + 1.0, true); // true为强制到达目标点
 			//path->BuildPolyPath(path->getStartPosition(), path->getEndPosition());
@@ -244,7 +245,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 
 			Movement::MoveSplineInit init(*mPlayer); //500码之内跑过去
 			init.MovebyPath(result);
-			init.SetVelocity(24.0f);
+			init.SetVelocity(15.0f);
 			init.SetWalk(false);
 			init.Launch();
 
@@ -252,10 +253,13 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			if (pet->isMercenary()){
 				Movement::MoveSplineInit init(*pet); //500码之内跑过去
 				init.MovebyPath(result);
-				init.SetVelocity(24.0f);
+				init.SetVelocity(16.0f);
 				init.SetWalk(false);
 				init.Launch();
 			}
+
+			mPlayer->context.isMovesplineStopNow = false;
+			mPlayer->context.isMovesplineRunning = true;
 		}
 		//mPlayer->AddMountSpellAura(tanMountSpell[rand() % 7]);//随机飞毯
 
