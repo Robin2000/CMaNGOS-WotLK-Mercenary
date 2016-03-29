@@ -78,7 +78,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	uint32 aux_npcgo_idx = -1;
 	uint32 aux_poi_idx = -1;//使用POI快速定位
 
-	int heart_stone_cooldown = 6000;
+	int heart_stone_cooldown = 0;
 
 	Quest const* findAuxQuest();
 	
