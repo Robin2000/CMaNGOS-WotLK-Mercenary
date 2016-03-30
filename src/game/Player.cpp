@@ -18258,14 +18258,14 @@ void Player::PetSpellInitialize()
     uint8 addlist = 0;
     data << uint8(addlist);                                 // placeholder
 
-    if (pet->IsPermanentPetFor(this))
+	if (pet->IsPermanentPetFor(this) || pet->isMercenary())
     {
         // spells loop
         for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
         {
             if (itr->second.state == PETSPELL_REMOVED)
                 continue;
-
+			DEBUG_LOG("%d=%d", itr->first, itr->second.active);
             data << uint32(MAKE_UNIT_ACTION_BUTTON(itr->first, itr->second.active));
             ++addlist;
         }

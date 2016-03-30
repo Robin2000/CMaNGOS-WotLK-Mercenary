@@ -194,7 +194,7 @@ public:
     /*
     * Initializes Mercenary's stats, gear and other summon values
     */
-    void Initialize(Player* player, Pet* pet, bool create);
+	void Initialize(Player* player, Pet* pet, bool create, uint32 petNumber);
 
 	/*清理不匹配的技能*/
 	void cleanNoMatchSpell(Pet* pet);

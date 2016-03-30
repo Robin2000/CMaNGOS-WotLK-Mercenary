@@ -126,7 +126,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 		}
 	}
 
-	MercenaryPet * pet = new MercenaryPet;
+	MercenaryPet * pet = new MercenaryPet(HUNTER_PET);
 
     float x, y, z, o = 0;
     player->GetPosition(x, y, z);
@@ -156,6 +156,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
         delete pet;
         return false;
     }
+	
 
 	ownerGUID = player->GetGUIDLow();
 
@@ -169,7 +170,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	
 	//sMercenaryMgr->SaveToList(this);在create的时候已经放入列表
 
-    Initialize(player, pet, true);
+	Initialize(player, pet, true, petNumber);
 
 	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!
 	pet->MonsterSay(player->GetMangosString(-2800647), LANG_UNIVERSAL, player);//Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.
@@ -210,7 +211,7 @@ bool Mercenary::Summon(Player* player)
 	if (!pet)
 		return false;
 
-	Initialize(player, pet, false);
+	Initialize(player, pet, false, pet->GetGuidValue(OBJECT_FIELD_GUID));
 
 	return true;
 	
@@ -265,8 +266,47 @@ void Mercenary::clearnNoMatchEquipItem(Player * player)
 
 	}
 }
-void Mercenary::Initialize(Player* player, Pet* pet, bool create)
+void Mercenary::Initialize(Player* player, Pet* pet, bool create, uint32 petNumber)
 {
+	uint32 level = player->getLevel();
+
+	//@TODO Below, Change by stats (gear)
+	pet->SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(level * 50));
+	pet->SetAttackTime(BASE_ATTACK, BASE_ATTACK_TIME);
+	pet->SetAttackTime(OFF_ATTACK, BASE_ATTACK_TIME);
+	pet->SetAttackTime(RANGED_ATTACK, BASE_ATTACK_TIME);
+	pet->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+	pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
+	
+	CreatureInfo const* creatureInfo = pet->GetCreatureInfo();
+	int32 createResistance[MAX_SPELL_SCHOOL] = { 0, 0, 0, 0, 0, 0, 0 };
+	createResistance[SPELL_SCHOOL_HOLY] = creatureInfo->ResistanceHoly;
+	createResistance[SPELL_SCHOOL_FIRE] = creatureInfo->ResistanceFire;
+	createResistance[SPELL_SCHOOL_NATURE] = creatureInfo->ResistanceNature;
+	createResistance[SPELL_SCHOOL_FROST] = creatureInfo->ResistanceFrost;
+	createResistance[SPELL_SCHOOL_SHADOW] = creatureInfo->ResistanceShadow;
+	createResistance[SPELL_SCHOOL_ARCANE] = creatureInfo->ResistanceArcane;
+	for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+		pet->SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
+
+
+	pet->SetCreateStat(STAT_STRENGTH, 22);
+	pet->SetCreateStat(STAT_AGILITY, 22);
+	pet->SetCreateStat(STAT_STAMINA, 25);
+	pet->SetCreateStat(STAT_INTELLECT, 28);
+	pet->SetCreateStat(STAT_SPIRIT, 27);
+
+
+	pet->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(level - (level / 4)));
+	pet->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(level + (level / 4)));
+	for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+		pet->UpdateStats(Stats(i));
+	for (uint8 i = POWER_MANA; i < MAX_POWERS; ++i)
+		pet->UpdateMaxPower(Powers(i));
+
+	 for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+	pet->UpdateResistances(i);
+
     if (!create)
     {
         pet->SetDisplayId(GetDisplay());
@@ -278,7 +318,8 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
 		pet->SetByteValue(UNIT_FIELD_BYTES_0, 0, GetRace());
 		pet->SetByteValue(UNIT_FIELD_BYTES_0, 1, GetType());
 
-		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
+		//pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, petNumber);
+		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, petNumber);
 
 		player->SetPet(pet);
 
@@ -296,48 +337,75 @@ void Mercenary::Initialize(Player* player, Pet* pet, bool create)
     }
     else
     {
-		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, GetOwnerGUID());
+		pet->SetDisplayId(GetDisplay());
+		pet->SetNativeDisplayId(GetDisplay());
+
+		//pet->SetMaxPower(POWER_MANA, pet->GetCreatePowers(POWER_MANA));
+		//pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+		pet->SetMaxPower(POWER_MANA,1000);
+		pet->SetPower(POWER_MANA, 1000);
+		pet->SetPowerType(POWER_MANA);
+
+
+		pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
+		pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+		pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr.GetXPForPetLevel(pet->getLevel()));
+		pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+		pet->SetName(pet->GetNameForLocaleIdx(sObjectMgr.GetDBCLocaleIndex()));
+
+		{
+			pet->SetByteValue(UNIT_FIELD_BYTES_0, 0, GetRace());
+			pet->SetByteValue(UNIT_FIELD_BYTES_0, 1, GetType());
+			pet->SetByteValue(UNIT_FIELD_BYTES_0, 2, GetGender());
+			pet->SetByteValue(UNIT_FIELD_BYTES_0, 3, POWER_FOCUS);
+			//pet->SetSheath(SHEATH_STATE_MELEE);
+			pet->SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
+			pet->SetUInt32Value(UNIT_MOD_CAST_SPEED, player->GetUInt32Value(UNIT_MOD_CAST_SPEED));
+		}
+
         pet->SetOwnerGuid(player->GetObjectGuid());
         pet->SetCreatorGuid(player->GetObjectGuid());
-        //pet->SetPowerType(POWER_MANA);
-        pet->setPetType(SUMMON_PET);
-        pet->GetCharmInfo()->SetPetNumber(GetOwnerGUID(), true);
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
-        pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        pet->SetDisplayId(GetDisplay());
-        pet->SetNativeDisplayId(GetDisplay());
-        //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+		pet->setFaction(player->getFaction());
+		pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, 13481);//驯服野兽
+
+        pet->setPetType(HUNTER_PET);
+
+
 
         if (player->IsPvP())
             pet->SetPvP(true);
         if (player->IsFFAPvP())
-#ifdef MANGOS
             pet->SetFFAPvP(true);
-#else
-            pet->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-#endif
+
         
 		//pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
-        pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-        pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-        pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL)));
+		//InitStats(player, pet);
+		//((MercenaryPet*)pet)->_ApplyAllStatBonuses();
+       
+		(Pet*)pet->InitStatsForLevel(level);
 
-		pet->SetByteValue(UNIT_FIELD_BYTES_0, 0, GetRace());
-		pet->SetByteValue(UNIT_FIELD_BYTES_0, 1, GetType());
-		
+		pet->GetCharmInfo()->SetPetNumber(petNumber, true);
 		pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
-        pet->InitPetCreateSpells();
-        //pet->SetHealth(pet->GetMaxHealth());        
-
+		pet->SetUInt32Value(UNIT_FIELD_PETNUMBER, petNumber);//将petnumber设置为GetOwnerGUID()是不对的
+		
 		pet->AIM_Initialize();
-        player->GetMap()->Add((Creature*)pet);
-        player->SetPet(pet);
-        player->PetSpellInitialize();
+        pet->InitPetCreateSpells();
+		pet->InitLevelupSpellsForLevel();
+		pet->InitTalentForLevel();
+		//pet->SetHealth(pet->GetMaxHealth());
+		pet->SetHealth(1000);
+		
+		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
+		pet->GetMap()->Add((Creature*)pet);// 添加到地图
+		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 
-		InitStats(player, pet);
+        player->SetPet(pet);
+        player->PetSpellInitialize();//刷新客户端ActionBar
+
+		//InitStats(player, pet);
     }
 
-	((MercenaryPet*)pet)->_ApplyAllStatBonuses();
+	//((MercenaryPet*)pet)->_ApplyAllStatBonuses();
 
 	pet->SetStandState(UNIT_STAND_STATE_STAND);
 	SendMirrorImagePacket(pet);

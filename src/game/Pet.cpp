@@ -278,7 +278,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     _LoadAuras(timediff);
 
     // init AB
-    if (is_temporary_summoned||isMercenary())
+    if (is_temporary_summoned)
     {
         // Temporary summoned pets always have initial spell list at load
         InitPetCreateSpells();
@@ -1249,7 +1249,7 @@ void Pet::_SaveSpells()
             case PETSPELL_NEW:
             {
 				SqlStatement stmt = CharacterDatabase.CreateStatement(delSpell, "DELETE FROM pet_spell WHERE guid = ? and spell = ?");
-				stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);//雇佣兵guid总是相同，此时需要删除掉前面的记录
+				stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first);//雇佣兵guid就是petnumber，此时需要删除掉前面的记录
 				stmt = CharacterDatabase.CreateStatement(insSpell, "INSERT INTO pet_spell (guid,spell,active) VALUES (?, ?, ?)");
                 stmt.PExecute(m_charmInfo->GetPetNumber(), itr->first, uint32(itr->second.active));
             }
