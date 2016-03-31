@@ -56,8 +56,21 @@ MercenaryPet::MercenaryPet(PetType type) :Pet(type)
 	m_armorPenetrationPct = 0.0f;
 	m_spellPenetrationItemMod = 0;
 
-}
+	_mercenary = nullptr;
 
+}
+Mercenary* MercenaryPet::getMercenary(){
+
+	if (_mercenary != nullptr)
+		return _mercenary;
+
+	if (GetOwner() == nullptr)
+		return nullptr;
+
+	_mercenary = sMercenaryMgr->GetMercenary(GetOwner()->GetGUIDLow());
+
+	return _mercenary;
+}
 /*MercenaryPet::~MercenaryPet()
 {
 	不允许有析构函数，因为Pet *pet=new MercenaryPet的情况，析构时只会调用Pet的析构
@@ -85,7 +98,7 @@ bool MercenaryPet::UpdateStats(Stats stat)
 
 	if (stat == STAT_STAMINA || stat == STAT_INTELLECT)
 	{
-		Pet* pet = GetPet();
+		MercenaryPet* pet = (MercenaryPet*)GetPet();
 		if (pet)
 			pet->UpdateStats(stat);//确认方法调用是MercenaryPet::UpdateStats(stat)
 	}
@@ -230,7 +243,7 @@ void MercenaryPet::UpdateResistances(uint32 school)
 		float value = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
 		SetResistance(SpellSchools(school), int32(value));
 
-		Pet* pet = GetPet();
+		MercenaryPet* pet = (MercenaryPet*)GetPet();
 		if (pet)
 			pet->UpdateResistances(school);
 	}
@@ -270,7 +283,12 @@ void MercenaryPet::UpdateArmor()
 bool MercenaryPet::InitStatsForLevel(uint32 level, Unit* owner){
 	if (isMercenary()){
 		//return true;/*这种情况在数据库加载时不更新，直到Mercenary::init完成后再更新。*/
-		return Pet::InitStatsForLevel(level, owner);
+		
+		//if (1==1)
+			//return Pet::InitStatsForLevel(level, owner);
+		GiveLevel(level);
+		return true;
+		
 	}
 	else
 		return Pet::InitStatsForLevel(level, owner);
@@ -483,7 +501,7 @@ void MercenaryPet::UpdateAttackPowerAndDamage(bool ranged)
 	{
 		UpdateDamagePhysical(RANGED_ATTACK);
 
-		Pet* pet = GetPet();                                // update pet's AP
+		MercenaryPet* pet = (MercenaryPet*)GetPet();                                // update pet's AP
 		if (pet)
 			pet->UpdateAttackPowerAndDamage();
 	}
@@ -1586,9 +1604,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
 		return crit * 100.0f;
 	}
-	Mercenary* MercenaryPet::getMercenary() {
-		return sMercenaryMgr->GetMercenary(GetOwner()->GetGUIDLow());
-	}
+
 	Player* MercenaryPet::getPlayer(){
 		return GetOwner()->ToPlayer();
 	}
@@ -3208,11 +3224,11 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 	void MercenaryPet::SetSheath(SheathState sheathed)
 	{
+		Unit::SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
+
 		if (!isMercenary())
-		{
-			Unit::SetSheath(sheathed);
 			return;
-		}
+
 		switch (sheathed)
 		{
 		case SHEATH_STATE_UNARMED:                          // no prepared weapon
@@ -3237,5 +3253,5 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 			SetVirtualItemSlot(2, nullptr);
 			break;
 		}
-		Unit::SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
+		
 	}

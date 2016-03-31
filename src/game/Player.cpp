@@ -18258,7 +18258,7 @@ void Player::PetSpellInitialize()
     uint8 addlist = 0;
     data << uint8(addlist);                                 // placeholder
 
-	if (pet->IsPermanentPetFor(this) || pet->isMercenary())
+	if (pet->IsPermanentPetFor(this)&&!pet->isMercenary())//Mercenary的技能另外添加，此处只提供基础技能
     {
         // spells loop
         for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)

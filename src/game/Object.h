@@ -212,6 +212,7 @@ class MANGOS_DLL_SPEC Object
 
         uint8 GetByteValue(uint16 index, uint8 offset) const
         {
+
             MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             MANGOS_ASSERT(offset < 4);
             return *(((uint8*)&m_uint32Values[ index ]) + offset);

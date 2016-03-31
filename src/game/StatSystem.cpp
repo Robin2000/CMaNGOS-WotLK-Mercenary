@@ -820,9 +820,6 @@ bool Creature::UpdateStats(Stats /*stat*/)
 
 bool Creature::UpdateAllStats()
 {
-	if (isMercenary())
-		return false;
-
     UpdateMaxHealth();
     UpdateAttackPowerAndDamage();
 
@@ -848,8 +845,6 @@ void Creature::UpdateResistances(uint32 school)
 
 void Creature::UpdateArmor()
 {
-	if (isMercenary())
-		return;
 
     float value = GetTotalAuraModValue(UNIT_MOD_ARMOR);
     SetArmor(int32(value));
@@ -857,17 +852,12 @@ void Creature::UpdateArmor()
 
 void Creature::UpdateMaxHealth()
 {
-	if (isMercenary())
-		return;
-
     float value = GetTotalAuraModValue(UNIT_MOD_HEALTH);
     SetMaxHealth((uint32)value);
 }
 
 void Creature::UpdateMaxPower(Powers power)
 {
-	if (isMercenary())
-		return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
@@ -877,8 +867,6 @@ void Creature::UpdateMaxPower(Powers power)
 
 void Creature::UpdateAttackPowerAndDamage(bool ranged)
 {
-	if (isMercenary())
-		return;
 
 	if (!ranged&&GetSheath() == SHEATH_STATE_RANGED)/*如果没指定远程，就根据装备计算一下，拿远程装备的强制为远程攻击*/
 		ranged = true;
@@ -917,9 +905,6 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     if (attType > OFF_ATTACK)
         return;
 
-	if (isMercenary())
-		return;
-
     UnitMods unitMod = (attType == BASE_ATTACK ? UNIT_MOD_DAMAGE_MAINHAND : UNIT_MOD_DAMAGE_OFFHAND);
 
     /* difference in AP between current attack power and base value from DB */
@@ -950,9 +935,6 @@ bool Pet::UpdateStats(Stats stat)
 {
     if (stat > STAT_SPIRIT)
         return false;
-
-	if (isMercenary())
-		return false;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
@@ -1019,9 +1001,6 @@ void Pet::UpdateResistances(uint32 school)
 
 void Pet::UpdateArmor()
 {
-	if (isMercenary())
-		return;
-
     float value = 0.0f;
     float bonus_armor = 0.0f;
     UnitMods unitMod = UNIT_MOD_ARMOR;
@@ -1042,8 +1021,6 @@ void Pet::UpdateArmor()
 
 void Pet::UpdateMaxHealth()
 {
-	if (isMercenary())
-		return;
 
     UnitMods unitMod = UNIT_MOD_HEALTH;
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
@@ -1058,9 +1035,6 @@ void Pet::UpdateMaxHealth()
 
 void Pet::UpdateMaxPower(Powers power)
 {
-	if (isMercenary())
-		return;
-
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
@@ -1077,9 +1051,6 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
 {
     if (ranged)
         return;
-
-	if (isMercenary())
-		return;
 
     float val = 0.0f;
     float bonusAP = 0.0f;
@@ -1141,9 +1112,6 @@ void Pet::UpdateDamagePhysical(WeaponAttackType attType)
 {
     if (attType > BASE_ATTACK)
         return;
-
-	if (isMercenary())
-		return;
 
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 

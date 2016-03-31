@@ -133,6 +133,12 @@ public:
 	void GiveLevel(uint32 level);
 	void SetVirtualItemSlot(uint8 i, Item* item);
 	void SetSheath(SheathState sheathed);
+
+	char const* GetSubName() const { return subname; }
+	char* subname = "";
+
+	private:
+		Mercenary * _mercenary = nullptr;
 };
 
 #endif

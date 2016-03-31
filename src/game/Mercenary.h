@@ -1,8 +1,4 @@
-/*
-    ?013-2016 EmuDevs <http://www.emudevs.com/>
-    MaNGOS <http://getmangos.eu>
-    TrinityCore <http://www.trinitycore.org>
-*/
+
 #ifndef MERCENARY_H
 #define MERCENARY_H
 
@@ -134,7 +130,7 @@ enum RaceKey
 	BLOODELF = 10,
 	DRAENEI = 11
 };
-#define MERCENARY_DEFAULT_ENTRY 70000
+#define MERCENARY_DEFAULT_ENTRY 70000 //70000 1128
 
 class MANGOS_DLL_SPEC Mercenary
 {
@@ -178,7 +174,7 @@ public:
     /*
     * Initializes Mercenary's stats
     */
-    bool InitStats(Player* player, Pet* pet);
+	bool InitStats(Player* player, MercenaryPet* pet);
     /*
     * Updates Mercenary's stats
     */
@@ -194,7 +190,9 @@ public:
     /*
     * Initializes Mercenary's stats, gear and other summon values
     */
-	void Initialize(Player* player, Pet* pet, bool create, uint32 petNumber);
+	void Initialize(Player* player, MercenaryPet* pet, bool create,uint32 petnumber);
+
+	void InitializeNEW(Player* player,Pet* pet, bool create,uint32 petnumber);
 
 	/*清理不匹配的技能*/
 	void cleanNoMatchSpell(Pet* pet);

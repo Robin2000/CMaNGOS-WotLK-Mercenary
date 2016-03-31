@@ -129,7 +129,7 @@ uint32 getCharMaleModel(uint32 race){
 	{
 		if (Pet* pet = player->GetPet())
 		{
-			if (pet->GetEntry() == MERCENARY_DEFAULT_ENTRY)
+			if (pet->isMercenary())
 			{
 				player->GetSession()->SendNotification(player->GetMangosString(-2800634));//必须首先解散你的（雇佣兵）宠物
 				return;
@@ -215,9 +215,9 @@ bool GossipHello_mercenary_npc_gossip(Player* player, Item* item)
 
 	if (Pet* pet = player->GetPet())
 	{
-		if (pet->GetEntry() != MERCENARY_DEFAULT_ENTRY)
+		if (!pet->isMercenary())
 		{
-			player->GetSession()->SendNotification(player->GetMangosString(-2800634));//必须首先解散你的（雇佣兵）宠物
+			player->GetSession()->SendNotification(player->GetMangosString(-2800634));//必须首先解散你的宠物
 			return false;
 		}
 	}

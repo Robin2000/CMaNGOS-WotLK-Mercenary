@@ -263,7 +263,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     // load action bar, if data broken will fill later by default spells.
-    if (!is_temporary_summoned||isMercenary())
+    if (!is_temporary_summoned)
         m_charmInfo->LoadPetActionBar(fields[13].GetCppString());
 
     // since last save (in seconds)
@@ -2014,8 +2014,8 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* ci
 	SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
 
-	if (!isMercenary())
-	    SetSheath(SHEATH_STATE_MELEE);
+	
+	SetSheath(SHEATH_STATE_MELEE);
 
     if (getPetType() == MINI_PET)                           // always non-attackable
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
