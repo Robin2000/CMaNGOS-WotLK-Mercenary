@@ -1755,7 +1755,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         {
             // same map, only remove pet if out of range for new position【相同地图，如果超出范围，仅移除宠物】
             if (pet && !pet->IsWithinDist3d(x, y, z, GetMap()->GetVisibilityDistance()))
-                UnsummonPetTemporaryIfAny();
+				UnsummonPetTemporaryIfAny();
         }
 
         if (!(options & TELE_TO_NOT_LEAVE_COMBAT))

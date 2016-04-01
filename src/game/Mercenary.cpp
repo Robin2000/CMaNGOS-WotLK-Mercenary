@@ -411,6 +411,11 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create,uint32
 				EquipItemIfCan(player, item, true);
 		*/
 
+		pet->SetPowerType(POWER_MANA);
+		pet->SetMaxPower(POWER_MANA, 1000);
+		pet->SetPower(POWER_MANA, 1000);
+		pet->SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);//可重命名，可放弃
+
 		pet->InitStatsForLevel(level);
 
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
@@ -487,10 +492,12 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create,uint32
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 
         player->SetPet(pet);
-        player->PetSpellInitialize();//刷新客户端ActionBar
+       
 		
 		
     }
+	
+	player->PetSpellInitialize();//刷新客户端ActionBar
 
 	((MercenaryPet*)pet)->_ApplyAllStatBonuses();
 

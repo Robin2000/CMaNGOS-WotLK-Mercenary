@@ -21,8 +21,10 @@ void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 {
 	float px = player->GetPositionX();
 	float py = player->GetPositionY();
-	float stepX = (x-px)/50.0f;
-	float stepY = (y-py)/50.0f;
+	//float stepX = (x-px)/50.0f;
+	//float stepY = (y-py)/50.0f;
+	float stepX = 12.0f;
+	float stepY = 12.0f;
 
 	result->push_back(Vector3(px, py, player->GetPositionZ()));
 
@@ -122,11 +124,12 @@ public:
 
 
 		if (!player->isGameMaster())
+		{
 			ChatHandler(player).SendSysMessage("Enable GM mode to see the path points.");
 
-		for (uint32 i = 0; i < pointPath.size(); ++i)
-			player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-
+			for (uint32 i = 0; i < pointPath.size(); ++i)
+				player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+		}
 		//mPlayer->SetVehicleId(774, 40725);//小型观光火箭VehicleTemplate=774,entry=40725
 
 		/*uint32 size = pointPath.size();
@@ -221,12 +224,12 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 		float dz = z - mPlayer->GetPositionZ();
 
 		float dsqr = dx*dx + dy*dy+dz*dz;
-		if (dsqr<24.0 * 24.0)
+		if (dsqr<3.0 * 3.0)
 		{
 			ChatHandler(mPlayer).SendSysMessage(-2800685);
 			return;
 		}
-		else if (dsqr>500 * 500)//500码之外飞行
+		else if (dsqr>50 * 50)//50码之外飞行
 		{
 			PointsArray* result = new PointsArray();
 
@@ -285,11 +288,12 @@ else
 	teleport(mapid, x, y, z, orientation);
 }
 void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orientation){
+
+	mPlayer->UnsummonPetTemporaryIfAny();
+
 	if (mapid == mPlayer->GetMapId())
 	{
 		mPlayer->NearTeleportTo(x, y+0.5, z + 0.5f, 0.0f - orientation);
-
-		mPlayer->context.addDelayedAction(new TeleportAction(mPlayer,5000));
 	}
 	else
 	{
