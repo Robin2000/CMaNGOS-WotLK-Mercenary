@@ -32,16 +32,27 @@ void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 
 	result->push_back(Vector3(x, y, z));
 }
+class TeleportAction :public DelayedAction{
+
+public:
+	TeleportAction(Player * _player, int _timelimit) : DelayedAction(_timelimit), player(_player){}
+	void run() override{
+		if (Pet *pet = player->GetPet())
+		if (pet->isMercenary())
+		if (Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow()))
+			mercenary->Create(player, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetType(), mercenary->GetRole());
+	}
+	Player * player;
+};
 class TransportStopAction :public StopAction{
 
 public:
 	TransportStopAction(Player * _player, PathFinder* _path) :player(_player), path(_path){};
 	TransportStopAction(Player * _player, PointsArray* _points) :player(_player), points(_points){};
-
 	~TransportStopAction(){ 
 		if (points)
 			delete points; 
-		else
+		else if (path)
 			delete path; 
 	}
 	void run() override{
@@ -219,7 +230,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 		{
 			PointsArray* result = new PointsArray();
 
-			findFlyPath(mPlayer, x+1.0, y+1.0, z+1.0, result);
+			findFlyPath(mPlayer, x, y+0.5, z+0.5, result);
 			
 			addDelayedAction(new TransportAction(mPlayer, result, 800));
 
@@ -229,7 +240,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			PathFinder* path = new PathFinder(mPlayer);
 			path->setUseStrightPath(false);
 			//path->setPathLengthLimit(8.0f);
-			path->calculate(x + 1.0, y + 1.0, z + 1.0, true); // true为强制到达目标点
+			path->calculate(x , y + 0.5, z + 0.5, true); // true为强制到达目标点
 			//path->BuildPolyPath(path->getStartPosition(), path->getEndPosition());
 
 			if (!(path->getPathType() & PATHFIND_NORMAL || path->getPathType() & PATHFIND_NOT_USING_PATH))
@@ -245,7 +256,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 
 			Movement::MoveSplineInit init(*mPlayer); //500码之内跑过去
 			init.MovebyPath(result);
-			init.SetVelocity(15.0f);
+			init.SetVelocity(10.0f);
 			init.SetWalk(false);
 			init.Launch();
 
@@ -253,7 +264,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			if (pet->isMercenary()){
 				Movement::MoveSplineInit init(*pet); //500码之内跑过去
 				init.MovebyPath(result);
-				init.SetVelocity(16.0f);
+				init.SetVelocity(12.0f);
 				init.SetWalk(false);
 				init.Launch();
 			}
@@ -275,11 +286,17 @@ else
 }
 void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orientation){
 	if (mapid == mPlayer->GetMapId())
-		mPlayer->NearTeleportTo(x + 1.0f, y + 1.0f, z + 2.0f, 0.0f - orientation);
-	else
-		mPlayer->TeleportTo(mapid, x + 1.0f, y + 1.0f, z + 2.0f, 0.0f - orientation);
+	{
+		mPlayer->NearTeleportTo(x, y+0.5, z + 0.5f, 0.0f - orientation);
 
-	mPlayer->UpdateForQuestWorldObjects();
+		mPlayer->context.addDelayedAction(new TeleportAction(mPlayer,5000));
+	}
+	else
+	{
+		mPlayer->TeleportTo(mapid, x, y + 0.5, z + 0.5f, 0.0f - orientation);
+	}
+
+	//mPlayer->UpdateForQuestWorldObjects();
 }
 void DelayedAction::Update(uint32 update_diff){
 	
@@ -902,8 +919,8 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 
 	float _x = target->GetPositionX();
 	float _y = target->GetPositionY();
-	int x = (_x > 0) ? uint16(0.5 + _x) : uint16(0.5 - _x);
-	int y = (_y > 0) ? uint16(0.5 + _y) : uint16(0.5 - _y);
+	int x = (_x > 0) ? int16(0.5 + _x) : int16(_x - 0.5);
+	int y = (_y > 0) ? int16(0.5 + _y) : int16(_y - 0.5);
 
 	QuestPOIVector * POIV = sObjectMgr.GetQuestPOIVector(questId);
 	QuestPOI* poi=nullptr;

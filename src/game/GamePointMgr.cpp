@@ -159,8 +159,8 @@ void GamePointMgr::_SaveGamePoint() //保存积分数据
 	//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
 	//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, consumetime,map,zone,position_x,position_y,position_z) VALUES (?,?,?,?,?,?,?)");
 	//stmtDel.PExecute(m_player->GetGUIDLow());
-	SqlStatement stmtIns = CharacterDatabase.CreateStatement(insCharacterExt, "REPLACE INTO jf_character_ext (guid, consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked) VALUES (?,?,?,?,?,?,?,?)");
-	stmtIns.PExecute(m_player->GetGUIDLow(), m_characterExt.consumetime, m_characterExt.returnPoint.mapid, m_characterExt.returnPoint.coord_x, m_characterExt.returnPoint.coord_y, m_characterExt.returnPoint.coord_z, m_characterExt.returnPoint.orientation, (m_player->context.firstQuestChecked)?1:0);
+	SqlStatement stmtIns = CharacterDatabase.CreateStatement(insCharacterExt, "REPLACE INTO jf_character_ext (guid, consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath) VALUES (?,?,?,?,?,?,?,?,?)");
+	stmtIns.PExecute(m_player->GetGUIDLow(), m_characterExt.consumetime, m_characterExt.returnPoint.mapid, m_characterExt.returnPoint.coord_x, m_characterExt.returnPoint.coord_y, m_characterExt.returnPoint.coord_z, m_characterExt.returnPoint.orientation, (m_player->context.firstQuestChecked) ? 1 : 0, (m_player->context.disableFindPath) ? 1 : 0);
 
 	ConsumeHistoryEntry history;
 	while (!consumeHistoryQueue.empty())
@@ -195,8 +195,8 @@ void GamePointMgr::_LoadAccountBalance(QueryResult* result){
 }
 void GamePointMgr::_LoadCharacterExt(QueryResult* result){
 
-	//           0        1      2      3          4        5          6
-	//SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked FROM jf_character_ext WHERE guid = '%u'
+	//           0        1      2      3          4        5          6                7
+	//SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath FROM jf_character_ext WHERE guid = '%u'
 	if (!result)
 		return;
 
@@ -209,6 +209,8 @@ void GamePointMgr::_LoadCharacterExt(QueryResult* result){
 	m_characterExt.returnPoint.coord_z = fields[4].GetFloat();
 	m_characterExt.returnPoint.orientation = fields[5].GetFloat();
 	m_player->context.firstQuestChecked = fields[6].GetBool();
+	m_player->context.disableFindPath = fields[7].GetBool();
+	
 	delete result;
 
 }

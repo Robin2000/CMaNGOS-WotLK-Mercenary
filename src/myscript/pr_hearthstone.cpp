@@ -109,9 +109,9 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	if (pPlayer->isGameMaster())
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, "TOOLS", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);//更新数据库表。
 	
-	if(pPlayer->GetSession()->GetSessionDbcLocale() == LOCALE_zhCN)
+	if (pPlayer->GetSession()->GetSessionDbcLocale() != LOCALE_enUS)
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "English", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
-	if (pPlayer->GetSession()->GetSessionDbcLocale() == LOCALE_enUS)
+	else
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800683, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
 
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);//回家。
