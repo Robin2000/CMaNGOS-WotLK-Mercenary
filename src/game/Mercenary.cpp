@@ -222,7 +222,7 @@ bool Mercenary::Summon(Player* player)
 }
 bool Mercenary::isValidSpell(uint32 spell){
 	auto itr = MercenaryUtil::findMercenarySpellsInfoBySpell(spell);
-	return  itr != nullptr&&itr->role != role;
+	return  itr != nullptr&&itr->role == role;
 }
 void Mercenary::cleanNoMatchSpell(Pet* pet){
 	//自动移除无用技能
@@ -277,9 +277,7 @@ public:
 	UpdatePetActionBar(Player * _player, MercenaryPet* _pet, int _timelimit) : DelayedAction(_timelimit), player(_player), pet(_pet){}
 
 	void run() override{
-
 		player->PetSpellInitialize();//刷新客户端ActionBar
-		pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
 	}
 	Player * player;
 	MercenaryPet    * pet;
@@ -421,6 +419,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create,uint32
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 		
+		player->context.addDelayedAction(new UpdatePetActionBar(player, pet, 1000));//一秒后更新actionbar
     }
     else
     {

@@ -157,6 +157,15 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 	if (creature->removingSpell){
 		MercenaryPet* pet = (MercenaryPet*)creature;
 		pet->unlearnSpell(spell, false,true);
+		for (uint8 x = ACTION_BAR_INDEX_PET_SPELL_START; x < ACTION_BAR_INDEX_PET_SPELL_END; ++x)
+		{
+			if (UnitActionBarEntry const* actionEntry = pet->GetCharmInfo()->GetActionBarEntry(x))
+			if (uint32 spellid = actionEntry->GetAction())
+			{
+				if (spellid == spell)
+					pet->GetCharmInfo()->SetActionBar(x, 0, ACT_DISABLED);
+			}
+		}
 	}
 	else
 		mercenary->LearnSpell(player, spell);

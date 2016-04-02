@@ -18,7 +18,7 @@ struct mercenary_bot_AI : public PetAI
 	int checkCancelStealthAuraTimer = 5000;//5秒检查1次是否要取消隐身
 	bool checkCancelStealthAura = false;
 
-	int defaultSpellTimer = 0;
+	int defaultSpellTimer = 5000;
 	std::vector<uint32> defautSpells;
 	void Reset() //注意，这里有个overide，发现父类没有该方法，Reset何时调用，必须考虑
 	{
@@ -146,7 +146,8 @@ struct mercenary_bot_AI : public PetAI
 				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+currentSpell))
 				if (uint32 spellid = actionEntry->GetAction())
 				{
-					caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
+					if (actionEntry->GetType() == ACT_ENABLED) //auto cast +castable
+						caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
 				}
 
 				
