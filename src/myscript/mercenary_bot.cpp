@@ -187,9 +187,16 @@ void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature,
 		if (it->second->spellLevelVector.at(i) <= player->getLevel())
 		{
 			uint32 spellid = it->second->spellIdVector.at(i);
-			std::ostringstream ss;
-			ss << MercenaryUtil::GetMercenarySpellIcon(spellid, player) << player->context.getSpellName(it->first) << "(Lvl:" << MercenaryUtil::findMercenarySpellsInfoBySpell(spellid)->spellLevel << ")";
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF + spellid);//学习
+			
+			if (MercenarySpell* info = MercenaryUtil::findMercenarySpellsInfoBySpell(spellid))
+			{
+				if (!info->isActive || info->isDefaultAura)
+					break;//低等级的技能和缺省技能被跳过
+
+				std::ostringstream ss;
+				ss << MercenaryUtil::GetMercenarySpellIcon(spellid, player) << player->context.getSpellName(it->first) << "(Lvl:" << MercenaryUtil::findMercenarySpellsInfoBySpell(spellid)->spellLevel << ")";
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF + spellid);//学习
+			}
 			break;
 		}
 	}

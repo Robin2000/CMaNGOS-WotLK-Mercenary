@@ -9,8 +9,8 @@ struct mercenary_bot_AI : public PetAI
 {
 	mercenary_bot_AI(Creature* creature) : PetAI(creature) { Reset(); }
 
-	uint32 talkTimer = 0;
-	uint32 spellTimer = 0;
+	int talkTimer = 0;
+	int spellTimer = 0;
 	int currentSpell = 0;
 	int updatePetMercenaryMirrorTimer = 5000;//5秒检查1次
 	bool updatePetMercenaryMirrorCheck = true;
@@ -18,6 +18,8 @@ struct mercenary_bot_AI : public PetAI
 	int checkCancelStealthAuraTimer = 5000;//5秒检查1次是否要取消隐身
 	bool checkCancelStealthAura = false;
 
+	int defaultSpellTimer = 0;
+	std::vector<uint32> defautSpells;
 	void Reset() //注意，这里有个overide，发现父类没有该方法，Reset何时调用，必须考虑
 	{
 		talkTimer = urand(35000, 120000);
@@ -47,6 +49,33 @@ struct mercenary_bot_AI : public PetAI
 				m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
 				m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
 				mercenary->SendMirrorImagePacket(m_creature);
+
+
+				defautSpells.clear();
+				//默认光环技能
+				if (GroupSpellsMap* groupSpellMap = MercenaryUtil::findGroupSpellsMapByClass(mercenary->GetType(), mercenary->GetRole()))
+				{
+					uint32 level = owner->getLevel();
+					for (auto it = groupSpellMap->begin(); it != groupSpellMap->end(); ++it)
+					{
+						MercenarySpellGroup* mSpellGroup = it->second;
+						int count = 0;
+						for (auto itr = mSpellGroup->spellLevelVector.begin(); itr != mSpellGroup->spellLevelVector.end(); itr++, count++)
+						if (*itr <= level)
+						{
+							uint32 spellid=mSpellGroup->spellIdVector.at(count);
+							if (MercenarySpell* info = MercenaryUtil::findMercenarySpellsInfoBySpell(spellid))
+							{
+								if (!info->isActive || !info->isDefaultAura)
+									break;//低等级的技能被跳过
+
+								defautSpells.push_back(spellid);
+
+							}
+							break;//低等级的技能被跳过
+						}
+					}
+				}
 			}
 
 
@@ -61,12 +90,34 @@ struct mercenary_bot_AI : public PetAI
 		if (DoCastSpellIfCan(target, spell) == CAST_OK)
 		{
 			m_creature->AddCreatureSpellCooldown(spell);
-			spellTimer = 100;
+			spellTimer = 100;//下一次施法的最短间隔，模拟人的反应速度
 		}
 	}
 	bool DoSpellAttackIfReady(const uint32 diff){
 
 		//uint8 spellCount = m_creature->GetPetAutoSpellSize();
+
+		Player* player = m_creature->GetOwner()->ToPlayer();
+		if (!player)
+			return false;
+
+		mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
+		//#endif
+		if (!mercenary)
+			return false;
+
+		if (defaultSpellTimer <= (int)diff)
+		{
+			for (auto it = defautSpells.begin(); it != defautSpells.end(); it++)
+			{
+				if (!m_creature->HasAura(*it))
+					m_creature->CastSpell(m_creature, *it, true);//没有光环就自动添加光环
+			}
+			defaultSpellTimer = 30000;//30秒检查1次
+		}
+		else
+			defaultSpellTimer -= diff;
+
 
 		Unit* target = m_creature->getVictim();
 		//if (!target)
@@ -74,19 +125,9 @@ struct mercenary_bot_AI : public PetAI
 		if (!target)
 			return false;
 
-		Player* player = m_creature->GetOwner()->ToPlayer();
-		if (!player)
-			return false;
-
-
-		mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
-		//#endif
-		if (!mercenary)
-			return false;
-
-		if (spellTimer < diff)
+		if (spellTimer < (int)diff)
 		{
-			if (rand() % 50 > 10)//有10%可能随机施法
+			/*if (rand() % 50 > 10)//有10%可能随机施法
 			{
 				uint8 randSpell = rand() % 4; //最多4个宠物技能
 				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+randSpell))
@@ -96,18 +137,20 @@ struct mercenary_bot_AI : public PetAI
 				}
 			}
 			else
-			{
+			{*/
 				if (currentSpell >= 4)
 					currentSpell = 0;
-				
+				else
+					currentSpell++;
+
 				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+currentSpell))
 				if (uint32 spellid = actionEntry->GetAction())
 				{
 					caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
 				}
 
-				currentSpell++;
-			}
+				
+			/*}*/
 
 		}
 		else
