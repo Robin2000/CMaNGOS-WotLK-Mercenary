@@ -229,10 +229,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         SetFFAPvP(true);
 
     SetCanModifyStats(true);
-	if (!isMercenary()){
+
 		InitStatsForLevel(petlevel);
 		InitTalentForLevel();                                   // set original talents points before spell loading
-	}
+
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr)));
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetCreatorGuid(owner->GetObjectGuid());

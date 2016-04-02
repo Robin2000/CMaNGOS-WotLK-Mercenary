@@ -39,10 +39,8 @@ class TeleportAction :public DelayedAction{
 public:
 	TeleportAction(Player * _player, int _timelimit) : DelayedAction(_timelimit), player(_player){}
 	void run() override{
-		if (Pet *pet = player->GetPet())
-		if (pet->isMercenary())
-		if (Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow()))
-			mercenary->Create(player, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetType(), mercenary->GetRole());
+		player->UpdateForQuestWorldObjects();
+		player->SetCanFly(false);
 	}
 	Player * player;
 };
@@ -299,8 +297,8 @@ void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orie
 	{
 		mPlayer->TeleportTo(mapid, x, y + 0.5, z + 0.5f, 0.0f - orientation);
 	}
-
-	//mPlayer->UpdateForQuestWorldObjects();
+	this->addDelayedAction(new TeleportAction(mPlayer, 5000));//延迟5秒，如果无法落脚，可快速移开
+	
 }
 void DelayedAction::Update(uint32 update_diff){
 	
@@ -852,10 +850,32 @@ void PlayerContext::loadQuestAux(uint32 questid){
 			}
 			else if(it->ntype == 2 && it->npcgo > 0){//如果是怪物暴物品，怪物不允许超过玩家等级10级。
 				CreatureInfo const* info=sObjectMgr.GetCreatureTemplate(it->npcgo);
+
 				if (info == nullptr)
 					continue;
-
-				if (info->MinLevel<=mPlayer->getLevel()+10)
+				
+				if (info->NpcFlags  & UNIT_NPC_FLAG_VENDOR) //是商人，那么不能是敌视阵营的
+				{
+					switch (mPlayer->GetTeam())
+					{
+						case HORDE:
+							if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(info->FactionHorde))
+							{
+								if (!factionTemplate->IsHostileTo(*mPlayer->getFactionTemplateEntry()))
+									questNpcGOVec->push_back(&*it);
+							}
+						break;
+						case ALLIANCE:
+							if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(info->FactionAlliance))
+							{
+								if (!factionTemplate->IsHostileTo(*mPlayer->getFactionTemplateEntry()))
+									questNpcGOVec->push_back(&*it);
+							}
+						break;
+					}
+					
+				}
+				else if (info->MinLevel<=mPlayer->getLevel()+10)
 					questNpcGOVec->push_back(&*it);
 			}
 			else
@@ -969,7 +989,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureDat
 	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ, data->orientation);
 }
 void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data){
-	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ, data->orientation);
+	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ+2.0f, data->orientation);//游戏对象需太高避免掉下
 }
 
 void PlayerContext::moveFast(QuestNpcGO const * questNpcGO){
