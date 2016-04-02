@@ -658,7 +658,7 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
     if (!pCreature)
         return;
 
-	if (pCreature->IsPet())
+	if (pCreature->isMercenary())
 		 {
 		Mercenary* mercenary = sMercenaryMgr->GetMercenary(pCreature->GetOwner()->GetGUIDLow());
 		if (mercenary)
@@ -668,13 +668,13 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 			data << uint32(mercenary->GetDisplay());
 			data << uint8(mercenary->GetRace());
 			data << uint8(mercenary->GetGender());
-			data << uint8(1);
+			data << uint8(mercenary->GetType());//参照trinity将1改
 			data << uint8(0); // Skin
 			data << uint8(0); // Face
 			data << uint8(0); // Hair
 			data << uint8(0); // Hair color
 			data << uint8(0); // Facial hair
-			data << uint32(0);
+			data << uint32(0);//不参照trinity将0改
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HEAD].itemid));
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHOULDERS].itemid));
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHIRT].itemid)); // Shirt?
@@ -686,7 +686,7 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HANDS].itemid));
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_BACK].itemid));  // Cloak
 			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_TABARD].itemid));  // Tabard
-			data << uint32(0);  // SLOT_EMPTY END
+			data << uint32(EQUIPMENT_SLOT_END);  // SLOT_EMPTY END参考trinity0改19
 			SendPacket(&data);
 			return;
 			}
