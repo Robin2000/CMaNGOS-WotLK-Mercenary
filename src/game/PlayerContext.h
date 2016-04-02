@@ -168,6 +168,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//取得执业对应的种族列表
 	tbb::concurrent_unordered_set<uint32> & GetRaceSetByClass(uint32 charClass);
 
+	bool checkPositiveSpell(uint32 spellid);
+
 	void teleport(uint32 mapid, float x, float y, float z, float orientation);
 	void moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation);
 

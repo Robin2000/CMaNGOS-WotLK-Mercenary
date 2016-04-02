@@ -57,15 +57,16 @@ struct mercenary_bot_AI : public PetAI
 		if (spell == 0)
 			return;
 		// Cast spell one on our current target.
+		if (!m_creature->HasSpellCooldown(spell))
 		if (DoCastSpellIfCan(target, spell) == CAST_OK)
-			spellTimer = 5000;
+		{
+			m_creature->AddCreatureSpellCooldown(spell);
+			spellTimer = 100;
+		}
 	}
-	bool DoRangeAttackIfReady(const uint32 diff){
+	bool DoSpellAttackIfReady(const uint32 diff){
 
-		uint8 spellCount = m_creature->GetPetAutoSpellSize();
-
-		if (spellCount <= 0)
-			return false;
+		//uint8 spellCount = m_creature->GetPetAutoSpellSize();
 
 		Unit* target = m_creature->getVictim();
 		//if (!target)
@@ -73,12 +74,12 @@ struct mercenary_bot_AI : public PetAI
 		if (!target)
 			return false;
 
-		Player* master = m_creature->GetOwner()->ToPlayer();
-		if (!master)
+		Player* player = m_creature->GetOwner()->ToPlayer();
+		if (!player)
 			return false;
 
 
-		mercenary = MercenaryUtil::GetMercenaryByOwner(master->GetGUIDLow());
+		mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow());
 		//#endif
 		if (!mercenary)
 			return false;
@@ -87,14 +88,24 @@ struct mercenary_bot_AI : public PetAI
 		{
 			if (rand() % 50 > 10)//有10%可能随机施法
 			{
-				uint8 randSpell = rand() % (spellCount + 1);
-				caseSpell(target, m_creature->GetPetAutoSpellOnPos(randSpell), diff);
+				uint8 randSpell = rand() % 4; //最多4个宠物技能
+				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+randSpell))
+				if (uint32 spellid = actionEntry->GetAction())
+				{
+					caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
+				}
 			}
 			else
 			{
-				if (currentSpell >= spellCount)
+				if (currentSpell >= 4)
 					currentSpell = 0;
-				caseSpell(target, m_creature->GetPetAutoSpellOnPos(currentSpell), diff);
+				
+				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+currentSpell))
+				if (uint32 spellid = actionEntry->GetAction())
+				{
+					caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
+				}
+
 				currentSpell++;
 			}
 
@@ -194,14 +205,17 @@ struct mercenary_bot_AI : public PetAI
 				talkTimer -= diff;
 		
 
-		if (mercenary->isRangedAttack())
-		{
+		//if (mercenary->isRangedAttack())
+		//{
 			//m_creature->SetSheath(SHEATH_STATE_RANGED);
-			m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
+			//m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
 			//m_creature->addUnitState(UNIT_STAT_FLEEING);
-			DoRangeAttackIfReady(diff);
-		}
-		else
+			
+			DoSpellAttackIfReady(diff);//总是触发法术
+
+		//}
+		//else
+		if (!mercenary->isRangedAttack())
 			DoMeleeAttackIfReady();
 	}
 private:

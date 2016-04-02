@@ -34,7 +34,8 @@ public:
 		{
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800635, 0, 1);//更换装备
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800636, 0, 2);//移除装备
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800637, 0, 3); // 更换技能
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800640, 0, 39);//教雇佣兵新技能法术
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800641, 0, 40);//遗忘雇佣兵的技能法术
 			player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, -2800584, 0, 37, player->GetMangosString(-2800584), 0, true);//雇佣兵改名
 			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800673, 0, 4); // 解雇我
 		}
@@ -125,17 +126,7 @@ public:
 		//#endif
 	}
 
-	void static SendSpellList(Player* player, Creature* creature, Mercenary* mercenary)
-	{
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800640, 0, 39);//教雇佣兵新技能法术
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800641, 0, 40);//遗忘雇佣兵的技能法术
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF+36);//"Back to Main Menu"
-		//#ifndef MANGOS
-		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
-		//#else
-		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-		//#endif
-	}
+
 
 };
 
@@ -165,7 +156,7 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 
 	if (creature->removingSpell){
 		MercenaryPet* pet = (MercenaryPet*)creature;
-		pet->removeSpell(spell, false);
+		pet->unlearnSpell(spell, false,true);
 	}
 	else
 		mercenary->LearnSpell(player, spell);
@@ -187,6 +178,7 @@ void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature,
 	if (groupSpells == nullptr)
 		return;
 
+	creature->removingSpell = false;//设置标志-非遗忘技能
 	for (auto it = groupSpells->begin(); it != groupSpells->end(); ++it)//等级由高到低匹配
 	{
 		//uint32 groupid=it->first;
@@ -209,14 +201,18 @@ void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature,
 void addUnLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
 	MercenaryPet * pet = (MercenaryPet*)creature;
 
-	uint8 spellCount= pet->GetPetAutoSpellSize();
-	for (int i = 0; i < spellCount; i++)
-	{
-		uint32 spellid = pet->GetPetAutoSpellOnPos(i);
-		std::string & spellName = player->context.getSpellName(spellid);
-		if (!spellName.empty())
-			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenarySpellIcon(spellid, player) + spellName, 0, GOSSIP_ACTION_SPELL_DEF + spellid);//遗忘
+	creature->removingSpell = true;//设置标志，是遗忘技能
 
+	for (uint8 x = ACTION_BAR_INDEX_PET_SPELL_START; x < ACTION_BAR_INDEX_PET_SPELL_END; ++x)
+	{
+		if (UnitActionBarEntry const* actionEntry = pet->GetCharmInfo()->GetActionBarEntry(x))
+		if (uint32 spellid = actionEntry->GetAction())
+		{
+			std::ostringstream ss;
+			ss << MercenaryUtil::GetMercenarySpellIcon(spellid, player) << player->context.getSpellName(spellid) << "(Lvl:" << MercenaryUtil::findMercenarySpellsInfoBySpell(spellid)->spellLevel << ")";
+
+			player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ss.str().c_str(), 0, GOSSIP_ACTION_SPELL_DEF + spellid);//遗忘
+		}
 	}
 
 	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF + 36);//"Back to Main Menu"
@@ -295,9 +291,6 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		}
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, GOSSIP_ACTION_SPELL_DEF+36);//后退
 		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
-		break;
-	case 3:
-		mercenary_bot::SendSpellList(player, creature, mercenary);
 		break;
 	case 4:
 		if (Pet *pet = player->GetPet())

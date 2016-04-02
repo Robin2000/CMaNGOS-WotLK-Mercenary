@@ -1104,3 +1104,7 @@ void PlayerContext::changeCamera(uint32 mapid, float x, float y, float z, float 
 
 	mPlayer->GetCamera().SetView(dynObj);
 }
+
+bool PlayerContext::checkPositiveSpell(uint32 spellid){
+	return IsPositiveSpell(spellid);
+}
