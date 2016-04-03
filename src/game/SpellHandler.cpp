@@ -663,32 +663,33 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 		Mercenary* mercenary = sMercenaryMgr->GetMercenary(pCreature->GetOwner()->GetGUIDLow());
 		if (mercenary)
 			{
-			WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
-			data << pCreature->GetObjectGuid();
-			data << uint32(mercenary->GetDisplay());
-			data << uint8(mercenary->GetRace());
-			data << uint8(mercenary->GetGender());
-			data << uint8(mercenary->GetType());//参照trinity将1改
-			data << uint8(0); // Skin
-			data << uint8(0); // Face
-			data << uint8(0); // Hair
-			data << uint8(0); // Hair color
-			data << uint8(0); // Facial hair
-			data << uint32(0);//不参照trinity将0改
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HEAD].itemid));
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHOULDERS].itemid));
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHIRT].itemid)); // Shirt?
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_CHEST].itemid));
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_WAIST].itemid)); // Waist
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_LEGS].itemid)); 
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_FEET].itemid)); 
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_WRISTS].itemid));  // Wrists
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HANDS].itemid));
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_BACK].itemid));  // Cloak
-			data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_TABARD].itemid));  // Tabard
-			data << uint32(EQUIPMENT_SLOT_END);  // SLOT_EMPTY END参考trinity0改19
-			SendPacket(&data);
-			return;
+				WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
+				data << pCreature->GetObjectGuid();
+				data << uint32(mercenary->GetDisplay());
+				data << uint8(mercenary->GetRace());
+				data << uint8(mercenary->GetGender());
+				data << uint8(mercenary->GetType());//参照trinity将1改
+				data << uint8(0); // Skin
+				data << uint8(0); // Face
+				data << uint8(0); // Hair
+				data << uint8(0); // Hair color
+				data << uint8(0); // Facial hair
+				data << uint32(0);//不参照trinity将0改
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HEAD].itemid));
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHOULDERS].itemid));
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHIRT].itemid)); // Shirt?
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_CHEST].itemid));
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_WAIST].itemid)); // Waist
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_LEGS].itemid)); 
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_FEET].itemid)); 
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_WRISTS].itemid));  // Wrists
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HANDS].itemid));
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_BACK].itemid));  // Cloak
+				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_TABARD].itemid));  // Tabard
+				data << uint32(0);  // SLOT_EMPTY END参考trinity0改19
+				data << uint32(0);
+				SendPacket(&data);
+				return;
 			}
 		}
 

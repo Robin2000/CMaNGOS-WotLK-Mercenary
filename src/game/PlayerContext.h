@@ -201,6 +201,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	void addDelayedAction(DelayedAction * action);
 	
+	void ClearMercenary();//清理雇佣兵装备，避免客户端崩溃
+
 	PrEventPlugin & getEventPlugin(){return eventPlugin;}
 
 	Player* mPlayer;

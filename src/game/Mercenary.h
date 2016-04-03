@@ -11,7 +11,7 @@
 
 struct GearEntry{
 	uint32 itemguid;
-	uint32 itemid;
+	uint32 itemid=0;
 };
 typedef tbb::concurrent_unordered_map<uint8, GearEntry> GearMap;/*slot , GearEntry*/
 

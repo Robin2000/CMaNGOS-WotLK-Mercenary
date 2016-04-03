@@ -1112,3 +1112,10 @@ void PlayerContext::changeCamera(uint32 mapid, float x, float y, float z, float 
 bool PlayerContext::checkPositiveSpell(uint32 spellid){
 	return IsPositiveSpell(spellid);
 }
+
+void PlayerContext::ClearMercenary(){
+	if(Pet *pet=mPlayer->GetPet())
+	if (pet->isMercenary()){
+		mPlayer->UnsummonPetTemporaryIfAny();
+	}
+}

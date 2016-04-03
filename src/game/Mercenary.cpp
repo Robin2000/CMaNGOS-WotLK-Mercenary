@@ -419,7 +419,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create,uint32
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 		
-		player->context.addDelayedAction(new UpdatePetActionBar(player, pet, 1000));//一秒后更新actionbar
+		//player->context.addDelayedAction(new UpdatePetActionBar(player, pet, 1000));//一秒后更新actionbar，不需要，因Pet::LoadPetfromdb时已经调用
     }
     else
     {
@@ -874,11 +874,7 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     data << uint8(0); // Facial hair
 	data << uint32(0);//不参照trinity
 
-	if (creature->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
-		data << uint32(0);
-	else
-		data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HEAD].itemid));
-
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HEAD].itemid));
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_SHOULDERS].itemid)); 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_SHIRT].itemid)); // Shirt?
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_CHEST].itemid)); 
@@ -888,14 +884,11 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_WRISTS].itemid)); // Wrists?
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HANDS].itemid));
 	
-	if (creature->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
-		data << uint32(0);
-	else
-		data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
+	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
-	data << uint32(EQUIPMENT_SLOT_END); // SLOT_EMPTY?//参照trinity0改为19
-
+	data << uint32(0); // SLOT_EMPTY?//参照trinity0改为19
+	data << uint32(0);
     creature->SendMessageToSet(&data, false);
 }
 

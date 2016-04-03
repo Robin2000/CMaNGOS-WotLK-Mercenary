@@ -1,7 +1,8 @@
 #ifndef PR_EVENT_PLUGIN_H
 #define PR_EVENT_PLUGIN_H
 enum PrEvent{
-	P_LOGIN_EVENT = 0
+	P_LOGIN_EVENT = 0,
+	P_LOGOUT_EVENT = 1
 };
 class MANGOS_DLL_SPEC PrEventPlugin{
 public:
