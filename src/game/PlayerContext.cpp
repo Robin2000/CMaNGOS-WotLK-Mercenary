@@ -23,8 +23,12 @@ void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 	float py = player->GetPositionY();
 	//float stepX = (x-px)/50.0f;
 	//float stepY = (y-py)/50.0f;
-	float stepX = 12.0f;
-	float stepY = 12.0f;
+	//float stepX = 12.0f;
+	//float stepY = 12.0f;
+
+	float stepX = (x-px)/50.0f;
+	float stepY = (y-py)/50.0f;
+
 
 	result->push_back(Vector3(px, py, player->GetPositionZ()));
 

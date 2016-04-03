@@ -1205,7 +1205,7 @@ void Pet::_LoadSpells()
 			if (mercenary&&!mercenary->isValidSpell(fields[0].GetUInt32()))//不加载无效的技能
 				continue;
 
-            addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
+			addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_CHANGED);
         }
         while (result->NextRow());
 
