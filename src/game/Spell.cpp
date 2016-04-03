@@ -2989,7 +2989,11 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     }
 
     // Fill cost data
-    m_powerCost = CalculatePowerCost(m_spellInfo, m_caster, this, m_CastItem);
+	Creature * creature = m_caster->ToCreature();
+	if (creature != nullptr&&creature->isMercenary())
+		m_powerCost = 1;//可忽略不计的魔法消耗量
+	else
+		m_powerCost = CalculatePowerCost(m_spellInfo, m_caster, this, m_CastItem);
 
     SpellCastResult result = CheckCast(true);
     if (result != SPELL_CAST_OK && !IsAutoRepeat())         // always cast autorepeat dummy for triggering
