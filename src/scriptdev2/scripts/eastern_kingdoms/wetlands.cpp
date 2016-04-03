@@ -202,6 +202,7 @@ bool QuestAccept_npc_mikhail(Player* pPlayer, Creature* pCreature, const Quest* 
 {
     if (pQuest->GetQuestId() == QUEST_MISSING_DIPLOMAT11)
     {
+		ChatHandler(pPlayer).SendSysMessage(-2800688);
         Creature* pSlim = GetClosestCreatureWithEntry(pCreature, NPC_TAPOKE_SLIM_JAHN, 25.0f);
         if (!pSlim)
             return false;
