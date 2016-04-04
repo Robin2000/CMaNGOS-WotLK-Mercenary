@@ -87,10 +87,44 @@ struct mercenary_bot_AI : public PetAI
 			return;
 		// Cast spell one on our current target.
 		if (!m_creature->HasSpellCooldown(spell))
-		if (DoCastSpellIfCan(target, spell) == CAST_OK)
 		{
-			m_creature->AddCreatureSpellCooldown(spell);
-			spellTimer = 100;//下一次施法的最短间隔，模拟人的反应速度
+			CanCastResult result=DoCastSpellIfCan(target, spell);
+			if (result == CAST_OK)
+			{
+				m_creature->AddCreatureSpellCooldown(spell);
+				spellTimer = 100;//下一次施法的最短间隔，模拟人的反应速度
+				debug_log("Mercenary Spell CAST_OK %u.", spell);
+			}
+			else
+			{
+				switch (result)
+				{
+					case	CAST_FAIL_IS_CASTING:
+						debug_log("Mercenary Spell CAST_FAIL_IS_CASTING %u.", spell);
+						break;
+					case		CAST_FAIL_OTHER:
+						debug_log("Mercenary Spell CAST_FAIL_OTHER %u.", spell);
+						break;
+					case	CAST_FAIL_TOO_FAR:
+						debug_log("Mercenary Spell CAST_FAIL_TOO_FAR %u.", spell);
+						break;
+					case		CAST_FAIL_TOO_CLOSE:
+						debug_log("Mercenary Spell CAST_FAIL_TOO_CLOSE %u.", spell);
+						break;
+					case	CAST_FAIL_POWER:
+						debug_log("Mercenary Spell CAST_FAIL_POWER %u.", spell);
+						break;
+					case		CAST_FAIL_STATE:
+						debug_log("Mercenary Spell CAST_FAIL_STATE %u.", spell);
+						break;
+					case		CAST_FAIL_TARGET_AURA:
+						debug_log("Mercenary Spell CAST_FAIL_TARGET_AURA %u.", spell);
+						break;
+					case		CAST_FAIL_NOT_IN_LOS:
+						debug_log("Mercenary Spell CAST_FAIL_NOT_IN_LOS %u.", spell);
+						break;					
+				}
+			}
 		}
 	}
 	bool DoSpellAttackIfReady(const uint32 diff){
@@ -118,8 +152,9 @@ struct mercenary_bot_AI : public PetAI
 		else
 			defaultSpellTimer -= diff;
 
-
-		Unit* target = m_creature->getVictim();
+		Unit* target = player->getVictim();
+		if (!target)
+			target = m_creature->getVictim();
 		//if (!target)
 		//target = m_creature->SelectRandomUnfriendlyTarget();
 		if (!target)
@@ -127,32 +162,19 @@ struct mercenary_bot_AI : public PetAI
 
 		if (spellTimer < (int)diff)
 		{
-			/*if (rand() % 50 > 10)//有10%可能随机施法
-			{
-				uint8 randSpell = rand() % 4; //最多4个宠物技能
-				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+randSpell))
-				if (uint32 spellid = actionEntry->GetAction())
-				{
-					caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
-				}
-			}
-			else
-			{*/
 				if (currentSpell >= 4)
 					currentSpell = 0;
 				else
 					currentSpell++;
 
-				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START+currentSpell))
-				if (uint32 spellid = actionEntry->GetAction())
+				if (UnitActionBarEntry const* actionEntry = m_creature->GetCharmInfo()->GetActionBarEntry(ACTION_BAR_INDEX_PET_SPELL_START + currentSpell))
 				{
-					if (actionEntry->GetType() == ACT_ENABLED) //auto cast +castable
-						caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
+					if (uint32 spellid = actionEntry->GetAction())
+					{
+						if (actionEntry->GetType() == ACT_ENABLED) //auto cast +castable
+							caseSpell(player->context.checkPositiveSpell(spellid) ? player : target, spellid, diff);
+					}
 				}
-
-				
-			/*}*/
-
 		}
 		else
 			spellTimer -= diff;
