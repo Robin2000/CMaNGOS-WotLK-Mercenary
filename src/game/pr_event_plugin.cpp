@@ -14,6 +14,8 @@ void PrEventPlugin::sendEvent(PrEvent e){
 	{
 		case P_LOGIN_EVENT:
 			//player->context.addDelayedAction(new DelayedHandleLogin(5000, player));//并不能解决问题，任务从跟踪列表去掉，但在日志中存在
+			if (uint32 displayid=player->context.displayid)
+				player->SetDisplayId(displayid);
 			break;
 		case P_LOGOUT_EVENT:
 			player->context.ClearMercenary();//客户端清理

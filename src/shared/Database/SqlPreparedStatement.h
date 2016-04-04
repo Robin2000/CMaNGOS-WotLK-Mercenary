@@ -291,7 +291,21 @@ class MANGOS_DLL_SPEC SqlStatement
 			arg(param9);
 			return Execute();
 		}
-
+		template<typename ParamType1, typename ParamType2, typename ParamType3, typename ParamType4, typename ParamType5, typename ParamType6, typename ParamType7, typename ParamType8, typename ParamType9, typename ParamType10>
+		bool PExecute(ParamType1 param1, ParamType2 param2, ParamType3 param3, ParamType4 param4, ParamType5 param5, ParamType6 param6, ParamType7 param7, ParamType8 param8, ParamType9 param9, ParamType10 param10)
+		{
+			arg(param1);
+			arg(param2);
+			arg(param3);
+			arg(param4);
+			arg(param5);
+			arg(param6);
+			arg(param7);
+			arg(param8);
+			arg(param9);
+			arg(param10);
+			return Execute();
+		}
         // bind parameters with specified type
         void addBool(bool var) { arg(var); }
         void addUInt8(uint8 var) { arg(var); }

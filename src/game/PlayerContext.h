@@ -45,6 +45,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	bool firstQuestChecked = false;
 
+	uint32 displayid = 0;
+
 	void checkFirstGuideQuest();
 	//Ñ¡ÔñµÄmap
 	int MAPSEL = -1;

@@ -141,22 +141,22 @@ void excuteMorph(Player* pPlayer,bool morphPet)
 	Creature * creature = pPlayer->GetMap()->GetCreature(obj);
 	if (!creature)
 		return;
-
+	uint32 display = creature->GetDisplayId();
 	if (morphPet)
 	{
 		if (Pet * pet = pPlayer->GetPet())
 		if (pet->isMercenary())
 		{
-			pet->SetDisplayId(creature->GetDisplayId());
-			pPlayer->context.GetMercenary()->SetDisplay(creature->GetDisplayId());
+			pet->SetDisplayId(display);
+			pPlayer->context.GetMercenary()->SetDisplay(display);
 			pPlayer->context.GetMercenary()->SendMirrorImagePacket(pet);
 			return;
 		}
 		ChatHandler(pPlayer).SendSysMessage(-2800698);//你还没有招募雇佣兵。
 		return;
 	}
-	
-	pPlayer->SetDisplayId(creature->GetDisplayId());
+	pPlayer->context.displayid = display;
+	pPlayer->SetDisplayId(display);
 	
 }
 void showHH(Player* pPlayer, Item* pItem)
