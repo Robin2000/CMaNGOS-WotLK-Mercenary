@@ -93,6 +93,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	Mercenary* mMercenary = nullptr;
 	void loadMercenary();
 	void OnSaveMercenary();
+	Mercenary* GetMercenary(){ return mMercenary; }
 
 	//宠物取得种族职业的缺省技能
 	void getDefaultSpells( std::vector<uint32> & vec, uint8 race, uint8 cla, uint32 level);

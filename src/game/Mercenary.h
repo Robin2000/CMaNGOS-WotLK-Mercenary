@@ -272,6 +272,7 @@ public:
     uint32 GetOwnerGUID() const { return ownerGUID; }
     uint8 GetRole() const { return role; }
     uint32 GetDisplay() const { return displayId; }
+	void SetDisplay(uint32 _displayId) { displayId = _displayId; }
     uint8 GetRace() const { return race; }
     uint8 GetGender() const { return gender; }
     uint8 GetType() const { return type; }

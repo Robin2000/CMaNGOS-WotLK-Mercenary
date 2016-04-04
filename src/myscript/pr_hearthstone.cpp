@@ -27,6 +27,7 @@ EndScriptData */
 #include "hearthstone_learn.h"
 #include "hearthstone_mount.h"
 #include "gmtools.h"
+#include "Mercenary.h"
 /*
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
@@ -100,6 +101,9 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800183, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);//雇佣兵招募。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800699, 0, GOSSIP_ACTION_INFO_DEF + 998);//唤醒雇佣兵
+	
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800689, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);//角色幻化。
+
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, -2800184, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);//技能学习
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//成就直升。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800300, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);//地图传送。
@@ -107,12 +111,14 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800174, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);//设置返回点。（-3原力）
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800175, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);//前往返回点。（-2原力）
 	if (pPlayer->isGameMaster())
+	{
 		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TABARD, "TOOLS", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 20);//更新数据库表。
-	
-	if (pPlayer->GetSession()->GetSessionDbcLocale() != LOCALE_enUS)
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "English", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
-	else
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800683, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
+
+		if (pPlayer->GetSession()->GetSessionDbcLocale() != LOCALE_enUS)
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "English", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
+		else
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800683, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);//中英文切换。
+	}
 
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800176, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);//回家。
 
@@ -122,6 +128,47 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->context.gossipMenuType = -1;//出主菜单，就将玩家子菜单标志置为空
 	pPlayer->context.gossipActionType = -1;
 	return true;
+}
+void excuteMorph(Player* pPlayer,bool morphPet)
+{
+	ObjectGuid obj = pPlayer->GetSelectionGuid();
+	if (!obj)
+	{
+		ChatHandler(pPlayer).SendSysMessage(-2800690);
+		return;
+	}
+	
+	Creature * creature = pPlayer->GetMap()->GetCreature(obj);
+	if (!creature)
+		return;
+
+	if (morphPet)
+	{
+		if (Pet * pet = pPlayer->GetPet())
+		if (pet->isMercenary())
+		{
+			pet->SetDisplayId(creature->GetDisplayId());
+			pPlayer->context.GetMercenary()->SetDisplay(creature->GetDisplayId());
+			pPlayer->context.GetMercenary()->SendMirrorImagePacket(pet);
+			return;
+		}
+		ChatHandler(pPlayer).SendSysMessage(-2800698);//你还没有招募雇佣兵。
+		return;
+	}
+	
+	pPlayer->SetDisplayId(creature->GetDisplayId());
+	
+}
+void showHH(Player* pPlayer, Item* pItem)
+{
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800691, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);  // 角色易容(-2原力)
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800692, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);  // 取消角色易容
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800693, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);  // 雇佣兵易容
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800694, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 25);  // 取消雇佣兵易容
+
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
 bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, uint32 uiAction)
 {	
@@ -243,6 +290,32 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 			pPlayer->GetSession()->SetSessionDbcLocale(LOCALE_zhCN);
 		pPlayer->UpdateForQuestWorldObjects();
 
+		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 11){
+		showHH(pPlayer,pItem);
+		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 22){
+		excuteMorph(pPlayer,false);
+		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 23){
+		pPlayer->DeMorph(); 
+		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 24){
+		excuteMorph(pPlayer, true);
+		return true;
+	}
+	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 25){
+		if (Pet * pet = pPlayer->GetPet())
+		if (pet->isMercenary())
+		{
+			pet->DeMorph();
+			return true;
+		}
+		ChatHandler(pPlayer).SendSysMessage(-2800698);//你还没有招募雇佣兵。
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 8)
