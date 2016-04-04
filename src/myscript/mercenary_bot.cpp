@@ -57,6 +57,19 @@ public:
 		
 		return MercenaryUtil::GetMercenarySlotIcon(slot);
 	}
+	void static SendUnEquipGear(Player* player, Creature* creature, Mercenary* mercenary){
+		player->context.gossipActionType = GOSSIP_REMOVE_ITEM;
+		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); ++itr)
+		{
+			//Item* item = mercenary->GetItemByGuid(player, itr->second->itemguid);
+			//if (item)此时不应检查行李栏是否存在物品，因为物品可能丢弃了
+			if (itr->second.itemid>0)
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second.itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second.itemid, player->GetSession()), 0, itr->first);
+		}
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, GOSSIP_ACTION_SPELL_DEF + 36);//后退
+		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
+	}
+
 	void static SendEquipGear(Player* player, Creature* creature, Mercenary* mercenary)
 	{
 		if (mercenary->GetEditSlot() != SLOT_EMPTY)
@@ -118,6 +131,7 @@ public:
 
 		//if (slot == SLOT_OFF_HAND && mercenary->HasWeapon(true))
 			//player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800639, 0, 5);移除副手装备
+		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800598, 0, GOSSIP_ACTION_SPELL_DEF + 41);//"上级菜单"
 		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800181, 0, GOSSIP_ACTION_SPELL_DEF+36);//"Back to Main Menu"
 		//#ifndef MANGOS
 		//        player->SEND_GOSSIP_MENU(1, creature->GetGUID());
@@ -166,21 +180,26 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 					pet->GetCharmInfo()->SetActionBar(x, 0, ACT_DISABLED);
 			}
 		}
+		addUnLearnSpellMenu(player, mercenary, creature);/*40:遗忘菜单*/
 	}
 	else
+	{
+		addLearnSpellMenu(player, mercenary, creature);/*39:学习菜单*/
 		mercenary->LearnSpell(player, spell);
-				
-	player->CLOSE_GOSSIP_MENU();
-	if (creature->removingSpell)
-		creature->removingSpell = false;
-	else
 		ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800585));//学习成功，右键点击宠物技能图标启用。
+	}
+				
+	//player->CLOSE_GOSSIP_MENU();
+	//if (creature->removingSpell)
+	//	creature->removingSpell = false;
+	
+		
 
 	return true;
 }
 
 //order by type,role,spelllevel desc
-void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
+void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature){
 	MercenaryPet * pet = (MercenaryPet*)creature;
 	/*以下为数据库配置技能*/
 	GroupSpellsMap* groupSpells = MercenaryUtil::findGroupSpellsMapByClass(mercenary->GetType(), mercenary->GetRole());
@@ -214,7 +233,7 @@ void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature,
 	player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
 
 }
-void addUnLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature, uint32 actions){
+void addUnLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature){
 	MercenaryPet * pet = (MercenaryPet*)creature;
 
 	creature->removingSpell = true;//设置标志，是遗忘技能
@@ -254,18 +273,28 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 			{
 				player->CLOSE_GOSSIP_MENU();
 				if (!mercenary->EquipItemIfCan(player, item))
-					return false;
+				{
+					mercenary_bot::SendEquipGear(player, creature, mercenary);//继续选择
+					return true;
+				}
 				else
 				{
 					//成功给你的雇佣兵装备了 %s !
 					ChatHandler(session).PSendSysMessage(player->GetMangosString(-2800642), MercenaryUtil::GetMercenaryItemLink(item->GetEntry(), session).c_str());
 					mercenary->SetEditSlot(SLOT_EMPTY);
-					return false;
+					mercenary_bot::SendEquipGear(player, creature, mercenary);//继续选择
+					return true;
 				}
+				
 			}
 			
 		}
 
+	}
+	if (actions == GOSSIP_ACTION_SPELL_DEF + 41)/*后退显示装备列表*/
+	{
+		mercenary_bot::SendEquipGear(player, creature, mercenary);
+		return true;
 	}
 	if (actions == GOSSIP_ACTION_SPELL_DEF + 36)/*后退优先级最高*/
 	{
@@ -274,11 +303,9 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	}
 	if (player->context.gossipActionType == GOSSIP_REMOVE_ITEM)//移除装备
 	{
-		mercenary->RemoveItemBySlot(player, (MercenaryPet*)creature, actions);
-
-		player->context.gossipActionType = -1;
-
 		player->CLOSE_GOSSIP_MENU();
+		mercenary->RemoveItemBySlot(player, (MercenaryPet*)creature, actions);
+		mercenary_bot::SendUnEquipGear(player, creature, mercenary);//继续选择
 		return true;
 	}
 
@@ -297,16 +324,8 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		mercenary_bot::SendEquipGear(player, creature, mercenary);
 		break;
 	case 2://移除装备
-		player->context.gossipActionType = GOSSIP_REMOVE_ITEM;
-		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); ++itr)
-		{
-			//Item* item = mercenary->GetItemByGuid(player, itr->second->itemguid);
-			//if (item)此时不应检查行李栏是否存在物品，因为物品可能丢弃了
-			if (itr->second.itemid>0)
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MercenaryUtil::GetMercenaryItemIcon(itr->second.itemid) + MercenaryUtil::GetMercenaryItemLink(itr->second.itemid, session), 0, itr->first);
-		}
-		player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800606, 0, GOSSIP_ACTION_SPELL_DEF+36);//后退
-		player->SEND_GOSSIP_MENU(1, creature->GetObjectGuid());
+		mercenary_bot::SendUnEquipGear(player, creature, mercenary);
+		
 		break;
 	case 4:
 		if (Pet *pet = player->GetPet())
@@ -386,14 +405,14 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		if (mercenary&&player->GetPet())
 		{
 			mercenary->cleanNoMatchSpell(player->GetPet());
-			addLearnSpellMenu(player, mercenary, creature, actions);/*39:学习菜单*/
+			addLearnSpellMenu(player, mercenary, creature);/*39:学习菜单*/
 		}
 		break;
 	case 40:
 		if (mercenary&&player->GetPet())
 		{
 			mercenary->cleanNoMatchSpell(player->GetPet());
-			addUnLearnSpellMenu(player, mercenary, creature, actions);/*40:遗忘菜单*/
+			addUnLearnSpellMenu(player, mercenary, creature);/*40:遗忘菜单*/
 		}
 		break;
 	}

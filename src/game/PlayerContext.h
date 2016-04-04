@@ -75,6 +75,9 @@ class MANGOS_DLL_SPEC PlayerContext{
 	//菜单Action分类标志
 	int gossipActionType = -1;
 	
+	//记录上次的action值，允许重新弹出选择框
+	uint32 gossipActionOld = -1;
+
 	//炉石菜单当前辅助任务
 	uint32 aux_questid=-1;
 	uint32 aux_npcgo_idx = -1;
