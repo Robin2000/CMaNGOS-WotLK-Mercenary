@@ -226,6 +226,10 @@ struct mercenary_bot_AI : public PetAI
 						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, mercenary->gearContainer[SLOT_RANGED].itemid);
 						mercenary->SendMirrorImagePacket(m_creature);
 						updatePetMercenaryMirrorCheck = false;//检查1次不再检查
+
+						if (m_creature->isMercenary())
+						if (Player* player = m_creature->GetOwner()->ToPlayer())
+							player->PetSpellInitialize();
 					}
 				}
 				else
