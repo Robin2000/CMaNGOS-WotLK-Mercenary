@@ -47,7 +47,6 @@
 #include "Vehicle.h"
 #include "TemporarySummon.h"
 #include "SQLStorages.h"
-#include "pr_spell_plugin.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -3157,7 +3156,8 @@ void Spell::cast(bool skipCheck)
             return;
         }
     }
-	if (prSpellPlugin.spell_handler_deal(this, m_caster))
+	if (m_caster->GetTypeId() == TYPEID_PLAYER)
+	if (m_caster->ToPlayer()->context.GetSpellPlugin().spell_handler_deal(this))
 	{
 		m_spellState =SPELL_STATE_FINISHED;
 	}
@@ -3570,7 +3570,8 @@ void Spell::SendSpellCooldown()
 
 void Spell::update(uint32 difftime)
 {
-	prSpellPlugin.update(difftime);
+	if (m_caster->GetTypeId() == TYPEID_PLAYER)
+		m_caster->ToPlayer()->context.GetSpellPlugin().update(difftime);
 
     // update pointers based at it's GUIDs
     UpdatePointers();

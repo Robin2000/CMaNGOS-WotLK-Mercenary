@@ -16,7 +16,6 @@ struct mercenary_bot_AI : public PetAI
 	bool updatePetMercenaryMirrorCheck = true;
 	
 	int checkCancelStealthAuraTimer = 5000;//5秒检查1次是否要取消隐身
-	bool checkCancelStealthAura = false;
 
 	int defaultSpellTimer = 5000;
 	std::vector<uint32> defautSpells;
@@ -182,30 +181,17 @@ struct mercenary_bot_AI : public PetAI
 		return true;
 	};
 	void updateStealth(const uint32 diff){
+		if (checkCancelStealthAuraTimer < 0)
+		{
+			checkCancelStealthAuraTimer = 5000;//设置检查间隔5秒
 
-		if (m_creature->GetOwner()->HasStealthAura())
-		{
-			if (!checkCancelStealthAura){
-				//m_creature->SetVisibility(VISIBILITY_GROUP_STEALTH);//设置潜行		
-				m_creature->CastSpell(m_creature, 1784, true);
-				checkCancelStealthAura = true; //设置需要检查主人隐身是否取消
-				
-			}
-		}
-		else if (checkCancelStealthAura) //如果没有隐身，而且需要检查是否取消隐身
-		{
-			if (checkCancelStealthAuraTimer <= 0)
-			{
-				//m_creature->SetVisibility(VISIBILITY_ON);//取消潜行		
-				m_creature->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-				checkCancelStealthAuraTimer = 5000;//设置检查间隔5秒
-				checkCancelStealthAura = false;	   //不再检查
-				
-			}
-			else{
-				checkCancelStealthAuraTimer -= diff;
-			}
-		}
+			if (m_creature->GetOwner()->HasStealthAura() && !m_creature->HasStealthAura())
+					m_creature->CastSpell(m_creature, 1784, true);//设置潜行		
+			else if (!m_creature->GetOwner()->HasStealthAura() && m_creature->HasStealthAura())
+					m_creature->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);//取消潜行					
+
+		}else
+			checkCancelStealthAuraTimer -= diff;
 	}
 	void UpdateAI(const uint32 diff) override
 	{
@@ -213,7 +199,7 @@ struct mercenary_bot_AI : public PetAI
 		if (!mercenary)
 			return;
 
-		updateStealth(diff);
+		//updateStealth(diff);
 
 		if (Unit* owner = m_creature->GetOwner())
 			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))

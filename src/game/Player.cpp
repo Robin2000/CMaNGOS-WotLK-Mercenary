@@ -69,8 +69,6 @@
 #include "LootMgr.h"
 #include "MercenaryPet.h"
 #include <cmath>
-#include "pr_quest_plugin.h"
-#include "pr_event_plugin.h"
 #include "SharedDefines.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -397,7 +395,6 @@ UpdateMask Player::updateVisualBits;
 
 Player::Player(WorldSession* session) : Unit(), m_mover(this), m_camera(this), m_achievementMgr(this), m_reputationMgr(this), context(this)
 {
-
     m_transport = 0;
 
     m_speakTime = 0;
@@ -13638,7 +13635,7 @@ void Player::AddQuest(Quest const* pQuest, Object* questGiver)
 
     UpdateForQuestWorldObjects();
 
-	prQuestPlugin.AddQuest(this, quest_id);
+	context.GetQuestPlugin().AddQuest(quest_id);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -13658,7 +13655,7 @@ void Player::CompleteQuest(uint32 quest_id)
         }
     }
 
-	prQuestPlugin.CompleteQuest(this, quest_id);
+	context.GetQuestPlugin().CompleteQuest(quest_id);
 }
 
 void Player::IncompleteQuest(uint32 quest_id)
@@ -13672,7 +13669,7 @@ void Player::IncompleteQuest(uint32 quest_id)
             RemoveQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
     }
 
-	prQuestPlugin.IncompleteQuest(this, quest_id);
+	context.GetQuestPlugin().IncompleteQuest(quest_id);
 }
 
 void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver, bool announce)
@@ -13859,7 +13856,7 @@ void Player::RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver,
         itr->second->ApplyOrRemoveSpellIfCan(this, zone, area, false);*/
 	SendQuestUpdate(quest_id);
 
-	prQuestPlugin.rewardQuest(this, quest_id);
+	context.GetQuestPlugin().rewardQuest(quest_id);
 
 }
 void Player::SendQuestUpdate(uint32 questId)
@@ -13922,7 +13919,7 @@ void Player::FailQuest(uint32 questId)
         else
             SendQuestFailed(questId);
 
-		prQuestPlugin.FailQuest(this, questId);
+		context.GetQuestPlugin().FailQuest(questId);
     }
 
 	
@@ -15795,7 +15792,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     _LoadEquipmentSets(holder->GetResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
 	//_sendInprogressQuestList();无法在登录进程中发送事件，只能延迟执行
-	context.getEventPlugin().sendEvent(P_LOGIN_EVENT);
+	context.GetEventPlugin().sendEvent(P_LOGIN_EVENT);
     return true;
 }
 

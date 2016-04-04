@@ -510,6 +510,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
 
     // non channeled case
     _player->RemoveAurasDueToSpellByCancel(spellId);
+	_player->context.GetSpellPlugin().spell_handler_cancel(spellId);
 }
 
 void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)

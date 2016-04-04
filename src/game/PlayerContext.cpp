@@ -17,24 +17,59 @@
 #include "Vehicle.h"
                                    // for mmap manager
 
+PlayerContext::PlayerContext(Player* _player) :mPlayer(_player), gamePointMgr(_player), delayActionQueue(0), eventPlugin(_player), prSpellPlugin(_player), prQuestPlugin(_player){
+	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *>();
+	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
+	isMovesplineStopNow = false;
+	isMovesplineRunning = false;
+}
+PlayerContext::~PlayerContext(){
+	DelayedAction *action;
+	while (delayActionQueue.pop(action))
+	{
+		delete action;
+	}
+
+	if (transportStopAction != nullptr)
+		delete transportStopAction;
+
+	delete questPOIVec;
+	delete questNpcGOVec;
+}
+
 void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 {
 	float px = player->GetPositionX();
 	float py = player->GetPositionY();
-	//float stepX = (x-px)/50.0f;
-	//float stepY = (y-py)/50.0f;
 	//float stepX = 12.0f;
 	//float stepY = 12.0f;
 
-	float stepX = (x-px)/50.0f;
-	float stepY = (y-py)/50.0f;
+	float stepX = 3.0f;
+	float stepY = 3.0f;
 
+	//float stepX = (x-px)/50.0f;
+	//float stepY = (y-py)/50.0f;
+
+	bool dx = px - x < 0;//px<x时为正向x
+	bool dy = py - y < 0;//py<y时为正向y
 
 	result->push_back(Vector3(px, py, player->GetPositionZ()));
 
-	const TerrainInfo* info = player->GetMap()->GetTerrain();
-	for (float i = px, j = py; ((px<x) ? i < x : i>x) && ((py<y) ? j<y:j>y); i += stepX, j += stepY)
-		result->push_back(Vector3(i, j, 40.0f+info->GetWaterOrGroundLevel(i, j, MAX_HEIGHT)));
+	float oldz = -200000.0f;
+	
+	for (float i = px, j = py; (dx ? i - x<0 : i - x>0) && (dy ? j - y<0 : j - y>0); i += dx ? stepX : -stepX, j += dy? stepY : -stepY)
+	{
+		const TerrainInfo* info = player->GetMap()->GetTerrain();
+		float groundz = info->GetWaterOrGroundLevel(i, j, MAX_HEIGHT);
+		if (groundz-oldz>0)
+			oldz = groundz;
+
+		if (groundz != -200000.0f)//VMAP_INVALID_HEIGHT_VALUE
+			result->push_back(Vector3(i, j, 50.0f + oldz)); //如果上一个z更大，就直接使用上一个z，避免颠簸
+
+		
+
+	}
 
 	result->push_back(Vector3(x, y, z));
 }
@@ -45,6 +80,7 @@ public:
 	void run() override{
 		player->UpdateForQuestWorldObjects();
 		player->SetCanFly(false);
+		player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
 	}
 	Player * player;
 };
@@ -64,8 +100,11 @@ public:
 		if (Pet *pet = player->GetPet())
 		if (pet->isMercenary())
 		{
-			if(player->GetVehicleInfo()->HasOnBoard(pet))
-				player->GetVehicleInfo()->UnBoard(pet,false);
+			if (player->GetVehicleInfo()->HasOnBoard(pet))
+			{
+				player->GetVehicleInfo()->UnBoard(pet, false);
+				player->GetMap()->AddUpdateObject(pet);
+			}
 
 			if (Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow()))
 				mercenary->Create(player, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetType(), mercenary->GetRole());
@@ -88,6 +127,7 @@ public:
 		//delete player->GetVehicleInfo();
 
 		player->UpdateForQuestWorldObjects();
+		player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
 		
 	}
 private:
@@ -169,7 +209,7 @@ public:
 
 				//pet->Mount(model);//随机
 				player->GetVehicleInfo()->Board(pet,1);
-
+				player->GetMap()->RemoveUpdateObject(pet);
 				/*Movement::MoveSplineInit init(*pet);
 				init.MovebyPath(pointPath);
 				init.SetVelocity(speed);
@@ -199,6 +239,8 @@ public:
 
 		player->context.isMovesplineStopNow = false;
 		player->context.isMovesplineRunning = true;
+
+		player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
 	}
 	PathFinder* path;
 	PointsArray* points;
@@ -259,7 +301,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			for (int i = 0; i < result.size(); i++)
 				result[i].z += 0.5; //避免掉地下
 
-			Movement::MoveSplineInit init(*mPlayer); //500码之内跑过去
+			Movement::MoveSplineInit init(*mPlayer); //50码之内跑过去
 			init.MovebyPath(result);
 			init.SetVelocity(10.0f);
 			init.SetWalk(false);
@@ -267,7 +309,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 
 			if (Pet * pet=mPlayer->GetPet())
 			if (pet->isMercenary()){
-				Movement::MoveSplineInit init(*pet); //500码之内跑过去
+				Movement::MoveSplineInit init(*pet); //50码之内跑过去
 				init.MovebyPath(result);
 				init.SetVelocity(12.0f);
 				init.SetWalk(false);
@@ -301,6 +343,8 @@ void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orie
 	{
 		mPlayer->TeleportTo(mapid, x, y + 0.5, z + 0.5f, 0.0f - orientation);
 	}
+
+	mPlayer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
 	this->addDelayedAction(new TeleportAction(mPlayer, 5000));//延迟5秒，如果无法落脚，可快速移开
 	
 }
@@ -317,25 +361,7 @@ void DelayedAction::Update(uint32 update_diff){
 		run();
 	}
 }
-PlayerContext::PlayerContext(Player* player) :mPlayer(player), gamePointMgr(player), delayActionQueue(0), eventPlugin(player){
-	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *> ();
-	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
-	isMovesplineStopNow = false;
-	isMovesplineRunning = false;
-}
-PlayerContext::~PlayerContext(){
-	DelayedAction *action;
-	while (delayActionQueue.pop(action))
-	{
-		delete action;
-	}
-	
-	if (transportStopAction != nullptr)
-		delete transportStopAction;
 
-	delete questPOIVec;
-	delete questNpcGOVec;
-}
 void PlayerContext::Update(uint32 update_diff, uint32 time){
 	
 	if (isMovesplineStopNow)
@@ -636,8 +662,9 @@ void PlayerContext::calculateZone_quest_poi_points(){
 		//	continue;
 
 		z = terrain->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
-		
-		stmt.PExecute(terrain->GetZoneId(x, y, z), terrain->GetAreaId(x, y, z), id);
+
+		if (z != -200000.0f)//VMAP_INVALID_HEIGHT_VALUE
+			stmt.PExecute(terrain->GetZoneId(x, y, z), terrain->GetAreaId(x, y, z), id);
 
 	} while (result->NextRow());
 
@@ -1026,6 +1053,9 @@ void PlayerContext::moveFast(QuestPOIPoint * point){
 		if (point->groundZ == 0){
 			TerrainInfo const* map = sTerrainMgr.LoadTerrain(point->map);	
 			point->groundZ = map->GetWaterOrGroundLevel(point->x, point->y, MAX_HEIGHT);
+	
+			if (point->groundZ == -200000.0f)//VMAP_INVALID_HEIGHT_VALUE
+				point->groundZ = 0;
 		}
 		//ChatHandler(mPlayer).HandleGoHelper(mPlayer, point->map, point->x, point->y);
 		moveFast(point->map, point->zone, point->area, point->x, point->y, point->groundZ, 0);
@@ -1065,6 +1095,8 @@ void PlayerContext::changeCamera(QuestPOIPoint * point){
 	{
 		TerrainInfo const* map = sTerrainMgr.LoadTerrain(point->map);
 		point->groundZ = map->GetWaterOrGroundLevel(point->x, point->y, MAX_HEIGHT);
+		if (point->groundZ == -200000.0f)//VMAP_INVALID_HEIGHT_VALUE
+			point->groundZ = 0;
 	}
 
 	changeCamera(point->map, point->x, point->y, point->groundZ, 0.0f, 15000, 45.0f);//切换镜头

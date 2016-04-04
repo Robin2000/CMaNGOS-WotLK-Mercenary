@@ -44,7 +44,6 @@
 #include<string>
 #include<vector>
 #include "PlayerContext.h"
-#include "pr_quest_plugin.h"
 
 struct Mail;
 class Channel;
@@ -1025,7 +1024,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void CleanupsBeforeDelete() override;
 
 		PlayerContext context;
-		PrQuestPlugin prQuestPlugin;
 
         static UpdateMask updateVisualBits;
         static void InitVisibleBits();

@@ -26,7 +26,6 @@
 #include "ObjectGuid.h"
 #include "Unit.h"
 #include "Player.h"
-#include "pr_spell_plugin.h"
 
 class WorldSession;
 class WorldPacket;
@@ -664,7 +663,7 @@ class Spell
         // we can't store original aura link to prevent access to deleted auras
         // and in same time need aura data and after aura deleting.
         SpellEntry const* m_triggeredByAuraSpell;
-		PrSpellPlugin prSpellPlugin;
+		
     private:
         // NPC Summonings
         struct CreaturePosition

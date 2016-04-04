@@ -42,36 +42,59 @@ public:
 void PrSpellPlugin::update(uint32 difftime){
 
 }
-bool PrSpellPlugin::spell_handler_deal(Spell * spell, Unit* caster){
+bool PrSpellPlugin::spell_handler_deal(Spell * spell){
 
-	if (spell->m_spellInfo->Id == 14050)//任务自杀：在塔纳利斯的墓地中饮用。
-	{
-		Player * player = (Player*)(spell->GetCaster());
+
+	switch (spell->m_spellInfo->Id){
+		case 14050://任务自杀：在塔纳利斯的墓地中饮用。
+			{
+				player->StopMoving();
+				//player->SetFlag(UNIT_FIELD_FLAGS, UNIT_STAT_NO_FREE_MOVE);
+
+				player->SetSpeedRate(MOVE_WALK, 0.1f, true);
+				player->SetSpeedRate(MOVE_RUN, 0.1f, true);
+				player->SetSpeedRate(MOVE_FLIGHT, 0.1f, true);
+
+				//player->GetMotionMaster()->Clear(false, true);
+				//player->GetMotionMaster()->MoveIdle();
 		
-		player->StopMoving();
-		//player->SetFlag(UNIT_FIELD_FLAGS, UNIT_STAT_NO_FREE_MOVE);
+				//WorldObject* target = player->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, uint32(300021), uint32(99879)));//加基森墓地,  
+				player->context.changeCamera(player, 10000, 20.0f, player->GetOrientation()*M_PI_F*1.0f / 2.0f);
 
-		player->SetSpeedRate(MOVE_WALK, 0.1f, true);
-		player->SetSpeedRate(MOVE_RUN, 0.1f, true);
-		player->SetSpeedRate(MOVE_FLIGHT, 0.1f, true);
-
-		//player->GetMotionMaster()->Clear(false, true);
-		//player->GetMotionMaster()->MoveIdle();
+				player->HandleEmoteCommand(92);//喝药动作
 		
-		//WorldObject* target = player->GetMap()->GetGameObject(ObjectGuid(HIGHGUID_GAMEOBJECT, uint32(300021), uint32(99879)));//加基森墓地,  
-		player->context.changeCamera(player, 10000, 20.0f, player->GetOrientation()*M_PI_F*1.0f / 2.0f);
+				ChatHandler(player).SendSysMessage(-2800677);
 
-		player->HandleEmoteCommand(92);//喝药动作
-		
-		ChatHandler(player).SendSysMessage(-2800677);
+				//player->UpdateObjectVisibility();
 
-		//player->UpdateObjectVisibility();
+				player->context.addDelayedAction(new PlayerTakeMedicine(player, 2000));
+				player->context.addDelayedAction(new PlayerGhostAction(player, 3000));
 
-		player->context.addDelayedAction(new PlayerTakeMedicine(player, 2000));
-		player->context.addDelayedAction(new PlayerGhostAction(player, 3000));
-
-		return true;
+				return true;
+			}
+		case 1784://潜行
+		{
+				if (Pet *pet = player->GetPet())
+				{
+					if (!pet->HasStealthAura())
+						pet->CastSpell(pet, 1784, true);//设置潜行	
+				}
+				return false;//返回false则spell会继续执行
+		}
 	}
-
 	return false;
+}
+
+void PrSpellPlugin::spell_handler_cancel(uint32 spellid){
+	switch (spellid){
+		case 1784://取消潜行
+		{
+			if (Pet *pet = player->GetPet())
+			{
+				if (pet->HasStealthAura())
+					pet->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);//取消潜行					
+			}
+			break;
+		}
+	}
 }

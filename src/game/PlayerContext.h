@@ -5,6 +5,8 @@
 #include "GamePointMgr.h"
 #include <boost/lockfree/queue.hpp>
 #include "pr_event_plugin.h"
+#include "pr_spell_plugin.h"
+#include "pr_quest_plugin.h"
 
 /*结束动作*/
 class MANGOS_DLL_SPEC StopAction
@@ -203,12 +205,18 @@ class MANGOS_DLL_SPEC PlayerContext{
 	
 	void ClearMercenary();//清理雇佣兵装备，避免客户端崩溃
 
-	PrEventPlugin & getEventPlugin(){return eventPlugin;}
+	PrSpellPlugin & GetSpellPlugin(){ return prSpellPlugin; }
+
+	PrEventPlugin & GetEventPlugin(){return eventPlugin;}
+
+	PrQuestPlugin & GetQuestPlugin(){ return prQuestPlugin; }
 
 	Player* mPlayer;
 
 private :
 	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<uint32>* questlist, uint32 num);
 	PrEventPlugin eventPlugin;
+	PrSpellPlugin prSpellPlugin;
+	PrQuestPlugin prQuestPlugin;
 };
 #endif
