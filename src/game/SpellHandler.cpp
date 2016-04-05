@@ -678,7 +678,7 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 				data << uint8(0); // Facial hair
 
 
-				//data << uint32(0);//不参照trinity将0改
+				data << uint32(0);//不参照trinity将0改
 				
 				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_HEAD].itemid));
 				data << uint32(sMercenaryMgr->GetItemDisplayId(mercenary->gearContainer[SLOT_SHOULDERS].itemid));

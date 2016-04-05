@@ -309,6 +309,8 @@ public:
 		return type == MERCENARY_TYPE_HUNTER || type == MERCENARY_TYPE_MAGE || type == MERCENARY_TYPE_WARLOCK || role == 13 || role == 27 || role == 18;
 		//法师、术士、猎人、牧师（暗影系）、德鲁伊（平衡系）以及萨满（元素系）
 	}
+	bool hasItemEquipped(Item* item);
+	
 	uint32 getCharFemalModel(uint32 race){
 		switch (race){
 		case HUMAN:

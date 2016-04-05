@@ -712,11 +712,26 @@ void Mercenary::SetSheath(Pet* pet,SheathState sheathed)
 	
 	//pet->SetSheath(sheathed);                              // this must visualize Sheath changing for other players...
 }
+bool Mercenary::hasItemEquipped(Item* item){
+
+	for (uint8 slot = SLOT_HEAD; slot < SLOT_EMPTY; slot++)
+	{
+		auto it = gearContainer.find(slot);
+		if (it != gearContainer.end())
+		if (it->second.itemguid == item->GetGUIDLow())
+			return true;
+	}
+	return false;
+}
 bool Mercenary::isItemsEquippable(Item* item, uint8 slot){
 
 	const ItemPrototype* proto = item->GetProto();
 	if (!proto)
 		return false;
+	//如果已经装备到雇佣兵身上的物品，不可装备
+	if (hasItemEquipped(item))
+		return false;
+
 	return InvToSlot(proto->InventoryType, slot);
 }
 
