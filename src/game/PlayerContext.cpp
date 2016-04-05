@@ -15,7 +15,8 @@
 #include "DynamicObject.h"
 #include "MoveMap.h"     
 #include "Vehicle.h"
-                                   // for mmap manager
+#include <algorithm>    // std::find
+// for mmap manager
 
 PlayerContext::PlayerContext(Player* _player) :mPlayer(_player), gamePointMgr(_player), delayActionQueue(0), eventPlugin(_player), prSpellPlugin(_player), prQuestPlugin(_player){
 	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *>();
@@ -391,6 +392,20 @@ void PlayerContext::addDelayedAction(DelayedAction * action){
 	delayActionQueue.push(action);
 }
 
+void PlayerContext::addMorphHistory(uint32 creature, uint32 displayid){
+
+	if (find(displayhistory.begin(), displayhistory.end(), displayid) != displayhistory.end())
+		return;
+
+	displayhistory.insert(displayhistory.begin(), displayid);
+	creaturehistory.insert(creaturehistory.begin(), creature);
+
+	if (creaturehistory.size()>8)
+		creaturehistory.pop_back();
+
+	if (displayhistory.size()>8)
+		displayhistory.pop_back();
+}
 
 void PlayerContext::checkFirstGuideQuest(){
 	if (!firstQuestChecked){
@@ -823,7 +838,7 @@ void PlayerContext::GetCreatureOrGOTitleLocale(int32 entry, const char  ** name)
 	else
 		*name = "";
 }
-
+CreatureInfo const* PlayerContext::findCreatureInfoByEntry(uint32 entry){ return sObjectMgr.GetCreatureTemplate(entry); }
 CreatureData* PlayerContext::findCreatureDataByPOI(uint64 mapxy){ return sObjectMgr.findCreatureDataByPOI(mapxy); }
 GameObjectData* PlayerContext::findGameObjectDataByPOI(uint64 mapxy){ return sObjectMgr.findGameObjectDataByPOI(mapxy); }
 CreatureData* PlayerContext::findCreatureDataByEntry(uint32 entry){ return sObjectMgr.findCreatureDataByEntry(entry); }

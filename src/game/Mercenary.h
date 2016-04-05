@@ -13,6 +13,7 @@ struct GearEntry{
 	uint32 itemguid;
 	uint32 itemid=0;
 };
+
 typedef tbb::concurrent_unordered_map<uint8, GearEntry> GearMap;/*slot , GearEntry*/
 
 struct MercenaryRoleDef
@@ -131,6 +132,7 @@ enum RaceKey
 	DRAENEI = 11
 };
 #define MERCENARY_DEFAULT_ENTRY 70000 //70000 1128
+
 
 class MANGOS_DLL_SPEC Mercenary
 {
@@ -306,6 +308,57 @@ public:
 	bool isRangedAttack(){
 		return type == MERCENARY_TYPE_HUNTER || type == MERCENARY_TYPE_MAGE || type == MERCENARY_TYPE_WARLOCK || role == 13 || role == 27 || role == 18;
 		//法师、术士、猎人、牧师（暗影系）、德鲁伊（平衡系）以及萨满（元素系）
+	}
+	uint32 getCharFemalModel(uint32 race){
+		switch (race){
+		case HUMAN:
+			return HUMAN_FEMALE_MODEL;
+		case ORC:
+			return ORC_FEMALE_MODEL;
+		case DWARF:
+			return DWARF_FEMALE_MODEL;
+		case NIGHTELF:
+			return NIGHTELF_FEMALE_MODEL;
+		case SCOURGE:
+			return SCOURGE_FEMALE_MODEL;
+		case TAUREN:
+			return TAUREN_FEMALE_MODEL;
+		case GNOME:
+			return GNOME_FEMALE_MODEL;
+		case TROLL:
+			return TROLL_FEMALE_MODEL;
+		case BLOODELF:
+			return BLOODELF_FEMALE_MODEL;
+		case DRAENEI:
+			return DRAENEI_FEMALE_MODEL;
+		default:
+			return HUMAN_FEMALE_MODEL;
+		}
+	}
+	uint32 getCharMaleModel(uint32 race){
+		switch (race){
+		case HUMAN:
+			return HUMAN_MALE_MODEL;
+		case ORC:
+			return ORC_MALE_MODEL;
+		case DWARF:
+			return DWARF_MALE_MODEL;
+		case NIGHTELF:
+			return NIGHTELF_MALE_MODEL;
+		case SCOURGE:
+			return SCOURGE_MALE_MODEL;
+		case TAUREN:
+			return TAUREN_MALE_MODEL;
+		case GNOME:
+			return GNOME_MALE_MODEL;
+		case TROLL:
+			return TROLL_MALE_MODEL;
+		case BLOODELF:
+			return BLOODELF_MALE_MODEL;
+		case DRAENEI:
+			return DRAENEI_MALE_MODEL;
+		};
+		return HUMAN_MALE_MODEL;
 	}
 private:
     uint32 ownerGUID;

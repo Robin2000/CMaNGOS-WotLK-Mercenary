@@ -108,7 +108,7 @@ bool LoginQueryHolder::Initialize()
 
 	//»ý·Ö
 	res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGACCOUNTBALANCE, "SELECT totalmoney, consumemoney,gametips FROM jf_account_balance WHERE id = '%u'", m_accountId);
-	res &= SetPQuery(PLAYER_LOGIN_QUERY_CHARACTEREXT, "SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath,displayid FROM jf_character_ext WHERE guid = '%u'", m_guid.GetCounter());
+	res &= SetPQuery(PLAYER_LOGIN_QUERY_CHARACTEREXT, "SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath,displayid,displayhistory FROM jf_character_ext WHERE guid = '%u'", m_guid.GetCounter());
 
     return res;
 }

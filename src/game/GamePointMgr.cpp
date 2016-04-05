@@ -137,20 +137,15 @@ void GamePointMgr::_SaveGamePoint() //保存积分数据
 {
 	//CharacterDatabase.BeginTransaction();
 	//if (m_accountBalance.consumemoney > 0)不再限制，无条件保存account表，因为gametips
-	{ //有过金钱消费
+	//有过金钱消费
 
-		static SqlStatementID updateAccountBalance;
-		//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
-		//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
-		//stmtDel.PExecute(m_player->GetGUIDLow());
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(updateAccountBalance, "update jf_account_balance set consumemoney=?,gametips=? where id=?");
-		stmtIns.PExecute(m_accountBalance.consumemoney, m_accountBalance.gametips+1, m_player->GetAccountId()); //写入数据库时，增加1
-	}
-
-
-	if (!changed)
-		return;
-
+	static SqlStatementID updateAccountBalance;
+	//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_account_balance WHERE guid = ?");
+	//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_account_balance (id, totalmoney, consumemoney) VALUES (?, ?, ?)");
+	//stmtDel.PExecute(m_player->GetGUIDLow());
+	SqlStatement stmt = CharacterDatabase.CreateStatement(updateAccountBalance, "update jf_account_balance set consumemoney=?,gametips=? where id=?");
+	stmt.PExecute(m_accountBalance.consumemoney, m_accountBalance.gametips + 1, m_player->GetAccountId()); //写入数据库时，增加1
+	
 
 	static SqlStatementID insCharacterExt;
 	static SqlStatementID insConsumeHistory;
@@ -159,17 +154,37 @@ void GamePointMgr::_SaveGamePoint() //保存积分数据
 	//SqlStatement stmtDel = CharacterDatabase.CreateStatement(delGamePoint, "DELETE FROM jf_character_ext WHERE guid = ?");
 	//SqlStatement stmtIns = CharacterDatabase.CreateStatement(insGamePoint, "INSERT INTO jf_character_ext (guid, consumetime,map,zone,position_x,position_y,position_z) VALUES (?,?,?,?,?,?,?)");
 	//stmtDel.PExecute(m_player->GetGUIDLow());
-	SqlStatement stmtIns = CharacterDatabase.CreateStatement(insCharacterExt, "REPLACE INTO jf_character_ext (guid, consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath,displayid) VALUES (?,?,?,?,?,?,?,?,?,?)");
-	stmtIns.PExecute(m_player->GetGUIDLow(), m_characterExt.consumetime, m_characterExt.returnPoint.mapid, m_characterExt.returnPoint.coord_x, m_characterExt.returnPoint.coord_y, m_characterExt.returnPoint.coord_z, m_characterExt.returnPoint.orientation, (m_player->context.firstQuestChecked) ? 1 : 0, (m_player->context.disableFindPath) ? 1 : 0, m_player->context.displayid);
 
+	std::ostringstream displayhistory;
+	int count = 0;
+	for (auto it = m_player->context.displayhistory.begin(); it != m_player->context.displayhistory.end();it++,count++)
+		displayhistory << *it << " " << m_player->context.creaturehistory.at(count) << " ";
+
+
+	stmt = CharacterDatabase.CreateStatement(insCharacterExt, "REPLACE INTO jf_character_ext (guid, consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath,displayid,displayhistory) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+	//stmt.PExecute(m_player->GetGUIDLow(), m_characterExt.consumetime, m_characterExt.returnPoint.mapid, m_characterExt.returnPoint.coord_x, m_characterExt.returnPoint.coord_y, m_characterExt.returnPoint.coord_z, m_characterExt.returnPoint.orientation, (m_player->context.firstQuestChecked) ? 1 : 0, (m_player->context.disableFindPath) ? 1 : 0, m_player->context.displayid, displayhistory.str(), creaturehistory.str());
+	stmt.addUInt32(m_player->GetGUIDLow());
+	stmt.addUInt32(m_characterExt.consumetime);
+	stmt.addUInt32(m_characterExt.returnPoint.mapid);
+	stmt.addFloat(m_characterExt.returnPoint.coord_x);
+	stmt.addFloat(m_characterExt.returnPoint.coord_y);
+	stmt.addFloat(m_characterExt.returnPoint.coord_z);
+	stmt.addFloat(m_characterExt.returnPoint.orientation);
+	stmt.addInt8((m_player->context.firstQuestChecked) ? 1 : 0);
+	stmt.addInt8((m_player->context.disableFindPath) ? 1 : 0);
+	stmt.addUInt32(m_player->context.displayid);
+	stmt.addString(displayhistory);
+	stmt.Execute();
+	
 	ConsumeHistoryEntry history;
+
 	while (!consumeHistoryQueue.empty())
 	{
 		if (!consumeHistoryQueue.try_pop(history))
 			continue;
 
-		SqlStatement stmtIns = CharacterDatabase.CreateStatement(insConsumeHistory, "INSERT INTO jf_consume_history (guid, consumetype,consumepoint,operatetime) VALUES (?, ?,?,now())");
-		stmtIns.PExecute(m_player->GetGUIDLow(), (uint32)history.consumetype, history.consumepoint);
+		stmt = CharacterDatabase.CreateStatement(insConsumeHistory, "INSERT INTO jf_consume_history (guid, consumetype,consumepoint,operatetime) VALUES (?, ?,?,now())");
+		stmt.PExecute(m_player->GetGUIDLow(), (uint32)history.consumetype, history.consumepoint);
 		
 	}
 	//CharacterDatabase.CommitTransaction();
@@ -195,8 +210,8 @@ void GamePointMgr::_LoadAccountBalance(QueryResult* result){
 }
 void GamePointMgr::_LoadCharacterExt(QueryResult* result){
 
-	//           0        1      2      3          4        5          6                7            8
-	//SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath,displayid FROM jf_character_ext WHERE guid = '%u'
+	//           0        1      2      3          4        5          6                7            8            9
+	//SELECT consumetime,mapid,coord_x,coord_y,coord_z,orientation,firstQuestChecked,disableFindPath,displayid,displayhistory FROM jf_character_ext WHERE guid = '%u'
 	if (!result)
 		return;
 
@@ -211,6 +226,20 @@ void GamePointMgr::_LoadCharacterExt(QueryResult* result){
 	m_player->context.firstQuestChecked = fields[6].GetBool();
 	m_player->context.disableFindPath = fields[7].GetBool();
 	m_player->context.displayid = fields[8].GetUInt32();
+
+	std::string his = fields[9].GetCppString();
+
+	Tokens tokens = StrSplit(his, " ");
+	Tokens::iterator iter;
+	for (iter = tokens.begin(); iter != tokens.end(); ++iter)
+	{
+		m_player->context.displayhistory.push_back(std::stoul((*iter).c_str()));
+		++iter;
+		m_player->context.creaturehistory.push_back(std::stoul((*iter).c_str()));
+	}
+
+
+	
 	delete result;
 
 }

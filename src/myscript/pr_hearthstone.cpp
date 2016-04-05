@@ -28,6 +28,10 @@ EndScriptData */
 #include "hearthstone_mount.h"
 #include "gmtools.h"
 #include "Mercenary.h"
+enum actionMorph{
+	ACTION_PLAYER_MORTH = 0,
+	ACTION_PET_MORTH = 1
+};
 /*
 insert into npc_text(ID,text0_0)values(16777210,'利用原力直达游戏目标。');
 insert into npc_text(ID,text0_0)values(16777211,'利用原力临时随机召唤一只坐骑，忠诚度有限。');
@@ -129,19 +133,8 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 	pPlayer->context.gossipActionType = -1;
 	return true;
 }
-void excuteMorph(Player* pPlayer,bool morphPet)
+bool excuteMorph2(Player* pPlayer, bool morphPet, uint32 display)
 {
-	ObjectGuid obj = pPlayer->GetSelectionGuid();
-	if (!obj)
-	{
-		ChatHandler(pPlayer).SendSysMessage(-2800690);
-		return;
-	}
-	
-	Creature * creature = pPlayer->GetMap()->GetCreature(obj);
-	if (!creature)
-		return;
-	uint32 display = creature->GetDisplayId();
 	if (morphPet)
 	{
 		if (Pet * pet = pPlayer->GetPet())
@@ -150,14 +143,65 @@ void excuteMorph(Player* pPlayer,bool morphPet)
 			pet->SetDisplayId(display);
 			pPlayer->context.GetMercenary()->SetDisplay(display);
 			pPlayer->context.GetMercenary()->SendMirrorImagePacket(pet);
-			return;
+			return true;
 		}
 		ChatHandler(pPlayer).SendSysMessage(-2800698);//你还没有招募雇佣兵。
-		return;
+		return false;
 	}
 	pPlayer->context.displayid = display;
 	pPlayer->SetDisplayId(display);
+	return true;
+}
+void excuteMorph(Player* pPlayer, bool morphPet, uint32 displayid){
 	
+	pPlayer->context.gossipActionType = -1;//还原
+
+	if (displayid == 0)
+	{
+		ObjectGuid obj = pPlayer->GetSelectionGuid();
+		if (!obj)
+		{
+			ChatHandler(pPlayer).SendSysMessage(-2800690);
+			return;
+		}
+
+		Creature * creature = pPlayer->GetMap()->GetCreature(obj);
+		if (!creature)
+			return;
+		
+		if(excuteMorph2(pPlayer, morphPet, creature->GetDisplayId()))
+			pPlayer->context.addMorphHistory(creature->GetEntry(), creature->GetDisplayId());//添加到历史
+	}
+	else
+	{
+		excuteMorph2(pPlayer, morphPet, displayid);
+	}
+
+}
+void DeMorphMercenary(Player* pPlayer, Pet * pet){
+	
+	Mercenary * mercenary=pPlayer->context.GetMercenary();
+	uint32 model = mercenary->GetGender() == GENDER_FEMALE ? mercenary->getCharFemalModel(mercenary->GetRace()) : mercenary->getCharMaleModel(mercenary->GetRace());
+
+	pet->SetDisplayId(model);
+	pPlayer->context.GetMercenary()->SetDisplay(model);
+	pPlayer->context.GetMercenary()->SendMirrorImagePacket(pet);
+}
+void showMorphMenu(Player* pPlayer, Item* pItem){
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
+	
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800695, GOSSIP_SENDER_MAIN, 0);  // 易容为选择对象
+	
+	int count = 0;
+	for (auto it = pPlayer->context.creaturehistory.begin(); it != pPlayer->context.creaturehistory.end(); it++, count++)
+	{
+		const char * name = "";
+		pPlayer->context.GetCreatureOrGOTitleLocale(*it, &name);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, name, GOSSIP_SENDER_MAIN, pPlayer->context.displayhistory.at(count));// 易容为历史对象
+	}
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800598, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);//上一页
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 }
 void showHH(Player* pPlayer, Item* pItem)
 {
@@ -297,7 +341,8 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 22){
-		excuteMorph(pPlayer,false);
+		pPlayer->context.gossipActionType = ACTION_PLAYER_MORTH;
+		showMorphMenu(pPlayer, pItem);
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 23){
@@ -305,14 +350,15 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 24){
-		excuteMorph(pPlayer, true);
+		pPlayer->context.gossipActionType = ACTION_PET_MORTH;
+		showMorphMenu(pPlayer, pItem);
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 25){
 		if (Pet * pet = pPlayer->GetPet())
 		if (pet->isMercenary())
 		{
-			pet->DeMorph();
+			DeMorphMercenary(pPlayer, pet);
 			return true;
 		}
 		ChatHandler(pPlayer).SendSysMessage(-2800698);//你还没有招募雇佣兵。
@@ -327,7 +373,16 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	//////////////////////////////////////////其它
 	pPlayer->context.gossipMenuType = -1;/*默认值*/
 
-	if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
+	if (pPlayer->context.gossipActionType == ACTION_PLAYER_MORTH)
+	{
+		excuteMorph(pPlayer, false, uiAction);
+		return true;
+	}
+	else if (pPlayer->context.gossipActionType == ACTION_PET_MORTH){
+		excuteMorph(pPlayer, true, uiAction);
+		return true;
+	}
+	else if (uiAction == GOSSIP_ACTION_INFO_DEF + 1) //当前原力值：%d
 	{
 		pPlayer->SEND_GOSSIP_MENU(16777214, pItem->GetObjectGuid()); //'原力与你同在！更多信息请移步：http://51.neocities.org。'
 	}

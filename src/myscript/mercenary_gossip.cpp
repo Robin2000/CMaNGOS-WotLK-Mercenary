@@ -8,6 +8,7 @@
 #include "mercenary_bot.h"
 #include "mercenary_gossip.h"
 #include "mercenaryAI.hpp"
+#include "Mercenary.h"
 class ObjectAccessor;
 //#include "ScriptedGossip.h"
 
@@ -72,57 +73,6 @@ int getRaceFemalStringID(uint8 race)
 	default:
 		return 0;
 	}
-}
-uint32 getCharFemalModel(uint32 race){
-	switch (race){
-	case HUMAN:
-		return HUMAN_FEMALE_MODEL;
-	case ORC:
-		return ORC_FEMALE_MODEL;
-	case DWARF:
-		return DWARF_FEMALE_MODEL;
-	case NIGHTELF:
-		return NIGHTELF_FEMALE_MODEL;
-	case SCOURGE:
-		return SCOURGE_FEMALE_MODEL;
-	case TAUREN:
-		return TAUREN_FEMALE_MODEL;
-	case GNOME:
-		return GNOME_FEMALE_MODEL;
-	case TROLL:
-		return TROLL_FEMALE_MODEL;
-	case BLOODELF:
-		return BLOODELF_FEMALE_MODEL;
-	case DRAENEI:
-		return DRAENEI_FEMALE_MODEL;
-	default:
-		return HUMAN_FEMALE_MODEL;
-	}
-}
-uint32 getCharMaleModel(uint32 race){
-	switch (race){
-	case HUMAN:
-		return HUMAN_MALE_MODEL;
-	case ORC:
-		return ORC_MALE_MODEL;
-	case DWARF:
-		return DWARF_MALE_MODEL;
-	case NIGHTELF:
-		return NIGHTELF_MALE_MODEL;
-	case SCOURGE:
-		return SCOURGE_MALE_MODEL;
-	case TAUREN:
-		return TAUREN_MALE_MODEL;
-	case GNOME:
-		return GNOME_MALE_MODEL;
-	case TROLL:
-		return TROLL_MALE_MODEL;
-	case BLOODELF:
-		return BLOODELF_MALE_MODEL;
-	case DRAENEI:
-		return DRAENEI_MALE_MODEL;
-	};
-	return HUMAN_MALE_MODEL;
 }
 
 	void SendHireList(Player* player, Item* item)
@@ -281,9 +231,9 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 	if (player->context.gossipActionType == GOSSIP_ACTION_RACE_DEF)//Ñ¡ÔñÖÖ×å
 	{
 		if (actions > MAX_RACE_SEL)
-			mercenary->SetValues(getCharFemalModel(actions - MAX_RACE_SEL), actions - MAX_RACE_SEL, GENDER_FEMALE);
+			mercenary->SetValues(mercenary->getCharFemalModel(actions - MAX_RACE_SEL), actions - MAX_RACE_SEL, GENDER_FEMALE);
 		else
-			mercenary->SetValues(getCharMaleModel(actions), actions, GENDER_MALE);
+			mercenary->SetValues(mercenary->getCharMaleModel(actions), actions, GENDER_MALE);
 
 		SendRoleList(player, item, mercenary->GetType());
 		return true;

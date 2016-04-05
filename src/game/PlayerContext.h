@@ -34,7 +34,6 @@ public:
 typedef boost::lockfree::queue<DelayedAction *, boost::lockfree::fixed_sized<false>> DelayActionQueue;
 typedef tbb::concurrent_vector<Quest const*> RecommentQuestList;
 
-
 class MANGOS_DLL_SPEC PlayerContext{
 
 	public:
@@ -46,6 +45,9 @@ class MANGOS_DLL_SPEC PlayerContext{
 	bool firstQuestChecked = false;
 
 	uint32 displayid = 0;
+	std::vector<uint32> creaturehistory;
+	std::vector<uint32> displayhistory;
+	void addMorphHistory(uint32 creature_entry, uint32 displayid);
 
 	void checkFirstGuideQuest();
 	//选择的map
@@ -132,6 +134,9 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void GetCreatureOrGOTitleLocale(int32 entry, const char  ** name);
 
 	//查找生物模板数据
+	CreatureInfo const* findCreatureInfoByEntry(uint32 entry);
+
+	//查找生物实例数据
 	CreatureData* findCreatureDataByEntry(uint32 entry);
 
 	//查找游戏对象模板数据
