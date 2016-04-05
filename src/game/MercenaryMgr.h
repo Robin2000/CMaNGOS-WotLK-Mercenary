@@ -195,11 +195,10 @@ public:
     */
     uint32 GetItemDisplayId(uint32 itemEntry)
     {
-//#ifndef MANGOS
-//        const ItemTemplate* proto = sObjectMgr->GetItemTemplate(itemEntry);
-//#else
-        const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itemEntry);
-//#endif
+		if (itemEntry == 0)
+			return 0;
+
+		const ItemPrototype* proto = sObjectMgr.GetItemPrototype(itemEntry);
         if (proto)
             return proto->DisplayInfoID;
 

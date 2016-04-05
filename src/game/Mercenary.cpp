@@ -867,12 +867,14 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     data << uint8(GetRace());
     data << uint8(GetGender());
     data << uint8(GetType());//参照trinity将1改
-    data << uint8(0); // Skin
+    
+	data << uint8(0); // Skin
     data << uint8(0); // Face
     data << uint8(0); // Hair
     data << uint8(0); // Hair color
     data << uint8(0); // Facial hair
 	data << uint32(0);//不参照trinity
+
 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HEAD].itemid));
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_SHOULDERS].itemid)); 
@@ -887,8 +889,8 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
-	data << uint32(0); // SLOT_EMPTY?//参照trinity0改为19
-	data << uint32(0);
+	//data << uint32(0); // SLOT_EMPTY?//参照trinity0改为19
+	//data << uint32(0);
     creature->SendMessageToSet(&data, false);
 }
 

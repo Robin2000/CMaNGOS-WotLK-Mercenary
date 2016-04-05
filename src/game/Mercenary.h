@@ -10,7 +10,7 @@
 #include "ObjectMgr.h"
 
 struct GearEntry{
-	uint32 itemguid;
+	uint32 itemguid=0;
 	uint32 itemid=0;
 };
 
