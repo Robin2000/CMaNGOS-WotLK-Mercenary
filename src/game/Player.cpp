@@ -4836,14 +4836,14 @@ uint32 Player::DurabilityRepairAll(bool cost, float discountMod, bool guildBank)
     uint32 TotalCost = 0;
     // equipped, backpack, bags itself
     for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-        TotalCost += DurabilityRepair(((INVENTORY_SLOT_BAG_0 << 8) | i), cost, discountMod, guildBank);
+        TotalCost += DurabilityRepair(((uint16(INVENTORY_SLOT_BAG_0) << 8) | i), cost, discountMod, guildBank);
 
     // bank, buyback and keys not repaired
 
     // items in inventory bags
     for (int j = INVENTORY_SLOT_BAG_START; j < INVENTORY_SLOT_BAG_END; ++j)
         for (int i = 0; i < MAX_BAG_SIZE; ++i)
-            TotalCost += DurabilityRepair(((j << 8) | i), cost, discountMod, guildBank);
+            TotalCost += DurabilityRepair(((uint16(j) << 8) | i), cost, discountMod, guildBank);
     return TotalCost;
 }
 
@@ -8656,7 +8656,31 @@ bool Player::ViableEquipSlots(ItemPrototype const* proto, uint8 *viable_slots) c
     }
     return (viable_slots[0] != NULL_SLOT);
 }
+//找到空选的位置
+uint16 Player::findEmptyPos()
+{
+	for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+	if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+		return (uint16(INVENTORY_SLOT_BAG_0) << 8) | i;
 
+	for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+	if (Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+	for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+	if (!pBag->GetItemByPos(j))
+		return (uint16(i) << 8) | j;
+
+	for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
+	if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+		return (uint16(INVENTORY_SLOT_BAG_0) << 8) | i;
+
+	for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+	if (Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+	for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+	if (!pBag->GetItemByPos(j))
+		return (uint16(i) << 8) | j;
+	
+	return 0;
+}
 InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
 {
     Item* pItem;
@@ -8669,7 +8693,7 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
         pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (pItem && pItem->GetEntry() == item)
         {
-            InventoryResult ires = CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | i, false);
+            InventoryResult ires = CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | i, false);
             if (ires == EQUIP_ERR_OK)
             {
                 tempcount += pItem->GetCount();
@@ -8815,7 +8839,13 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 
 Item* Player::GetItemByEntry(uint32 item) const
 {
-    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+	//雇佣兵装备
+	for (int i = M_EQUIPMENT_SLOT_START; i < M_EQUIPMENT_SLOT_END; ++i)
+	if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+	if (pItem->GetEntry() == item)
+		return pItem;
+
+	for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetEntry() == item)
                 return pItem;
@@ -8855,7 +8885,12 @@ Item* Player::GetItemByLimitedCategory(uint32 limitedCategory) const
 
 Item* Player::GetItemByGuid(ObjectGuid guid) const
 {
-    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+	for (int i = M_EQUIPMENT_SLOT_START; i < M_EQUIPMENT_SLOT_END; ++i)//雇佣兵装备
+	if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+	if (pItem->GetObjectGuid() == guid)
+		return pItem;
+
+	for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetObjectGuid() == guid)
                 return pItem;
@@ -8896,7 +8931,8 @@ Item* Player::GetItemByPos(uint16 pos) const
 
 Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 {
-    if (bag == INVENTORY_SLOT_BAG_0 && (slot < BANK_SLOT_BAG_END || (slot >= KEYRING_SLOT_START && slot < CURRENCYTOKEN_SLOT_END)))
+	//增加雇佣兵装备
+	if (bag == INVENTORY_SLOT_BAG_0 && (slot < BANK_SLOT_BAG_END || (slot >= KEYRING_SLOT_START && slot < CURRENCYTOKEN_SLOT_END) || (slot >= M_EQUIPMENT_SLOT_START && slot < M_EQUIPMENT_SLOT_END)))
         return m_items[slot];
     else if ((bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END)
              || (bag >= BANK_SLOT_BAG_START && bag < BANK_SLOT_BAG_END))
@@ -9012,6 +9048,16 @@ bool Player::IsBagPos(uint16 pos)
     return false;
 }
 
+bool Player::IsMercenaryPos(uint16 pos)
+{
+	uint8 bag = pos >> 8;
+	uint8 slot = pos & 255;
+	if (bag == INVENTORY_SLOT_BAG_0 && (slot >= M_EQUIPMENT_SLOT_START && slot < M_EQUIPMENT_SLOT_END))
+		return true;
+
+	return false;
+}
+
 bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const
 {
     // post selected
@@ -9047,6 +9093,10 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const
         // bank bag slots
         if (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
             return true;
+
+		// mercenary bag slots
+		if (slot >= M_EQUIPMENT_SLOT_START && slot < M_EQUIPMENT_SLOT_END)
+			return true;
 
         return false;
     }
@@ -9372,7 +9422,7 @@ InventoryResult Player::_CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, Item
     if (need_space > count)
         need_space = count;
 
-    ItemPosCount newPosition = ItemPosCount((bag << 8) | slot, need_space);
+    ItemPosCount newPosition = ItemPosCount((uint16(bag) << 8) | slot, need_space);
     if (!newPosition.isContainedIn(dest))
     {
         dest.push_back(newPosition);
@@ -9435,7 +9485,7 @@ InventoryResult Player::_CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, It
         if (need_space > count)
             need_space = count;
 
-        ItemPosCount newPosition = ItemPosCount((bag << 8) | j, need_space);
+        ItemPosCount newPosition = ItemPosCount((uint16(bag) << 8) | j, need_space);
         if (!newPosition.isContainedIn(dest))
         {
             dest.push_back(newPosition);
@@ -9482,7 +9532,7 @@ InventoryResult Player::_CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 s
         if (need_space > count)
             need_space = count;
 
-        ItemPosCount newPosition = ItemPosCount((INVENTORY_SLOT_BAG_0 << 8) | j, need_space);
+        ItemPosCount newPosition = ItemPosCount((uint16(INVENTORY_SLOT_BAG_0) << 8) | j, need_space);
         if (!newPosition.isContainedIn(dest))
         {
             dest.push_back(newPosition);
@@ -10331,12 +10381,12 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16& dest, Item* pItem, bool
                     Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
                     ItemPosCountVec off_dest;
                     if (offItem && (!direct_action ||
-                                    CanUnequipItem(uint16(INVENTORY_SLOT_BAG_0) << 8 | EQUIPMENT_SLOT_OFFHAND, false) !=  EQUIP_ERR_OK ||
+                                    CanUnequipItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | EQUIPMENT_SLOT_OFFHAND, false) !=  EQUIP_ERR_OK ||
                                     CanStoreItem(NULL_BAG, NULL_SLOT, off_dest, offItem, false) !=  EQUIP_ERR_OK))
                         return swap ? EQUIP_ERR_ITEMS_CANT_BE_SWAPPED : EQUIP_ERR_INVENTORY_FULL;
                 }
             }
-            dest = ((INVENTORY_SLOT_BAG_0 << 8) | eslot);
+			dest = ((uint16(INVENTORY_SLOT_BAG_0) << 8) | eslot);
             return EQUIP_ERR_OK;
         }
     }
@@ -11404,7 +11454,7 @@ void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequ
             {
                 if (pItem->GetCount() + remcount <= count)
                 {
-                    if (!unequip_check || CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | i, false) == EQUIP_ERR_OK)
+                    if (!unequip_check || CanUnequipItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | i, false) == EQUIP_ERR_OK)
                     {
                         remcount += pItem->GetCount();
                         DestroyItem(INVENTORY_SLOT_BAG_0, i, update);
@@ -11786,7 +11836,19 @@ void Player::SwapItem(uint16 src, uint16 dst)
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
-        }
+		}
+		else if (IsMercenaryPos(dst))
+		{
+			ItemPosCountVec dest;
+			InventoryResult msg = CanStoreItem(dstbag, dstslot, dest, pSrcItem, false);
+			if (msg != EQUIP_ERR_OK)
+			{
+				SendEquipError(msg, pSrcItem, nullptr);
+				return;
+			}
+			RemoveItem(srcbag, srcslot, true);
+			StoreItem(dest, pSrcItem, true);
+		}
 
         return;
     }
@@ -16086,7 +16148,14 @@ void Player::_LoadInventory(QueryResult* result, uint32 timediff)
                         item = BankItem(dest, item, true);
                     else
                         success = false;
-                }
+				}else if (IsMercenaryPos((uint16(INVENTORY_SLOT_BAG_0)<<8) | slot))
+				{
+					ItemPosCountVec dest;
+					if (CanStoreItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false) == EQUIP_ERR_OK)
+						item = StoreItem(dest, item, true);
+					else
+						success = false;
+				}
 
                 if (success)
                 {

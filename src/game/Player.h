@@ -585,7 +585,8 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 150,
+    //PLAYER_SLOT_END             = 150,
+	PLAYER_SLOT_END = 169,          //增加雇佣兵的19个格子
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -658,7 +659,30 @@ enum CurrencyTokenSlots                                     // 32 slots
     CURRENCYTOKEN_SLOT_START    = 118,
     CURRENCYTOKEN_SLOT_END      = 150
 };
-
+enum MercenaryEquipmentSlots                                         // 19 slots
+{
+	M_EQUIPMENT_SLOT_START = 150,
+	M_EQUIPMENT_SLOT_HEAD = 150,
+	M_EQUIPMENT_SLOT_NECK = 151,
+	M_EQUIPMENT_SLOT_SHOULDERS = 152,
+	M_EQUIPMENT_SLOT_BODY = 153,
+	M_EQUIPMENT_SLOT_CHEST = 154,
+	M_EQUIPMENT_SLOT_WAIST = 155,
+	M_EQUIPMENT_SLOT_LEGS = 156,
+	M_EQUIPMENT_SLOT_FEET = 157,
+	M_EQUIPMENT_SLOT_WRISTS = 158,
+	M_EQUIPMENT_SLOT_HANDS = 159,
+	M_EQUIPMENT_SLOT_FINGER1 = 160,
+	M_EQUIPMENT_SLOT_FINGER2 = 161,
+	M_EQUIPMENT_SLOT_TRINKET1 = 162,
+	M_EQUIPMENT_SLOT_TRINKET2 = 163,
+	M_EQUIPMENT_SLOT_BACK = 164,
+	M_EQUIPMENT_SLOT_MAINHAND = 165,
+	M_EQUIPMENT_SLOT_OFFHAND = 166,
+	M_EQUIPMENT_SLOT_RANGED = 167,
+	M_EQUIPMENT_SLOT_TABARD = 168,
+	M_EQUIPMENT_SLOT_END = 169
+};
 enum EquipmentSetUpdateState
 {
     EQUIPMENT_SET_UNCHANGED     = 0,
@@ -1192,8 +1216,10 @@ class MANGOS_DLL_SPEC Player : public Unit
         static bool IsEquipmentPos(uint16 pos) { return IsEquipmentPos(pos >> 8, pos & 255); }
         static bool IsEquipmentPos(uint8 bag, uint8 slot);
         static bool IsBagPos(uint16 pos);
+		static bool IsMercenaryPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
+		uint16 findEmptyPos();
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }

@@ -563,11 +563,14 @@ bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
 
 	if (!silenceUpdate){
 
-			gearContainer[editSlot].itemguid = item->GetGUIDLow();
-			gearContainer[editSlot].itemid = itemid;
-				
-			pet->EquipItem(editSlot, item, true);//这里更新状态，比较复杂，暂时不采用
-			pet->AutoUnequipOffhandIfNeed();		//一旦副手移除，要调用pet->RemoveItem(editSlot, true);
+		
+		player->SwapItem(item->GetPos(), INVENTORY_SLOT_BAG_0 << 8 | (editSlot + M_EQUIPMENT_SLOT_START));//交换到雇佣兵的对应装备位置INVENTORY_SLOT_BAG_0 << 8 | slot
+
+		gearContainer[editSlot].itemguid = item->GetGUIDLow();
+		gearContainer[editSlot].itemid = itemid;			
+
+		pet->EquipItem(editSlot, item, true);//这里更新状态
+		pet->AutoUnequipOffhandIfNeed();		//一旦副手移除，要调用pet->RemoveItem(editSlot, true);
 			//pet->UpdateAllStats();//全面更新，无效
     }
 
@@ -590,6 +593,11 @@ Item* Mercenary::GetItemByGuid(Player * player,uint32 guid)
 	if (pItem->GetObjectGuid().GetCounter() == guid)
 		return pItem;
 	*/
+	for (int i = M_EQUIPMENT_SLOT_START; i < M_EQUIPMENT_SLOT_END; ++i)
+	if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+	if (pItem->GetObjectGuid().GetCounter() == guid)
+		return pItem;
+
 	for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
 	if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	if (pItem->GetObjectGuid().GetCounter() == guid)
