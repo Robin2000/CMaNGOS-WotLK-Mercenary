@@ -82,6 +82,7 @@ public:
 		player->UpdateForQuestWorldObjects();
 		player->SetCanFly(false);
 		player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
+		player->PetSpellInitialize();
 	}
 	Player * player;
 };
@@ -346,7 +347,7 @@ void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orie
 	}
 
 	mPlayer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
-	this->addDelayedAction(new TeleportAction(mPlayer, 5000));//延迟5秒，如果无法落脚，可快速移开
+	this->addDelayedAction(new TeleportAction(mPlayer, 8000));//延迟5秒，如果无法落脚，可快速移开
 	
 }
 void DelayedAction::Update(uint32 update_diff){
