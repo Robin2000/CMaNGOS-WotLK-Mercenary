@@ -47,6 +47,8 @@ bool Mercenary::LoadFromDB(Player* player,QueryResult* result)
 
     LoadGearFromDB();
 
+	player->context.SetMercenary(this);
+
 	summoned = true;/*凡保存到数据库的，确定summoned为true*/
 
     return true;
@@ -292,7 +294,7 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 	if (!create)
 	{
 		pet->SetDisplayId(GetDisplay());
-		pet->SetNativeDisplayId(GetDisplay());
+		//pet->SetNativeDisplayId(GetDisplay());
 		pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 		pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
@@ -313,7 +315,7 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 		pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
 		pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		pet->SetDisplayId(GetDisplay());
-		pet->SetNativeDisplayId(GetDisplay());
+		//pet->SetNativeDisplayId(GetDisplay());
 		pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
 		if (player->IsPvP())
@@ -496,7 +498,6 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 
         player->SetPet(pet);
 		player->PetSpellInitialize();//刷新客户端ActionBar
-		
 		
     }
 	
@@ -891,8 +892,8 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
     data << creature->GetObjectGuid();
     data << uint32(GetDisplay());
-    data << uint8(GetRace());
-    data << uint8(GetGender());
+	data << uint8(GetRace());
+	data << uint8(GetGender());
     data << uint8(GetType());//参照trinity将1改
     
 	data << uint8(0); // Skin
@@ -912,12 +913,9 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_FEET].itemid)); 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_WRISTS].itemid)); // Wrists?
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HANDS].itemid));
-
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
-
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
-	//data << uint32(0); // SLOT_EMPTY?//参照trinity0改为19
-	//data << uint32(0);
+
     creature->SendMessageToSet(&data, false);
 }
 

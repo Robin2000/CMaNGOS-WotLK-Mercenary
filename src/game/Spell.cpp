@@ -2990,7 +2990,7 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
     // Fill cost data
 	Creature * creature = m_caster->ToCreature();
 	if (creature != nullptr&&creature->isMercenary())
-		m_powerCost = 1;//可忽略不计的魔法消耗量
+		m_powerCost = 0;//可忽略不计的魔法消耗量
 	else
 		m_powerCost = CalculatePowerCost(m_spellInfo, m_caster, this, m_CastItem);
 
@@ -6436,6 +6436,10 @@ SpellCastResult Spell::CheckRange(bool strict)
 
 uint32 Spell::CalculatePowerCost(SpellEntry const* spellInfo, Unit* caster, Spell const* spell, Item* castItem)
 {
+	Creature * creature = caster->ToCreature();
+	if (creature != nullptr&&creature->isMercenary())
+		return 0;//可忽略不计的魔法消耗量
+
     // item cast not used power
     if (castItem)
         return 0;
@@ -6505,6 +6509,10 @@ uint32 Spell::CalculatePowerCost(SpellEntry const* spellInfo, Unit* caster, Spel
 
 SpellCastResult Spell::CheckPower()
 {
+	Creature * creature = m_caster->ToCreature();
+	if (creature != nullptr&&creature->isMercenary())
+		return SPELL_CAST_OK;//可忽略不计的魔法消耗量
+
     // item cast not used power
     if (m_CastItem)
         return SPELL_CAST_OK;
