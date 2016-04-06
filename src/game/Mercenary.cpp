@@ -896,7 +896,7 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     data << uint8(0); // Hair
     data << uint8(0); // Hair color
     data << uint8(0); // Facial hair
-	data << uint32(0);//≤ª≤Œ’’trinity
+	data << uint32(creature->GetGUIDLow());//≤Œ’’trinity
 
 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HEAD].itemid));

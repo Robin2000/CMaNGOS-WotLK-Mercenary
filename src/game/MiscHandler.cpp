@@ -971,8 +971,8 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recv_data)
     ObjectGuid guid;
 
     recv_data >> guid.ReadAsPacked();
-    recv_data >> Unused<uint32>();
-
+    //recv_data >> Unused<uint32>();
+	recv_data.read_skip<uint32>();//²Î¿¼trinity
     /*
         ObjectGuid guid;
         uint32 time_skipped;
