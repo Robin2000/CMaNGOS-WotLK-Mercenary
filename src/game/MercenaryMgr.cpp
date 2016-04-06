@@ -18,7 +18,7 @@ void MercenaryMgr::SaveToList(Mercenary* mercenary)
 /*角色登录时加载，注销时不删除，每人限一个雇佣兵*/
 Mercenary*  MercenaryMgr::LoadMercenarie(Player* player)
 {
-	QueryResult* result = CharacterDatabase.PQuery("SELECT role, displayId, race, gender, type FROM mercenaries  where ownerGUID='%u'", player->GetGUIDLow());
+	QueryResult* result = CharacterDatabase.PQuery("SELECT petnumber,role, displayId, race, gender, type FROM mercenaries  where ownerGUID='%u'", player->GetGUIDLow());
 	if (result)
 	{
 			Mercenary* mercenary = new Mercenary;

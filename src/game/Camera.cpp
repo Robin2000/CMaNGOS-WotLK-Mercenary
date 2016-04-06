@@ -56,8 +56,8 @@ void Camera::SetView(WorldObject* obj, bool update_far_sight_field /*= true*/)
 {
     MANGOS_ASSERT(obj);
 
-    if (m_source == obj)
-        return;
+	if (m_source == obj)
+		return;
 
     if (!m_owner.IsInMap(obj))
     {

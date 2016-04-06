@@ -192,9 +192,9 @@ public:
     /*
     * Initializes Mercenary's stats, gear and other summon values
     */
-	void Initialize(Player* player, MercenaryPet* pet, bool create,uint32 petnumber);
+	void Initialize(Player* player, MercenaryPet* pet, bool create);
 
-	void InitializeNEW(Player* player,Pet* pet, bool create,uint32 petnumber);
+	void InitializeNEW(Player* player,Pet* pet, bool create);
 
 	/*清理不匹配的技能*/
 	void cleanNoMatchSpell(Pet* pet);
@@ -271,6 +271,7 @@ public:
     /*uint8 GetInvTypeSlot(uint8 characterSlot) const;*/
 	bool InvToSlot(uint8 invType, uint8 characterSlot);
 
+	uint32 GetPetNumber() const { return petnumber; }
     uint32 GetOwnerGUID() const { return ownerGUID; }
     uint8 GetRole() const { return role; }
     uint32 GetDisplay() const { return displayId; }
@@ -363,6 +364,7 @@ public:
 		return HUMAN_MALE_MODEL;
 	}
 private:
+	uint32 petnumber;
     uint32 ownerGUID;
 	uint8 role = 0;
     uint32 displayId;

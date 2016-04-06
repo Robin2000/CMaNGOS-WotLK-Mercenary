@@ -208,7 +208,7 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 			session->SendNotification(-2800633);//未能招募成功!
 			player->context.gossipMenuType = -1;/*还原默认值*/
 			return false;
-		}
+		}		
 	}
 
 	switch (actions)

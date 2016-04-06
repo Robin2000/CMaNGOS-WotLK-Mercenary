@@ -32,17 +32,18 @@ void Mercenary::LoadGearFromDB()
     }
 }
 
-//          0         1    2          3    4                
-//"SELECT role, displayId, race, gender, type FROM mercenaries  where ownerGUID=?
+//          0        1    2          3     4       5             
+//"SELECT petnumber,role, displayId, race, gender, type FROM mercenaries  where ownerGUID=?
 bool Mercenary::LoadFromDB(Player* player,QueryResult* result)
 {
     Field* fields = result->Fetch();
 	ownerGUID = player->GetGUIDLow();
-    role = fields[0].GetUInt8();
-    displayId = fields[1].GetUInt32();
-    race = fields[2].GetUInt8();
-    gender = fields[3].GetUInt8();
-    type = fields[4].GetUInt8();
+	petnumber = fields[0].GetUInt32();
+    role = fields[1].GetUInt8();
+    displayId = fields[2].GetUInt32();
+    race = fields[3].GetUInt8();
+    gender = fields[4].GetUInt8();
+    type = fields[5].GetUInt8();
 
     LoadGearFromDB();
 
@@ -56,9 +57,10 @@ void Mercenary::SaveToDB()
 	CharacterDatabase.BeginTransaction();
 
     static SqlStatementID insMerc;
-    SqlStatement saveMerc = CharacterDatabase.CreateStatement(insMerc, "REPLACE INTO mercenaries (ownerGUID, role, displayId, race, gender, type) VALUES (?, ?, ?, ?, ?, ?)");
+    SqlStatement saveMerc = CharacterDatabase.CreateStatement(insMerc, "REPLACE INTO mercenaries (ownerGUID,petnumber, role, displayId, race, gender, type) VALUES (?,?, ?, ?, ?, ?, ?)");
 
-    saveMerc.addUInt32(ownerGUID);
+	saveMerc.addUInt32(ownerGUID);
+	saveMerc.addUInt32(petnumber);
     saveMerc.addUInt8(role);
     saveMerc.addUInt32(displayId);
     saveMerc.addUInt8(race);
@@ -80,6 +82,7 @@ bool Mercenary::Create(Player* player)
     if (!player)
         return false;
     ownerGUID = player->GetGUIDLow();
+	petnumber = sObjectMgr.GeneratePetNumber();
     role = 0;
     displayId = 1;
     race = 0;
@@ -90,6 +93,7 @@ bool Mercenary::Create(Player* player)
 	//player->learnSpell(982, true);//复活宠物
 
     sMercenaryMgr->SaveToList(this);
+	player->context.SetMercenary(this);
 
     return true;
 }
@@ -148,10 +152,10 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
         return false;
     }
 
-    uint32 petNumber = sObjectMgr.GeneratePetNumber();
+
     uint32 guid = pos.GetMap()->GenerateLocalLowGuid(HIGHGUID_PET);
 
-    if (!pet->Create(guid, pos, creatureInfo, petNumber))
+	if (!pet->Create(guid, pos, creatureInfo, guid))
     {
         delete pet;
         return false;
@@ -173,7 +177,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	
 	//sMercenaryMgr->SaveToList(this);在create的时候已经放入列表
 
-	Initialize(player, pet, true, petNumber);
+	Initialize(player, pet, true);
 
 	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!
 	pet->MonsterSay(player->GetMangosString(-2800647), LANG_UNIVERSAL, player);//Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.
@@ -215,7 +219,7 @@ bool Mercenary::Summon(Player* player)
 		return false;
 
 	if (pet->isMercenary())
-		Initialize(player, (MercenaryPet*)pet, false,pet->GetCharmInfo()->GetPetNumber());
+		Initialize(player, (MercenaryPet*)pet, false);
 
 	return true;
 	
@@ -282,7 +286,7 @@ public:
 	Player * player;
 	MercenaryPet    * pet;
 };
-void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create,uint32 petnumber)
+void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 {
 	
 	if (!create)
@@ -342,7 +346,7 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create,uint32 petnu
 		pet->HandleEmoteCommandHappy();
 
 }
-void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create,uint32 petnumber)
+void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 {
 	uint32 level = player->getLevel();
 
@@ -564,7 +568,7 @@ bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
 	if (!silenceUpdate){
 
 		
-		player->SwapItem(item->GetPos(), INVENTORY_SLOT_BAG_0 << 8 | (editSlot + M_EQUIPMENT_SLOT_START));//交换到雇佣兵的对应装备位置INVENTORY_SLOT_BAG_0 << 8 | slot
+		player->SwapItem(item->GetPos(), (uint16(INVENTORY_SLOT_BAG_0) << 8) | (editSlot + M_EQUIPMENT_SLOT_START));//交换到雇佣兵的对应装备位置INVENTORY_SLOT_BAG_0 << 8 | slot
 
 		gearContainer[editSlot].itemguid = item->GetGUIDLow();
 		gearContainer[editSlot].itemid = itemid;			
@@ -908,7 +912,7 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_FEET].itemid)); 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_WRISTS].itemid)); // Wrists?
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HANDS].itemid));
-	
+
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
