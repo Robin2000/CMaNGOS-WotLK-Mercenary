@@ -232,7 +232,28 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recv_data)
         _player->AutoUnequipOffhandIfNeed();
     }
 }
+/*在任务列表中的任务，任务物品不允许丢弃*/
+bool questNotComplete(Player * player,Item* pItem){
+	for (uint16 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+	{
+		uint32 questid = player->GetQuestSlotQuestId(i);
+		//QuestStatus q_status = player->GetQuestStatus(quest_id);
+		Quest const* qinfo = sObjectMgr.GetQuestTemplate(questid);
+		if (!qinfo)
+			continue;
 
+		if (qinfo->GetSrcItemId() == pItem->GetEntry())
+			return true;
+
+		for (int j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
+			if (pItem->GetEntry() == qinfo->ReqItemId[j])
+				return true;
+
+		for (int j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
+			if (pItem->GetEntry() == qinfo->ReqSourceId[j])
+				return true;
+	}
+}
 void WorldSession::HandleDestroyItemOpcode(WorldPacket& recv_data)
 {
     // DEBUG_LOG("WORLD: CMSG_DESTROYITEM");
@@ -272,9 +293,12 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recv_data)
 	{
 		if (!_player->isGameMaster())
 		{
-			ChatHandler(_player).SendSysMessage(-2800682);
-			_player->SendEquipError(EQUIP_ERR_NONE, pItem);
-			return;
+			if (questNotComplete(_player,pItem))//丢弃正在进行中的任务物品
+			{
+				ChatHandler(_player).SendSysMessage(-2800682);
+				_player->SendEquipError(EQUIP_ERR_NONE, pItem);
+				return;
+			}
 		}
 	}
     if (count)
