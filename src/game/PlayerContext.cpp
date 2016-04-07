@@ -62,13 +62,12 @@ void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 	{
 		const TerrainInfo* info = player->GetMap()->GetTerrain();
 		float groundz = info->GetWaterOrGroundLevel(i, j, MAX_HEIGHT);
+		if (groundz == -200000.0f)//VMAP_INVALID_HEIGHT_VALUE
+			continue;
 		if (groundz-oldz>0)
 			oldz = groundz;
 
-		if (groundz != -200000.0f)//VMAP_INVALID_HEIGHT_VALUE
-			result->push_back(Vector3(i, j, 50.0f + oldz)); //如果上一个z更大，就直接使用上一个z，避免颠簸
-
-		
+		result->push_back(Vector3(i, j, 50.0f + oldz)); //如果上一个z更大，就直接使用上一个z，避免颠簸
 
 	}
 

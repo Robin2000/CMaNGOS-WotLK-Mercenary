@@ -135,7 +135,7 @@ public:
 	void SetSheath(SheathState sheathed);
 
 	char const* GetSubName() const { return subname; }
-	char* subname = "";
+	char* subname = "_";
 
 	private:
 		Mercenary * _mercenary = nullptr;

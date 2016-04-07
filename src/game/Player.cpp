@@ -10864,11 +10864,13 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         {
             pItem->SetBinding(true);
         }
-
-        if (bag == INVENTORY_SLOT_BAG_0)
+		if (bag == INVENTORY_SLOT_BAG_0)
         {
             m_items[slot] = pItem;
-            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
+			
+			if (!(slot>=M_EQUIPMENT_SLOT_START&&slot<M_EQUIPMENT_SLOT_END))//这里很重要，因为Player::SetGuidValue的值是有预定意义的，例如PLAYER_FARSIGHT=624，不能覆盖掉
+				SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
+
             pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
             pItem->SetGuidValue(ITEM_FIELD_OWNER, GetObjectGuid());
 
@@ -11117,8 +11119,11 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     DEBUG_LOG("STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
 
     m_items[slot] = pItem;
-    SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
-    pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
+
+	if (!(slot >= M_EQUIPMENT_SLOT_START&&slot<M_EQUIPMENT_SLOT_END))//很重要，扩展的雇佣兵位置，不能覆盖玩家的其他属性，例如PLAYER_FARSIGHT=624，不能覆盖掉
+	 SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
+    
+	pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
     pItem->SetGuidValue(ITEM_FIELD_OWNER, GetObjectGuid());
     pItem->SetSlot(slot);
     pItem->SetContainer(nullptr);
@@ -11189,7 +11194,9 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 UpdateKnownCurrencies(pItem->GetEntry(), false);
 
             m_items[slot] = nullptr;
-            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid());
+
+			if (!(slot >= M_EQUIPMENT_SLOT_START&&slot<M_EQUIPMENT_SLOT_END))//很重要，扩展的雇佣兵位置，不能覆盖玩家的其他属性，例如PLAYER_FARSIGHT=624，不能覆盖掉
+				SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid());
 
             if (slot < EQUIPMENT_SLOT_END)
             {
@@ -11292,7 +11299,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
-            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid());
+			if (!(slot >= M_EQUIPMENT_SLOT_START&&slot<M_EQUIPMENT_SLOT_END))//很重要，扩展的雇佣兵位置，不能覆盖玩家的其他属性，例如PLAYER_FARSIGHT=624，不能覆盖掉
+				SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid());
 
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
@@ -11853,7 +11861,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         return;
     }
 
-    // attempt merge to / fill target item
+    // attempt merge to / fill target item 源头和目标都不是包包
     if (!pSrcItem->IsBag() && !pDstItem->IsBag())
     {
         InventoryResult msg;
@@ -11863,8 +11871,10 @@ void Player::SwapItem(uint16 src, uint16 dst)
             msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, false);
         else if (IsBankPos(dst))
             msg = CanBankItem(dstbag, dstslot, sDest, pSrcItem, false);
-        else if (IsEquipmentPos(dst))
-            msg = CanEquipItem(dstslot, eDest, pSrcItem, false);
+		else if (IsEquipmentPos(dst))
+			msg = CanEquipItem(dstslot, eDest, pSrcItem, false);
+		else if (IsMercenaryPos(dst))
+			msg = EQUIP_ERR_CANT_CARRY_MORE_OF_THIS;//雇佣兵装备有关的不满足合并物品的条件
         else
             return;
 
@@ -11917,7 +11927,10 @@ void Player::SwapItem(uint16 src, uint16 dst)
         msg = CanEquipItem(dstslot, eDest, pSrcItem, true);
         if (msg == EQUIP_ERR_OK)
             msg = CanUnequipItem(eDest, true);
-    }
+	}
+	else if (IsMercenaryPos(dst)){ //目标为雇佣兵插槽，计算出sDest位置
+		msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, true);
+	}
 
     if (msg != EQUIP_ERR_OK)
     {
@@ -11937,7 +11950,10 @@ void Player::SwapItem(uint16 src, uint16 dst)
         msg = CanEquipItem(srcslot, eDest2, pDstItem, true);
         if (msg == EQUIP_ERR_OK)
             msg = CanUnequipItem(eDest2, true);
-    }
+	}
+	else if (IsMercenaryPos(src)){//源为雇佣兵插槽，计算出sDest2位置
+		msg = CanStoreItem(srcbag, srcslot, sDest2, pDstItem, true);
+	}
 
     if (msg != EQUIP_ERR_OK)
     {
@@ -12014,7 +12030,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     RemoveItem(srcbag, srcslot, false);
 
     // add to dest
-    if (IsInventoryPos(dst))
+	if (IsInventoryPos(dst) || IsMercenaryPos(dst))//雇佣兵和普通位置一样，简单存贮物品
         StoreItem(sDest, pSrcItem, true);
     else if (IsBankPos(dst))
         BankItem(sDest, pSrcItem, true);
@@ -12022,7 +12038,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         EquipItem(eDest, pSrcItem, true);
 
     // add to src
-    if (IsInventoryPos(src))
+	if (IsInventoryPos(src) || IsMercenaryPos(src))//雇佣兵和普通位置一样，简单存贮物品
         StoreItem(sDest2, pDstItem, true);
     else if (IsBankPos(src))
         BankItem(sDest2, pDstItem, true);
