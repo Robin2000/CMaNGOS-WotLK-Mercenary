@@ -15,7 +15,7 @@ struct mercenary_bot_AI : public PetAI
 	int updatePetMercenaryMirrorTimer = 5000;//5秒检查1次
 	bool updatePetMercenaryMirrorCheck = true;
 	
-	int checkCancelStealthAuraTimer = 5000;//5秒检查1次是否要取消隐身
+	int checkStatusTimer = 5000;//5秒检查1次是否要取消隐身
 
 	int defaultSpellTimer = 5000;
 	std::vector<uint32> defautSpells;
@@ -180,18 +180,18 @@ struct mercenary_bot_AI : public PetAI
 
 		return true;
 	};
-	void updateStealth(const uint32 diff){
-		if (checkCancelStealthAuraTimer < 0)
+	void updateStatus(const uint32 diff){
+		if (checkStatusTimer < 0)
 		{
-			checkCancelStealthAuraTimer = 5000;//设置检查间隔5秒
+			checkStatusTimer = 5000;//设置检查间隔5秒
 
-			if (m_creature->GetOwner()->HasStealthAura() && !m_creature->HasStealthAura())
-					m_creature->CastSpell(m_creature, 1784, true);//设置潜行		
-			else if (!m_creature->GetOwner()->HasStealthAura() && m_creature->HasStealthAura())
-					m_creature->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);//取消潜行					
+			if (m_creature->isInCombat() || m_creature->GetOwner()->isInCombat())
+				m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+			else
+				m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
 		}else
-			checkCancelStealthAuraTimer -= diff;
+			checkStatusTimer -= diff;
 	}
 	void UpdateAI(const uint32 diff) override
 	{
@@ -199,7 +199,7 @@ struct mercenary_bot_AI : public PetAI
 		if (!mercenary)
 			return;
 
-		//updateStealth(diff);
+		updateStatus(diff);
 
 		if (Unit* owner = m_creature->GetOwner())
 			if (!m_creature->getVictim() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW) && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
@@ -229,7 +229,11 @@ struct mercenary_bot_AI : public PetAI
 
 						if (m_creature->isMercenary())
 						if (Player* player = m_creature->GetOwner()->ToPlayer())
+						{
+							m_creature->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);//和actionbar有关
+							m_creature->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);//和actionbar有关
 							player->PetSpellInitialize();
+						}
 					}
 				}
 				else

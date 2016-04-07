@@ -340,8 +340,6 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 		player->SetPet(pet);
 		//pet->SetDeathState(ALIVE);
 
-		pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);//和actionbar有关
-		pet->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);//和actionbar有关
 		player->PetSpellInitialize();
 
 		SendMirrorImagePacket(pet);

@@ -234,9 +234,12 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recv_data)
 }
 /*在任务列表中的任务，任务物品不允许丢弃*/
 bool questNotComplete(Player * player,Item* pItem){
+	
 	for (uint16 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
 	{
 		uint32 questid = player->GetQuestSlotQuestId(i);
+		if (questid == 0)
+			continue;
 		//QuestStatus q_status = player->GetQuestStatus(quest_id);
 		Quest const* qinfo = sObjectMgr.GetQuestTemplate(questid);
 		if (!qinfo)
@@ -253,6 +256,7 @@ bool questNotComplete(Player * player,Item* pItem){
 			if (pItem->GetEntry() == qinfo->ReqSourceId[j])
 				return true;
 	}
+	return false;
 }
 void WorldSession::HandleDestroyItemOpcode(WorldPacket& recv_data)
 {
