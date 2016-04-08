@@ -361,7 +361,7 @@ void ObjectMgr::LoadGameAreas(){
 
 		if (fields[5].GetUInt8() == 1){
 			GameArea* gameArea = new GameArea();
-			gameArea->questlist = new tbb::concurrent_unordered_set<uint32>();
+			gameArea->questlist = new tbb::concurrent_unordered_set<QuestNpcGO*>();
 			gameArea->id = id;
 			gameArea->map = fields[2].GetUInt32();
 			gameArea->zone = fields[3].GetUInt32();
@@ -462,51 +462,55 @@ void ObjectMgr::LoadQuestNpcGO(){
 		Field* fields = result->Fetch();
 		bar.step();
 		
-		QuestNpcGO questNpcGO;
-		questNpcGO.quest = fields[0].GetUInt32();
-		questNpcGO.npcgo = fields[1].GetInt32();
-		questNpcGO.ntype = fields[2].GetUInt8();
+		QuestNpcGO* questNpcGO = new QuestNpcGO();
+		questNpcGO->quest = fields[0].GetUInt32();
+		questNpcGO->npcgo = fields[1].GetInt32();
+		questNpcGO->ntype = fields[2].GetUInt8();
 
-		questNpcGO.map = fields[3].GetUInt32();
-		questNpcGO.zone = fields[4].GetUInt32();
-		questNpcGO.area = fields[5].GetUInt32();
+		questNpcGO->map = fields[3].GetUInt32();
+		questNpcGO->zone = fields[4].GetUInt32();
+		questNpcGO->area = fields[5].GetUInt32();
 		
 		float x = fields[6].GetFloat();
 		float y = fields[7].GetFloat();
 		//float z = fields[8].GetFloat();
 		//float orientation = fields[9].GetFloat();
 
-		questNpcGO.mapxy = makeMapXY(questNpcGO.map, x, y);//提前准备好校对数据
+		questNpcGO->mapxy = makeMapXY(questNpcGO->map, x, y);//提前准备好校对数据
 
-		if (questNpcGO.ntype==0)
-			mQuestStarterNpcGOMaps[questNpcGO.quest] = questNpcGO.npcgo;
+		if (questNpcGO->ntype == 0)
+		{
+			if (mQuestStarterNpcGOMaps.find(questNpcGO->quest) == mQuestStarterNpcGOMaps.end())
+				mQuestStarterNpcGOMaps.insert(std::make_pair(questNpcGO->quest, new std::vector<QuestNpcGO*>()));
+			mQuestStarterNpcGOMaps[questNpcGO->quest]->push_back(questNpcGO);
+		}
 
-		auto itr = mQuestNpcGOMaps.find(questNpcGO.quest);
+		auto itr = mQuestNpcGOMaps.find(questNpcGO->quest);
 
 		if (itr == mQuestNpcGOMaps.end())
 		{
 			QuestNpcGOVector* questNpcGOVector = new QuestNpcGOVector();
 			questNpcGOVector->push_back(questNpcGO);
-			mQuestNpcGOMaps[questNpcGO.quest] = questNpcGOVector;
+			mQuestNpcGOMaps[questNpcGO->quest] = questNpcGOVector;
 			usedNpcgoCount++;
 		}
-		else if (itr->second->size() < 20)/*最多推荐19个*/
+		else if (itr->second->size() < 20 || questNpcGO->ntype == 0 || questNpcGO->ntype == 3)//最多推荐19个【不可限制，由于相同questid对应不同地区的情况，数量远远超过20】*/
 		{
 			itr->second->push_back(questNpcGO);
 			usedNpcgoCount++;
 		}
 
 		//构造地区表的任务集
-		if (questNpcGO.ntype == 0)//任务开始NPC
+		if (questNpcGO->ntype == 0)//任务开始NPC
 		{
-			auto it=mGameAreas.find(questNpcGO.area);
+			auto it=mGameAreas.find(questNpcGO->area);
 			if (it == mGameAreas.end())
 			{
-				sLog.outError("ERROR: z_quest_npcgo_all_map has area=%u ,But not found in z_area", questNpcGO.area);//z_quest_npcgo_all_map中存在任务开始NPC，但z_area中没有对应的记录。				
+				sLog.outError("ERROR: z_quest_npcgo_all_map has area=%u ,But not found in z_area", questNpcGO->area);//z_quest_npcgo_all_map中存在任务开始NPC，但z_area中没有对应的记录。				
 				continue;
 			}
-			if (it->second->questlist->find(questNpcGO.quest) == it->second->questlist->end())
-				it->second->questlist->insert(questNpcGO.quest);
+			/*if (it->second->questlist->find(questNpcGO) == it->second->questlist->end())任务发起者，不限制数量*/
+			it->second->questlist->insert(questNpcGO);
 		}
 
 	} while (result->NextRow());

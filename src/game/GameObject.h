@@ -33,6 +33,20 @@
 #endif
 
 
+struct QuestNpcGO{
+	uint32 quest;
+	int32 npcgo;
+	uint32 map;
+	uint32 zone;
+	uint32 area;
+	/*float x;
+	float y;
+	float z;
+	float orientation;*/
+	uint64 mapxy;
+	uint8 ntype;
+};
+
 struct QuestPOIPoint
 {
 	uint32 prid;//ÓÃÓÚÉ¾³ı
@@ -77,7 +91,7 @@ struct GameArea{
 	uint32 map;
 	uint32 zone;
 	uint32 areaLevel;
-	tbb::concurrent_unordered_set<uint32>* questlist;
+	tbb::concurrent_unordered_set<QuestNpcGO*>* questlist;
 };
 struct GameZone{
 	uint32 id;
@@ -89,19 +103,7 @@ struct GameMap{
 	uint32 id;
 	tbb::concurrent_vector<GameZone*>* zonelist;
 };
-struct QuestNpcGO{
-	uint32 quest;
-	int32 npcgo;
-	uint32 map;
-	uint32 zone;
-	uint32 area;
-	/*float x;
-	float y;
-	float z;
-	float orientation;*/
-	uint64 mapxy;
-	uint8 ntype;
-};
+
 // from `gameobject_template`
 struct GameObjectInfo
 {

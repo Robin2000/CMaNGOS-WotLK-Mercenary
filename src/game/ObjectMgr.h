@@ -41,6 +41,7 @@
 #include <map>
 #include <limits>
 #include "pr_threadpool.h"
+#include "GameObject.h"
 
 class Group;
 class ArenaTeam;
@@ -57,6 +58,7 @@ struct GameTele
     std::string name;
     std::wstring wnameLow;
 };
+
 
 //typedef std::unordered_map<uint32, GameTele > GameTeleMap;
 typedef tbb::concurrent_unordered_map<uint32, GameTele> GameTeleMap;
@@ -535,9 +537,9 @@ class ObjectMgr
 		typedef tbb::concurrent_unordered_map<uint32, GameArea*> GameAreas;
 		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
 
-		typedef tbb::concurrent_vector<QuestNpcGO> QuestNpcGOVector;
+		typedef tbb::concurrent_vector<QuestNpcGO*> QuestNpcGOVector;
 		typedef tbb::concurrent_unordered_map<uint32, QuestNpcGOVector*> QuestNpcGOMaps;
-		typedef tbb::concurrent_unordered_map<uint32, uint32> QuestStarterNpcGOMaps;
+		typedef tbb::concurrent_unordered_map<uint32, std::vector<QuestNpcGO*>*> QuestStarterNpcGOMaps;//不同区域，相同questid，开始npc可能多个
 
 		//key为职业petClass，value为<种族,PlayerInfo*>
 		typedef tbb::concurrent_unordered_map<uint32, tbb::concurrent_unordered_set<uint32>> ClassRaceMaps;//职业对应可选种族列表
@@ -770,13 +772,13 @@ class ObjectMgr
 		inline uint32 getGameTipsCount(){ return mGameTipsVector.size(); }
 
 		void LoadQuestNpcGO();
-		int32  GetQuestStarterNpcGOId(uint32 questid){
+		std::vector<QuestNpcGO*>* GetQuestStarterNpcGOId(uint32 questid){
 			auto itr = mQuestStarterNpcGOMaps.find(questid);
 			if (itr == mQuestStarterNpcGOMaps.end())
-				return 0;
+				return nullptr;
 			return itr->second;
 		}
-		tbb::concurrent_vector<QuestNpcGO> *  GetQuestNpcGOVector(uint32 questid){
+		tbb::concurrent_vector<QuestNpcGO*> *  GetQuestNpcGOVector(uint32 questid){
 			auto itr = mQuestNpcGOMaps.find(questid);
 			if (itr == mQuestNpcGOMaps.end())
 				return nullptr;

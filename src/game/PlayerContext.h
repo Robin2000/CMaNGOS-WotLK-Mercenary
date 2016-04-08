@@ -32,7 +32,7 @@ public:
 
 /////////////////////////////////
 typedef boost::lockfree::queue<DelayedAction *, boost::lockfree::fixed_sized<false>> DelayActionQueue;
-typedef tbb::concurrent_vector<Quest const*> RecommentQuestList;
+typedef tbb::concurrent_vector<QuestNpcGO*> RecommentQuestList;
 
 class MANGOS_DLL_SPEC PlayerContext{
 
@@ -124,8 +124,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	GameArea * getGameArea(uint32 area);
 
 	//推荐特定区域的任务，可设置最大推荐的条目数
-	tbb::concurrent_vector<Quest const*>& recommendQuestArea(int32 area, uint32 num);
-	tbb::concurrent_vector<Quest const*>& recommendQuestZone(int32 zone, uint32 num);
+	tbb::concurrent_vector<QuestNpcGO*>& recommendQuestArea(int32 area, uint32 num);
+	tbb::concurrent_vector<QuestNpcGO*>& recommendQuestZone(int32 zone, uint32 num);
 
 
 	//取得任务本地化标题
@@ -156,7 +156,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	GameObjectData* findGameObjectDataByPOI(uint64 mapxy);
 
 	//缓存任务NPCGO向量，改变量指向sObjectMgr，仅引用，不维护生命周期
-	tbb::concurrent_vector<QuestNpcGO const *> * questNpcGOVec;
+	tbb::concurrent_vector<QuestNpcGO *> * questNpcGOVec;
 
 	//缓存任务POI向量，改变量需要维护生命周期
 	tbb::concurrent_vector<QuestPOIPoint *> * questPOIVec;
@@ -165,7 +165,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	tbb::concurrent_vector<QuestPOIPoint *> * GetQuestPOI(){ return questPOIVec; }
 
 	//取得特定任务相关NPC和GameObject列表,需先调用loadQuestAux准备数据
-	tbb::concurrent_vector<QuestNpcGO const *> * GetQuestNpcGOVector(){ return questNpcGOVec; }
+	tbb::concurrent_vector<QuestNpcGO *> * GetQuestNpcGOVector(){ return questNpcGOVec; }
 
 	//根据任务获得POI和NPCGO
 	void loadQuestAux(uint32 questid);
@@ -199,6 +199,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void changeCamera(WorldObject* target, int32 duration, float radius, float orientation);
 	void changeCamera(uint32 mapid, float x, float y, float z, float orientation, int32 duration, float radius);
 
+	const char* getQuestType(uint32 quest);
+
 	//任务传送
 	bool isMovesplineStopNow = false;//结束的瞬间
 	bool isMovesplineRunning = false;//进行中
@@ -226,7 +228,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	Player* mPlayer;
 
 private :
-	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<uint32>* questlist, uint32 num);
+	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<QuestNpcGO*>* questlist, uint32 num);
 	PrEventPlugin eventPlugin;
 	PrSpellPlugin prSpellPlugin;
 	PrQuestPlugin prQuestPlugin;

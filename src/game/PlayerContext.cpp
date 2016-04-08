@@ -20,7 +20,7 @@
 
 PlayerContext::PlayerContext(Player* _player) :mPlayer(_player), gamePointMgr(_player), delayActionQueue(0), eventPlugin(_player), prSpellPlugin(_player), prQuestPlugin(_player){
 	questPOIVec = new tbb::concurrent_vector<QuestPOIPoint *>();
-	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO const *>();
+	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO *>();
 	isMovesplineStopNow = false;
 	isMovesplineRunning = false;
 }
@@ -715,7 +715,7 @@ Quest const* PlayerContext::findAuxQuest(){
 	return sObjectMgr.GetQuestTemplate(aux_questid);
 }
 //返回true结束，false可继续
-bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint32>* questlist, uint32 num){
+bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<QuestNpcGO*>* questlist, uint32 num){
 
 	Quest const * quest;
 	uint32 curLevel = mPlayer->getLevel();
@@ -725,7 +725,7 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 		if (recommentQuestList.size() >= num)
 			return true;
 
-		quest = sObjectMgr.GetQuestTemplate(*itr);
+		quest = sObjectMgr.GetQuestTemplate((*itr)->quest);
 
 
 		if (quest->GetRequiredRaces() > 0)
@@ -738,9 +738,9 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 			//草药学						钓鱼                       锻造                 炼金            制皮                 工程学                 藏宝图            竞标赛
 			|| zoneOrSort == -24 || zoneOrSort == -101 || zoneOrSort == -121 || zoneOrSort == -181 || zoneOrSort == -182 || zoneOrSort == -201 || zoneOrSort == -221 || zoneOrSort == -241
 			//             裁缝              烹饪                急救                暗月马戏T0装备            铭文                珠宝加工          美酒节                    特殊
-			|| zoneOrSort == -246 || zoneOrSort == -304 || zoneOrSort == -324 || /*zoneOrSort == -364 ||*/ zoneOrSort == -371 || zoneOrSort == -373 || zoneOrSort == -370 || zoneOrSort == -284
+			|| zoneOrSort == -246 || zoneOrSort == -304 || zoneOrSort == -324 || zoneOrSort == -364 || zoneOrSort == -371 || zoneOrSort == -373 || zoneOrSort == -370 || zoneOrSort == -284
 			//		天灾入侵            安其拉战争
-			/*|| zoneOrSort == -368 || zoneOrSort == -365*/)
+			|| zoneOrSort == -368 || zoneOrSort == -365)
 			continue;
 
 		//if (zoneOrSort > 0 && zoneOrSort != this->GetZoneId())
@@ -760,7 +760,7 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 			mPlayer->SatisfyQuestPreviousQuest(quest, false) && mPlayer->SatisfyQuestTimed(quest, false) &&
 			mPlayer->SatisfyQuestNextChain(quest, false) && mPlayer->SatisfyQuestPrevChain(quest, false) && quest->IsActive())
 		{
-			int32 npcgo = sObjectMgr.GetQuestStarterNpcGOId(quest->GetQuestId());
+			int32 npcgo = (*itr)->npcgo;
 			if (npcgo == 0)/*无可用的任务开始者*/
 				continue;
 
@@ -770,9 +770,9 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 				if (creature != nullptr)
 				{
 					if (creature->faction == nullptr)
-						recommentQuestList.push_back(quest);
+						recommentQuestList.push_back(*itr);
 					else if (!creature->faction->IsHostileTo(*mPlayer->getFactionTemplateEntry()))//非敌视阵营
-						recommentQuestList.push_back(quest);
+						recommentQuestList.push_back(*itr);
 				}
 			}
 			else if (npcgo < 0){
@@ -780,9 +780,9 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 				if (gameobject != nullptr)
 				{
 					if (gameobject->faction == nullptr)
-						recommentQuestList.push_back(quest);
+						recommentQuestList.push_back(*itr);
 					else if (!gameobject->faction->IsHostileTo(*mPlayer->getFactionTemplateEntry()))//非敌视阵营			
-						recommentQuestList.push_back(quest);
+						recommentQuestList.push_back(*itr);
 				}
 			}
 		}
@@ -790,7 +790,7 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 
 	return recommentQuestList.size() >= num;
 }
-tbb::concurrent_vector<Quest const*>& PlayerContext::recommendQuestZone(int32 zone, uint32 num){
+tbb::concurrent_vector<QuestNpcGO*>& PlayerContext::recommendQuestZone(int32 zone, uint32 num){
 	recommentQuestList.clear();
 
 	GameZone* gameZone = sObjectMgr.getGameZone(zone);
@@ -799,14 +799,14 @@ tbb::concurrent_vector<Quest const*>& PlayerContext::recommendQuestZone(int32 zo
 
 	for (auto itr = gameZone->arealist->begin(); itr != gameZone->arealist->end(); itr++)
 	{
-		tbb::concurrent_unordered_set<uint32>* qlist = (*itr)->questlist;
+		tbb::concurrent_unordered_set<QuestNpcGO*>* qlist = (*itr)->questlist;
 		if (recommendQuestByQuestList(qlist, num))
 			return recommentQuestList;
 	}
 
 	return recommentQuestList;
 }
-tbb::concurrent_vector<Quest const*>& PlayerContext::recommendQuestArea(int32 area, uint32 num){
+tbb::concurrent_vector<QuestNpcGO*>& PlayerContext::recommendQuestArea(int32 area, uint32 num){
 
 	recommentQuestList.clear();
 
@@ -861,19 +861,19 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	
 	questNpcGOVec->clear();
 
-	tbb::concurrent_vector<QuestNpcGO> * tmp;
+	tbb::concurrent_vector<QuestNpcGO*> * tmp;
 
 	tmp=sObjectMgr.GetQuestNpcGOVector(questid);//加载questNpcGOVec
 	std::set<int32> itemEntrySet;//再准备一个item排重的set
 
 	for (auto it = tmp->begin(); it != tmp->end(); it++)
 	{
-		if (itemEntrySet.find(it->npcgo) == itemEntrySet.end())
+		if (itemEntrySet.find((*it)->npcgo) == itemEntrySet.end())
 		{
-			itemEntrySet.insert(it->npcgo);
-			if (it->ntype == 2 && it->npcgo < 0)//如果是游戏对象暴物品
+			itemEntrySet.insert((*it)->npcgo);
+			if ((*it)->ntype == 2 && (*it)->npcgo < 0)//如果是游戏对象暴物品
 			{
-				GameObjectInfo const* info = sObjectMgr.GetGameObjectInfo(0 - it->npcgo);
+				GameObjectInfo const* info = sObjectMgr.GetGameObjectInfo(0 - (*it)->npcgo);
 				if (info == nullptr)
 					continue;
 
@@ -881,22 +881,22 @@ void PlayerContext::loadQuestAux(uint32 questid){
 				{
 					case GAMEOBJECT_TYPE_CHEST:
 						if(info->chest.questId == questid) //游戏对象宝箱，必须和本任务有关。
-							questNpcGOVec->push_back(&*it);
+							questNpcGOVec->push_back(*it);
 						break;
 					case GAMEOBJECT_TYPE_GENERIC:
 						if (info->_generic.questID == questid) //游戏对象宝箱，必须和本任务有关。
-							questNpcGOVec->push_back(&*it);
+							questNpcGOVec->push_back(*it);
 						break;
 					case GAMEOBJECT_TYPE_GOOBER:
 						if (info->goober.questId == questid) //游戏对象宝箱，必须和本任务有关。
-							questNpcGOVec->push_back(&*it);
+							questNpcGOVec->push_back(*it);
 						break;
 					default:
-						questNpcGOVec->push_back(&*it);
+						questNpcGOVec->push_back(*it);
 				}
 			}
-			else if(it->ntype == 2 && it->npcgo > 0){//如果是怪物暴物品，怪物不允许超过玩家等级10级。
-				CreatureInfo const* info=sObjectMgr.GetCreatureTemplate(it->npcgo);
+			else if ((*it)->ntype == 2 && (*it)->npcgo > 0){//如果是怪物暴物品，怪物不允许超过玩家等级10级。
+				CreatureInfo const* info = sObjectMgr.GetCreatureTemplate((*it)->npcgo);
 
 				if (info == nullptr)
 					continue;
@@ -909,24 +909,24 @@ void PlayerContext::loadQuestAux(uint32 questid){
 							if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(info->FactionHorde))
 							{
 								if (!factionTemplate->IsHostileTo(*mPlayer->getFactionTemplateEntry()))
-									questNpcGOVec->push_back(&*it);
+									questNpcGOVec->push_back(*it);
 							}
 						break;
 						case ALLIANCE:
 							if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(info->FactionAlliance))
 							{
 								if (!factionTemplate->IsHostileTo(*mPlayer->getFactionTemplateEntry()))
-									questNpcGOVec->push_back(&*it);
+									questNpcGOVec->push_back(*it);
 							}
 						break;
 					}
 					
 				}
 				else if (info->MinLevel<=mPlayer->getLevel()+10)
-					questNpcGOVec->push_back(&*it);
+					questNpcGOVec->push_back(*it);
 			}
 			else
-				questNpcGOVec->push_back(&*it);
+				questNpcGOVec->push_back(*it);
 		}
 	}
 	
@@ -1166,4 +1166,22 @@ void PlayerContext::ClearMercenary(){
 	if (pet->isMercenary()){
 		mPlayer->UnsummonPetTemporaryIfAny();
 	}
+}
+
+const char* PlayerContext::getQuestType(uint32 quest){
+	if (const Quest * questInfo=sObjectMgr.GetQuestTemplate(quest)){
+		switch (questInfo->GetType()){
+		case 1:return mPlayer->GetMangosString(-2800570);
+		case 41:return mPlayer->GetMangosString(-2800571);
+		case 62:return mPlayer->GetMangosString(-2800572);
+		case 81:return mPlayer->GetMangosString(-2800573);
+		case 82:return mPlayer->GetMangosString(-2800578);
+			case 84:return mPlayer->GetMangosString(-2800574);
+			case 85:return mPlayer->GetMangosString(-2800575);
+			case 88:return mPlayer->GetMangosString(-2800576);
+			case 89:return mPlayer->GetMangosString(-2800577);
+			default:return "";
+		}
+	}
+	return "";
 }

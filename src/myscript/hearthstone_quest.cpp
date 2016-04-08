@@ -11,20 +11,6 @@ enum gossip_quest_action{
 	NPCGO_SEL_CAMERA_NPCGO = 6,
 	NPCGO_SEL_CAMERA_POI = 7
 };
-std::string getQuestType(Player* pPlayer,uint32 type){
-	switch (type){
-		case 1:return pPlayer->GetMangosString(-2800570);
-		case 41:return pPlayer->GetMangosString(-2800571);
-		case 62:return pPlayer->GetMangosString(-2800572);
-		case 81:return pPlayer->GetMangosString(-2800573);
-		case 82:return pPlayer->GetMangosString(-2800578);
-		case 84:return pPlayer->GetMangosString(-2800574);
-		case 85:return pPlayer->GetMangosString(-2800575);
-		case 88:return pPlayer->GetMangosString(-2800576);
-		case 89:return pPlayer->GetMangosString(-2800577);
-		default:return "";
-	}
-}
 
 tbb::concurrent_vector<GameZone*> * getZonelist(Player* pPlayer){
 	uint32 mapid = (pPlayer->context.MAPSEL == -1) ? pPlayer->GetMapId() : pPlayer->context.MAPSEL;
@@ -156,7 +142,7 @@ bool showAreaMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
 }
-typedef tbb::concurrent_vector<Quest const*> RecommentQuestList;
+typedef tbb::concurrent_vector<QuestNpcGO*> RecommentQuestList;
 bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){	
 
 	switch (uiAction)
@@ -220,7 +206,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		return true;
 	case NPCGO_SEL_CAMERA_NPCGO://npcgo镜头+传送执行
 	{
-		tbb::concurrent_vector<QuestNpcGO const *> const* npcgoV = pPlayer->context.GetQuestNpcGOVector();
+		tbb::concurrent_vector<QuestNpcGO *> const* npcgoV = pPlayer->context.GetQuestNpcGOVector();
 		QuestNpcGO const * questNpcGO = npcgoV->at(pPlayer->context.aux_npcgo_idx);
 		switch (uiAction)
 		{
@@ -329,7 +315,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			return true;
 		}
 		else if (uiAction >= GOSSIP_ACTION_INFO_DEF + 960 && uiAction <= GOSSIP_ACTION_INFO_DEF + 979){//NPCGO镜头+传送菜单
-			tbb::concurrent_vector<QuestNpcGO const *> *  npcgoV = pPlayer->context.GetQuestNpcGOVector();
+			tbb::concurrent_vector<QuestNpcGO *> *  npcgoV = pPlayer->context.GetQuestNpcGOVector();
 			if (npcgoV != nullptr)
 			{
 				pPlayer->context.aux_npcgo_idx=uiAction - GOSSIP_ACTION_INFO_DEF - 960;
@@ -420,7 +406,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->context.loadQuestAux(questid);
 
 		//下面添加QuestNpcGO
-		tbb::concurrent_vector<QuestNpcGO const *> * npcgoV = pPlayer->context.GetQuestNpcGOVector();
+		tbb::concurrent_vector<QuestNpcGO *> * npcgoV = pPlayer->context.GetQuestNpcGOVector();
 
 		if (npcgoV == nullptr)
 			return;
@@ -550,7 +536,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			std::string  title = "";
 			pPlayer->context.GetQuestTitleLocale(it->first, &title);
 			std::ostringstream os;
-			os << getQuestType(pPlayer, quest->GetType()) << title;
+			os << pPlayer->context.getQuestType(it->first) << title;
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+it->first);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
@@ -558,7 +544,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	}
 
-	typedef tbb::concurrent_vector<Quest const*> QuestList;
+	typedef tbb::concurrent_vector<QuestNpcGO*> QuestList;
 	void hearthstone_prepare_quest_list(std::string* areaOrZone,Player * pPlayer, Item* pItem, QuestList& recommendResult){//显示推荐任务列表
 		pPlayer->PrepareGossipMenu(pPlayer, 65535);
 
@@ -566,10 +552,10 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		for (int i = 0; i < recommendResult.size(); i++)
 		{
 			std::string  title = "";
-			pPlayer->context.GetQuestTitleLocale(recommendResult.at(i)->GetQuestId(), &title);
+			pPlayer->context.GetQuestTitleLocale(recommendResult.at(i)->quest, &title);
 			std::ostringstream os;
-			os << ((areaOrZone == nullptr) ? "" : *areaOrZone) << ":" << getQuestType(pPlayer, recommendResult.at(i)->GetType()) << title;
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+recommendResult.at(i)->GetQuestId());//数据库中最大为26034，所以该项最大为46034，在uint32范围内
+			os << ((areaOrZone == nullptr) ? "" : *areaOrZone) << ":" << pPlayer->context.getQuestType(recommendResult.at(i)->quest) << title;
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + recommendResult.at(i)->quest);//数据库中最大为26034，所以该项最大为46034，在uint32范围内
 		}
 
 		if (pPlayer->context.ZONESEL != -1 && pPlayer->GetZoneId() != pPlayer->context.ZONESEL)
