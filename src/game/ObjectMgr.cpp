@@ -451,9 +451,12 @@ void ObjectMgr::LoadQuestNpcGO(){
 		sLog.outString(">> Loaded 0 z_quest_npcgo_all_map . DB table `z_quest_npcgo_all_map` is empty.");
 		return;
 	}
+	sLog.outString(">> Loaded " SIZEFMTD " z_quest_npcgo_all_map ", result->GetRowCount());
+	
 
 	BarGoLink bar(result->GetRowCount());
 
+	int usedNpcgoCount = 0;
 	do
 	{
 		Field* fields = result->Fetch();
@@ -485,9 +488,13 @@ void ObjectMgr::LoadQuestNpcGO(){
 			QuestNpcGOVector* questNpcGOVector = new QuestNpcGOVector();
 			questNpcGOVector->push_back(questNpcGO);
 			mQuestNpcGOMaps[questNpcGO.quest] = questNpcGOVector;
+			usedNpcgoCount++;
 		}
-		else if (itr->second->size()<20)/*最多推荐19个*/
+		else if (itr->second->size() < 20)/*最多推荐19个*/
+		{
 			itr->second->push_back(questNpcGO);
+			usedNpcgoCount++;
+		}
 
 		//构造地区表的任务集
 		if (questNpcGO.ntype == 0)//任务开始NPC
@@ -508,6 +515,8 @@ void ObjectMgr::LoadQuestNpcGO(){
 
 	sLog.outString(">> Loaded " SIZEFMTD " z_quest_npcgo_all_map", mQuestNpcGOMaps.size());
 	sLog.outString(">> Loaded " SIZEFMTD " quest Starter NpcGO ", mQuestStarterNpcGOMaps.size());
+	sLog.outString(">> Loaded " SIZEFMTD " used NpcGO count", usedNpcgoCount);
+	
 	sLog.outString();
 }
 void ObjectMgr::LoadCreatureLocales()

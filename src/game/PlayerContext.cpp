@@ -727,9 +727,9 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 
 		quest = sObjectMgr.GetQuestTemplate(*itr);
 
-		if (quest->GetRequiredRaces() == 0)/*大多任务是种族不符，优先排除*/
-			continue;
-		if ((quest->GetRequiredRaces()&mPlayer->getRace()) == 0)
+
+		if (quest->GetRequiredRaces() > 0)
+		if ((quest->GetRequiredRaces()&mPlayer->getRace()) == 0)/*大多任务是种族不符，优先排除*/
 			continue;
 
 		int zoneOrSort = quest->GetZoneOrSort();
@@ -737,20 +737,21 @@ bool PlayerContext::recommendQuestByQuestList(tbb::concurrent_unordered_set<uint
 		if (zoneOrSort == -22 || zoneOrSort == -41 || zoneOrSort == -366 || zoneOrSort == -369 || zoneOrSort == -374 || zoneOrSort == -375 || zoneOrSort == -376 || zoneOrSort == -25
 			//草药学						钓鱼                       锻造                 炼金            制皮                 工程学                 藏宝图            竞标赛
 			|| zoneOrSort == -24 || zoneOrSort == -101 || zoneOrSort == -121 || zoneOrSort == -181 || zoneOrSort == -182 || zoneOrSort == -201 || zoneOrSort == -221 || zoneOrSort == -241
-			//             裁缝              烹饪                急救                    暗月马戏            铭文                珠宝加工          美酒节                    特殊
-			|| zoneOrSort == -246 || zoneOrSort == -304 || zoneOrSort == -324 || zoneOrSort == -364 || zoneOrSort == -371 || zoneOrSort == -373 || zoneOrSort == -370 || zoneOrSort == -284
+			//             裁缝              烹饪                急救                暗月马戏T0装备            铭文                珠宝加工          美酒节                    特殊
+			|| zoneOrSort == -246 || zoneOrSort == -304 || zoneOrSort == -324 || /*zoneOrSort == -364 ||*/ zoneOrSort == -371 || zoneOrSort == -373 || zoneOrSort == -370 || zoneOrSort == -284
 			//		天灾入侵            安其拉战争
-			|| zoneOrSort == -368 || zoneOrSort == -365)
+			/*|| zoneOrSort == -368 || zoneOrSort == -365*/)
 			continue;
 
 		//if (zoneOrSort > 0 && zoneOrSort != this->GetZoneId())
-		//continue;
+		//continue;由于zoneOrSort数据不准确，略过
 
 		if (quest->IsDailyOrWeekly() || quest->IsRepeatable() || quest->IsMonthly())/*季节任务，日常任务和可重复任务，跳过*/
 			continue;
 
 		if (quest->GetMinLevel() > curLevel)
 			continue;
+		
 
 
 		if (mPlayer->SatisfyQuestStatus(quest, false) && mPlayer->SatisfyQuestExclusiveGroup(quest, false) &&
