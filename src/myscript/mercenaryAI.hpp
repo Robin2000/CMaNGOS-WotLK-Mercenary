@@ -218,23 +218,26 @@ struct mercenary_bot_AI : public PetAI
 				{
 					updatePetMercenaryMirrorTimer = 5000;
 					if ((mercenary->gearContainer[SLOT_MAIN_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) == 0) ||
-						(mercenary->gearContainer[SLOT_OFF_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1) == 0) ||
-						(mercenary->gearContainer[SLOT_RANGED].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+2) == 0))
+						(mercenary->gearContainer[SLOT_OFF_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1) == 0) ||
+						(mercenary->gearContainer[SLOT_RANGED].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2) == 0))
 					{
 						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mercenary->gearContainer[SLOT_MAIN_HAND].itemid);
 						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, mercenary->gearContainer[SLOT_OFF_HAND].itemid);
 						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, mercenary->gearContainer[SLOT_RANGED].itemid);
-						mercenary->SendMirrorImagePacket(m_creature);
-						updatePetMercenaryMirrorCheck = false;//检查1次不再检查
 
-						if (m_creature->isMercenary())
-						if (Player* player = m_creature->GetOwner()->ToPlayer())
-						{
+						mercenary->SendMirrorImagePacket(m_creature);
+					}
+					
+					updatePetMercenaryMirrorCheck = false;//检查1次不再检查
+
+					if (m_creature->isMercenary())
+					if (Player* player = m_creature->GetOwner()->ToPlayer())
+					{
 							m_creature->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);//和actionbar有关
 							m_creature->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);//和actionbar有关
 							player->PetSpellInitialize();
-						}
 					}
+					
 				}
 				else
 					updatePetMercenaryMirrorTimer -= diff;
