@@ -891,7 +891,7 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     data << creature->GetObjectGuid();
     data << uint32(GetDisplay());
 	data << uint8(GetRace());
-	data << uint8(GetGender());
+	data << uint8(0);
     data << uint8(GetType());//²ÎÕÕtrinity½«1¸Ä
     
 	data << uint8(0); // Skin
