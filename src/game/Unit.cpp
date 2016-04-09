@@ -8044,8 +8044,8 @@ void Unit::Mount(uint32 mount, uint32 spellId)
 					}else
 						((Player*)this)->UnsummonPetTemporaryIfAny();
                 }
-                else
-                    pet->ApplyModeFlags(PET_MODE_DISABLE_ACTIONS, true);
+                //else
+                    //pet->ApplyModeFlags(PET_MODE_DISABLE_ACTIONS, true);”¿‘∂≤ªΩ˚÷πACTIONBAR
             }
         }
 

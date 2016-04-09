@@ -276,18 +276,6 @@ void Mercenary::clearnNoMatchEquipItem(Player * player)
 
 	}
 }
-
-class UpdatePetActionBar :public DelayedAction{
-
-public:
-	UpdatePetActionBar(Player * _player, MercenaryPet* _pet, int _timelimit) : DelayedAction(_timelimit), player(_player), pet(_pet){}
-
-	void run() override{
-		player->PetSpellInitialize();//刷新客户端ActionBar
-	}
-	Player * player;
-	MercenaryPet    * pet;
-};
 void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 {
 	
@@ -340,10 +328,9 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 		player->SetPet(pet);
 		//pet->SetDeathState(ALIVE);
 
-		player->PetSpellInitialize();
+		//player->PetSpellInitialize();在AI中初始
 
-		SendMirrorImagePacket(pet);
-		pet->HandleEmoteCommandHappy();
+		//SendMirrorImagePacket(pet);在AI中初始
 
 }
 void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
@@ -495,7 +482,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 
         player->SetPet(pet);
-		player->PetSpellInitialize();//刷新客户端ActionBar
+		//player->PetSpellInitialize();//刷新客户端ActionBar,在AI中初始
 		
     }
 	
@@ -891,7 +878,7 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
     data << creature->GetObjectGuid();
     data << uint32(GetDisplay());
 	data << uint8(GetRace());
-	data << uint8(0);
+	data << uint8(GetGender());
     data << uint8(GetType());//参照trinity将1改
     
 	data << uint8(0); // Skin

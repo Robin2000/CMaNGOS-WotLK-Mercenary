@@ -22246,6 +22246,8 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
         delete NewPet;
 
     m_temporaryUnsummonedPetNumber = 0;
+
+	context.GetEventPlugin().sendEvent(P_RESUMMON_PET_EVENT);
 }
 
 bool Player::canSeeSpellClickOn(Creature const* c) const

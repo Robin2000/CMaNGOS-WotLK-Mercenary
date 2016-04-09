@@ -2,7 +2,8 @@
 #define PR_EVENT_PLUGIN_H
 enum PrEvent{
 	P_LOGIN_EVENT = 0,
-	P_LOGOUT_EVENT = 1
+	P_LOGOUT_EVENT = 1,
+	P_RESUMMON_PET_EVENT = 2
 };
 class MANGOS_DLL_SPEC PrEventPlugin{
 public:

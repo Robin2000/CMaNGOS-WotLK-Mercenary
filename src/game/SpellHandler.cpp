@@ -668,7 +668,7 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 				data << pCreature->GetObjectGuid();
 				data << uint32(mercenary->GetDisplay());
 				data << uint8(mercenary->GetRace());
-				data << uint8(0);
+				data << uint8(mercenary->GetGender());
 				data << uint8(mercenary->GetType());//²ÎÕÕtrinity½«1¸Ä
 				
 				data << uint8(0); // Skin
