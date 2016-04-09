@@ -328,8 +328,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		
 		break;
 	case 4:
-		if (Pet *pet = player->GetPet())
-			pet->Unsummon(PET_SAVE_AS_CURRENT, player);
+		player->UnsummonPetTemporaryIfAny();
 		break;
 
 	case 5:
