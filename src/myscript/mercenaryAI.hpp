@@ -12,7 +12,7 @@ struct mercenary_bot_AI : public PetAI
 	int talkTimer = 0;
 	int spellTimer = 0;
 	int currentSpell = 0;
-	int updatePetMercenaryMirrorTimer = 5000;//5秒检查1次
+	int updatePetMercenaryMirrorTimer = 2000;//2秒检查1次
 	bool updatePetMercenaryMirrorCheck = true;
 	
 	int checkStatusTimer = 5000;//5秒检查1次是否要取消隐身
@@ -217,7 +217,7 @@ struct mercenary_bot_AI : public PetAI
 			{
 				if (updatePetMercenaryMirrorTimer <= 0)
 				{
-					updatePetMercenaryMirrorTimer = 5000;
+					updatePetMercenaryMirrorTimer = 2000;
 					if ((mercenary->gearContainer[SLOT_MAIN_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) == 0) ||
 						(mercenary->gearContainer[SLOT_OFF_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1) == 0) ||
 						(mercenary->gearContainer[SLOT_RANGED].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2) == 0))
