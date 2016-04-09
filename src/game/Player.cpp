@@ -19842,8 +19842,9 @@ inline void BeforeVisibilityDestroy(T* /*t*/, Player* /*p*/)
 template<>
 inline void BeforeVisibilityDestroy<Creature>(Creature* t, Player* p)
 {
-    if (p->GetPetGuid() == t->GetObjectGuid() && ((Creature*)t)->IsPet())
-        ((Pet*)t)->Unsummon(PET_SAVE_REAGENTS);
+	if (p->GetPetGuid() == t->GetObjectGuid() && ((Creature*)t)->IsPet())
+		p->UnsummonPetTemporaryIfAny();//¸ÄÎªÁÙÊ±Unsummon
+		//((Pet*)t)->Unsummon(PET_SAVE_REAGENTS);
 }
 
 void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* target)

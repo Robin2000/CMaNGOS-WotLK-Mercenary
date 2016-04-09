@@ -184,6 +184,7 @@ bool recallMercenary(Player* player, Item* item){
 		ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800698));//你还没有招募过雇佣兵。
 		return false;
 	}
+	player->ResummonPetTemporaryUnSummonedIfAny();//首先尝试
 	CreateMercenary(player, item, mercenary, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetRole(), mercenary->GetType());
 	return true;
 }
