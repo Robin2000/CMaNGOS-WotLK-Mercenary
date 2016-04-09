@@ -99,7 +99,8 @@ struct mercenary_bot_AI : public PetAI
 				switch (result)
 				{
 					case	CAST_FAIL_IS_CASTING:
-						debug_log("Mercenary Spell CAST_FAIL_IS_CASTING %u.", spell);
+						m_creature->InterruptNonMeleeSpells(false, spell);//意外的技能正在执行,强制打断
+						debug_log("Mercenary Spell CAST_FAIL_IS_CASTING %u.Interrupt it now!", spell);
 						break;
 					case		CAST_FAIL_OTHER:
 						debug_log("Mercenary Spell CAST_FAIL_OTHER %u.", spell);
