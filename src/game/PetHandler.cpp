@@ -552,11 +552,16 @@ void WorldSession::HandlePetAbandon(WorldPacket& recv_data)
     if (!_player->IsInWorld())
         return;
 
+	
+
     // pet/charmed
     if (Creature* pet = _player->GetMap()->GetAnyTypeCreature(guid))
     {
         if (pet->IsPet())
         {
+			if (pet->isMercenary() && !_player->context.GetEventPlugin().sendEvent(P_PET_ABANDON_EVENT))
+				return;
+
             if (pet->GetObjectGuid() == _player->GetPetGuid())
                 pet->ModifyPower(POWER_HAPPINESS, -50000);
 

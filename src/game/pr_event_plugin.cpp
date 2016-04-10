@@ -41,7 +41,7 @@ public:
 	Player* player;
 };
 
-void PrEventPlugin::sendEvent(PrEvent e){
+bool PrEventPlugin::sendEvent(PrEvent e){
 	switch (e)
 	{
 		case P_LOGIN_EVENT:
@@ -74,8 +74,20 @@ void PrEventPlugin::sendEvent(PrEvent e){
 					}
 				}
 			}
-		
 			break;
-
+		case P_PET_ABANDON_EVENT:
+			Pet * pet=player->GetPet();
+			if (pet->isMercenary())
+			{
+				Mercenary * mercenary=player->context.GetMercenary();
+				if (mercenary->gearContainer.size() > 0)
+				{
+					ChatHandler(player).SendSysMessage(-2800696);
+					return false;
+				}
+			}
+			break;
 	}
+
+	return true;
 }
