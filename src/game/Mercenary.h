@@ -221,13 +221,20 @@ public:
     /*
     * Sets the type of the Mercenary
     */
-    void SetType(const uint8 newType) { 
+    bool SetType(const uint8 newType) { 
 		if (type != newType)//职业切换，装备必须切换
-		if (gearContainer.size() > 0)
 		{
-			ChatHandler(player).SendSysMessage(-2800697);
+			for (auto it = gearContainer.begin(); it != gearContainer.end(); it++)
+			{
+				if (it->second.itemguid > 0)
+				{
+					ChatHandler(player).SendSysMessage(-2800697);
+					return false;
+				}
+			}
 		}
 		type = newType; 
+		return true;
 	}
     /*
     * Sets the equip slot the Mercenary owner is currently editing

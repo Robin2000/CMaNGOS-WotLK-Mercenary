@@ -80,10 +80,13 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 			if (pet->isMercenary())
 			{
 				Mercenary * mercenary=player->context.GetMercenary();
-				if (mercenary->gearContainer.size() > 0)
+				for (auto it = mercenary->gearContainer.begin(); it != mercenary->gearContainer.end();it++)
 				{
-					ChatHandler(player).SendSysMessage(-2800696);
-					return false;
+					if (it->second.itemguid > 0)
+					{
+						ChatHandler(player).SendSysMessage(-2800696);
+						return false;
+					}
 				}
 			}
 			break;

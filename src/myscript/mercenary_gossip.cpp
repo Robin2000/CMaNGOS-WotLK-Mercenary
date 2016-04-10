@@ -224,7 +224,8 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 
 	if (player->context.gossipActionType == GOSSIP_ACTION_CLASS_DEF)//Ñ¡ÔñÖ°Òµ
 	{
-		mercenary->SetType(actions);
+		if (!mercenary->SetType(actions))
+			return true;
 		SendFeatureList(player, item);
 		return true;
 	}
