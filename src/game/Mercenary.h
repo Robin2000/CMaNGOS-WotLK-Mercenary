@@ -137,8 +137,8 @@ enum RaceKey
 class MANGOS_DLL_SPEC Mercenary
 {
 public:
-    Mercenary();
-    Mercenary(uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type);
+	Mercenary(Player * player);
+	Mercenary(Player * player,uint32 model, uint8 race, uint8 gender, uint8 role, uint8 type);
     ~Mercenary();
 
 	GearMap gearContainer;
@@ -153,30 +153,30 @@ public:
 //#ifndef MANGOS
 //    bool LoadFromDB(QueryResult result);
 //#else
-	bool LoadFromDB(Player* player,QueryResult* result);
+	bool LoadFromDB(QueryResult* result);
 //#endif
     /*
     * Temporarily adds a new Mercenary being created into the Mercenary map
     * If creation of this temporary Mercenary isn't finished the Mercenary will NOT save
     */
-    bool Create(Player* player);
+    bool Create();
     /*
     * Creates and spawns the Mercenary
     */
-	bool Create(Player* player, uint32 model, uint8 race, uint8 gender, uint8 mercenaryType, uint8 role, const std::string& name = "");
+	bool Create( uint32 model, uint8 race, uint8 gender, uint8 mercenaryType, uint8 role, const std::string& name = "");
     /*
     * Mercenary will learn the given spellId
     * Maximum spells Mercenary can have is 4
     */
-    bool LearnSpell(Player* player, uint32 spellId);
+    bool LearnSpell(uint32 spellId);
     /*
     * Summons the Mercenary
     */
-    bool Summon(Player* player);
+    bool Summon();
     /*
     * Initializes Mercenary's stats
     */
-	bool InitStats(Player* player, MercenaryPet* pet);
+	bool InitStats(MercenaryPet* pet);
     /*
     * Updates Mercenary's stats
     */
@@ -188,21 +188,21 @@ public:
     /*
     * Returns true if the Mercenary can equip the specified item
     */
-	bool EquipItemIfCan(Player* player, Item* item, bool silenceUpdate = false);
+	bool EquipItemIfCan(Item* item, bool silenceUpdate = false);
     /*
     * Initializes Mercenary's stats, gear and other summon values
     */
-	void Initialize(Player* player, MercenaryPet* pet, bool create);
+	void Initialize(MercenaryPet* pet, bool create);
 
-	void InitializeNEW(Player* player,Pet* pet, bool create);
+	void InitializeNEW(Pet* pet, bool create);
 
 	/*清理不匹配的技能*/
 	void cleanNoMatchSpell(Pet* pet);
 
 	/*清理不匹配的装备*/
-	void clearnNoMatchEquipItem(Player * player);
+	void clearnNoMatchEquipItem();
 
-	void RemoveItemBySlot(Player* player, MercenaryPet* pet, uint32 editSlot);
+	void RemoveItemBySlot(MercenaryPet* pet, uint32 editSlot);
 
 	/*技能有效性判断*/
 	bool isValidSpell(uint32 spell);
@@ -223,7 +223,10 @@ public:
     */
     void SetType(const uint8 newType) { 
 		if (type != newType)//职业切换，装备必须切换
-			gearContainer.clear();//穿戴时检查好些
+		if (gearContainer.size() > 0)
+		{
+			ChatHandler(player).SendSysMessage(-2800697);
+		}
 		type = newType; 
 	}
     /*
@@ -284,7 +287,7 @@ public:
     bool IsSummoned() const { return summoned; }
     uint8 GetEditSlot() const { return editSlot; }
 
-	Item* GetItemByGuid(Player * player, uint32 guid);
+	Item* GetItemByGuid(uint32 guid);
 
 
     /*
@@ -297,7 +300,7 @@ public:
     * @player: The player that gets their inventory checked. Most likely the Mercenary owner.
     * @slot: Requires CharacterSlot data type
     */
-	void GetEquippableItems(Player* player, uint8 slot, std::vector<Item*>& result);
+	void GetEquippableItems(uint8 slot, std::vector<Item*>& result);
 
     /*
     * Returns true if the Mercenary has a weapon equipped, false if not.
@@ -376,6 +379,7 @@ private:
     bool summoned=false;
     uint8 editSlot;
 	std::vector<uint32>* defaultSpellVec;
+	Player * player;
 };
 
 #endif

@@ -197,7 +197,7 @@ bool MercenaryPet::UpdateAllStats()
 		m_items[i] = nullptr;
 
 	for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); itr++){
-		Item* item = mercenary->GetItemByGuid(getPlayer(), itr->second.itemguid);
+		Item* item = mercenary->GetItemByGuid(itr->second.itemguid);
 		m_items[itr->first] = (item != nullptr) ? item : nullptr;
 	}
 
@@ -1625,7 +1625,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 
 
-		Item* item = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[slot].itemguid);
+		Item* item = mercenary->GetItemByGuid(mercenary->gearContainer[slot].itemguid);
 		if (item == nullptr)
 			return nullptr;
 
@@ -2260,7 +2260,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		if (mercenary == nullptr)
 			return nullptr;
 
-		return mercenary->GetItemByGuid(unit->ToPlayer(), mercenary->gearContainer[pos].itemguid);
+		return mercenary->GetItemByGuid(mercenary->gearContainer[pos].itemguid);
 
 		//uint8 bag = pos >> 8;
 		//uint8 slot = pos & 255;
@@ -2407,7 +2407,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		// in inventory
 		Mercenary *mercenary = getMercenary();
 		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); itr++){
-			Item* pItem = mercenary->GetItemByGuid(getPlayer(), itr->second.itemguid);
+			Item* pItem = mercenary->GetItemByGuid(itr->second.itemguid);
 
 			if (pItem&&pItem->GetEnchantmentId(slot))
 				pItem->ClearEnchantment(slot);
@@ -2556,7 +2556,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 			m_items[i] = nullptr;
 
 		for (auto itr = mercenary->gearContainer.begin(); itr != mercenary->gearContainer.end(); itr++){
-			Item* item = mercenary->GetItemByGuid(getPlayer(), itr->second.itemguid);
+			Item* item = mercenary->GetItemByGuid(itr->second.itemguid);
 			m_items[itr->first] = (item != nullptr) ? item : nullptr;
 		}
 
@@ -2879,7 +2879,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 			if (itr->first == exceptslot)
 				continue;
 
-			Item* pItem = mercenary->GetItemByGuid(getPlayer(), itr->second.itemguid);
+			Item* pItem = mercenary->GetItemByGuid(itr->second.itemguid);
 
 			if (!pItem || !pItem->GetProto()->Socket[0].Color)
 				continue;
@@ -2988,7 +2988,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		if (offhandItemguid == 0)
 			return;
 
-		Item* offItem = mercenary->GetItemByGuid(getPlayer(), offhandItemguid);
+		Item* offItem = mercenary->GetItemByGuid(offhandItemguid);
 		if (offItem == nullptr)
 			return;
 
@@ -2996,7 +2996,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		GearEntry& gearEntry=mercenary->gearContainer[EQUIPMENT_SLOT_MAINHAND];
 		if (gearEntry.itemid>0)
 		{
-			Item* mainItem = mercenary->GetItemByGuid(getPlayer(), gearEntry.itemguid);
+			Item* mainItem = mercenary->GetItemByGuid(gearEntry.itemguid);
 			if (mainItem && mainItem->GetProto()->InventoryType == INVTYPE_2HWEAPON)
 				IsTwoHandUsed = true;
 		}
@@ -3033,7 +3033,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		if (mercenary->gearContainer[slot].itemguid == 0)
 			return;
 
-		Item* pItem = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[slot].itemguid);//取得物品
+		Item* pItem = mercenary->GetItemByGuid(mercenary->gearContainer[slot].itemguid);//取得物品
 		if (!pItem)
 			return;
 
@@ -3144,7 +3144,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		{
 								  for (int i = EQUIPMENT_SLOT_MAINHAND; i < EQUIPMENT_SLOT_TABARD; ++i)
 								  {
-									  if (Item* item = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[i].itemguid))
+									  if (Item* item = mercenary->GetItemByGuid(mercenary->gearContainer[i].itemguid))
 									  if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
 										  return true;
 								  }
@@ -3155,19 +3155,19 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 								 // tabard not have dependent spells
 								 for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_MAINHAND; ++i)
 								 {
-									 if (Item* item = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[i].itemguid))
+									 if (Item* item = mercenary->GetItemByGuid(mercenary->gearContainer[i].itemguid))
 									 if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
 										 return true;
 								 }
 
 								 // shields can be equipped to offhand slot
 								 {
-									 if (Item* item = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[EQUIPMENT_SLOT_OFFHAND].itemguid))
+									 if (Item* item = mercenary->GetItemByGuid(mercenary->gearContainer[EQUIPMENT_SLOT_OFFHAND].itemguid))
 									 if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
 										 return true;
 								 }
 								 // ranged slot can have some armor subclasses
-								 if (Item* item = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[EQUIPMENT_SLOT_RANGED].itemguid))
+								 if (Item* item = mercenary->GetItemByGuid(mercenary->gearContainer[EQUIPMENT_SLOT_RANGED].itemguid))
 								 if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
 									 return true;
 

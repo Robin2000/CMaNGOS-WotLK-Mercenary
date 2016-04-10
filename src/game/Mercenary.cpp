@@ -4,10 +4,10 @@
 #include "ObjectMgr.h"
 #include "MercenaryPet.h"
 
-Mercenary::Mercenary() { }
+Mercenary::Mercenary(Player * _player):player(_player) { }
 
-Mercenary::Mercenary(uint32 model, uint8 r, uint8 g, uint8 role, uint8 type)
-	: displayId(model), race(r), gender(g), role(role), type(type) { }
+Mercenary::Mercenary(Player * _player,uint32 model, uint8 r, uint8 g, uint8 role, uint8 type)
+	: player(_player),displayId(model), race(r), gender(g), role(role), type(type) { }
 
 Mercenary::~Mercenary()
 {
@@ -34,7 +34,7 @@ void Mercenary::LoadGearFromDB()
 
 //          0        1    2          3     4       5             
 //"SELECT petnumber,role, displayId, race, gender, type FROM mercenaries  where ownerGUID=?
-bool Mercenary::LoadFromDB(Player* player,QueryResult* result)
+bool Mercenary::LoadFromDB(QueryResult* result)
 {
     Field* fields = result->Fetch();
 	ownerGUID = player->GetGUIDLow();
@@ -79,7 +79,7 @@ void Mercenary::SaveToDB()
 }
 
 
-bool Mercenary::Create(Player* player)
+bool Mercenary::Create()
 {
     if (!player)
         return false;
@@ -100,7 +100,7 @@ bool Mercenary::Create(Player* player)
     return true;
 }
 
-bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mercType, uint8 mercRole, const std::string& name)
+bool Mercenary::Create(uint32 model, uint8 r, uint8 g, uint8 mercType, uint8 mercRole, const std::string& name)
 {
 	
 
@@ -179,7 +179,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	
 	//sMercenaryMgr->SaveToList(this);在create的时候已经放入列表
 
-	Initialize(player, pet, true);
+	Initialize(pet, true);
 	
 	pet->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);//设置光环
 
@@ -199,7 +199,7 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
     return true;
 }
 
-bool Mercenary::LearnSpell(Player* player, uint32 spellId)
+bool Mercenary::LearnSpell(uint32 spellId)
 {
     if (!player)
         return false;
@@ -213,7 +213,7 @@ bool Mercenary::LearnSpell(Player* player, uint32 spellId)
     return true;
 }
 
-bool Mercenary::Summon(Player* player)
+bool Mercenary::Summon()
 {
 	if (!player)
 		return false;
@@ -223,7 +223,7 @@ bool Mercenary::Summon(Player* player)
 		return false;
 
 	if (pet->isMercenary())
-		Initialize(player, (MercenaryPet*)pet, false);
+		Initialize((MercenaryPet*)pet, false);
 
 	return true;
 	
@@ -234,12 +234,12 @@ bool Mercenary::isValidSpell(uint32 spell){
 }
 
 //移除不匹配装备
-void Mercenary::clearnNoMatchEquipItem(Player * player)
+void Mercenary::clearnNoMatchEquipItem()
 {
 	std::vector<uint32> del_slots;
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); ++itr)
 	{
-		Item* item = GetItemByGuid(player,itr->second.itemguid);
+		Item* item = GetItemByGuid(itr->second.itemguid);
 		if (item == nullptr)
 		{
 			itr->second.itemguid = 0;
@@ -263,7 +263,7 @@ void Mercenary::clearnNoMatchEquipItem(Player * player)
 
 	}
 }
-void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
+void Mercenary::InitializeNEW(Pet* pet, bool create)
 {
 	
 	if (!create)
@@ -320,7 +320,7 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 		//SendMirrorImagePacket(pet);在AI中初始
 
 }
-void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
+void Mercenary::Initialize(MercenaryPet* pet, bool create)
 {
 	uint32 level = player->getLevel();
 
@@ -378,7 +378,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 		pet->GetCharmInfo()->SetPetNumber(petnumber, true);
 
 
-		clearnNoMatchEquipItem(player);/*初始化时清理掉不匹配的装备*/
+		clearnNoMatchEquipItem();/*初始化时清理掉不匹配的装备*/
 
 		//开始重新装备
 		/*
@@ -399,7 +399,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 		
 		//player->context.addDelayedAction(new UpdatePetActionBar(player, pet, 1000));//一秒后更新actionbar，不需要，因Pet::LoadPetfromdb时已经调用
 		
-		InitStats(player, pet);//更新装备到属性计算表
+		InitStats(pet);//更新装备到属性计算表
 
     }
     else
@@ -490,7 +490,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 	//player->context.addDelayedAction(new UpdatePetActionBar(player,pet,1000));//一秒后更新actionbar
 }
 
-bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
+bool Mercenary::EquipItemIfCan(Item* item,bool silenceUpdate)
 {
 	if (!item)
 		return false;
@@ -564,7 +564,7 @@ bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
     return true;
 }
 
-Item* Mercenary::GetItemByGuid(Player * player,uint32 guid) 
+Item* Mercenary::GetItemByGuid(uint32 guid) 
 {
 	/*for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
 	if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -608,7 +608,7 @@ Item* Mercenary::GetItemByGuid(Player * player,uint32 guid)
 	return nullptr;
 }
 
-bool Mercenary::InitStats(Player* player, MercenaryPet* pet)
+bool Mercenary::InitStats(MercenaryPet* pet)
 {
   //  uint8 mercenaryLevel = player->getLevel();
     //CreatureInfo const* creatureInfo = pet->GetCreatureInfo();
@@ -647,7 +647,7 @@ bool Mercenary::InitStats(Player* player, MercenaryPet* pet)
 		pet->m_items[i]=nullptr;
 
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); itr++){
-		if (Item* item = GetItemByGuid(player, itr->second.itemguid))
+		if (Item* item = GetItemByGuid(itr->second.itemguid))
 		{
 			pet->m_items[itr->first] = item;
 			pet->EquipItem(itr->first, item, false);
@@ -734,7 +734,7 @@ bool Mercenary::isItemsEquippable(Item* item, uint8 slot){
 	return InvToSlot(proto->InventoryType, slot);
 }
 
-void Mercenary::GetEquippableItems(Player* player, uint8 slot, std::vector<Item*>& result)
+void Mercenary::GetEquippableItems(uint8 slot, std::vector<Item*>& result)
 {
 	/*for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
 	if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -852,7 +852,7 @@ void Mercenary::SetValues(uint32 model, uint8 r, uint8 g)
     race = r;
     gender = g;
 }
-void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSlot)
+void Mercenary::RemoveItemBySlot(MercenaryPet* pet, uint32 editSlot)
 {
 	if (!pet)
 		return;

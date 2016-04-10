@@ -142,7 +142,7 @@ int getRaceFemalStringID(uint8 race)
 
     void CreateMercenary(Player* player, Item* item, Mercenary* mercenary, uint32 model, uint8 race, uint8 gender, uint8 role, uint8 classid)
     {
-		if (!mercenary->Create(player, model, race, gender, classid, role))
+		if (!mercenary->Create(model, race, gender, classid, role))
         {
 			player->GetSession()->SendNotification(player->GetMangosString(-2800185));//系统提示：本次操作失败。
             return;
@@ -202,8 +202,8 @@ bool GossipSelect_mercenary_npc_gossip(Player* player, Item* item, uint32 /*send
 
 	if (!mercenary)
 	{
-		mercenary = new Mercenary;
-		if (!mercenary->Create(player))/*创建并放入列表，下次直接获取不再创建*/
+		mercenary = new Mercenary(player);
+		if (!mercenary->Create())/*创建并放入列表，下次直接获取不再创建*/
 		{
 			WorldSession* session = player->GetSession();
 			session->SendNotification(-2800633);//未能招募成功!

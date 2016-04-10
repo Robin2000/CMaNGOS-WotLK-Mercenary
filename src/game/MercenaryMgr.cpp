@@ -21,8 +21,8 @@ Mercenary*  MercenaryMgr::LoadMercenarie(Player* player)
 	QueryResult* result = CharacterDatabase.PQuery("SELECT petnumber,role, displayId, race, gender, type FROM mercenaries  where ownerGUID='%u'", player->GetGUIDLow());
 	if (result)
 	{
-			Mercenary* mercenary = new Mercenary;
-			if (!mercenary->LoadFromDB(player,result))
+			Mercenary* mercenary = new Mercenary(player);
+			if (!mercenary->LoadFromDB(result))
 			{
 				delete mercenary;
 				return nullptr;
@@ -185,7 +185,7 @@ void MercenaryMgr::OnSummon(Player* player)
 	if (Mercenary* mercenary = GetMercenaryByOwner(player->GetGUIDLow()))
 	{
 		//mercenary->cleanNoMatchSpell(player->GetPet());在数据库加载时已经移除
-		mercenary->Summon(player);
+		mercenary->Summon();
 	}
 }
 

@@ -113,7 +113,7 @@ public:
 	{
 		mercenary->SetEditSlot(slot);
 		std::vector<Item*> tempVector;
-		mercenary->GetEquippableItems(player, slot, tempVector);
+		mercenary->GetEquippableItems(slot, tempVector);
 		for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
 		{
 			Item* item = *itr;
@@ -188,7 +188,7 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 		pet->unlearnSpell(spell, false, true);
 		addLearnSpellMenu(player, mercenary, creature);/*39:学习菜单*/
 		pet->unlearnSpell(spell, false, true);//先移除
-		if(mercenary->LearnSpell(player, spell))
+		if(mercenary->LearnSpell(spell))
 			ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800585));//学习成功，右键点击宠物技能图标启用。
 	}
 				
@@ -267,7 +267,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	if (mercenary->GetEditSlot() != SLOT_EMPTY) /*mercenary中标记变量editSlot标明actions是否为编辑装备*/
 	{
 		std::vector<Item*> tempVector;
-		mercenary->GetEquippableItems(player, mercenary->GetEditSlot(), tempVector);
+		mercenary->GetEquippableItems(mercenary->GetEditSlot(), tempVector);
 		for (auto itr = tempVector.begin(); itr != tempVector.end(); ++itr)
 		{
 			Item* item =*itr;
@@ -275,7 +275,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 			if (actions == item->GetEntry())
 			{
 				player->CLOSE_GOSSIP_MENU();
-				if (!mercenary->EquipItemIfCan(player, item))
+				if (!mercenary->EquipItemIfCan(item))
 				{
 					mercenary_bot::SendEquipGear(player, creature, mercenary);//继续选择
 					return true;
@@ -307,7 +307,7 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 	if (player->context.gossipActionType == GOSSIP_REMOVE_ITEM)//移除装备
 	{
 		player->CLOSE_GOSSIP_MENU();
-		mercenary->RemoveItemBySlot(player, (MercenaryPet*)creature, actions);
+		mercenary->RemoveItemBySlot((MercenaryPet*)creature, actions);
 		mercenary_bot::SendUnEquipGear(player, creature, mercenary);//继续选择
 		return true;
 	}

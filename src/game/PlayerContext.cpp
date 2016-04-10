@@ -108,7 +108,7 @@ public:
 			}
 
 			if (Mercenary* mercenary = MercenaryUtil::GetMercenaryByOwner(player->GetGUIDLow()))
-				mercenary->Create(player, mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetType(), mercenary->GetRole());
+				mercenary->Create(mercenary->GetDisplay(), mercenary->GetRace(), mercenary->GetGender(), mercenary->GetType(), mercenary->GetRole());
 			//if (pet->IsMounted())
 				//pet->Unmount(false);//È¡ÏûÆï³Ë
 		}
