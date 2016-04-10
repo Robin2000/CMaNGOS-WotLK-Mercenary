@@ -228,7 +228,7 @@ class MANGOS_DLL_SPEC Object
         ObjectGuid const& GetGuidValue(uint16 index) const { return *reinterpret_cast<ObjectGuid const*>(&GetUInt64Value(index)); }
 		
         void SetInt32Value(uint16 index,        int32  value);
-        void SetUInt32Value(uint16 index,       uint32  value);
+		void SetUInt32Value(uint16 index, uint32  value, bool forceClientUpdate=false);
         void SetUInt64Value(uint16 index, const uint64& value);
         void SetFloatValue(uint16 index,       float   value);
         void SetByteValue(uint16 index, uint8 offset, uint8 value);

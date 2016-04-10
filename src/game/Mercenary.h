@@ -257,7 +257,7 @@ public:
     /*
     * Sends the Mirror Image packet after equipping new armor
     */
-    void SendMirrorImagePacket(Creature* creature);
+	void SendMirrorImagePacket(Creature* creature, bool showWeapon=true);
     /*
     * Removes the Mercenary's off hand weapon
     */
@@ -270,6 +270,8 @@ public:
     */
     /*uint8 GetInvTypeSlot(uint8 characterSlot) const;*/
 	bool InvToSlot(uint8 invType, uint8 characterSlot);
+
+	bool disableMirroClone = false;//临时禁用clone标志
 
 	uint32 GetPetNumber() const { return petnumber; }
     uint32 GetOwnerGUID() const { return ownerGUID; }
@@ -374,7 +376,6 @@ private:
     bool summoned=false;
     uint8 editSlot;
 	std::vector<uint32>* defaultSpellVec;
-    
 };
 
 #endif

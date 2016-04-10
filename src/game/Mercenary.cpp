@@ -269,7 +269,7 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 	if (!create)
 	{
 		pet->SetDisplayId(GetDisplay());
-		//pet->SetNativeDisplayId(GetDisplay());
+		pet->SetNativeDisplayId(GetDisplay());
 		pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 		pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
@@ -290,7 +290,7 @@ void Mercenary::InitializeNEW(Player* player, Pet* pet, bool create)
 		pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
 		pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 		pet->SetDisplayId(GetDisplay());
-		//pet->SetNativeDisplayId(GetDisplay());
+		pet->SetNativeDisplayId(GetDisplay());
 		pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
 		if (player->IsPvP())
@@ -398,6 +398,8 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 		
 		//player->context.addDelayedAction(new UpdatePetActionBar(player, pet, 1000));//一秒后更新actionbar，不需要，因Pet::LoadPetfromdb时已经调用
+		
+		InitStats(player, pet);//更新装备到属性计算表
 
     }
     else
@@ -449,7 +451,9 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 
         
 		//pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);//未知用途
-		//InitStats(player, pet);
+		
+		//InitStats(player, pet);//新创建时无装备，更新装备到属性计算表
+
 		//((MercenaryPet*)pet)->_ApplyAllStatBonuses();
        
 		pet->InitStatsForLevel(level);
@@ -554,9 +558,9 @@ bool Mercenary::EquipItemIfCan(Player* player, Item* item,bool silenceUpdate)
     }
 
 
-	if (!silenceUpdate){
+	if (!silenceUpdate)
 		SendMirrorImagePacket(pet);
-	}
+	//
     return true;
 }
 
@@ -606,7 +610,7 @@ Item* Mercenary::GetItemByGuid(Player * player,uint32 guid)
 
 bool Mercenary::InitStats(Player* player, MercenaryPet* pet)
 {
-    uint8 mercenaryLevel = player->getLevel();
+  //  uint8 mercenaryLevel = player->getLevel();
     //CreatureInfo const* creatureInfo = pet->GetCreatureInfo();
     //if (!creatureInfo)
     //{
@@ -643,12 +647,20 @@ bool Mercenary::InitStats(Player* player, MercenaryPet* pet)
 		pet->m_items[i]=nullptr;
 
 	for (auto itr = gearContainer.begin(); itr != gearContainer.end(); itr++){
-		Item* item = GetItemByGuid(player, itr->second.itemguid);
-		pet->m_items[itr->first] = (item != nullptr) ? item : nullptr;
+		if (Item* item = GetItemByGuid(player, itr->second.itemguid))
+		{
+			pet->m_items[itr->first] = item;
+			pet->EquipItem(itr->first, item, false);
+		}
+		else
+		{
+			pet->m_items[itr->first] = nullptr;
+			pet->RemoveItem(itr->first, false);
+		}
 	}
 	
 	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
-	((MercenaryPet*)pet)->GiveLevel(mercenaryLevel);
+	//((MercenaryPet*)pet)->GiveLevel(mercenaryLevel);
 	
 
     //pet->SetCreateHealth(uint32(((float(creatureInfo->MaxLevelHealth) / creatureInfo->MaxLevel) / (1 + 2 * creatureInfo->Rank)) * mercenaryLevel));
@@ -677,10 +689,10 @@ bool Mercenary::InitStats(Player* player, MercenaryPet* pet)
 
     //pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
 
-	if (isRangedAttack())
+	/*if (isRangedAttack())
 		SetSheath(pet,SHEATH_STATE_RANGED);
 	else
-		SetSheath(pet, SHEATH_STATE_MELEE);
+		SetSheath(pet, SHEATH_STATE_MELEE);*/
 
 	//((MercenaryPet*)pet)->InitStatsForLevelPlayer(false);
 	//((MercenaryPet*)pet)->UpdateAllStats();
@@ -861,7 +873,7 @@ void Mercenary::RemoveItemBySlot(Player* player,MercenaryPet* pet, uint32 editSl
 }
 
 
-void Mercenary::SendMirrorImagePacket(Creature* creature)
+void Mercenary::SendMirrorImagePacket(Creature* creature,bool showWeapon)
 {
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
     data << creature->GetObjectGuid();
@@ -886,11 +898,11 @@ void Mercenary::SendMirrorImagePacket(Creature* creature)
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_LEGS].itemid)); 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_FEET].itemid)); 
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_WRISTS].itemid)); // Wrists?
-	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HANDS].itemid));
+	data << uint32(showWeapon?sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_HANDS].itemid):0);
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_BACK].itemid)); // Cloak?
 	data << uint32(sMercenaryMgr->GetItemDisplayId(gearContainer[SLOT_TABARD].itemid)); // Tabard?
 
-    creature->SendMessageToSet(&data, false);
+    creature->SendMessageToSet(&data, false);	
 }
 
 void Mercenary::UpdateStrength(Pet* pet, bool ranged)

@@ -148,6 +148,7 @@ bool excuteMorph2(Player* pPlayer, bool morphPet, uint32 display)
 		if (pet->isMercenary())
 		{
 			pet->SetDisplayId(display);
+			pet->SetNativeDisplayId(display);
 			pPlayer->context.GetMercenary()->SetDisplay(display);
 			pPlayer->context.GetMercenary()->SendMirrorImagePacket(pet);
 			return true;
@@ -191,6 +192,7 @@ void DeMorphMercenary(Player* pPlayer, Pet * pet){
 	uint32 model = mercenary->GetGender() == GENDER_FEMALE ? mercenary->getCharFemalModel(mercenary->GetRace()) : mercenary->getCharMaleModel(mercenary->GetRace());
 
 	pet->SetDisplayId(model);
+	pet->SetNativeDisplayId(model);
 	pPlayer->context.GetMercenary()->SetDisplay(model);
 	pPlayer->context.GetMercenary()->SendMirrorImagePacket(pet);
 }

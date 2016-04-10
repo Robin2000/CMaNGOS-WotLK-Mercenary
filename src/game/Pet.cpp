@@ -119,7 +119,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         delete result;
         return false;
     }
-
+	if (petentry == 70000)//¹ÍÓ¶±ø
+	{
+		petnumber = fields[0].GetUInt32();
+		current = true;
+	}
     CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(petentry);
     if (!creatureInfo)
     {

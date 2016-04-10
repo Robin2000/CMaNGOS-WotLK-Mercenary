@@ -743,7 +743,7 @@ void Object::SetInt32Value(uint16 index, int32 value)
     }
 }
 
-void Object::SetUInt32Value(uint16 index, uint32 value)
+void Object::SetUInt32Value(uint16 index, uint32 value,bool forceClientUpdate)
 {
     MANGOS_ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
@@ -751,12 +751,10 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
     {
         m_uint32Values[index] = value;
         m_changedValues[index] = true;
-		if (index == UNIT_VIRTUAL_ITEM_SLOT_ID + 2)
-		{
-			int i = 0;//debug
-		}
         MarkForClientUpdate();
-    }
+	}
+	else if (forceClientUpdate)
+		MarkForClientUpdate();
 }
 
 void Object::SetUInt64Value(uint16 index, const uint64& value)

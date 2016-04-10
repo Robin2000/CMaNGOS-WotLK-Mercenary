@@ -662,6 +662,10 @@ void WorldSession::HandleGetMirrorimageData(WorldPacket& recv_data)
 	if (pCreature->isMercenary())
 		 {
 		Mercenary* mercenary = sMercenaryMgr->GetMercenary(pCreature->GetOwner()->GetGUIDLow());
+		
+		if (mercenary->disableMirroClone)
+			return;
+
 		if (mercenary)
 			{
 				WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);

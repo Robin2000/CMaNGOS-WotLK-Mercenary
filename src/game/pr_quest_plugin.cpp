@@ -23,7 +23,7 @@ void PrQuestPlugin::rewardQuest(uint32 questid){
 	switch (questid)
 	{
 		case 99999://炉石传说，第一个任务
-			player->addActionButton(0, 6, 6948, 128);//0是基础工具条，6工具条位置，6948炉石，128是item
+			player->addActionButton(0, 11, 6948, 128);//0是基础工具条，11工具条位置(从0开始编号)，6948炉石，128是item
 			break;
 	}
 }

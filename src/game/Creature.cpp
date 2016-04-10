@@ -286,8 +286,8 @@ bool Creature::InitEntry(uint32 Entry, CreatureData const* data /*=nullptr*/, Ga
         return false;
     }
 
-	//if (isMercenary())	//如果是雇佣兵AI
-		//SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //设置法术光环镜像
+	if (isMercenary())	//如果是雇佣兵AI
+		SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //设置法术光环镜像
 	//else
 		//RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED); //移除法术光环镜像，被我注释掉。【分析：这段代码为雇佣兵添加镜像光环，但也没有必要移除非雇佣兵的光环】
 
@@ -413,12 +413,12 @@ bool Creature::UpdateEntry(uint32 Entry, Team team, const CreatureData* data /*=
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
 
-	/*if (isMercenary())				  //如果是雇佣兵，设置
+	if (isMercenary())				  //如果是雇佣兵，设置
 	{
 		SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);		  //添加法术光环镜像
-		if (Player* owner = Creature::GetCharmerOrOwnerPlayerOrPlayerItself())
-			setFaction(owner->getFaction());						 //雇佣兵总是玩家的阵营
-	}*/
+		//if (Player* owner = Creature::GetCharmerOrOwnerPlayerOrPlayerItself())
+			//setFaction(owner->getFaction());						 //雇佣兵总是玩家的阵营
+	}
 	//else
 		//SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);					// 【分析：不是雇佣兵，也不用设置为0】
 

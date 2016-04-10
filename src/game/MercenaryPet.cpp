@@ -3029,9 +3029,14 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		m_items[slot] = nullptr;
 
 		Mercenary *mercenary = getMercenary();
-		Item* pItem = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[slot].itemguid);//取得物品
 
-		
+		if (mercenary->gearContainer[slot].itemguid == 0)
+			return;
+
+		Item* pItem = mercenary->GetItemByGuid(getPlayer(), mercenary->gearContainer[slot].itemguid);//取得物品
+		if (!pItem)
+			return;
+
 		uint16 blankPos = getPlayer()->findEmptyPos();
 		if (blankPos > 0)
 			getPlayer()->SwapItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | (M_EQUIPMENT_SLOT_START + slot), blankPos);//交换到雇佣兵的对应装备位置
