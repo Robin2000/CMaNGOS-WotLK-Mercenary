@@ -26,7 +26,6 @@ public:
 					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mercenary->gearContainer[SLOT_MAIN_HAND].itemid);
 					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, mercenary->gearContainer[SLOT_OFF_HAND].itemid);
 					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, mercenary->gearContainer[SLOT_RANGED].itemid);
-					pet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
 				}
 			}
 		}
@@ -52,11 +51,11 @@ void PrEventPlugin::sendEvent(PrEvent e){
 				{
 					if (Mercenary * mercenary = player->context.GetMercenary())//首先清零，再通过AI的Update更新
 					{
+						pet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
 						pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
 						pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
 						pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-						pet->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
-						player->context.addDelayedAction(new DelayedInitPetActionBar(1000, player));//1秒，初始化
+						player->context.addDelayedAction(new DelayedInitPetActionBar(2000, player));//1秒，初始化
 					}
 				}
 

@@ -81,7 +81,7 @@ public:
 	void run() override{
 		player->UpdateForQuestWorldObjects();
 		player->SetCanFly(false);
-		player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
+		//player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
 	}
 	Player * player;
 };
@@ -128,7 +128,7 @@ public:
 		//delete player->GetVehicleInfo();
 
 		player->UpdateForQuestWorldObjects();
-		player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
+		//player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送结束允许攻击
 		
 	}
 private:
@@ -241,7 +241,7 @@ public:
 		player->context.isMovesplineStopNow = false;
 		player->context.isMovesplineRunning = true;
 
-		player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
+		//player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
 	}
 	PathFinder* path;
 	PointsArray* points;
@@ -345,7 +345,7 @@ void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orie
 		mPlayer->TeleportTo(mapid, x, y + 0.5, z + 0.5f, 0.0f - orientation);
 	}	
 
-	mPlayer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
+	//mPlayer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);//设置传送中不得攻击
 	this->addDelayedAction(new TeleportAction(mPlayer, 1000));//延迟1秒
 	
 }

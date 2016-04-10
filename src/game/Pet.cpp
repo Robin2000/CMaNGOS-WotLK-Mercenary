@@ -353,7 +353,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     m_loading = false;
 
-    SynchronizeLevelWithOwner();
+	if(!isMercenary())
+    	SynchronizeLevelWithOwner();
 
 	if (owner->GetTypeId() == TYPEID_PLAYER)
 		owner->ToPlayer()->context.GetEventPlugin().sendEvent(P_RESUMMON_PET_EVENT);

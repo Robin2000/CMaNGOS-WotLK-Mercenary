@@ -27,6 +27,7 @@
 #include "Creature.h"
 #include "World.h"
 #include "Util.h"
+#include "Mercenary.h"
 
 int PetAI::Permissible(const Creature* creature)
 {
@@ -73,7 +74,11 @@ void PetAI::AttackStart(Unit* u)
     if (!u || (m_creature->IsPet() && ((Pet*)m_creature)->getPetType() == MINI_PET))
         return;
 
-    if (m_creature->Attack(u, true))
+	bool meleeAtack = true;
+	if (m_creature->isMercenary())
+		meleeAtack=!m_creature->GetOwner()->ToPlayer()->context.GetMercenary()->isRangedAttack();
+	
+	if (m_creature->Attack(u, meleeAtack))
     {
         // TMGs call CreatureRelocation which via MoveInLineOfSight can call this function
         // thus with the following clear the original TMG gets invalidated and crash, doh
