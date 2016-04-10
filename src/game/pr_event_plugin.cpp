@@ -1,4 +1,5 @@
 #include "pr_event_plugin.h"
+#include "Mercenary.h"
 class DelayedHandleLogin :public DelayedAction
 {
 	public:
@@ -13,8 +14,22 @@ class DelayedInitPetActionBar :public DelayedAction
 public:
 	explicit DelayedInitPetActionBar(int _timelimit, Player* _player) :DelayedAction(_timelimit), player(_player){}
 	void run() override{
+		//if (Pet * pet = player->GetPet())
+			//player->PetSpellInitialize();
 		if (Pet * pet = player->GetPet())
+		{
 			player->PetSpellInitialize();
+			if (pet->isMercenary())
+			{
+				if (Mercenary * mercenary = player->context.GetMercenary())//首先清零，再通过AI的Update更新
+				{
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mercenary->gearContainer[SLOT_MAIN_HAND].itemid);
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, mercenary->gearContainer[SLOT_OFF_HAND].itemid);
+					pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, mercenary->gearContainer[SLOT_RANGED].itemid);
+					pet->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+				}
+			}
+		}
 	}
 	Player* player;
 };
@@ -30,8 +45,24 @@ void PrEventPlugin::sendEvent(PrEvent e){
 		case P_LOGOUT_EVENT:
 			player->context.ClearMercenary();//客户端清理
 			break;
-		case P_RESUMMON_PET_EVENT:
-			//player->context.addDelayedAction(new DelayedInitPetActionBar(1000, player));//重新召唤宠物后1秒，初始化工具条等
+		case P_RESUMMON_PET_EVENT:		
+			if (Pet * pet = player->GetPet())
+			{
+				if (pet->isMercenary())
+				{
+					if (Mercenary * mercenary = player->context.GetMercenary())//首先清零，再通过AI的Update更新
+					{
+						pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
+						pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+						pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+						pet->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);
+						player->context.addDelayedAction(new DelayedInitPetActionBar(1000, player));//1秒，初始化
+					}
+				}
+
+			}
+		
 			break;
+
 	}
 }

@@ -12,7 +12,7 @@ struct mercenary_bot_AI : public PetAI
 	int talkTimer = 0;
 	int spellTimer = 0;
 	int currentSpell = 0;
-	int updatePetMercenaryMirrorTimer = 2000;//2秒检查1次
+	int updatePetMercenaryMirrorTimer = 4000;//2秒检查1次
 	bool updatePetMercenaryMirrorCheck = true;
 	
 	int checkStatusTimer = 5000;//5秒检查1次是否要取消隐身
@@ -43,12 +43,6 @@ struct mercenary_bot_AI : public PetAI
 					m_creature->addUnitState(UNIT_STAT_MELEE_ATTACKING);
 					SetCombatMovement(true);
 				}
-				//初始化将武器暂时去掉，update再添加上
-				m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-				m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-				m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
-				mercenary->SendMirrorImagePacket(m_creature);
-
 
 				defautSpells.clear();
 				//默认光环技能
@@ -211,40 +205,6 @@ struct mercenary_bot_AI : public PetAI
 						m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, -PET_FOLLOW_ANGLE);
 			}
 
-
-			//万能判断方法
-			if(updatePetMercenaryMirrorCheck)
-			{
-				if (updatePetMercenaryMirrorTimer <= 0)
-				{
-					updatePetMercenaryMirrorTimer = 2000;
-					if ((mercenary->gearContainer[SLOT_MAIN_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID) == 0) ||
-						(mercenary->gearContainer[SLOT_OFF_HAND].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1) == 0) ||
-						(mercenary->gearContainer[SLOT_RANGED].itemid > 0 && m_creature->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2) == 0))
-					{
-						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mercenary->gearContainer[SLOT_MAIN_HAND].itemid);
-						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, mercenary->gearContainer[SLOT_OFF_HAND].itemid);
-						m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, mercenary->gearContainer[SLOT_RANGED].itemid);
-
-						mercenary->SendMirrorImagePacket(m_creature);
-					}
-					
-					updatePetMercenaryMirrorCheck = false;//检查1次不再检查
-
-					if (m_creature->isMercenary())
-					if (Player* player = m_creature->GetOwner()->ToPlayer())
-					{
-							m_creature->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);//和actionbar有关
-							m_creature->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);//和actionbar有关
-							player->PetSpellInitialize();
-					}
-					
-				}
-				else
-					updatePetMercenaryMirrorTimer -= diff;
-
-				
-			}
 			if (talkTimer <= 0)
 			{
 				std::vector<MercenaryTalking> tempVector = MercenaryUtil::MercenaryGetTalk(mercenary->GetType(), mercenary->GetRole());

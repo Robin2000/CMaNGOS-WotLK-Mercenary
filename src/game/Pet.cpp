@@ -354,6 +354,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     m_loading = false;
 
     SynchronizeLevelWithOwner();
+
+	if (owner->GetTypeId() == TYPEID_PLAYER)
+		owner->ToPlayer()->context.GetEventPlugin().sendEvent(P_RESUMMON_PET_EVENT);
+
     return true;
 }
 
@@ -755,6 +759,8 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= nullptr*/)
     SavePetToDB(mode);
     AddObjectToRemoveList();
     m_removed = true;
+
+	owner->ToPlayer()->context.GetEventPlugin().sendEvent(P_UNSUMMON_PET_EVENT);
 }
 
 void Pet::GivePetXP(uint32 xp)
@@ -1775,7 +1781,8 @@ bool Pet::resetTalents(bool no_cost)
         m_resetTalentsCost = cost;
         m_resetTalentsTime = time(nullptr);
     }
-    player->PetSpellInitialize();
+	if (!isMercenary())
+		player->PetSpellInitialize();
     return true;
 }
 
@@ -2015,8 +2022,8 @@ bool Pet::Create(uint32 guidlow, CreatureCreatePos& cPos, CreatureInfo const* ci
 	SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER);
 
 
-	
-	SetSheath(SHEATH_STATE_MELEE);
+	if (!isMercenary())
+		SetSheath(SHEATH_STATE_MELEE);
 
     if (getPetType() == MINI_PET)                           // always non-attackable
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

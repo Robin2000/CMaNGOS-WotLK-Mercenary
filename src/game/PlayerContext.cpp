@@ -23,6 +23,7 @@ PlayerContext::PlayerContext(Player* _player) :mPlayer(_player), gamePointMgr(_p
 	questNpcGOVec = new tbb::concurrent_vector<QuestNpcGO *>();
 	isMovesplineStopNow = false;
 	isMovesplineRunning = false;
+	mMercenary = nullptr;
 }
 PlayerContext::~PlayerContext(){
 	DelayedAction *action;

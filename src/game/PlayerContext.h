@@ -94,7 +94,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	Quest const* findQuest(uint32 questid);
 
 	//¹ÍÓ¶±ø
-	Mercenary* mMercenary = nullptr;
+
 	void loadMercenary();
 	void OnSaveMercenary();
 	Mercenary* GetMercenary(){ return mMercenary; }
@@ -232,5 +232,6 @@ private :
 	PrEventPlugin eventPlugin;
 	PrSpellPlugin prSpellPlugin;
 	PrQuestPlugin prQuestPlugin;
+	Mercenary* mMercenary = nullptr;
 };
 #endif

@@ -184,9 +184,12 @@ bool learnOrUnlearnSpell(Mercenary* mercenary, Player* player, Creature* creatur
 	}
 	else
 	{
+		MercenaryPet* pet = (MercenaryPet*)creature;
+		pet->unlearnSpell(spell, false, true);
 		addLearnSpellMenu(player, mercenary, creature);/*39:学习菜单*/
-		mercenary->LearnSpell(player, spell);
-		ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800585));//学习成功，右键点击宠物技能图标启用。
+		pet->unlearnSpell(spell, false, true);//先移除
+		if(mercenary->LearnSpell(player, spell))
+			ChatHandler(player).PSendSysMessage(player->GetMangosString(-2800585));//学习成功，右键点击宠物技能图标启用。
 	}
 				
 	//player->CLOSE_GOSSIP_MENU();
@@ -311,9 +314,10 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 
 	if (actions > GOSSIP_ACTION_SPELL_DEF)
 	{
+		player->CLOSE_GOSSIP_MENU();
 		if (mercenary)
 			learnOrUnlearnSpell(mercenary, player, creature, actions - GOSSIP_ACTION_SPELL_DEF);/*如果上面都不匹配，actions代表的就是学习或者遗忘的技能*/
-		player->CLOSE_GOSSIP_MENU();
+		
 		return true;
 	}
 
@@ -402,15 +406,13 @@ bool OnGossipSelect_mercenary_bot(Player* player, Creature* creature, uint32 /*s
 		break;
 	case 39:
 		if (mercenary&&player->GetPet())
-		{
-			mercenary->cleanNoMatchSpell(player->GetPet());
+		{			
 			addLearnSpellMenu(player, mercenary, creature);/*39:学习菜单*/
 		}
 		break;
 	case 40:
 		if (mercenary&&player->GetPet())
 		{
-			mercenary->cleanNoMatchSpell(player->GetPet());
 			addUnLearnSpellMenu(player, mercenary, creature);/*40:遗忘菜单*/
 		}
 		break;

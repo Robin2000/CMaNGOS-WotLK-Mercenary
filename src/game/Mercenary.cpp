@@ -180,6 +180,8 @@ bool Mercenary::Create(Player* player, uint32 model, uint8 r, uint8 g, uint8 mer
 	//sMercenaryMgr->SaveToList(this);在create的时候已经放入列表
 
 	Initialize(player, pet, true);
+	
+	pet->SetUInt32Value(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_CLONED);//设置光环
 
 	ChatHandler(player->GetSession()).SendSysMessage(-2800646);//Successfully created a mercenary!
 	pet->MonsterSay(player->GetMangosString(-2800647), LANG_UNIVERSAL, player);//Thanks for choosing me as your mercenary! Talk to me to setup my skills, gear, etc.
@@ -230,23 +232,7 @@ bool Mercenary::isValidSpell(uint32 spell){
 	auto itr = MercenaryUtil::findMercenarySpellsInfoBySpell(spell);
 	return  itr != nullptr&&itr->role == role;
 }
-void Mercenary::cleanNoMatchSpell(Pet* pet){
-	//自动移除无用技能
-	uint8 petSpellCount = pet->GetPetAutoSpellSize();
-	for (int i = 0; i < petSpellCount; i++)
-	{
-		uint32 spell = pet->GetPetAutoSpellOnPos(i);
-		auto itr = MercenaryUtil::findMercenarySpellsInfoBySpell(spell);
-		if (itr == nullptr)
-		{
-			pet->unlearnSpell(spell, false);
-			continue;
-		}
-		if (itr->role != role)
-			pet->unlearnSpell(spell, false);
-	}
 
-}
 //移除不匹配装备
 void Mercenary::clearnNoMatchEquipItem(Player * player)
 {
@@ -268,6 +254,7 @@ void Mercenary::clearnNoMatchEquipItem(Player * player)
 			}
 			else if (!sMercenaryMgr->CheckProficiencies(type, proto->Class, proto->SubClass))
 			{
+				//TODO:swap to empty slot
 				itr->second.itemguid = 0;
 				itr->second.itemid = 0;
 			}
@@ -391,7 +378,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 		pet->GetCharmInfo()->SetPetNumber(petnumber, true);
 
 
-		clearnNoMatchEquipItem(player);/*初始化时清理掉不存在的装备*/
+		clearnNoMatchEquipItem(player);/*初始化时清理掉不匹配的装备*/
 
 		//开始重新装备
 		/*
@@ -411,6 +398,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 		pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);//升级效果
 		
 		//player->context.addDelayedAction(new UpdatePetActionBar(player, pet, 1000));//一秒后更新actionbar，不需要，因Pet::LoadPetfromdb时已经调用
+
     }
     else
     {
@@ -483,6 +471,7 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 
         player->SetPet(pet);
 		//player->PetSpellInitialize();//刷新客户端ActionBar,在AI中初始
+		pet->HandleEmoteCommandHappy();
 		
     }
 	
@@ -490,9 +479,9 @@ void Mercenary::Initialize(Player* player, MercenaryPet* pet, bool create)
 
 	((MercenaryPet*)pet)->_ApplyAllStatBonuses();
 
-	pet->SetStandState(UNIT_STAND_STATE_STAND);
-	SendMirrorImagePacket(pet);
-	pet->HandleEmoteCommandHappy();
+	//pet->SetStandState(UNIT_STAND_STATE_STAND);
+	//SendMirrorImagePacket(pet);
+	//pet->HandleEmoteCommandHappy();
 	
 	//player->context.addDelayedAction(new UpdatePetActionBar(player,pet,1000));//一秒后更新actionbar
 }
