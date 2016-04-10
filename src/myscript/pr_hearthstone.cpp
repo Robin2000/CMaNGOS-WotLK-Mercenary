@@ -99,7 +99,14 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, title, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);  // 当前原力值：%d
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800169, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);//任务辅助。
+	
+	for (auto it = pPlayer->getQuestStatusMap().begin(); it != pPlayer->getQuestStatusMap().end();it++)
+	if (it->second.m_status == QUEST_STATUS_INCOMPLETE || (it->second.m_status == QUEST_STATUS_COMPLETE && !it->second.m_rewarded))
+	{
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800169, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);//任务辅助。
+		break;
+	}
+
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800167, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);//任务推荐。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
@@ -461,7 +468,7 @@ void hearthstone_gamedirect(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 //explorecheat
 bool explorecheat(Player* pPlayer){
-	if (!pPlayer->context.gamePointMgr.checkPoint(500))
+	if (!pPlayer->context.gamePointMgr.checkPoint(3))
 		return false;
 
 	for (uint8 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
