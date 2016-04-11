@@ -475,7 +475,7 @@ void Mercenary::Initialize(MercenaryPet* pet, bool create)
 
         player->SetPet(pet);
 		//player->PetSpellInitialize();//刷新客户端ActionBar,在AI中初始
-		pet->HandleEmoteCommandHappy();
+		//pet->HandleEmoteCommandHappy();
 		
     }
 	
