@@ -55,9 +55,10 @@ enum
 struct npc_oox22feAI : public npc_escortAI
 {
     npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
-
+	bool escort_ing=false;
     void WaypointReached(uint32 i) override
     {
+		escort_ing = true;
         switch (i)
         {
                 // First Ambush(3 Yetis)
@@ -87,10 +88,16 @@ struct npc_oox22feAI : public npc_escortAI
                 // Award quest credit
                 if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, m_creature);
+
+				escort_ing = false;
                 break;
         }
     }
-
+	void UpdateAI(const uint32 uiDiff) override{
+		if (escort_ing)
+			m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+		npc_escortAI::UpdateAI(uiDiff);
+	}
     void Reset() override
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
@@ -132,8 +139,12 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
         if (pPlayer->GetTeam() == HORDE)
             pCreature->SetFactionTemporary(FACTION_ESCORT_H_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
 
-        if (npc_oox22feAI* pEscortAI = dynamic_cast<npc_oox22feAI*>(pCreature->AI()))
-            pEscortAI->Start(false, pPlayer, pQuest);
+		if (npc_oox22feAI* pEscortAI = dynamic_cast<npc_oox22feAI*>(pCreature->AI()))
+		{
+			pEscortAI->escort_ing = true;
+			pEscortAI->Start(false, pPlayer, pQuest);
+		}
+
     }
     return true;
 }

@@ -45,9 +45,12 @@ enum
 
 struct npc_dorius_stonetenderAI : public npc_escortAI
 {
+	bool escort_ing = false;
     npc_dorius_stonetenderAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
 
-    void Reset() override { }
+    void Reset() override { 
+		escort_ing = false;
+	}
 
     void Aggro(Unit* pWho) override
     {
@@ -64,7 +67,9 @@ struct npc_dorius_stonetenderAI : public npc_escortAI
             Start(false, (Player*)pInvoker, GetQuestTemplateStore(uiMiscValue), true);
         }
     }
-
+	void WaypointStart(uint32 /*uiPointId*/) override{
+		escort_ing = true;
+	}
     void WaypointReached(uint32 uiPointId) override
     {
         switch (uiPointId)
@@ -95,6 +100,9 @@ struct npc_dorius_stonetenderAI : public npc_escortAI
 
     void UpdateEscortAI(const uint32 uiDiff) override
     {
+		if (escort_ing)
+			m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
