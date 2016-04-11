@@ -1901,26 +1901,38 @@ void Unit::HandleEmoteCommand(uint32 emote_id)
     SendMessageToSet(&data, true);
 }
 void Unit::HandleEmoteCommandHappy(){
+	if (!IsStopped())
+		return;
 	int size = sizeof(emoteHappy) / sizeof((int)1);
 	HandleEmoteCommand(emoteHappy[rand() % size]);
 }
 void Unit::HandleEmoteCommandSad(){
+	if (!IsStopped())
+		return;
 	int size = sizeof(emoteSad) / sizeof((int)1);
 	HandleEmoteCommand(emoteSad[rand() % size]);
 }
 void Unit::HandleEmoteCommandNormal(){
+	if (!IsStopped())
+		return;
 	int size = sizeof(emoteNormal) / sizeof((int)1);
 	HandleEmoteCommand(emoteNormal[rand() % size]);
 }
 void Unit::HandleEmoteCommandAttack(){
+	if (!IsStopped())
+		return;
 	int size = sizeof(emoteAttack) / sizeof((int)1);
 	HandleEmoteCommand(emoteAttack[rand() % size]);
 }
 void Unit::HandleEmoteCommandDefence(){
+	if (!IsStopped())
+		return;
 	int size = sizeof(emoteDefence) / sizeof((int)1);
 	HandleEmoteCommand(emoteDefence[rand() % size]);
 }
 void Unit::HandleEmoteCommandHurt(){
+	if (!IsStopped())
+		return;
 	int size = sizeof(emoteHurt) / sizeof((int)1);
 	HandleEmoteCommand(emoteHurt[rand() % size]);
 }
