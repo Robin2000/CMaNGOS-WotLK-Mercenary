@@ -62,11 +62,11 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 						mercenary->disableMirroClone = true;
 
 						if (mercenary->isRangedAttack())
-							pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0);
+							pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 0, true);
 						else
 						{
-							pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-							pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+							pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0, true);
+							pet->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0, true);
 						}
 						
 						mercenary->SendMirrorImagePacket(pet, false);
