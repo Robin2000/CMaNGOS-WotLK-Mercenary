@@ -864,8 +864,10 @@ void PlayerContext::loadQuestAux(uint32 questid){
 	tbb::concurrent_vector<QuestNpcGO*> * tmp;
 
 	tmp=sObjectMgr.GetQuestNpcGOVector(questid);//加载questNpcGOVec
+	
 	std::set<int32> itemEntrySet;//再准备一个item排重的set
 
+	if (tmp)
 	for (auto it = tmp->begin(); it != tmp->end(); it++)
 	{
 		if (itemEntrySet.find((*it)->npcgo) == itemEntrySet.end())

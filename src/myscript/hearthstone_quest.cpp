@@ -207,6 +207,8 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	case NPCGO_SEL_CAMERA_NPCGO://npcgo¾µÍ·+´«ËÍÖ´ÐÐ
 	{
 		tbb::concurrent_vector<QuestNpcGO *> const* npcgoV = pPlayer->context.GetQuestNpcGOVector();
+		if (npcgoV == nullptr)
+			return true;
 		QuestNpcGO const * questNpcGO = npcgoV->at(pPlayer->context.aux_npcgo_idx);
 		switch (uiAction)
 		{
