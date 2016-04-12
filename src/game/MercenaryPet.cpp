@@ -3014,6 +3014,12 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 
 	void MercenaryPet::RemoveItem(uint8 slot, bool update)
 	{
+		uint16 blankPos = getPlayer()->findEmptyPos();
+		if (blankPos == 0)
+		{
+			ChatHandler(getPlayer()).SendSysMessage(-2800700);
+			return;
+		}
 		switch (slot)
 		{
 			case SLOT_MAIN_HAND:
@@ -3037,11 +3043,13 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		if (!pItem)
 			return;
 
-		uint16 blankPos = getPlayer()->findEmptyPos();
-		if (blankPos > 0)
-			getPlayer()->SwapItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | (M_EQUIPMENT_SLOT_START + slot), blankPos);//交换到雇佣兵的对应装备位置
-		else
-			getPlayer()->RemoveItem(INVENTORY_SLOT_BAG_0, M_EQUIPMENT_SLOT_START+slot, true);//没有空位置则直接删除雇佣兵卸下的物品
+		
+
+		getPlayer()->SwapItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | (M_EQUIPMENT_SLOT_START + slot), blankPos);//交换到雇佣兵的对应装备位置
+		//getPlayer()->VisualizeItem(blankPos & 255, pItem);
+		//pItem->AddToUpdateQueueOf(getPlayer());
+		pItem->AddToClientUpdateList();
+
 
 
 		mercenary->gearContainer[slot].itemid = 0;//删除容器中记录

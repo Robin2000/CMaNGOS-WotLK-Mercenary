@@ -545,9 +545,18 @@ bool Mercenary::EquipItemIfCan(Item* item,bool silenceUpdate)
 	uint32 itemid = item->GetEntry();
 
 	if (!silenceUpdate){
-
+		uint8 pbag = item->GetPos() >> 8;
+		uint8 pslot = item->GetPos() & 255;
 		
+
+		//					行李栏                  雇佣兵装备栏
 		player->SwapItem(item->GetPos(), (uint16(INVENTORY_SLOT_BAG_0) << 8) | (editSlot + M_EQUIPMENT_SLOT_START));//交换到雇佣兵的对应装备位置INVENTORY_SLOT_BAG_0 << 8 | slot
+		
+		if (Item* pItem = player->GetItemByPos(pbag, pslot))//交换完成后取得该该行李栏位置的物品（从雇佣兵身上卸下）
+		{
+			pItem->AddToClientUpdateList();
+			//player->VisualizeItem(pslot, pItem);//可视化
+		}
 
 		gearContainer[editSlot].itemguid = item->GetGUIDLow();
 		gearContainer[editSlot].itemid = itemid;			
