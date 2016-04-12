@@ -81,7 +81,7 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell){
 			}
 			return false;//返回false则spell会继续执行
 		}
-		case 74035:
+		case 74035://任务：好侏儒寥寥25229，触发技能：激励
 		{
 			if (player->GetQuestStatus(25229) != QUEST_STATUS_INCOMPLETE)
 				return false;
@@ -93,26 +93,33 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell){
 			}
 			return true;
 		}
-		case 73943:{
+		case 73943://任务：好侏儒寥寥25229，说服成功技能：激励
+		{
 			player->RemoveAurasDueToSpell(73952);//如果有，激励成功，取消变猪
 			player->CastSpell(player, 74071, true);//如果模型变大，激励成功，角色模型还原
-
-			/*Quest const* qInfo = sObjectMgr.GetQuestTemplate(25229);//任务：好侏儒寥寥
-			uint32 maxCount = 0;
-			for (int j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
-			{
-				if (qInfo->ReqCreatureOrGOId[j] == 39623) //侏儒平民
-				{
-					maxCount = qInfo->ReqCreatureOrGOCount[j];
-					break;
-				}
-			}
-			uint32 curCount = player->GetReqKillOrCastCurrentCount(25229, 39623);//当前杀怪数量
-			if (curCount <= maxCount)*/
-			
 			player->CastSpell(player, 74034, true);//提醒激励成功，14分钟内必须带去见队长，不然平民会逃跑
 			
 			return false;//让法术继续执行
+		}
+		case 75102://任务：巨魔志愿兵25461，触发技能：激励
+		{
+					   if (player->GetQuestStatus(25461) != QUEST_STATUS_INCOMPLETE)
+						   return false;
+					   switch (urand(1, 3))
+					   {
+					   case 1: player->CastSpell(spell->m_targets.getUnitTarget(), 75088, true, nullptr); break;//  召唤被激励的平民，unsumon平民侏儒。  
+					   case 2: player->CastSpell(player, 74046, true, nullptr); break;// 激励失败，产生光环，变成兔子
+					   case 3: player->CastSpell(player, 74062, true, nullptr); break;// 激励失败，区域光环，角色模型变大
+					   }
+					   return true;
+		}
+		case 75088://任务：巨魔志愿兵25461，说服成功技能：激励
+		{
+					   player->RemoveAurasDueToSpell(74046);//如果有，激励成功，取消变兔子
+					   player->CastSpell(player, 74071, true);//如果模型变大，激励成功，角色模型还原
+					   //player->CastSpell(player, 74034, true);//提醒激励成功，14分钟内必须带去见队长，不然平民会逃跑
+
+					   return false;//让法术继续执行
 		}
 	}
 	return false;

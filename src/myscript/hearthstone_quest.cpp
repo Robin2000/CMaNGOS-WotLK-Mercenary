@@ -410,14 +410,13 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 		//下面添加QuestNpcGO
 		tbb::concurrent_vector<QuestNpcGO *> * npcgoV = pPlayer->context.GetQuestNpcGOVector();
 
-		if (npcgoV == nullptr)
-			return;
+		int npcgocount = 0;
+		int itemcount = 0;
 
-			int npcgocount = 0;
-			int itemcount = 0;
-
-			int i = 0;
-			for (auto itr = npcgoV->begin(); i<19&&itr != npcgoV->end(); ++itr,i++){
+		int i = 0;
+		
+		if (npcgoV != nullptr)
+		for (auto itr = npcgoV->begin(); i<19&&itr != npcgoV->end(); ++itr,i++){
 
 				const char * name = "";
 				pPlayer->context.GetCreatureOrGOTitleLocale((*itr)->npcgo, &name);
@@ -455,19 +454,21 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 			{
 				//下面添加兴趣点
 				tbb::concurrent_vector<QuestPOIPoint *> * POI = pPlayer->context.GetQuestPOI();
-
-				int size = POI->size();
-				if (size > 0)
+				if (POI)
 				{
-					int maxPOI = 19 - npcgocount;
-					for (int i = 0; i < size&&i < maxPOI; i++)
+					int size = POI->size();
+					if (size > 0)
 					{
-						QuestPOIPoint * point = POI->at(i);
-						std::ostringstream os;
-						getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
+						int maxPOI = 19 - npcgocount;
+						for (int i = 0; i < size&&i < maxPOI; i++)
+						{
+							QuestPOIPoint * point = POI->at(i);
+							std::ostringstream os;
+							getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
 
-						pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+							pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
 
+						}
 					}
 				}
 			}

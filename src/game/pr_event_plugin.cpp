@@ -108,20 +108,22 @@ bool PrEventPlugin::sendCreatureEvent(PrEvent e, Creature * creature)
 			case 28845://ÊÕ¸îÕßµÄÀñÎï12698£º±»¿ØÖÆµÄÑªÉ«¿ó¹¤28845
 				player->KilledMonster(creature->GetCreatureInfo(), creature->GetObjectGuid());
 				break;
-			case 39466://ºÃÙªÈåÁÈÁÈ25229£º±»¹Ä¶¯µÄÆ½Ãñ39466
-			case 39624://ºÃÙªÈåÁÈÁÈ25229£º±»¹Ä¶¯µÄÆ½Ãñ39624
+			case 39466://ÈÎÎñ£ººÃÙªÈåÁÈÁÈ25229£ºNPC:±»¹Ä¶¯µÄÆ½Ãñ39466
+			case 39624://ÈÎÎñ£ººÃÙªÈåÁÈÁÈ25229£ºNPC:±»¹Ä¶¯µÄÆ½Ãñ39624
+			case 40264://ÈÎÎñ£º¾ÞÄ§Ö¾Ô¸±ø25461: NPC:¾ÞÄ§Ö¾Ô¸Õß:40264
+			case 40260://ÈÎÎñ£º¾ÞÄ§Ö¾Ô¸±ø25461: NPC:¾ÞÄ§Ö¾Ô¸Õß:40260
 
-				float x = creature->GetPositionX();
-				float y = creature->GetPositionY();
-				float z = creature->GetPositionZ();
-				float a = creature->GetAngle(player);
+			float x = creature->GetPositionX();
+			float y = creature->GetPositionY();
+			float z = creature->GetPositionZ();
+			float a = creature->GetAngle(player);
 
-				int dist = 1 + rand() % 5;  /*1-4*/
-				int angle = 3.1415926 * 2 * (1 + rand() % 11) / 10; /*(1-10)/10*/
+			int dist = 1 + rand() % 5;  /*1-4*/
+			int angle = 3.1415926 * 2 * (1 + rand() % 11) / 10; /*(1-10)/10*/
 
-				followGuid.push_back(creature->GetObjectGuid().GetRawValue());
-				creature->GetMotionMaster()->MoveFollow(player, dist, angle);
-				creature->SendPetAIReaction();
+			followGuid.push_back(creature->GetObjectGuid().GetRawValue());
+			creature->GetMotionMaster()->MoveFollow(player, dist, angle);
+			creature->SendPetAIReaction();
 				
 				break;
 		}
@@ -141,23 +143,39 @@ bool PrEventPlugin::sendUnitEvent(PrEvent e, Unit * unit)//id¸ù¾ÝÊÂ¼þ²»Í¬´ú±í²»Í
 	case P_SELECT_UNIT:
 		switch (unit->GetEntry())
 		{
-			case 39675://ºÃÙªÈåÁÈÁÈ25229 ÈÎÎñ£º£¬´ÞµÂ¡¤»ð×ê¶Ó³¤39675	
+			case 40253://ÈÎÎñ£º¾ÞÄ§Ö¾Ô¸±ø25461,NPC:ÓÂÊ¿ÎÚÀ­½ð40253	
 				{	
-					ObjectGuid guid;
+					/*ObjectGuid guid;
 					for (auto it = followGuid.begin(); it != followGuid.end(); it++)
 					{
 						guid.Set(*it);
 						if (Creature* follower = player->GetMap()->GetCreature(guid))
 						{
-							player->KilledMonsterCredit(39466);
+							player->KilledMonsterCredit(40260);
 							((TemporarySummon*)follower)->UnSummon();
 						}
-					}
+					}*/
 					followGuid.clear();
 					break;
 				}
+				break;
 			}
-			break;
+			case 39675://ÈÎÎñ£ººÃÙªÈåÁÈÁÈ25229,NPC:´ÞµÂ¡¤»ð×ê¶Ó³¤39675	
+			{
+				ObjectGuid guid;
+				for (auto it = followGuid.begin(); it != followGuid.end(); it++)
+				{
+					guid.Set(*it);
+					if (Creature* follower = player->GetMap()->GetCreature(guid))
+					{
+						player->KilledMonsterCredit(39466);
+						((TemporarySummon*)follower)->UnSummon();
+					}
+				}
+				followGuid.clear();
+				break;
+			}
+				break;
 	}
 	return true;
 }

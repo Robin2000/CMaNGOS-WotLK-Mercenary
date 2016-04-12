@@ -11634,7 +11634,19 @@ void Spell::EffectKillCreditPersonal(SpellEffectIndex eff_idx)
 
 void Spell::EffectKillCreditGroup(SpellEffectIndex eff_idx)
 {
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+	if (Player *player = m_caster->ToPlayer())//例如：任务，巨魔志愿兵25461，技能：激励一名巨魔志愿兵参军73943,SPELL_EFFECT_KILL_CREDIT_GROUP,miscvalue1=40264 巨魔志愿兵
+	if (Unit * uint = m_targets.getUnitTarget())
+	{
+		player->RewardPlayerAndGroupAtEvent(m_spellInfo->EffectMiscValue[eff_idx], player);
+		uint->DestroyForPlayer(player);
+		if (Creature * creature = uint->ToCreature()){
+			creature->SetDeathState(JUST_DIED);//GM off
+			creature->RemoveCorpse();
+		}
+		return;
+	}
+
+	if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
     ((Player*)unitTarget)->RewardPlayerAndGroupAtEvent(m_spellInfo->EffectMiscValue[eff_idx], unitTarget);
