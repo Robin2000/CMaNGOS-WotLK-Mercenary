@@ -5545,16 +5545,16 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
             sLog.outError("EffectSummonType: Expected to have %u NPCs summoned, but some failed (Spell id %u)", amount, m_spellInfo->Id);
             continue;
         }
-
+		
+		if (Player *player = responsibleCaster ? responsibleCaster->ToPlayer() : m_caster->ToPlayer())
+			player->context.GetEventPlugin().sendCreatureEvent(P_SUMMON_CREATURE, itr->creature);
+		
         if (summon_prop->FactionId)
             itr->creature->setFaction(summon_prop->FactionId);
         // Else set faction to summoner's faction for pet-like summoned
 		else if ((summon_prop->Flags & SUMMON_PROP_FLAG_INHERIT_FACTION) || !itr->creature->IsTemporarySummon())
 		{
-			itr->creature->setFaction(responsibleCaster ? responsibleCaster->getFaction() : m_caster->getFaction());//相当于魅惑了一个creature
-			Player *player=responsibleCaster ? responsibleCaster->ToPlayer() : m_caster->ToPlayer();
-			if (player != nullptr)
-				player->KilledMonster(itr->creature->GetCreatureInfo(), itr->creature->GetObjectGuid());
+			itr->creature->setFaction(responsibleCaster ? responsibleCaster->getFaction() : m_caster->getFaction());//相当于魅惑了一个creature			
 		}
 
         if (!itr->creature->IsTemporarySummon())
@@ -5586,7 +5586,8 @@ bool Spell::DoSummonWild(CreatureSummonPositions& list, SummonPropertiesEntry co
 
     TempSummonType summonType = (m_duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN;
 
-    for (CreatureSummonPositions::iterator itr = list.begin(); itr != list.end(); ++itr)
+	for (CreatureSummonPositions::iterator itr = list.begin(); itr != list.end(); ++itr)
+	{
         if (Creature* summon = m_caster->SummonCreature(creature_entry, itr->x, itr->y, itr->z, m_caster->GetOrientation(), summonType, m_duration))
         {
             itr->creature = summon;
@@ -5603,7 +5604,7 @@ bool Spell::DoSummonWild(CreatureSummonPositions& list, SummonPropertiesEntry co
         }
         else
             return false;
-
+	}
     return true;
 }
 
@@ -11617,10 +11618,18 @@ void Spell::EffectWMOChange(SpellEffectIndex effIdx)
 
 void Spell::EffectKillCreditPersonal(SpellEffectIndex eff_idx)
 {
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
+	if (Player *player = m_caster->ToPlayer())//例如：任务，好侏儒寥寥25229 ，技能：激励一名侏儒平民参军73943,SPELL_EFFECT_KILL_CREDIT_PERSONAL,miscvalue1=39623 平民侏儒
+	if (Unit * uint = m_targets.getUnitTarget())
+	{
+		player->KilledMonsterCredit(m_spellInfo->EffectMiscValue[eff_idx]);
+		uint->DestroyForPlayer(player);
+		return;
+	}
 
-    ((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[eff_idx]);
+	if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+	
+	((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[eff_idx]);
 }
 
 void Spell::EffectKillCreditGroup(SpellEffectIndex eff_idx)

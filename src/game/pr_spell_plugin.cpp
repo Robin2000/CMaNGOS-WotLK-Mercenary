@@ -74,12 +74,45 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell){
 			}
 		case 1784://潜行
 		{
-				if (Pet *pet = player->GetPet())
-				{
+			if (Pet *pet = player->GetPet())
+			{
 					if (!pet->HasStealthAura())
 						pet->CastSpell(pet, 1784, true);//设置潜行	
+			}
+			return false;//返回false则spell会继续执行
+		}
+		case 74035:
+		{
+			if (player->GetQuestStatus(25229) != QUEST_STATUS_INCOMPLETE)
+				return false;
+			switch (urand(1, 3))
+			{
+				case 1: player->CastSpell(spell->m_targets.getUnitTarget(), 73943, true, nullptr); break;//  召唤被激励的平民，unsumon平民侏儒。  
+				case 2: player->CastSpell(player, 73952, true, nullptr); break;// 激励失败，产生光环，变成猪
+				case 3: player->CastSpell(player, 74062, true, nullptr); break;// 激励失败，区域光环，角色模型变大
+			}
+			return true;
+		}
+		case 73943:{
+			player->RemoveAurasDueToSpell(73952);//如果有，激励成功，取消变猪
+			player->CastSpell(player, 74071, true);//如果模型变大，激励成功，角色模型还原
+
+			/*Quest const* qInfo = sObjectMgr.GetQuestTemplate(25229);//任务：好侏儒寥寥
+			uint32 maxCount = 0;
+			for (int j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
+			{
+				if (qInfo->ReqCreatureOrGOId[j] == 39623) //侏儒平民
+				{
+					maxCount = qInfo->ReqCreatureOrGOCount[j];
+					break;
 				}
-				return false;//返回false则spell会继续执行
+			}
+			uint32 curCount = player->GetReqKillOrCastCurrentCount(25229, 39623);//当前杀怪数量
+			if (curCount <= maxCount)*/
+			
+			player->CastSpell(player, 74034, true);//提醒激励成功，14分钟内必须带去见队长，不然平民会逃跑
+			
+			return false;//让法术继续执行
 		}
 	}
 	return false;

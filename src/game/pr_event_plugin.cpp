@@ -1,5 +1,7 @@
 #include "pr_event_plugin.h"
 #include "Mercenary.h"
+#include "TemporarySummon.h"
+
 class DelayedHandleLogin :public DelayedAction
 {
 	public:
@@ -90,7 +92,72 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 				}
 			}
 			break;
+		
 	}
 
+	return true;
+}
+
+bool PrEventPlugin::sendCreatureEvent(PrEvent e, Creature * creature)
+{
+	switch (e)
+	{
+		case P_SUMMON_CREATURE:
+		switch (creature->GetCreatureInfo()->Entry)
+		{
+			case 28845://收割者的礼物12698：被控制的血色矿工28845
+				player->KilledMonster(creature->GetCreatureInfo(), creature->GetObjectGuid());
+				break;
+			case 39466://好侏儒寥寥25229：被鼓动的平民39466
+			case 39624://好侏儒寥寥25229：被鼓动的平民39624
+
+				float x = creature->GetPositionX();
+				float y = creature->GetPositionY();
+				float z = creature->GetPositionZ();
+				float a = creature->GetAngle(player);
+
+				int dist = 1 + rand() % 5;  /*1-4*/
+				int angle = 3.1415926 * 2 * (1 + rand() % 11) / 10; /*(1-10)/10*/
+
+				followGuid.push_back(creature->GetObjectGuid().GetRawValue());
+				creature->GetMotionMaster()->MoveFollow(player, dist, angle);
+				creature->SendPetAIReaction();
+				
+				break;
+		}
+		break;
+		case P_GOSSIP_CREATURE:
+		{
+			
+		}
+		break;
+	}
+	return true;
+}
+
+bool PrEventPlugin::sendUnitEvent(PrEvent e, Unit * unit)//id根据事件不同代表不同含义
+{
+	switch (e){
+	case P_SELECT_UNIT:
+		switch (unit->GetEntry())
+		{
+			case 39675://好侏儒寥寥25229 任务：，崔德·火钻队长39675	
+				{	
+					ObjectGuid guid;
+					for (auto it = followGuid.begin(); it != followGuid.end(); it++)
+					{
+						guid.Set(*it);
+						if (Creature* follower = player->GetMap()->GetCreature(guid))
+						{
+							player->KilledMonsterCredit(39466);
+							((TemporarySummon*)follower)->UnSummon();
+						}
+					}
+					followGuid.clear();
+					break;
+				}
+			}
+			break;
+	}
 	return true;
 }

@@ -420,6 +420,8 @@ void WorldSession::HandleSetSelectionOpcode(WorldPacket& recv_data)
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
 
 	unit->HandleEmoteCommandNormal();//任意做个动作
+
+	GetPlayer()->context.GetEventPlugin().sendUnitEvent(P_SELECT_UNIT, unit);
 }
 
 void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recv_data)
