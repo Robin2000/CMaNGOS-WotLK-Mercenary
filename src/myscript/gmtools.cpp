@@ -7,6 +7,8 @@ void hearthstone_prepare_gmtools(Player* pPlayer, Item* pItem, uint32 uiAction){
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "update zone of quest_poi_points", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 100);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "update zone of z_quest_npcgo_all_map", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 101);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "update zone of Parallel for z_quest_npcgo_all_map", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 107);
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "update zone of Parallel for gameobject", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 110);
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "update zone of Parallel for creature", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 111);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_BATTLE, "cheat god on/off", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 102);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "modify aspeed 5", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 103);
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "modify aspeed 10", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 104);
@@ -123,6 +125,12 @@ void hearthstone_click_gmtools(Player* pPlayer, Item* pItem, uint32 uiAction){
 			break;
 		case GOSSIP_ACTION_INFO_DEF + 109:
 			addTestItem(pPlayer);
+			break;
+		case GOSSIP_ACTION_INFO_DEF + 110:
+			pPlayer->context.calculateParallelZone_GameObject();
+			break;
+		case GOSSIP_ACTION_INFO_DEF + 111:
+			pPlayer->context.calculateParallelZone_Creature();
 			break;
 	}
 }

@@ -108,6 +108,10 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void calculateParallelZone_quest_npcgo_all_map();
 	void calculateZone_quest_poi_points();
 	
+	//计算gameobject个creature的zone和area
+	void calculateParallelZone_GameObject();
+	void calculateParallelZone_Creature();
+
 	inline std::string * getGameMapsName(uint32 map);
 	inline std::string * getGameAreaName(uint32 area);
 

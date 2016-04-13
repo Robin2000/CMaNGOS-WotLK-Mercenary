@@ -555,7 +555,7 @@ void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
 	UpdateTerrainInfoMap updateTerrainInfoMap;
 	QuestNpcGOQueue* questNpcGOQueue =nullptr;
 
-	uint32 oldmap = -1;//标志变量，order by map，每张map改变一次
+	uint32 oldmap = 99999999;//标志变量，order by map，每张map改变一次
 	
 	do
 	{
@@ -590,10 +590,8 @@ void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
 	} while (result->NextRow());
 	delete result;
 	
-	sLog.outError("map0:size:%u", questNpcGOMap[0]->size());
-
 	sLog.outError("questNpcGOMap size:%u", questNpcGOMap.size());
-	for (QuestNpcGOMap::iterator itr = questNpcGOMap.begin(); itr != questNpcGOMap.end(); itr++){
+	for (auto itr = questNpcGOMap.begin(); itr != questNpcGOMap.end(); itr++){
 			if (itr->second->size() == 0)
 				continue;
 			TerrainInfo* terrain = updateTerrainInfoMap[itr->first];
@@ -610,6 +608,206 @@ void PlayerContext::calculateParallelZone_quest_npcgo_all_map(){
 		}
 
 	
+	fclose(log_file);
+}
+struct Z_GameObject{
+	uint32 guid;
+	uint32 id;                                              // entry in gamobject_template
+	uint16 map;
+	uint8 spawnMask;
+	uint16 phaseMask;
+	float x;
+	float y;
+	float z;
+	float orientation;
+	float rotation0;
+	float rotation1;
+	float rotation2;
+	float rotation3;
+	int32  spawntimesecs;
+	uint32 animprogress;
+	uint8 state;
+	
+	uint16 zone;
+	uint16 area;
+};
+typedef tbb::concurrent_vector<Z_GameObject*> Z_GameObjectQueue;
+typedef tbb::concurrent_unordered_map<uint32, Z_GameObjectQueue*> Z_GameObjectMap;
+void PlayerContext::calculateParallelZone_GameObject(){
+
+	FILE* log_file;
+	log_file = fopen("e:/GameObject.txt", "w");
+
+
+	//												   0   1    2      3         4       5           6        7           8          9        10        11         12       13             14         15    16   17
+	QueryResult* result = WorldDatabase.Query("SELECT guid,id,map,spawnMask,phaseMask,position_x,position_y,position_z,orientation,rotation0,rotation1,rotation2,rotation3,spawntimesecs,animprogress,state,zone,area FROM gameobject order by map");
+
+	Z_GameObjectMap gameObjectMap;
+	UpdateTerrainInfoMap updateTerrainInfoMap;
+	Z_GameObjectQueue* gameObjectQueue = nullptr;
+
+	uint32 oldmap = 99999999;//标志变量，order by map，每张map改变一次
+
+	do
+	{
+		Field* fields = result->Fetch();
+		Z_GameObject* gameObject = new Z_GameObject();
+		gameObject->guid = fields[0].GetUInt32();
+		gameObject->id = fields[1].GetUInt32();
+		gameObject->map = fields[2].GetUInt16();
+		gameObject->spawnMask = fields[3].GetUInt8();
+		gameObject->phaseMask = fields[4].GetUInt16();
+		gameObject->x = fields[5].GetFloat();
+		gameObject->y = fields[6].GetFloat();
+		gameObject->z = fields[7].GetFloat();
+		gameObject->orientation = fields[8].GetFloat();
+		gameObject->rotation0 = fields[9].GetFloat();
+		gameObject->rotation1 = fields[10].GetFloat();
+		gameObject->rotation2 = fields[11].GetFloat();
+		gameObject->rotation3 = fields[12].GetFloat();
+		gameObject->spawntimesecs = fields[13].GetInt32();
+		gameObject->animprogress = fields[14].GetUInt32();
+		gameObject->state = fields[15].GetUInt8();
+		gameObject->zone = fields[16].GetUInt16();
+		gameObject->area = fields[17].GetUInt16();
+
+		if (oldmap != gameObject->map){
+			oldmap = gameObject->map;
+
+			TerrainInfo* terrain = sTerrainMgr.LoadTerrain(gameObject->map);
+			updateTerrainInfoMap[gameObject->map] = terrain;
+
+			gameObjectQueue = new Z_GameObjectQueue();
+			gameObjectMap[gameObject->map] = gameObjectQueue;
+
+		}
+		gameObjectQueue->push_back(gameObject);
+
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outError("gameObjectMap size:%u", gameObjectMap.size());
+	for (auto itr = gameObjectMap.begin(); itr != gameObjectMap.end(); itr++){
+
+		if (itr->second->size() == 0)
+			continue;
+		
+		TerrainInfo* terrain = updateTerrainInfoMap[itr->first];
+		sLog.outError("map:%u ,size:%u", itr->first, itr->second->size());
+		
+		tbb::parallel_for_each(itr->second->begin(), itr->second->end(), [&](Z_GameObject *v) {
+			fprintf(log_file, "%u\t%u\t%u\t%u\t%u\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%d\t%u\t%u\t%u\t%u\n", v->guid, v->id, v->map, v->spawnMask, v->phaseMask, v->x, v->y, v->z, v->orientation, v->rotation0, v->rotation1, v->rotation2, v->rotation3, v->spawntimesecs, v->animprogress, v->state, terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z));
+			delete v;
+		});
+		delete itr->second;
+	}
+
+
+	fclose(log_file);
+}
+
+struct Z_Creature{
+	uint32 guid;
+	uint32 id;                                              // entry in creature_template
+	uint16 map;
+	uint8 spawnMask;
+	uint16 phaseMask;
+	uint32 modelid;                                // overrides any model defined in creature_template
+	int32 equipmentId;
+	float x;
+	float y;
+	float z;
+	float orientation;
+	uint32 spawntimesecs;
+	float spawndist;
+	uint32 currentwaypoint;
+	uint32 curhealth;
+	uint32 curmana;
+	bool  DeathState;
+	uint8 movementType;
+	uint16 zone;
+	uint16 area;
+};
+typedef tbb::concurrent_vector<Z_Creature*> Z_CreatureQueue;
+typedef tbb::concurrent_unordered_map<uint32, Z_CreatureQueue*> Z_CreatureMap;
+void PlayerContext::calculateParallelZone_Creature(){
+
+	FILE* log_file;
+	log_file = fopen("e:/Creature.txt", "w");
+
+
+	//												   0   1    2      3         4       5           6        7           8          9        10             11         12          13             14       15     16             17        18  19
+	QueryResult* result = WorldDatabase.Query("SELECT guid,id,map,spawnMask,phaseMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawntimesecs,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType,zone,area FROM creature order by map");
+
+	Z_CreatureMap creatureMap;
+	UpdateTerrainInfoMap updateTerrainInfoMap;
+	Z_CreatureQueue* creaturetQueue = nullptr;
+
+	uint32 oldmap = 99999999;//标志变量，order by map，每张map改变一次
+
+	do
+	{
+		Field* fields = result->Fetch();
+		Z_Creature* creature = new Z_Creature();
+		creature->guid = fields[0].GetUInt32();
+		creature->id = fields[1].GetUInt32();
+		creature->map = fields[2].GetUInt16();
+		creature->spawnMask = fields[3].GetUInt8();
+		creature->phaseMask = fields[4].GetUInt16();
+		creature->modelid = fields[5].GetUInt32();
+		creature->equipmentId = fields[6].GetInt32();
+
+		creature->x = fields[7].GetFloat();
+		creature->y = fields[8].GetFloat();
+		creature->z = fields[9].GetFloat();
+		creature->orientation = fields[10].GetFloat();
+
+		creature->spawntimesecs = fields[11].GetUInt32();
+		creature->spawndist = fields[12].GetFloat();
+
+		creature->currentwaypoint = fields[13].GetUInt32();
+		creature->curhealth = fields[14].GetUInt32();
+		creature->curmana = fields[15].GetUInt32();
+
+		creature->DeathState = fields[16].GetBool();
+		creature->movementType = fields[17].GetUInt8();
+		creature->zone = fields[18].GetUInt16();
+		creature->area = fields[19].GetUInt16();
+
+
+		if (oldmap != creature->map){
+			oldmap = creature->map;
+
+			TerrainInfo* terrain = sTerrainMgr.LoadTerrain(creature->map);
+			updateTerrainInfoMap[creature->map] = terrain;
+
+			creaturetQueue = new Z_CreatureQueue();
+			creatureMap[creature->map] = creaturetQueue;
+
+		}
+		creaturetQueue->push_back(creature);
+
+	} while (result->NextRow());
+	delete result;
+
+	sLog.outError("creatureMap size:%u", creatureMap.size());
+	for (auto itr = creatureMap.begin(); itr != creatureMap.end(); itr++){
+
+		if (itr->second->size() == 0)
+			continue;
+		
+		TerrainInfo* terrain = updateTerrainInfoMap[itr->first];
+		
+		sLog.outError("map:%u ,size:%u", itr->first, itr->second->size());
+		tbb::parallel_for_each(itr->second->begin(), itr->second->end(), [&](Z_Creature *v) {
+			fprintf(log_file, "%u\t%u\t%u\t%u\t%u\t%u\t%d\t%f\t%f\t%f\t%f\t%u\t%f\t%u\t%u\t%u\t%u\t%u\t%u\t%u\n", v->guid, v->id, v->map, v->spawnMask, v->phaseMask, v->modelid, v->equipmentId, v->x, v->y, v->z, v->orientation, v->spawntimesecs, v->spawndist, v->currentwaypoint, v->curhealth, v->curmana, v->DeathState, v->movementType, terrain->GetZoneId(v->x, v->y, v->z), terrain->GetAreaId(v->x, v->y, v->z));
+			delete v;
+		});
+		delete itr->second;
+	}
+
+
 	fclose(log_file);
 }
 void PlayerContext::calculateZone_quest_npcgo_all_map(){
