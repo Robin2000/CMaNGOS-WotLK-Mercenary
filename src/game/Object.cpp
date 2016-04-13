@@ -1903,7 +1903,23 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
 	VisitNearbyObject(range, searcher);
 	return creature;
 }
+GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
+{
+	GameObject* go = NULL;
+	MaNGOS::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
+	MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> searcher(go, checker);
+	VisitNearbyObject(range, searcher);
+	return go;
+}
 
+GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float range) const
+{
+	GameObject* go = NULL;
+	MaNGOS::NearestGameObjectTypeInObjectRangeCheck checker(*this, type, range);
+	MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectTypeInObjectRangeCheck> searcher(go, checker);
+	VisitNearbyObject(range, searcher);
+	return go;
+}
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 {
     m_phaseMask = newPhaseMask;

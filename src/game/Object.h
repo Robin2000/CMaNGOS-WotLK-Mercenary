@@ -641,6 +641,8 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         Creature* SummonCreature(uint32 id, float x, float y, float z, float ang, TempSummonType spwtype, uint32 despwtime, bool asActiveObject = false);
 
 		Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+		GameObject* FindNearestGameObject(uint32 entry, float range) const;
+		GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 
         bool isActiveObject() const { return m_isActiveObject || m_viewPoint.hasViewers(); }
         void SetActiveObjectState(bool active);

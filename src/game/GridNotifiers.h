@@ -702,7 +702,29 @@ namespace MaNGOS
             // prevent clone this object
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&);
     };
+	class NearestGameObjectTypeInObjectRangeCheck
+	{
+	public:
+		NearestGameObjectTypeInObjectRangeCheck(WorldObject const& obj, GameobjectTypes type, float range) : i_obj(obj), i_type(type), i_range(range) { }
+		WorldObject const& GetFocusObject() const { return i_obj; }
+		bool operator()(GameObject* go)
+		{
+			if (go->GetGoType() == i_type && i_obj.IsWithinDistInMap(go, i_range))
+			{
+				i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
+				return true;
+			}
+			return false;
+		}
+		float GetLastRange() const { return i_range; }
+	private:
+		WorldObject const& i_obj;
+		GameobjectTypes i_type;
+		float  i_range;
 
+		// prevent clone this object
+		NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&);
+	};
     // Success at gameobject in range of xyz, range update for next check (this can be use with GameobjectLastSearcher to find nearest GO)
     class NearestGameObjectEntryInPosRangeCheck
     {
