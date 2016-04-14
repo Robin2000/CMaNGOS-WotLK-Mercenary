@@ -577,6 +577,8 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	}
 	/*任务推荐主菜单*/
 	void hearthstone_prepare_quest_area(Player* pPlayer, Item* pItem, int area){
+		if (pPlayer->isGameMaster())
+			ChatHandler(pPlayer).SendSysMessage("GM mode faction is ignored!");
 		if (area == -1)
 			area = pPlayer->GetAreaId();
 
@@ -594,6 +596,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	}
 	//推荐zone下所有区域
 	void hearthstone_prepare_quest_zone(Player* pPlayer, Item* pItem, int zone){
+		if (pPlayer->isGameMaster())
+			ChatHandler(pPlayer).SendSysMessage("GM mode faction is ignored!");
+
 		if (zone == -1)
 			zone=pPlayer->GetZoneId();
 		

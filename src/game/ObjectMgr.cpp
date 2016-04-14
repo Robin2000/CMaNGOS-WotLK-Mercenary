@@ -296,7 +296,7 @@ void ObjectMgr::LoadGameZones(){
 
 	mGameZones.clear();                             // need for reload case
 													// 0  1   2    3         4
-	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel,hasquest FROM z_zone");
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,areaLevel,hasquest FROM z_zone order by areaLevel");
 
 	if (!result)
 	{
@@ -340,7 +340,7 @@ void ObjectMgr::LoadGameAreas(){
 
 	mGameAreas.clear();                             // need for reload case
 													//0  1    2   3    4         5
-	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel,hasquest FROM z_area");
+	QueryResult* result = WorldDatabase.Query("SELECT id,name,map,zone,areaLevel,hasquest FROM z_area order by areaLevel");
 
 	if (!result)
 	{
