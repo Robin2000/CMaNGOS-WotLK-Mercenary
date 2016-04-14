@@ -14932,7 +14932,6 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
         }
     }
 }
-
 bool Player::HasQuestForItem(uint32 itemid) const
 {
     for (int i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
@@ -14986,8 +14985,12 @@ bool Player::HasQuestForItem(uint32 itemid) const
                         return true;
                 }
             }
+			//新增逻辑，判断GAMEOBJECT_TYPE_CHEST中指定的questid
+			if (sLootMgr.isItem4Quest(itemid, questid))
+				return true;
         }
     }
+	
     return false;
 }
 

@@ -391,8 +391,12 @@ public:
     bool IsAllowedToLoot(Player* player, Creature* creature);
     void PlayerVote(Player* player, ObjectGuid const& lootTargetGuid, uint32 itemSlot, RollVote vote);
     Loot* GetLoot(Player* player, ObjectGuid const& targetGuid = ObjectGuid());
-
+	void LoadLootTablesAddon_gameobject_quest();
     void update(uint32 diff);
+
+	bool isItem4Quest(uint32 itemid, uint32 questid);
+private :
+	tbb::concurrent_unordered_map<uint32, uint32> item4questAddonMap;
 };
 
 #define sLootMgr MaNGOS::Singleton<LootMgr>::Instance()

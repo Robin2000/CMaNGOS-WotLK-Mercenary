@@ -1187,6 +1187,11 @@ void World::SetInitialWorldSettings()
     sLog.outString(">>> Loot Tables loaded");
     sLog.outString();
 
+	sLog.outString("Loading Loot Tables Addon...");
+	sLootMgr.LoadLootTablesAddon_gameobject_quest();
+	sLog.outString(">>> Loot Tables Addon loaded");
+	sLog.outString();
+
     sLog.outString("Loading Skill Discovery Table...");
     LoadSkillDiscoveryTable();
 

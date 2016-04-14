@@ -415,8 +415,10 @@ bool LootItem::AllowedForPlayer(Player const* player, WorldObject const* lootTar
 
         case LOOTITEM_TYPE_QUEST:
             // Checking quests for quest-only drop (check only quests requirements in this case)
-            if (!player->HasQuestForItem(itemId))
-                return false;
+			if (!player->HasQuestForItem(itemId))
+			{
+				return false;
+			}
             break;
 
         default:
@@ -2831,4 +2833,27 @@ bool LootMgr::IsAllowedToLoot(Player* player, Creature* creature)
         canLoot = loot->CanLoot(player);
 
     return canLoot;
+}
+void LootMgr::LoadLootTablesAddon_gameobject_quest(){
+	item4questAddonMap.clear();
+	//                                                   0        1  通过查询获得GAMEOBJECT_TYPE_CHEST 中quest和item额外的对应关系
+	QueryResult* result = WorldDatabase.Query("SELECT A.item,B.data8 FROM gameobject_loot_template A INNER JOIN gameobject_template B ON A.entry = B.data1 WHERE B.type = 3 and data8>0");
+	if (result)
+	{
+		BarGoLink bar(result->GetRowCount());
+		do
+		{
+			Field* fields = result->Fetch();
+			bar.step();
+
+			uint32 item = fields[0].GetUInt32();
+			uint32 quest = fields[1].GetUInt32();
+			item4questAddonMap.insert(std::make_pair(item, quest));
+		} while (result->NextRow());
+	}
+}
+
+bool LootMgr::isItem4Quest(uint32 itemid, uint32 questid){
+	auto it = item4questAddonMap.find(itemid);
+	return (it != item4questAddonMap.end() && it->second == questid);
 }
