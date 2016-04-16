@@ -14962,6 +14962,8 @@ bool Player::HasQuestForItem(uint32 itemid) const
             {
                 if (itemid == qinfo->ReqItemId[j] && q_status.m_itemcount[j] < qinfo->ReqItemCount[j])
                     return true;
+				else if (itemid == qinfo->ReqItemId[j] && q_status.m_itemcount[j] == qinfo->ReqItemCount[j])
+					return false;//任务物品已满足，不再显示
             }
             // This part - for ReqSource
             for (int j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
@@ -14980,6 +14982,8 @@ bool Player::HasQuestForItem(uint32 itemid) const
                     {
                         if (GetItemCount(itemid, true) < qinfo->ReqSourceCount[j])
                             return true;
+						else if (GetItemCount(itemid, true) == qinfo->ReqSourceCount[j])//任务物品已满足，不再显示
+							return false;
                     }
                     else if ((int32)GetItemCount(itemid, true) < pProto->Stackable)
                         return true;
