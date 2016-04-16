@@ -259,8 +259,8 @@ bool ObjectMgr::load_cache(){
 void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
-	                                                //0  1   2
-	QueryResult* result = WorldDatabase.Query("SELECT id,cn,hasquest FROM z_map");
+	                                                // 0    1  2   3    4
+	QueryResult* result = WorldDatabase.Query("SELECT zone,cn,map,level,faction FROM z_map order by level desc");
 
 	if (!result)
 	{
@@ -276,15 +276,17 @@ void ObjectMgr::LoadGameMaps(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
-		uint32 id = fields[0].GetUInt32();
-		mapIDName[id] = fields[1].GetCppString();
+		uint32 zone = fields[0].GetUInt32();
+		mapIDName[zone] = fields[1].GetCppString();
 
-		if (fields[2].GetUInt8() == 1){
-			GameMap* gameMap = new GameMap();
-			gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
-			gameMap->id = id;		
-			mGameMaps[fields[0].GetUInt32()] = gameMap;
-		}
+		GameMap* gameMap = new GameMap();
+		//gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
+		gameMap->zone = zone;		
+		gameMap->map = fields[2].GetUInt32();
+		gameMap->level = fields[3].GetUInt32();
+		gameMap->faction = fields[4].GetUInt32();
+		mGameMaps.push_back(gameMap);
+
 	} while (result->NextRow());
 
 	delete result;
@@ -326,8 +328,8 @@ void ObjectMgr::LoadGameZones(){
 			gameZone->areaLevel = fields[3].GetUInt32();
 
 			mGameZones[gameZone->id] = gameZone;
-			if (mGameMaps.find(gameZone->map) != mGameMaps.end())
-				mGameMaps[gameZone->map]->zonelist->push_back(gameZone);
+			//if (mGameMaps.find(gameZone->map) != mGameMaps.end())
+				//mGameMaps[gameZone->map]->zonelist->push_back(gameZone);
 		}
 	} while (result->NextRow());
 

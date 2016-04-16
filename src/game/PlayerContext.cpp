@@ -891,12 +891,12 @@ inline std::string * PlayerContext::getGameAreaName(uint32 area){
 	return  sObjectMgr.getGameAreaName(area);
 }
 
-tbb::concurrent_unordered_map<uint32, GameMap*> & PlayerContext::getGameMaps(){
+tbb::concurrent_vector<GameMap*> & PlayerContext::getGameMaps(){
 	return  sObjectMgr.getGameMaps();
 }
-GameMap * PlayerContext::getGameMap(uint32 map){
+/*GameMap * PlayerContext::getGameMap(uint32 map){
 	return  sObjectMgr.getGameMap(map);
-}
+}*/
 GameZone * PlayerContext::getGameZone(uint32 zone){
 	return  sObjectMgr.getGameZone(zone);
 }

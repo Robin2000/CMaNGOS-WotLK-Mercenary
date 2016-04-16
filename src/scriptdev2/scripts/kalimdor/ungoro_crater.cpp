@@ -48,12 +48,21 @@ enum
 
 struct npc_ame01AI : public npc_escortAI
 {
+	bool escort_ing = false;
+
     npc_ame01AI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
 
-    void Reset() override {}
+	void Reset() override {  }
+
+	void UpdateAI(const uint32 uiDiff) override{
+		if (escort_ing)
+			m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+		npc_escortAI::UpdateAI(uiDiff);
+	}
 
     void WaypointReached(uint32 uiPointId) override
     {
+		escort_ing = true;
         switch (uiPointId)
         {
             case 0:
@@ -66,6 +75,7 @@ struct npc_ame01AI : public npc_escortAI
                 DoScriptText(SAY_AME_END, m_creature);
                 if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_CHASING_AME, m_creature);
+				escort_ing = false;
                 break;
         }
     }
@@ -96,6 +106,7 @@ bool QuestAccept_npc_ame01(Player* pPlayer, Creature* pCreature, const Quest* pQ
     {
         if (npc_ame01AI* pAmeAI = dynamic_cast<npc_ame01AI*>(pCreature->AI()))
         {
+			pAmeAI->escort_ing = true;
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 
             if (pPlayer->GetTeam() == ALLIANCE)
@@ -157,6 +168,7 @@ struct npc_ringoAI : public FollowerAI
 
     Unit* pSpraggle;
 
+	bool escort_ing = false;
     void Reset() override
     {
         m_uiFaintTimer = urand(30000, 60000);
@@ -164,6 +176,11 @@ struct npc_ringoAI : public FollowerAI
         m_uiEndEventTimer = 1000;
         pSpraggle = NULL;
     }
+	void UpdateAI(const uint32 uiDiff) override{
+		if (escort_ing)
+			m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+		FollowerAI::UpdateAI(uiDiff);
+	}
 
     void MoveInLineOfSight(Unit* pWho) override
     {
@@ -320,6 +337,7 @@ bool QuestAccept_npc_ringo(Player* pPlayer, Creature* pCreature, const Quest* pQ
     {
         if (npc_ringoAI* pRingoAI = dynamic_cast<npc_ringoAI*>(pCreature->AI()))
         {
+			pRingoAI->escort_ing = true;
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
             pRingoAI->StartFollow(pPlayer, FACTION_ESCORT_N_FRIEND_PASSIVE, pQuest);
         }

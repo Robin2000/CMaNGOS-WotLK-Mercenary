@@ -50,6 +50,9 @@ class MANGOS_DLL_SPEC PlayerContext{
 	void addMorphHistory(uint32 creature_entry, uint32 displayid);
 
 	void checkFirstGuideQuest();
+	//选择的大陆
+	int CONTINENTSEL = -1;
+
 	//选择的map
 	int MAPSEL = -1;
 
@@ -116,10 +119,10 @@ class MANGOS_DLL_SPEC PlayerContext{
 	inline std::string * getGameAreaName(uint32 area);
 
 	//取得游戏地图列表
-	tbb::concurrent_unordered_map<uint32, GameMap*> & getGameMaps();
+	tbb::concurrent_vector<GameMap*> & getGameMaps();
 	
 	//取得特定地图的信息，其中包含该地图的zone列表
-	GameMap * getGameMap(uint32 map);
+	//GameMap * getGameMap(uint32 map);
 
 	//取得特定的zone信息，其中包含该zone的area列表
 	GameZone * getGameZone(uint32 zone);

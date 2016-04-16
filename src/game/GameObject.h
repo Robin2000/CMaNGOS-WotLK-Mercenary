@@ -100,8 +100,11 @@ struct GameZone{
 	tbb::concurrent_vector<GameArea*>* arealist;
 };
 struct GameMap{
-	uint32 id;
-	tbb::concurrent_vector<GameZone*>* zonelist;
+	uint32 zone;
+	uint32 map;
+	uint16 level;
+	uint32 faction;
+	//tbb::concurrent_vector<GameZone*>* zonelist;
 };
 
 // from `gameobject_template`
