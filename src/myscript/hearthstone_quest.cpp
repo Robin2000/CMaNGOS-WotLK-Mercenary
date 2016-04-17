@@ -501,14 +501,35 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 					if (size > 0)
 					{
 						int maxPOI = 19 - npcgocount;
-						for (int i = 0; i < size&&i < maxPOI; i++)
+
+						//首先添加有对应NPCGO
+						int count = 0;
+						for (int i = 0; i < size&&count < maxPOI; i++)
 						{
 							QuestPOIPoint * point = POI->at(i);
+							if (point->npcgo == 0)
+								continue;
 							std::ostringstream os;
 							getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
 
 							pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+							count++;
+						}
+						//然后添加无NPCGO
+						if (count < maxPOI)
+						{
+							for (int i = 0; i < size&&count < maxPOI; i++)
+							{
+								QuestPOIPoint * point = POI->at(i);
+								if (point->npcgo != 0)
+									continue;
 
+								std::ostringstream os;
+								getPOIName(pPlayer, point, uint32(point->map), uint32(point->zone), uint32(point->area), int32(point->x), int32(point->y), os);
+
+								pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 980 + i);
+								count++;
+							}
 						}
 					}
 				}
