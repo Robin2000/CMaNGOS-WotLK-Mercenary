@@ -1770,11 +1770,11 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         return;
 
     // Hmmmm dont like this emotes client must by self do all animations
-    if (damageInfo->HitInfo & HITINFO_CRITICALHIT)
+    /*if (damageInfo->HitInfo & HITINFO_CRITICALHIT)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_WOUNDCRITICAL);
     if (damageInfo->blocked_amount && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_PARRYSHIELD);
-
+		*/
     if (damageInfo->TargetState == VICTIMSTATE_PARRY)
     {
         if (pVictim->GetTypeId() != TYPEID_UNIT ||
@@ -1893,6 +1893,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 void Unit::HandleEmoteCommand(uint32 emote_id)
 {
 	if (isDead()||isInCombat())
+	//if (isDead())在战斗中播放表情无效
 		return;
 
     WorldPacket data(SMSG_EMOTE, 4 + 8);
@@ -2759,6 +2760,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
     if (tmp > 0 && roll < (sum += tmp))
     {
         DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: MISS");
+		//((Creature*)pVictim)->HandleEmoteCommand(39);//当被打击且miss的时候，播放一个防御动作
         return MELEE_HIT_MISS;
     }
 
@@ -2766,6 +2768,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
     if (pVictim->GetTypeId() == TYPEID_PLAYER && crit_chance > 0 && !pVictim->IsStandState())
     {
         DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: CRIT (sitting victim)");
+		//((Creature*)pVictim)->HandleEmoteCommand(33);//当被打击且暴击的时候，播放一个被暴击动作
         return MELEE_HIT_CRIT;
     }
 
@@ -2794,6 +2797,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
                 && roll < (sum += tmp))
         {
             DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: DODGE <%d, %d)", sum - tmp, sum);
+			//((Creature*)pVictim)->HandleEmoteCommand(43);//当被打击且miss的时候，播放一个闪躲动作
             return MELEE_HIT_DODGE;
         }
     }
@@ -2819,6 +2823,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
                     (roll < (sum += parry_chance)))
             {
                 DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: PARRY <%d, %d)", sum - parry_chance, sum);
+				//((Creature*)pVictim)->HandleEmoteCommand(39);//当被打击且miss的时候，播放一个格挡动作
                 return MELEE_HIT_PARRY;
             }
         }
@@ -2840,6 +2845,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
         if (roll < (sum += tmp))
         {
             DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: GLANCING <%d, %d)", sum - 4000, sum);
+			//((Creature*)pVictim)->HandleEmoteCommand(43);//当被打击且miss的时候，播放一个偏斜动作
             return MELEE_HIT_GLANCING;
         }
     }
@@ -2856,6 +2862,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
                     && (roll < (sum += tmp)))
             {
                 DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: BLOCK <%d, %d)", sum - tmp, sum);
+				//((Creature*)pVictim)->HandleEmoteCommand(39);//当被打击且miss的时候，播放一个格挡动作
                 return MELEE_HIT_BLOCK;
             }
         }
@@ -2867,6 +2874,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
     if (tmp > 0 && roll < (sum += tmp))
     {
         DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: CRIT <%d, %d)", sum - tmp, sum);
+		//((Creature*)pVictim)->HandleEmoteCommand(33);//当被打击且暴击的时候，播放一个被暴击动作
         return MELEE_HIT_CRIT;
     }
 
@@ -2890,6 +2898,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* pVictim, WeaponAttackT
             if (roll < (sum += tmp))
             {
                 DEBUG_FILTER_LOG(LOG_FILTER_COMBAT, "RollMeleeOutcomeAgainst: CRUSHING <%d, %d)", sum - tmp, sum);
+				//((Creature*)pVictim)->HandleEmoteCommand(34);//当被打击且miss的时候，播放一个被碾压动作
                 return MELEE_HIT_CRUSHING;
             }
         }

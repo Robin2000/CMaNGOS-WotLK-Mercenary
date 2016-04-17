@@ -78,7 +78,8 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell){
 			if (Pet *pet = player->GetPet())
 			{
 					if (!pet->HasStealthAura())
-						pet->CastSpell(pet, 1784, true);//设置潜行	
+						pet->SetVisibility(VISIBILITY_GROUP_STEALTH);
+						//pet->CastSpell(pet, 1784, true);//设置潜行	
 			}
 			return false;//返回false则spell会继续执行
 		}
@@ -155,7 +156,8 @@ void PrSpellPlugin::spell_handler_cancel(uint32 spellid){
 			if (Pet *pet = player->GetPet())
 			{
 				if (pet->HasStealthAura())
-					pet->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);//取消潜行					
+					pet->SetVisibility(VISIBILITY_ON);
+					//pet->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);//取消潜行					
 			}
 			break;
 		}
