@@ -14600,8 +14600,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
             continue;
 
         Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
-        //if (!qInfo || !qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))去掉标志检测
-		if (!qInfo)
+       if (!qInfo || !qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))//此检测标志在从数据库加载时设置，仅为提高效率
             continue;
 
         for (int j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
@@ -14627,7 +14626,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 				else
 					IncompleteQuest(questid); //这句有用？
 				
-				return;
+				break;
 				
             }
         }
