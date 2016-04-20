@@ -746,9 +746,9 @@ struct SQLCreatureLoader : public SQLStorageLoaderBase<SQLCreatureLoader, SQLSto
 
 void ObjectMgr::LoadCreatureTemplates()
 {
-	float DB_CREATURE_DamageMultiplier = sConfig.GetFloatDefault("DB_CREATURE_DamageMultiplier", false);
-	float DB_CREATURE_ArmorMultiplier = sConfig.GetFloatDefault("DB_CREATURE_ArmorMultiplier", false);
-	float DB_CREATURE_HealthMultiplier = sConfig.GetFloatDefault("DB_CREATURE_HealthMultiplier", false);
+	float DB_CREATURE_DamageMultiplier = sConfig.getDB_CREATURE_DamageMultiplier();
+	float DB_CREATURE_ArmorMultiplier = sConfig.getDB_CREATURE_ArmorMultiplier();
+	float DB_CREATURE_HealthMultiplier = sConfig.getDB_CREATURE_HealthMultiplier();
 
     SQLCreatureLoader loader;
     loader.Load(sCreatureStorage);

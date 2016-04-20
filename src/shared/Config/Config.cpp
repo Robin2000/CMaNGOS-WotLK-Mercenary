@@ -57,6 +57,9 @@ bool Config::Reload()
 		printf("Error in config file: %s\n", configError.c_str());
 		return false;
 	}
+	DB_CREATURE_DamageMultiplier = GetFloatDefault("DB_CREATURE_DamageMultiplier", false);
+	DB_CREATURE_ArmorMultiplier = GetFloatDefault("DB_CREATURE_ArmorMultiplier", false);
+	DB_CREATURE_HealthMultiplier = GetFloatDefault("DB_CREATURE_HealthMultiplier", false);
 
     return true;
 }

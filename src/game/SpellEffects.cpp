@@ -61,6 +61,7 @@
 #include "G3D/Vector3.h"
 #include "LootMgr.h"
 #include "MercenaryPet.h"
+#include "Config/Config.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
@@ -305,7 +306,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffectIndex eff_idx)
 
     m_caster->SendSpellNonMeleeDamageLog(m_caster, m_spellInfo->Id, damage, GetSpellSchoolMask(m_spellInfo), absorb, resist, false, 0, false);
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)m_caster)->EnvironmentalDamage(DAMAGE_FIRE, damage);
+		((Player*)m_caster)->EnvironmentalDamage(DAMAGE_FIRE, damage * sConfig.getDB_CREATURE_DamageMultiplier());//环境伤害也有倍率
 }
 
 void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
@@ -755,8 +756,15 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
             }
         }
 
-        if (damage >= 0)
-            m_damage += damage;
+		if (damage >= 0){
+        //    m_damage += damage;//这里增加技能伤害的倍率逻辑
+			if (m_caster->GetTypeId() == TYPEID_PLAYER)
+				m_damage += damage;
+			else if (m_caster->GetUInt32Value(OBJECT_FIELD_ENTRY) == 70000)//雇佣兵
+				m_damage += damage;
+			else
+				m_damage += damage*sConfig.getDB_CREATURE_DamageMultiplier(); 
+		}
     }
 }
 
@@ -7106,7 +7114,16 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
     bonus = int32(bonus * totalDamagePercentMod);
 
     // prevent negative damage
-    m_damage += uint32(bonus > 0 ? bonus : 0);
+    //m_damage += uint32(bonus > 0 ? bonus : 0);怪物伤害增加倍率逻辑
+	if (bonus >= 0){
+		if (m_caster->GetTypeId() == TYPEID_PLAYER)//玩家
+			m_damage += bonus;
+		else if (m_caster->GetUInt32Value(OBJECT_FIELD_ENTRY) == 70000)//雇佣兵
+			m_damage += bonus;
+		else
+			m_damage += bonus * sConfig.getDB_CREATURE_DamageMultiplier();
+		
+	}
 
     // Hemorrhage
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (m_spellInfo->SpellFamilyFlags & UI64LIT(0x2000000)))

@@ -82,8 +82,12 @@ class MANGOS_DLL_SPEC Config
         bool GetBoolDefault(const char* name, const bool def = false);
         int32 GetIntDefault(const char* name, const int32 def);
         float GetFloatDefault(const char* name, const float def);
-
-        std::string GetFilename() const { return mFilename; }
+		
+		float getDB_CREATURE_DamageMultiplier(){ return DB_CREATURE_DamageMultiplier; }
+		float getDB_CREATURE_ArmorMultiplier(){ return DB_CREATURE_ArmorMultiplier; }
+		float getDB_CREATURE_HealthMultiplier(){ return DB_CREATURE_HealthMultiplier; }
+        
+		std::string GetFilename() const { return mFilename; }
 
     private:
 
@@ -91,6 +95,9 @@ class MANGOS_DLL_SPEC Config
         //ACE_Configuration_Heap* mConf;
 		ConfigMgr * mConf;
 		std::string stage;
+		float DB_CREATURE_DamageMultiplier = 1.0f;
+		float DB_CREATURE_ArmorMultiplier = 1.0f;
+		float DB_CREATURE_HealthMultiplier = 1.0f;
 };
 
 
