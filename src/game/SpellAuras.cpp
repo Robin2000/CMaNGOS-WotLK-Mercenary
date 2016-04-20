@@ -7846,8 +7846,16 @@ void Aura::PeriodicTick()
                 return;
 
             int32 gain = target->ModifyHealth(m_modifier.m_amount);
-            if (Unit* caster = GetCaster())
-                target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f  * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
+			if (Unit* caster = GetCaster())
+			{
+				target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f  * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
+				if (caster->GetTypeId() == TYPEID_PLAYER)
+				{
+					if (Pet * pet = caster->GetPet())
+						if (pet->isMercenary())
+							pet->ModifyHealth(m_modifier.m_amount);
+				}
+			}
             break;
         }
         case SPELL_AURA_MOD_POWER_REGEN:
