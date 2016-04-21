@@ -8673,15 +8673,14 @@ uint16 Player::findEmptyPos()
 	if (!pBag->GetItemByPos(j))
 		return (uint16(i) << 8) | j;
 
-	for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
+	/*for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
 	if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 		return (uint16(INVENTORY_SLOT_BAG_0) << 8) | i;
 
 	for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
 	if (Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, i))
 	for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-	if (!pBag->GetItemByPos(j))
-		return (uint16(i) << 8) | j;
+	if (!pBag->GetItemByPos(j))*/
 	
 	return 0;
 }
@@ -8692,7 +8691,7 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
 
     InventoryResult res = EQUIP_ERR_OK;
 
-    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    /*for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
         pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (pItem && pItem->GetEntry() == item)
@@ -8707,7 +8706,7 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
             else
                 res = ires;
         }
-    }
+    }*/
     for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
@@ -8718,7 +8717,7 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
                 return EQUIP_ERR_OK;
         }
     }
-    for (int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
+    /*for (int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
     {
         pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (pItem && pItem->GetEntry() == item)
@@ -8727,7 +8726,7 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
             if (tempcount >= count)
                 return EQUIP_ERR_OK;
         }
-    }
+    }*/
 
     for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {

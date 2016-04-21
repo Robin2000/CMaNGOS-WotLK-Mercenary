@@ -3059,7 +3059,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		
 
 		getPlayer()->SwapItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | (M_EQUIPMENT_SLOT_START + slot), blankPos);//交换到雇佣兵的对应装备位置
-		getPlayer()->VisualizeItem(blankPos & 255, pItem);
+		//getPlayer()->VisualizeItem(blankPos & 255, pItem);
 		//pItem->AddToUpdateQueueOf(getPlayer());
 		pItem->AddToClientUpdateList();
 
