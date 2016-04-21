@@ -73,10 +73,17 @@ void updateMapDifficultyMultiplier(Player * player, uint32 mapid)
 			if (player->context.mapDifficultyMultiplier - old != 0)
 			{
 				player->UpdateMaxHealth();
+				
+				player->UpdateAttackPowerAndDamage(player->GetPowerType() == POWER_RAGE);//角色根据是否远程的伤害类型更新伤害数值
+
+
 				if (Pet *pet = player->GetPet())
 				{
 					if (pet->isMercenary())
+					{
 						((MercenaryPet*)pet)->UpdateMaxHealth();
+						((MercenaryPet*)pet)->UpdateAttackPowerAndDamage(player->context.GetMercenary()->isRangedAttack());//雇佣兵根据是否远程计算攻击
+					}
 				}
 			}
 		}

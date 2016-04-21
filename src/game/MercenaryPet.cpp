@@ -578,6 +578,12 @@ void MercenaryPet::CalculateMinMaxDamage(WeaponAttackType attType, bool normaliz
 
 	min_damage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
 	max_damage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
+
+	if (Player* player = getPlayer())
+	{
+		min_damage *= player->context.mapDifficultyMultiplier;//最小伤害值变化
+		max_damage *= player->context.mapDifficultyMultiplier;//最大伤害值变化
+	}
 }
 
 void MercenaryPet::UpdateDamagePhysical(WeaponAttackType attType)
@@ -3053,7 +3059,7 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 		
 
 		getPlayer()->SwapItem((uint16(INVENTORY_SLOT_BAG_0) << 8) | (M_EQUIPMENT_SLOT_START + slot), blankPos);//交换到雇佣兵的对应装备位置
-		//getPlayer()->VisualizeItem(blankPos & 255, pItem);
+		getPlayer()->VisualizeItem(blankPos & 255, pItem);
 		//pItem->AddToUpdateQueueOf(getPlayer());
 		pItem->AddToClientUpdateList();
 
