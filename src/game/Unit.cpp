@@ -9039,12 +9039,20 @@ bool Unit::SelectHostileTarget()
         if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_DIED))
         {
             SetInFront(target);
-            if (oldTarget != target)
-                ((Creature*)this)->AI()->AttackStart(target);
+
+			bool Evade = false;
+
+			// 20 - aggro distance for same level, 25 - max additional distance if player level less that creature level 增加一个仇恨距离!target->IsWithinDistInMap(this, (20 + 25)*sWorld.getConfig(CONFIG_FLOAT_RATE_CREATURE_AGGRO)) && 
+			if (target->GetTypeId() == TYPEID_PLAYER && !target->IsWithinLOS(this->GetPositionX(), this->GetPositionY(), this->GetPositionZ()))
+			{
+				Evade = true;//解决逃离视线后还无法结束战斗状态的问题
+			}
+			else
+				((Creature*)this)->AI()->AttackStart(target);
 
             // check if currently selected target is reachable
             // NOTE: path alrteady generated from AttackStart()
-            if (!GetMotionMaster()->GetCurrent()->IsReachable())
+			if (Evade||!GetMotionMaster()->GetCurrent()->IsReachable())
             {
                 // remove all taunts
                 RemoveSpellsCausingAura(SPELL_AURA_MOD_TAUNT);

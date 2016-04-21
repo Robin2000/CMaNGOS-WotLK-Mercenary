@@ -1245,7 +1245,7 @@ void CreatureEventAI::EnterCombat(Unit* enemy)
 
 void CreatureEventAI::AttackStart(Unit* who)
 {
-	if (!who || !m_creature->CanAttackByItself() || !m_creature->CanReachWithMeleeAttack(who))//增加攻击距离判断，避免原力战斗后还会进入战斗状态
+	if (!who || !m_creature->CanAttackByItself())
         return;
 
     if (m_creature->Attack(who, m_MeleeEnabled))
