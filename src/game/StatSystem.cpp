@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "MercenaryMgr.h"
+#include "DBCEnums.h"
 
 /*#######################################
 ########                         ########
@@ -219,7 +220,11 @@ void Player::UpdateMaxHealth()
     value += GetModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
-    SetMaxHealth((uint32)value);
+	value *= context.mapDifficultyMultiplier;
+
+	float old = float(GetHealth()) / float(GetMaxHealth());//百分比计算
+	SetMaxHealth((uint32)value);
+	SetHealth(old * GetMaxHealth());
 }
 
 void Player::UpdateMaxPower(Powers power)
@@ -454,6 +459,9 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, fl
 
     min_damage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
+
+	min_damage *= context.mapDifficultyMultiplier;//最小伤害值变化
+	max_damage *= context.mapDifficultyMultiplier;//最大伤害值变化
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType)

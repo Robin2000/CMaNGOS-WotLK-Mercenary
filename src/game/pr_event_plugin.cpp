@@ -1,6 +1,8 @@
 #include "pr_event_plugin.h"
 #include "Mercenary.h"
 #include "TemporarySummon.h"
+#include "DBCStores.h"
+#include "Config/Config.h"
 
 class DelayedHandleLogin :public DelayedAction
 {
@@ -43,6 +45,42 @@ public:
 	Player* player;
 };
 
+void updateMapDifficultyMultiplier(Player * player, uint32 mapid)
+{
+	if (MapEntry const * map = sMapStore.LookupEntry(mapid))
+		{
+			MapDifficultyEntry const* mapDiff = nullptr;
+			if (map->IsRaid())
+				mapDiff = GetMapDifficultyData(mapid, player->GetDifficulty(true));
+			else if (map->IsDungeon())
+				mapDiff = GetMapDifficultyData(mapid, player->GetDifficulty(false));
+			
+			uint32 maxPlayers = mapDiff ? mapDiff->maxPlayers : 1;
+
+			float old = player->context.mapDifficultyMultiplier;
+			
+			if (maxPlayers > 1)
+			{
+				if (Group * group = player->GetGroup())
+					player->context.mapDifficultyMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_RATE() * float(maxPlayers) / float(group->GetMembersCount());//0.5 * 5 /2 表示，5人本2人玩的情况，0.5为修正值。
+				else
+					player->context.mapDifficultyMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_RATE() * float(maxPlayers) ;//初始化为配置中的地图难度倍率;
+			}
+			else
+			{
+				player->context.mapDifficultyMultiplier = 1.0f;//非副本的情况，总是原始倍率
+			}
+			if (player->context.mapDifficultyMultiplier - old != 0)
+			{
+				player->UpdateMaxHealth();
+				if (Pet *pet = player->GetPet())
+				{
+					if (pet->isMercenary())
+						((MercenaryPet*)pet)->UpdateMaxHealth();
+				}
+			}
+		}
+}
 bool PrEventPlugin::sendEvent(PrEvent e){
 	switch (e)
 	{
@@ -50,6 +88,7 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 			//player->context.addDelayedAction(new DelayedHandleLogin(5000, player));//并不能解决问题，任务从跟踪列表去掉，但在日志中存在
 			if (player->context.displayid>0)
 				player->SetDisplayId(player->context.displayid);//易容
+
 			break;
 		case P_LOGOUT_EVENT:
 			player->context.ClearMercenary();//客户端清理
@@ -78,11 +117,12 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 			}
 			break;
 		case P_PET_ABANDON_EVENT:
-			Pet * pet=player->GetPet();
+		{	
+			Pet * pet = player->GetPet();
 			if (pet->isMercenary())
 			{
-				Mercenary * mercenary=player->context.GetMercenary();
-				for (auto it = mercenary->gearContainer.begin(); it != mercenary->gearContainer.end();it++)
+				Mercenary * mercenary = player->context.GetMercenary();
+				for (auto it = mercenary->gearContainer.begin(); it != mercenary->gearContainer.end(); it++)
 				{
 					if (it->second.itemguid > 0)
 					{
@@ -92,12 +132,15 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 				}
 			}
 			break;
-		
+		}
+
 	}
 
 	return true;
 }
-
+void PrEventPlugin::sendTeleportEvent(PrEvent e, uint32 mapid){
+	updateMapDifficultyMultiplier(player,mapid); //依据地图难度更新血量，攻击。
+}
 bool PrEventPlugin::sendCreatureEvent(PrEvent e, Creature * creature)
 {
 	switch (e)

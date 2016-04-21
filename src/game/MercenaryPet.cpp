@@ -327,7 +327,12 @@ void MercenaryPet::UpdateMaxHealth()
 	value += GetModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
 	value *= GetModifierValue(unitMod, TOTAL_PCT);
 
+	if (Player * player = getPlayer())
+		value *= player->context.mapDifficultyMultiplier;
+	
+	float old = float(GetHealth()) / float(GetMaxHealth());//百分比计算
 	SetMaxHealth((uint32)value);
+	SetHealth(old * GetMaxHealth());
 }
 
 void MercenaryPet::UpdateMaxPower(Powers power)
@@ -1606,7 +1611,9 @@ void MercenaryPet::_ApplyItemBonuses(ItemPrototype const* proto, uint8 slot, boo
 	}
 
 	Player* MercenaryPet::getPlayer(){
-		return GetOwner()->ToPlayer();
+		if (Unit * unit = GetOwner())
+			return unit->ToPlayer();
+		return nullptr;
 	}
 	Item* MercenaryPet::GetWeaponForAttack(WeaponAttackType attackType, bool nonbroken, bool useable)
 	{

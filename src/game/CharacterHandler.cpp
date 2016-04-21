@@ -741,6 +741,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     sObjectAccessor.AddObject(pCurrChar);
     // DEBUG_LOG("Player %s added to Map.",pCurrChar->GetName());
+	pCurrChar->context.GetEventPlugin().sendTeleportEvent(P_ADD_TO_MAP_EVENT, pCurrChar->GetMapId());
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 

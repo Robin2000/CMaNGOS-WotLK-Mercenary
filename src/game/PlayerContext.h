@@ -233,6 +233,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	PrQuestPlugin & GetQuestPlugin(){ return prQuestPlugin; }
 
 	Player* mPlayer;
+	
+	float mapDifficultyMultiplier = 1.0f;
 
 private :
 	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<QuestNpcGO*>* questlist, uint32 num);

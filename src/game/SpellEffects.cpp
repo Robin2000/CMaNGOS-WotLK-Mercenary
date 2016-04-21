@@ -756,12 +756,12 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
             }
         }
 
-		if (damage >= 0){
+		if (damage > 0){
         //    m_damage += damage;//这里增加技能伤害的倍率逻辑
 			if (m_caster->GetTypeId() == TYPEID_PLAYER)
-				m_damage += damage;
+				m_damage += damage * m_caster->ToPlayer()->context.mapDifficultyMultiplier;
 			else if (m_caster->GetUInt32Value(OBJECT_FIELD_ENTRY) == 70000)//雇佣兵
-				m_damage += damage;
+				m_damage += damage * m_caster->GetOwner()->ToPlayer()->context.mapDifficultyMultiplier;
 			else
 				m_damage += damage*sConfig.getDB_CREATURE_DamageMultiplier(); 
 		}
@@ -7117,12 +7117,11 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
     //m_damage += uint32(bonus > 0 ? bonus : 0);怪物伤害增加倍率逻辑
 	if (bonus >= 0){
 		if (m_caster->GetTypeId() == TYPEID_PLAYER)//玩家
-			m_damage += bonus;
+			m_damage += bonus * m_caster->ToPlayer()->context.mapDifficultyMultiplier;
 		else if (m_caster->GetUInt32Value(OBJECT_FIELD_ENTRY) == 70000)//雇佣兵
-			m_damage += bonus;
+			m_damage += bonus  * m_caster->GetOwner()->ToPlayer()->context.mapDifficultyMultiplier;
 		else
-			m_damage += bonus * sConfig.getDB_CREATURE_DamageMultiplier();
-		
+			m_damage += bonus * sConfig.getDB_CREATURE_DamageMultiplier();		
 	}
 
     // Hemorrhage

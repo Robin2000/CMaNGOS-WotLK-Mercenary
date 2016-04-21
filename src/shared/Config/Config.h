@@ -86,6 +86,7 @@ class MANGOS_DLL_SPEC Config
 		float getDB_CREATURE_DamageMultiplier(){ return DB_CREATURE_DamageMultiplier; }
 		float getDB_CREATURE_ArmorMultiplier(){ return DB_CREATURE_ArmorMultiplier; }
 		float getDB_CREATURE_HealthMultiplier(){ return DB_CREATURE_HealthMultiplier; }
+		float getPLAYER_MAP_DIFFICULTY_RATE(){ return PLAYER_MAP_DIFFICULTY_RATE; }
         
 		std::string GetFilename() const { return mFilename; }
 
@@ -98,6 +99,7 @@ class MANGOS_DLL_SPEC Config
 		float DB_CREATURE_DamageMultiplier = 1.0f;
 		float DB_CREATURE_ArmorMultiplier = 1.0f;
 		float DB_CREATURE_HealthMultiplier = 1.0f;
+		float PLAYER_MAP_DIFFICULTY_RATE = 0.5f;
 };
 
 

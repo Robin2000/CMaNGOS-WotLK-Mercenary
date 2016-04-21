@@ -1061,7 +1061,12 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool TeleportTo(WorldLocation const& loc, uint32 options = 0)
         {
-            return TeleportTo(loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation, options);
+			if (bool ok = TeleportTo(loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation, options))
+			{
+				context.GetEventPlugin().sendTeleportEvent(P_ADD_TO_MAP_EVENT, loc.mapid);
+				return true;
+			}
+			return false;
         }
 		
 
