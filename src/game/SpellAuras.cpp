@@ -7845,18 +7845,23 @@ void Aura::PeriodicTick()
             if (!target->isAlive())
                 return;
 
-            int32 gain = target->ModifyHealth(m_modifier.m_amount);
-			if (Unit* caster = GetCaster())
+			Unit* caster = GetCaster();
+			if (caster->GetTypeId() == TYPEID_PLAYER)
 			{
+				int32 amount = m_modifier.m_amount * caster->ToPlayer()->context.mapDifficultyMultiplier; /*吃食物恢复血量随地图难度而不同*/
+				int32 gain = target->ModifyHealth(amount);
 				target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f  * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
-				if (caster->GetTypeId() == TYPEID_PLAYER)
-				{
-					if (Pet * pet = caster->GetPet())
-						if (pet->isMercenary())
-							pet->ModifyHealth(m_modifier.m_amount);
-				}
+
+				if (Pet * pet = caster->GetPet())
+					if (pet->isMercenary())
+						pet->ModifyHealth(amount*2);//雇佣兵回血量为角色2倍
 			}
-            break;
+			else
+			{
+				int32 gain = target->ModifyHealth(m_modifier.m_amount);
+				target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f  * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
+			}
+			break;
         }
         case SPELL_AURA_MOD_POWER_REGEN:
         {

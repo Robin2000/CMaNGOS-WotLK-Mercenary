@@ -81,8 +81,7 @@ bool hearthstone_click(Player* pPlayer, Item* pItem, SpellCastTargets const& /*s
 	if (pPlayer->isInCombat())
 	{
 		ChatHandler(pPlayer).SendSysMessage(23);//23 系统提示：在战斗中无法这样做。
-		pPlayer->RemoveAllAttackers();
-		pPlayer->CombatStop();
+		pPlayer->CombatStopWithPets(true);
 		pPlayer->context.heart_stone_cooldown = 6000;//设置6秒冷却
 		return true;
 	}

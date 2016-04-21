@@ -2205,6 +2205,8 @@ void Player::RegenerateHealth(uint32 diff)
 
     addvalue *= (float)diff / REGEN_TIME_FULL;
 
+	addvalue *= context.mapDifficultyMultiplier; /*回血速度随副本难度动态调整*/
+
     ModifyHealth(int32(addvalue));
 }
 
