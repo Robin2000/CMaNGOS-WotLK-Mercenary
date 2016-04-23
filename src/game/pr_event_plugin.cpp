@@ -57,35 +57,51 @@ void updateMapDifficultyMultiplier(Player * player, uint32 mapid)
 			
 			uint32 maxPlayers = mapDiff ? mapDiff->maxPlayers : 1;
 
-			float old = player->context.mapDifficultyMultiplier;
-			
+			float oldHealth = player->context.mapDifficultyHealthMultiplier;
+			float oldDamage = player->context.mapDifficultyDamageMultiplier;
+
 			if (maxPlayers > 1)
 			{
 				if (Group * group = player->GetGroup())
-					player->context.mapDifficultyMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_RATE() * float(maxPlayers) / float(group->GetMembersCount());//0.5 * 5 /2 表示，5人本2人玩的情况，0.5为修正值。
+				{
+					player->context.mapDifficultyHealthMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_HEALTH_RATE() * float(maxPlayers) / float(group->GetMembersCount());//0.5 * 5 /2 表示，5人本2人玩的情况，0.5为修正值。
+					player->context.mapDifficultyDamageMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_DAMAGE_RATE() * float(maxPlayers) / float(group->GetMembersCount());//0.5 * 5 /2 表示，5人本2人玩的情况，0.5为修正值。
+				}
 				else
-					player->context.mapDifficultyMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_RATE() * float(maxPlayers) ;//初始化为配置中的地图难度倍率;
+				{
+					player->context.mapDifficultyHealthMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_HEALTH_RATE() * float(maxPlayers);//初始化为配置中的地图难度倍率;
+					player->context.mapDifficultyDamageMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_DAMAGE_RATE() * float(maxPlayers);//初始化为配置中的地图难度倍率;
+				}
 			}
 			else
 			{
-				player->context.mapDifficultyMultiplier = 1.0f;//非副本的情况，总是原始倍率
+				player->context.mapDifficultyHealthMultiplier = 1.0f;//非副本的情况，总是原始倍率
+				player->context.mapDifficultyDamageMultiplier = 1.0f;//非副本的情况，总是原始倍率
 			}
-			if (player->context.mapDifficultyMultiplier - old != 0)
+			if (player->context.mapDifficultyHealthMultiplier - oldHealth != 0)
 			{
 				player->UpdateMaxHealth();
 				
-				player->UpdateAttackPowerAndDamage(player->GetPowerType() == POWER_RAGE);//角色根据是否远程的伤害类型更新伤害数值
-
-
 				if (Pet *pet = player->GetPet())
 				{
 					if (pet->isMercenary())
 					{
 						((MercenaryPet*)pet)->UpdateMaxHealth();
+					}
+				}
+			}			
+			if (player->context.mapDifficultyDamageMultiplier - oldDamage != 0){
+				player->UpdateAttackPowerAndDamage(player->GetSheath() == SHEATH_STATE_RANGED);//角色根据是否远程的伤害类型更新伤害数值
+				if (Pet *pet = player->GetPet())
+				{
+					if (pet->isMercenary())
+					{
 						((MercenaryPet*)pet)->UpdateAttackPowerAndDamage(player->context.GetMercenary()->isRangedAttack());//雇佣兵根据是否远程计算攻击
 					}
 				}
+
 			}
+
 		}
 }
 bool PrEventPlugin::sendEvent(PrEvent e){

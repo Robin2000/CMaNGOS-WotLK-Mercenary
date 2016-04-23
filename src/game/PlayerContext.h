@@ -234,7 +234,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 
 	Player* mPlayer;
 	
-	float mapDifficultyMultiplier = 1.0f;
+	float mapDifficultyHealthMultiplier = 1.0f;
+	float mapDifficultyDamageMultiplier = 1.0f;
 
 private :
 	bool recommendQuestByQuestList(tbb::concurrent_unordered_set<QuestNpcGO*>* questlist, uint32 num);

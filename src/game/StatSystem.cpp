@@ -220,7 +220,7 @@ void Player::UpdateMaxHealth()
     value += GetModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
-	value *= context.mapDifficultyMultiplier;
+	value *= context.mapDifficultyHealthMultiplier;
 
 	float old = float(GetHealth()) / float(GetMaxHealth());//百分比计算
 	SetMaxHealth((uint32)value);
@@ -460,8 +460,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, fl
     min_damage = ((base_value + weapon_mindamage) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_maxdamage) * base_pct + total_value) * total_pct;
 
-	min_damage *= context.mapDifficultyMultiplier;//最小伤害值变化
-	max_damage *= context.mapDifficultyMultiplier;//最大伤害值变化
+	min_damage *= context.mapDifficultyDamageMultiplier;//最小伤害值变化
+	max_damage *= context.mapDifficultyDamageMultiplier;//最大伤害值变化
 }
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType)

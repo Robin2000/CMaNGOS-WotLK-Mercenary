@@ -769,7 +769,7 @@ void Creature::RegenerateHealth()
 
 	if (isMercenary())
 		if (Unit* owner=GetOwner())
-			addvalue *= owner->ToPlayer()->context.mapDifficultyMultiplier * 4;/*雇佣兵回血速度随副本难度动态调整，且为4倍*/
+			addvalue *= owner->ToPlayer()->context.mapDifficultyHealthMultiplier * 4;/*雇佣兵回血速度随副本难度动态调整，且为4倍*/
 
     ModifyHealth(addvalue);
 }

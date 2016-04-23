@@ -7848,7 +7848,7 @@ void Aura::PeriodicTick()
 			Unit* caster = GetCaster();
 			if (caster->GetTypeId() == TYPEID_PLAYER)
 			{
-				int32 amount = m_modifier.m_amount * caster->ToPlayer()->context.mapDifficultyMultiplier; /*吃食物恢复血量随地图难度而不同*/
+				int32 amount = m_modifier.m_amount * caster->ToPlayer()->context.mapDifficultyHealthMultiplier; /*吃食物恢复血量随地图难度而不同*/
 				int32 gain = target->ModifyHealth(amount);
 				target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f  * sSpellMgr.GetSpellThreatMultiplier(spellProto), spellProto);
 

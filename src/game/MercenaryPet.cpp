@@ -328,7 +328,7 @@ void MercenaryPet::UpdateMaxHealth()
 	value *= GetModifierValue(unitMod, TOTAL_PCT);
 
 	if (Player * player = getPlayer())
-		value *= player->context.mapDifficultyMultiplier;
+		value *= player->context.mapDifficultyHealthMultiplier;
 	
 	float old = float(GetHealth()) / float(GetMaxHealth());//百分比计算
 	SetMaxHealth((uint32)value);
@@ -581,8 +581,8 @@ void MercenaryPet::CalculateMinMaxDamage(WeaponAttackType attType, bool normaliz
 
 	if (Player* player = getPlayer())
 	{
-		min_damage *= player->context.mapDifficultyMultiplier;//最小伤害值变化
-		max_damage *= player->context.mapDifficultyMultiplier;//最大伤害值变化
+		min_damage *= player->context.mapDifficultyDamageMultiplier;//最小伤害值变化
+		max_damage *= player->context.mapDifficultyDamageMultiplier;//最大伤害值变化
 	}
 }
 

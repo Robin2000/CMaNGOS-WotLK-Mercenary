@@ -62,7 +62,9 @@ bool Config::Reload()
 	DB_CREATURE_DamageMultiplier = mConf->GetFloatDefault("DB_CREATURE_DamageMultiplier", 1.0f);
 	DB_CREATURE_ArmorMultiplier = mConf->GetFloatDefault("DB_CREATURE_ArmorMultiplier", 1.0f);
 	DB_CREATURE_HealthMultiplier = mConf->GetFloatDefault("DB_CREATURE_HealthMultiplier", 1.0f);
-	PLAYER_MAP_DIFFICULTY_RATE = mConf->GetFloatDefault("PLAYER_MAP_DIFFICULTY_RATE", 0.5f);
+	
+	PLAYER_MAP_DIFFICULTY_HEALTH_RATE = mConf->GetFloatDefault("PLAYER_MAP_DIFFICULTY_HEALTH_RATE", 0.5f);
+	PLAYER_MAP_DIFFICULTY_DAMAGE_RATE = mConf->GetFloatDefault("PLAYER_MAP_DIFFICULTY_DAMAGE_RATE", 0.5f);
 
     return true;
 }

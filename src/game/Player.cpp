@@ -2205,7 +2205,7 @@ void Player::RegenerateHealth(uint32 diff)
 
     addvalue *= (float)diff / REGEN_TIME_FULL;
 
-	addvalue *= context.mapDifficultyMultiplier; /*回血速度随副本难度动态调整*/
+	addvalue *= context.mapDifficultyHealthMultiplier; /*回血速度随副本难度动态调整*/
 
     ModifyHealth(int32(addvalue));
 }
@@ -2476,7 +2476,7 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED))
         return;
 
-	xp *= 1.0f / context.mapDifficultyMultiplier;//获得经验必须做倍率减少，否则会出现经验40倍，都去副本练级了
+	xp *= 1.0f / context.mapDifficultyDamageMultiplier;//获得经验必须做倍率减少，否则会出现经验40倍，都去副本练级了
 
     uint32 level = getLevel();
 
