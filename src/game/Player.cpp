@@ -13615,6 +13615,7 @@ void Player::AddQuest(Quest const* pQuest, Object* questGiver)
 
     // check for repeatable quests status reset
     questStatusData.m_status = QUEST_STATUS_INCOMPLETE;
+	questStatusData.m_rewarded = false;//必须补充，让任务为没有回报，否则辅助菜单无法显示。
     questStatusData.m_explored = false;
 
     if (pQuest->HasSpecialFlag(QUEST_SPECIAL_FLAG_DELIVER))
