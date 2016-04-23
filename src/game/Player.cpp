@@ -10870,8 +10870,8 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 		if (bag == INVENTORY_SLOT_BAG_0)
         {
             m_items[slot] = pItem;
-			
-			if (!(slot>=M_EQUIPMENT_SLOT_START&&slot<M_EQUIPMENT_SLOT_END))//这里很重要，因为Player::SetGuidValue的值是有预定意义的，例如PLAYER_FARSIGHT=624，不能覆盖掉
+            
+			if (!(slot >= M_EQUIPMENT_SLOT_START&&slot < M_EQUIPMENT_SLOT_END))//这里很重要，因为Player::SetGuidValue的值是有预定意义的，例如PLAYER_FARSIGHT=624，不能覆盖掉
 				SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
 
             pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
@@ -11122,9 +11122,9 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     DEBUG_LOG("STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
 
     m_items[slot] = pItem;
-
-	if (!(slot >= M_EQUIPMENT_SLOT_START&&slot<M_EQUIPMENT_SLOT_END))//很重要，扩展的雇佣兵位置，不能覆盖玩家的其他属性，例如PLAYER_FARSIGHT=624，不能覆盖掉
-	 SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
+    
+	if (!(slot >= M_EQUIPMENT_SLOT_START&&slot < M_EQUIPMENT_SLOT_END))//很重要，扩展的雇佣兵位置，不能覆盖玩家的其他属性，例如PLAYER_FARSIGHT=624，不能覆盖掉
+		SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
     
 	pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
     pItem->SetGuidValue(ITEM_FIELD_OWNER, GetObjectGuid());
@@ -11212,8 +11212,11 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         else
         {
             Bag* pBag = (Bag*)GetItemByPos(INVENTORY_SLOT_BAG_0, bag);
-            if (pBag)
-                pBag->RemoveItem(slot);
+			if (pBag)
+			{
+				pBag->RemoveItem(slot);
+				pBag->SendForcedObjectUpdate();
+			}
         }
         pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid());
         // pItem->SetGuidValue(ITEM_FIELD_OWNER, ObjectGuid()); not clear owner at remove (it will be set at store). This used in mail and auction code
