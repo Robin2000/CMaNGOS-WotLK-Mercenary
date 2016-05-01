@@ -2242,7 +2242,8 @@ void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint
     float chance = RawTotalChance();
     if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
     {
-        sLog.outErrorDb("Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
+        //sLog.outErrorDb("Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
+		sLog.outErrorDb("update %s set ChanceOrQuestChance=100*ChanceOrQuestChance/%f where entry=%u and groupid=%d;", lootstore.GetName(), chance,id, group_id);
     }
 
     if (chance >= 100.0f && !EqualChanced.empty())
