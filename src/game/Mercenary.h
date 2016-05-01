@@ -37,6 +37,7 @@ struct MercenarySpell
 	uint32 spellLevel;
 	bool isDefaultAura;
     bool isActive;
+	bool learnFromTalent=false;
 };
 
 struct MercenaryTalking

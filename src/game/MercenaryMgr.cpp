@@ -4,6 +4,7 @@
     TrinityCore <http://www.trinitycore.org>
 */
 #include "MercenaryMgr.h"
+#include "SpellMgr.h"
 
 MercenaryMgr::MercenaryMgr() { }
 
@@ -69,7 +70,23 @@ void MercenaryMgr::	LoadMercenaries()
 			spells->groupid = fields[5].GetUInt32();
 			spells->spellLevel = fields[6].GetUInt32();
 
+			// skip spells with first rank learned as talent (and all talents then also)
+			uint32 first_rank = sSpellMgr.GetFirstSpellInChain(spells->spellId);
+			if (GetTalentSpellCost(first_rank) > 0)
+			{
+				spells->learnFromTalent=true;
+				//sLog.outBasic("error spellid in z_mercenary_spells %u,first rank learned as talent!", spells->spellId);
+				continue;
+			}
 
+			SpellEntry const* spellInfo=sSpellStore.LookupEntry(spells->spellId);
+			// skip broken spells
+			if (!spellInfo||!SpellMgr::IsSpellValid(spellInfo, nullptr, false))
+			{
+				sLog.outBasic("error spellid in z_mercenary_spells %u,skip broken spells!", spells->spellId);
+				continue;
+			}
+			
 			/*-----------------
 			mercenarySpellsInfo<spellid,MercenarySpell* >
 			mercenarySpellsMap<petClass_petRole,GroupSpellsMap*>

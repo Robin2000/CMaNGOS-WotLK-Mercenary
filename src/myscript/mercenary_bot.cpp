@@ -221,7 +221,7 @@ void addLearnSpellMenu(Player* player, Mercenary* mercenary, Creature* creature)
 			
 			if (MercenarySpell* info = MercenaryUtil::findMercenarySpellsInfoBySpell(spellid))
 			{
-				if (!info->isActive || info->isDefaultAura)
+				if (!info->isActive || info->isDefaultAura || info->learnFromTalent) //或从天赋得来的技能
 					break;//低等级的技能和缺省技能被跳过
 
 				std::ostringstream ss;
