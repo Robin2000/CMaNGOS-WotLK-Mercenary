@@ -1,5 +1,10 @@
 #include "precompiled.h"
 #include "teleport.h"
+enum actionTransport{
+	ACTION_SEL_TOP = 0,
+	ACTION_SEL_MAP = 1,
+	ACTION_SEL_INSTANCE = 2
+};
 /*
 
 
@@ -19,7 +24,7 @@ insert into gossip_menu(entry,text_id)values(21020,16777210);
 insert into gossip_menu(entry,text_id)values(21021,16777210);
 insert into gossip_menu(entry,text_id)values(21022,16777210);
 
-insert into gossip_menu_option
+insert into z_transport
 (menu_id,id,option_text,option_id,action_menu_id,condition_id)value
 (21000,1,'|TInterface\\ICONS\\achievement_zone_zuldrak_05.blp:30|t |cff0000ff各大主城传送',1,21001,0),
 (21000,2,'|TInterface\\ICONS\\Achievement_BG_winWSG.blp:30|t |cFFFF0000古拉巴什竞技场',13,0,0),
@@ -47,7 +52,7 @@ insert into gossip_menu_option
 (21001,11,'|cFF990066|TInterface\\ICONS\\Achievement_Zone_EversongWoods.blp:30|t [中立]沙塔斯',202,0,0),
 (21001,12,'|cFF990066|TInterface\\ICONS\\Achievement_Zone_GrizzlyHills_01.blp:30|t [中立]达拉然',203,0,0);
 
-insert into gossip_menu_option
+insert into z_transport
 (menu_id,id,option_text,option_id,action_menu_id,condition_id)value
 (21002,1,'奥特兰克山脉',112,0,0),
 (21002,2,'阿拉希高地',113,0,0),
@@ -120,7 +125,7 @@ insert into gossip_menu_option
 (21004,15,'暴风城监狱',43, 0,  22),
 (21004,16,'下一页',251, 0,  21022);
 
-insert into gossip_menu_option
+insert into z_transport
 (menu_id,id,option_text,option_id,action_menu_id,condition_id)value
 (21022,1,'奥达曼',44, 0,  0),
 (21022,2,'哀嚎洞穴',45, 0,  0),
@@ -173,11 +178,11 @@ insert into gossip_menu_option
 (21009,9,'冬拥湖',83, 0, 0),
 (21009,10,'祖达克',84, 0, 0);
 
-insert into gossip_menu_option
+insert into z_transport
 (menu_id,id,option_text,option_id,action_menu_id,condition_id)value
 (21010,1,'|TInterface\\ICONS\\achievement_dungeon_azjoluppercity_normal.blp:30|t 艾卓-尼鲁布',85, 0, 0);
 
-insert into gossip_menu_option
+insert into z_transport
 (menu_id,id,option_text,option_id,action_menu_id,condition_id)value
 (21010,2,'|TInterface\\ICONS\\achievement_dungeon_drak\'tharon_normal.blp:30|t 德拉克萨隆要塞',86, 0, 0),
 (21010,3,'|TInterface\\ICONS\\achievement_dungeon_gundrak_normal.blp:30|t 古达克',87, 0, 0),
@@ -198,12 +203,90 @@ insert into gossip_menu_option
 (21011,7,'|TInterface\\ICONS\\Achievement_Dungeon_UlduarRaid_IceGiant_01.blp:30|t 阿尔卡冯的宝库',99, 0, 0);
 
 */
+bool hearthstone_prepare_transport(Player* pPlayer, Item* pItem){
+	
+	pPlayer->context.gossipActionType = ACTION_SEL_TOP;
+
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);
+	//tbb::concurrent_unordered_map<uint32, GameTransport*> & transportMap=pPlayer->context.getGameTransportMaps();
+	//tbb::concurrent_unordered_map<uint32, GameMap*> & gameMap = pPlayer->context.getGameMaps();
+	//tbb::concurrent_unordered_map<uint32, GameMap*> & gameMap = pPlayer->context.getGameMaps();
+	
+	uint32 key[] = { 6000, 6001, 6002, 6003 };//               卡里姆多，东部王国，外域，诺森德
+	uint32 map[] = { 1, 0, 530, 571 };		  //               卡里姆多，东部王国，外域，诺森德
+
+	for (uint16 i = 0; i < 4; i++)
+	{
+		std::string* title = pPlayer->context.getGameMapsName(key[i]);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, *title, 0, GOSSIP_ACTION_INFO_DEF + map[i]);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, *title + pPlayer->GetMangosString(-2800701), 0, map[i]); // 副本
+	}
+
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(65535, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+	return true;
+}
+bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
+
+	pPlayer->PrepareGossipMenu(pPlayer, 65535);
+
+	switch (pPlayer->context.gossipActionType)
+	{
+		case ACTION_SEL_TOP:
+		{
+		
+			tbb::concurrent_unordered_map<uint32, GameTransport*> & transportMap = pPlayer->context.getGameTransportMaps();
+
+			if (uiAction >= GOSSIP_ACTION_INFO_DEF)
+			{
+				pPlayer->context.gossipActionType = ACTION_SEL_MAP;
+				uint32 map = uiAction-GOSSIP_ACTION_INFO_DEF;
+				tbb::concurrent_vector<GameMap*>*  maplist = transportMap.find(map)->second->maplist;
+				for (auto it = maplist->begin(); it != maplist->end(); it++)
+				{
+					std::string* title = pPlayer->context.getGameMapsName((*it)->zone);
+					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, *title, 0,  (*it)->zone);
+				}
+			}
+			else
+			{
+				pPlayer->context.gossipActionType = ACTION_SEL_INSTANCE;
+				uint32 map = uiAction;
+				tbb::concurrent_vector<GameInstance*>*  instancelist = transportMap.find(map)->second->instancelist;
+				for (auto it = instancelist->begin(); it != instancelist->end(); it++)
+				{
+					std::string* title = pPlayer->context.getGameMapsName((*it)->area);
+					pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, *title, 0,  (*it)->area);
+				}
+			}
+			break;
+		}
+		case ACTION_SEL_MAP:
+		{
+			tbb::concurrent_unordered_map<uint32, GameMap*> & gameMap = pPlayer->context.getGameMaps();
+			auto it = gameMap.find(uiAction);
+			hearthstone_transport(pPlayer, it->second->map, it->second->x, it->second->y, it->second->z, it->second->o);
+			break;
+		}
+		case ACTION_SEL_INSTANCE:
+		{
+			tbb::concurrent_unordered_map<uint32, GameInstance*> & instanceMap = pPlayer->context.getGameInstanceMap();
+			auto it = instanceMap.find(uiAction);
+			hearthstone_transport(pPlayer, it->second->map, it->second->x, it->second->y, it->second->z, it->second->o);
+			break;
+		}
+	}
+
+	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+	pPlayer->SEND_GOSSIP_MENU(65535, pItem->GetObjectGuid()); //利用原力直达游戏目标。
+	return true;
+}
 bool hearthstone_prepare_transport2(Player* pPlayer, Item* pItem, uint32 menuid){
 	pPlayer->PrepareGossipMenu(pPlayer, menuid);
 	pPlayer->SEND_GOSSIP_MENU(65535, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
 }
-bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
+bool hearthstone_transport_caseOld(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 	if (uiAction == 1)return hearthstone_prepare_transport2(pPlayer, pItem, 21001);//主城
 	else if (uiAction == 3)return hearthstone_prepare_transport2(pPlayer, pItem, 21004); //Azeroth Instances

@@ -100,13 +100,35 @@ struct GameZone{
 	tbb::concurrent_vector<GameArea*>* arealist;
 };
 struct GameMap{
-	uint32 zone;
+	//uint32 id;
+	uint32 zone;//Ψһ
 	uint32 map;
 	uint16 level;
 	uint32 faction;
+	float x;
+	float y;
+	float z;
+	float o;
 	//tbb::concurrent_vector<GameZone*>* zonelist;
 };
-
+struct GameInstance{
+	//uint32 id;
+	uint32 area;//Ψһ
+	uint32 map;
+	uint16 minlevel;
+	uint16 maxlevel;
+	uint16 instancetype;
+	uint16 minplayer;
+	uint16 maxplayer;
+	float x;
+	float y;
+	float z;
+	float o;
+};
+struct GameTransport{
+	tbb::concurrent_vector<GameMap*>* maplist;
+	tbb::concurrent_vector<GameInstance*>* instancelist;
+};
 // from `gameobject_template`
 struct GameObjectInfo
 {

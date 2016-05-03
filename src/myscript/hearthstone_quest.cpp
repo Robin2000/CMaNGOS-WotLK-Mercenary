@@ -59,17 +59,17 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	
 	pPlayer->context.gossipActionType = MAP_SEL_ACTION;
 	pPlayer->context.MAPSELPAGE=curPage;
-	tbb::concurrent_vector<GameMap*>& maps = pPlayer->context.getGameMaps();
+	tbb::concurrent_unordered_map<uint32,GameMap*>& maps = pPlayer->context.getGameMaps();
 
 	uint32 pageStart = (curPage - 1) * 17;
 	uint32 MAX_INDEX = pageStart + 17;
 	uint32 i = 0;
 	for (auto it = maps.begin(); it != maps.end(); it++)
 	{
-		if ((*it)->map != pPlayer->context.CONTINENTSEL)
+		if (it->second->map != pPlayer->context.CONTINENTSEL)
 			continue;
 
-		if (pPlayer->getLevel() <(*it)->level)
+		if (pPlayer->getLevel() <it->second->level)
 			continue;
 
 		//TODO:添加阵营判断
@@ -80,12 +80,12 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 		if (i == MAX_INDEX)
 			break;
 
-		std::string * name = pPlayer->context.getGameMapsName((*it)->zone);
+		std::string * name = pPlayer->context.getGameMapsName(it->second->zone);
 		if (name != nullptr)
 		{
 			std::ostringstream os;
-			os << *name << "(Lvl:" << (*it)->level << ")";
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + (*it)->zone);//选择zone 100-299
+			os << *name << "(Lvl:" << it->second->level << ")";
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + it->second->zone);//选择zone 100-299
 		}
 		i++;
 	}

@@ -259,8 +259,8 @@ bool ObjectMgr::load_cache(){
 void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
-	                                                // 0    1  2   3    4
-	QueryResult* result = WorldDatabase.Query("SELECT zone,cn,map,level,faction FROM z_map order by level desc");
+	                                                // 0    1  2   3    4       5 6 7 8
+	QueryResult* result = WorldDatabase.Query("SELECT zone,cn,map,level,faction,x,y,z,o FROM z_map order by level desc");
 
 	if (!result)
 	{
@@ -285,13 +285,93 @@ void ObjectMgr::LoadGameMaps(){
 		gameMap->map = fields[2].GetUInt32();
 		gameMap->level = fields[3].GetUInt32();
 		gameMap->faction = fields[4].GetUInt32();
-		mGameMaps.push_back(gameMap);
+		gameMap->x = fields[5].GetFloat();
+		gameMap->y = fields[6].GetFloat();
+		gameMap->z = fields[7].GetFloat();
+		gameMap->o = fields[8].GetFloat();
+		mGameMaps.insert(std::make_pair(zone,gameMap));
+
+		auto it = mGameTransportMap.find(gameMap->map);
+		if (it == mGameTransportMap.end())
+		{
+			GameTransport* gameTransport= new GameTransport();
+			gameTransport->maplist = new tbb::concurrent_vector<GameMap*>();
+			gameTransport->instancelist = new tbb::concurrent_vector<GameInstance*>();
+			mGameTransportMap.insert(std::make_pair(gameMap->map, gameTransport));
+
+			gameTransport->maplist->push_back(gameMap);
+		}
+		else
+		{
+			it->second->maplist->push_back(gameMap);
+		}
 
 	} while (result->NextRow());
 
 	delete result;
 
 	sLog.outString(">> Loaded " SIZEFMTD " z_map strings", mGameMaps.size());
+	sLog.outString();
+}
+void ObjectMgr::LoadGameInstance(){
+
+	mGameInstanceMap.clear();                             // need for reload case
+	//												   0    1    2   3         4       5             6       7         8  9  10 11
+	QueryResult* result = WorldDatabase.Query("SELECT area,name,map,minlevel,maxlevel,instancetype,minplayer,maxplayer,x, y, z, o FROM z_instance order by minlevel desc");
+
+	if (!result)
+	{
+		BarGoLink bar(1);
+		bar.step();
+		sLog.outString(">> Loaded 0  z_instance. DB table `z_instance` is empty.");
+		return;
+	}
+
+	BarGoLink bar(result->GetRowCount());
+
+	do
+	{
+		Field* fields = result->Fetch();
+		bar.step();
+		uint32 area = fields[0].GetUInt32();
+		mapIDName[area] = fields[1].GetCppString();
+
+		GameInstance* gameInstance = new GameInstance();
+		//gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
+		gameInstance->area = area;
+		gameInstance->map = fields[2].GetUInt32();
+		gameInstance->minlevel = fields[3].GetUInt16();
+		gameInstance->maxlevel = fields[4].GetUInt16();
+		gameInstance->instancetype = fields[5].GetUInt16();
+		gameInstance->minplayer = fields[6].GetUInt16();
+		gameInstance->maxplayer = fields[7].GetUInt16();
+		gameInstance->x = fields[8].GetFloat();
+		gameInstance->y = fields[9].GetFloat();
+		gameInstance->z = fields[10].GetFloat();
+		gameInstance->o = fields[11].GetFloat();
+
+		mGameInstanceMap.insert(std::make_pair(area,gameInstance));
+
+		auto it = mGameTransportMap.find(gameInstance->map);
+		if (it == mGameTransportMap.end())
+		{
+			GameTransport* gameTransport = new GameTransport();
+			gameTransport->maplist = new tbb::concurrent_vector<GameMap*>();
+			gameTransport->instancelist = new tbb::concurrent_vector<GameInstance*>();
+			mGameTransportMap.insert(std::make_pair(gameInstance->map, gameTransport));
+
+			gameTransport->instancelist->push_back(gameInstance);
+		}
+		else
+		{
+			it->second->instancelist->push_back(gameInstance);
+		}
+
+	} while (result->NextRow());
+
+	delete result;
+
+	sLog.outString(">> Loaded " SIZEFMTD " z_instance strings", mGameInstanceMap.size());
 	sLog.outString();
 }
 void ObjectMgr::LoadGameZones(){

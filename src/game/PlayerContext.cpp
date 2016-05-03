@@ -891,9 +891,18 @@ inline std::string * PlayerContext::getGameAreaName(uint32 area){
 	return  sObjectMgr.getGameAreaName(area);
 }
 
-tbb::concurrent_vector<GameMap*> & PlayerContext::getGameMaps(){
+tbb::concurrent_unordered_map<uint32,GameMap*> & PlayerContext::getGameMaps(){
 	return  sObjectMgr.getGameMaps();
 }
+
+tbb::concurrent_unordered_map<uint32, GameInstance*> & PlayerContext::getGameInstanceMap(){
+	return  sObjectMgr.getGameInstanceMap();
+}
+
+tbb::concurrent_unordered_map<uint32, GameTransport*> & PlayerContext::getGameTransportMaps(){
+	return  sObjectMgr.getGameTransportMap();
+}
+
 /*GameMap * PlayerContext::getGameMap(uint32 map){
 	return  sObjectMgr.getGameMap(map);
 }*/

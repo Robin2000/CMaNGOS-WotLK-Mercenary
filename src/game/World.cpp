@@ -1089,6 +1089,7 @@ void World::SetInitialWorldSettings()
 	sLog.outString("Loading Localization strings...");/*加载LoadQuestNpcGO前必须先加载GameAreas*/
 	sObjectMgr.LoadGameTips();
 	sObjectMgr.LoadGameMaps();
+	sObjectMgr.LoadGameInstance();
 	sObjectMgr.LoadGameZones();
 	sObjectMgr.LoadGameAreas();
 	sObjectMgr.LoadSpellNameMaps();

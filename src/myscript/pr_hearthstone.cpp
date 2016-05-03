@@ -256,7 +256,7 @@ bool hearthstone_menu_click(Player* pPlayer, Item* pItem, uint32 /*uiSender*/, u
 	if (pPlayer->context.gossipMenuType == -1 && uiAction == GOSSIP_ACTION_INFO_DEF + 8)
 	{
 		pPlayer->context.gossipMenuType = 2;//地图传送。
-		hearthstone_prepare_transport2(pPlayer, pItem, 21000);
+		hearthstone_prepare_transport(pPlayer, pItem);
 		return true;
 	}
 	else if (pPlayer->context.gossipMenuType == 2)

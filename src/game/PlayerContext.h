@@ -118,9 +118,14 @@ class MANGOS_DLL_SPEC PlayerContext{
 	inline std::string * getGameMapsName(uint32 map);
 	inline std::string * getGameAreaName(uint32 area);
 
+	tbb::concurrent_unordered_map<uint32, GameInstance*> & getGameInstanceMap();
+
 	//取得游戏地图列表
-	tbb::concurrent_vector<GameMap*> & getGameMaps();
-	
+	tbb::concurrent_unordered_map<uint32,GameMap*> & getGameMaps();
+
+	//取得地图传送列表
+	tbb::concurrent_unordered_map<uint32,GameTransport*> & getGameTransportMaps();
+
 	//取得特定地图的信息，其中包含该地图的zone列表
 	//GameMap * getGameMap(uint32 map);
 

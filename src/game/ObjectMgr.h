@@ -532,7 +532,11 @@ class ObjectMgr
 		
 		typedef tbb::concurrent_unordered_map<uint32, MinlevelQuestVector> MinlevelQuestMap;/*不同minlevel的任务形成一个map*/
 		typedef tbb::concurrent_vector<std::string> GameTipsVector;
-		typedef tbb::concurrent_vector<GameMap*> GameMaps;
+		
+		typedef tbb::concurrent_unordered_map<uint32, GameMap*> GameMaps;//key为zone，实际值与area相同
+		typedef tbb::concurrent_unordered_map<uint32, GameInstance*> GameInstanceMap;//key为area
+		typedef tbb::concurrent_unordered_map<uint32, GameTransport*> GameTransportMap;//key为0,1,530,571
+
 		typedef tbb::concurrent_unordered_map<uint32, GameZone*> GameZones;
 		typedef tbb::concurrent_unordered_map<uint32, GameArea*> GameAreas;
 		typedef tbb::concurrent_unordered_map<uint32, std::string> SpellNameMaps;
@@ -730,6 +734,7 @@ class ObjectMgr
         bool LoadMangosStrings() { return LoadMangosStrings(WorldDatabase, "mangos_string", MIN_MANGOS_STRING_ID, MAX_MANGOS_STRING_ID, false); }
 		
 		void LoadGameMaps();
+		void LoadGameInstance();
 		void LoadGameZones();
 		void LoadGameAreas();
 
@@ -753,6 +758,13 @@ class ObjectMgr
 				return nullptr;
 			return mGameMaps[map];
 		}*/
+		inline GameInstanceMap & getGameInstanceMap(){
+			return mGameInstanceMap;
+		}
+		inline GameTransportMap & getGameTransportMap(){
+			return mGameTransportMap;
+		}
+
 		inline GameZone * getGameZone(uint32 zone){
 			if (mGameZones.find(zone) == mGameZones.end())
 				return nullptr;
@@ -1434,7 +1446,11 @@ class ObjectMgr
         CreatureClassLvlStats m_creatureClassLvlStats[DEFAULT_MAX_CREATURE_LEVEL + 1][MAX_CREATURE_CLASS][MAX_EXPANSION + 1];
 
 		GameTipsVector mGameTipsVector;
+
 		GameMaps mGameMaps;
+		GameInstanceMap mGameInstanceMap;
+		GameTransportMap mGameTransportMap;
+
 		GameZones mGameZones;
 		GameAreas mGameAreas;
 		MapIDName mapIDName;
