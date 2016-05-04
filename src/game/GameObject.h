@@ -113,6 +113,7 @@ struct GameMap{
 };
 struct GameInstance{
 	//uint32 id;
+	std::string name;
 	uint32 area;//Ψһ
 	uint32 map;
 	uint16 minlevel;

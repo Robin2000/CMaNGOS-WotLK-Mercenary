@@ -276,8 +276,8 @@ void ObjectMgr::LoadGameMaps(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
+
 		uint32 zone = fields[0].GetUInt32();
-		mapIDName[zone] = fields[1].GetCppString();
 
 		GameMap* gameMap = new GameMap();
 		//gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
@@ -289,6 +289,9 @@ void ObjectMgr::LoadGameMaps(){
 		gameMap->y = fields[6].GetFloat();
 		gameMap->z = fields[7].GetFloat();
 		gameMap->o = fields[8].GetFloat();
+
+		mapIDName[zone] = fields[1].GetCppString();
+
 		mGameMaps.insert(std::make_pair(zone,gameMap));
 
 		auto it = mGameTransportMap.find(gameMap->map);
@@ -316,8 +319,8 @@ void ObjectMgr::LoadGameMaps(){
 void ObjectMgr::LoadGameInstance(){
 
 	mGameInstanceMap.clear();                             // need for reload case
-	//												   0    1    2   3         4       5             6       7         8  9  10 11
-	QueryResult* result = WorldDatabase.Query("SELECT area,name,map,minlevel,maxlevel,instancetype,minplayer,maxplayer,x, y, z, o FROM z_instance order by minlevel desc");
+	//												   0    1    2   3         4       5             6       7  8  9  10
+	QueryResult* result = WorldDatabase.Query("SELECT area,name,map,minlevel,maxlevel,instancetype,maxplayer,x, y, z, o FROM z_instance order by minlevel desc");
 
 	if (!result)
 	{
@@ -333,8 +336,11 @@ void ObjectMgr::LoadGameInstance(){
 	{
 		Field* fields = result->Fetch();
 		bar.step();
+
+		
+
 		uint32 area = fields[0].GetUInt32();
-		mapIDName[area] = fields[1].GetCppString();
+		
 
 		GameInstance* gameInstance = new GameInstance();
 		//gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
@@ -343,12 +349,14 @@ void ObjectMgr::LoadGameInstance(){
 		gameInstance->minlevel = fields[3].GetUInt16();
 		gameInstance->maxlevel = fields[4].GetUInt16();
 		gameInstance->instancetype = fields[5].GetUInt16();
-		gameInstance->minplayer = fields[6].GetUInt16();
-		gameInstance->maxplayer = fields[7].GetUInt16();
-		gameInstance->x = fields[8].GetFloat();
-		gameInstance->y = fields[9].GetFloat();
-		gameInstance->z = fields[10].GetFloat();
-		gameInstance->o = fields[11].GetFloat();
+		gameInstance->maxplayer = fields[6].GetUInt16();
+		gameInstance->x = fields[7].GetFloat();
+		gameInstance->y = fields[8].GetFloat();
+		gameInstance->z = fields[9].GetFloat();
+		gameInstance->o = fields[10].GetFloat();
+
+		
+		gameInstance->name = fields[1].GetCppString();
 
 		mGameInstanceMap.insert(std::make_pair(area,gameInstance));
 

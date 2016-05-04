@@ -49,6 +49,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	std::vector<uint32> displayhistory;
 	void addMorphHistory(uint32 creature_entry, uint32 displayid);
 
+	bool IsHostileTo(uint32 faction) const;
+
 	void checkFirstGuideQuest();
 	//Ñ¡ÔñµÄ´óÂ½
 	int CONTINENTSEL = -1;

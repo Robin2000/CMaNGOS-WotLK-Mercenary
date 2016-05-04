@@ -1394,3 +1394,13 @@ const char* PlayerContext::getQuestType(uint32 quest){
 	}
 	return "";
 }
+
+bool PlayerContext::IsHostileTo(uint32 faction) const{
+	
+	FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(faction);
+	if (entry == nullptr)
+		return true;
+
+	return mPlayer->getFactionTemplateEntry()->IsHostileTo(*entry);
+
+}
