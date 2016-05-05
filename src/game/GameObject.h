@@ -121,6 +121,7 @@ struct GameInstance{
 	uint16 instancetype;
 	uint16 minplayer;
 	uint16 maxplayer;
+	uint32 faction;
 	float x;
 	float y;
 	float z;

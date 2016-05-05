@@ -899,7 +899,7 @@ tbb::concurrent_unordered_map<uint32, GameInstance*> & PlayerContext::getGameIns
 	return  sObjectMgr.getGameInstanceMap();
 }
 
-tbb::concurrent_unordered_map<uint32, GameTransport*> & PlayerContext::getGameTransportMaps(){
+tbb::concurrent_unordered_map<std::string, GameTransport*> & PlayerContext::getGameTransportMaps(){
 	return  sObjectMgr.getGameTransportMap();
 }
 

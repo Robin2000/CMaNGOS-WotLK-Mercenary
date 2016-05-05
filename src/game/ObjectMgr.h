@@ -535,7 +535,7 @@ class ObjectMgr
 		
 		typedef tbb::concurrent_unordered_map<uint32, GameMap*> GameMaps;//key为zone，实际值与area相同
 		typedef tbb::concurrent_unordered_map<uint32, GameInstance*> GameInstanceMap;//key为area
-		typedef tbb::concurrent_unordered_map<uint32, GameTransport*> GameTransportMap;//key为0,1,530,571
+		typedef tbb::concurrent_unordered_map<std::string, GameTransport*> GameTransportMap;//key为strng
 
 		typedef tbb::concurrent_unordered_map<uint32, GameZone*> GameZones;
 		typedef tbb::concurrent_unordered_map<uint32, GameArea*> GameAreas;
