@@ -259,6 +259,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				hearthstone_quest_click(pPlayer, pItem, GOSSIP_ACTION_INFO_DEF + 960 + pPlayer->context.aux_npcgo_idx);//重新显示菜单
 				return true;
 			case GOSSIP_ACTION_INFO_DEF + 1112://传送我到达目标(-3点原力)
+
 				if (!pPlayer->context.gamePointMgr.checkPoint(3))
 					return false;
 				pPlayer->context.moveFast(questNpcGO);

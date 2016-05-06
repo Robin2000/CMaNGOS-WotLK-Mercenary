@@ -310,6 +310,9 @@ uint32 Group::RemoveMember(ObjectGuid guid, uint8 method)
 
         if (Player* player = sObjectMgr.GetPlayer(guid))
         {
+			
+			player->context.GetEventPlugin().sendUpdateGroupEvent();//离开队伍后更新状态
+
             // quest related GO state dependent from raid membership
             if (isRaidGroup())
                 player->UpdateForQuestWorldObjects();
@@ -527,6 +530,9 @@ void Group::SendUpdate()
         Player* player = sObjectMgr.GetPlayer(citr->guid);
         if (!player || !player->GetSession() || player->GetGroup() != this)
             continue;
+
+		player->context.GetEventPlugin().sendUpdateGroupEvent();//队伍中成员更新状态
+
         // guess size
         WorldPacket data(SMSG_GROUP_LIST, (1 + 1 + 1 + 1 + 8 + 4 + GetMembersCount() * 20));
         data << uint8(m_groupType);                         // group type (flags in 3.3)

@@ -10,7 +10,8 @@ enum PrEvent{
 	P_SUMMON_CREATURE		= 6,
 	P_GOSSIP_CREATURE		= 7,
 	P_SELECT_UNIT			= 8,
-	P_ADD_TO_MAP_EVENT		= 9
+	P_ADD_TO_MAP_EVENT		= 9,
+	P_UPDATE_GROUP_EVENT = 10,
 };
 class MANGOS_DLL_SPEC PrEventPlugin{
 public:
@@ -19,6 +20,7 @@ public:
 	bool sendCreatureEvent(PrEvent e, Creature * creature);//id根据事件不同代表不同含义
 	bool sendUnitEvent(PrEvent e, Unit * unit);//id根据事件不同代表不同含义
 	void sendTeleportEvent(PrEvent e, uint32 mapid);
+	void sendUpdateGroupEvent();
 	Player * player;
 	std::vector<uint64> followGuid;
 };

@@ -164,6 +164,9 @@ bool PrEventPlugin::sendEvent(PrEvent e){
 void PrEventPlugin::sendTeleportEvent(PrEvent e, uint32 mapid){
 	updateMapDifficultyMultiplier(player,mapid); //依据地图难度更新血量，攻击。
 }
+void PrEventPlugin::sendUpdateGroupEvent(){
+	updateMapDifficultyMultiplier(player, player->GetMapId()); //依据地图难度更新血量，攻击。
+}
 bool PrEventPlugin::sendCreatureEvent(PrEvent e, Creature * creature)
 {
 	switch (e)
