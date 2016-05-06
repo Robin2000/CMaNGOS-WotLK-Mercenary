@@ -301,7 +301,7 @@ insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800547, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 327);  // T8套装（80级治疗） 829
 			break;
 		}
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
+		
 	}
 	void hearthstone_prepare_itemset(Player* pPlayer, Item* pItem, uint32 uiAction){
 		pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
@@ -315,7 +315,7 @@ insert into custom_texts(entry, content_default)values(-2800550,  '36格背包(-5原
 			if (mercenary->GetType() != playerOrPetClass)
 				add_itemsetByClass(pPlayer, pItem, mercenary->GetType());
 		}
-
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 		pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 
 	}

@@ -108,13 +108,18 @@ bool hearthstone_click2(Player* pPlayer, Item* pItem)
 
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800167, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);//任务推荐。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800190, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);//原力骑乘。
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
+	
+	if (pPlayer->isGameMaster() || pPlayer->context.gamePointMgr.getGamePoint() >= 500)//有足够的原力才显示菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, -2800182, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);//原力商店。
+	
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, -2800183, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);//雇佣兵招募。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, -2800699, 0, GOSSIP_ACTION_INFO_DEF + 998);//唤醒雇佣兵
 	
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800689, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);//角色幻化。
 
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, -2800184, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);//技能学习
+	if (pPlayer->isGameMaster() || pPlayer->context.gamePointMgr.getGamePoint() >= 500)//有足够的原力才显示菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, -2800184, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);//技能学习
+
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, -2800220, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);//成就直升。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, -2800300, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);//地图传送。
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, -2800210, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);//发送游戏小技巧。
@@ -444,10 +449,19 @@ bool learn_default_spell(Player* pPlayer, Item* pItem, uint32 uiAction){
 }
 void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
 	pPlayer->PrepareGossipMenu(pPlayer, 65535);//65535是不存在的menuid，数据库中目前最大为50101 关闭不是关键，预处理才会清零。
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800221, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 110);  // 秒升30级
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800222, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 111);  // 秒升55级
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800223, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 112);  // 秒升70级
-	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800224, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 113);  // 秒升80级
+
+	if (pPlayer->isGameMaster()||pPlayer->context.gamePointMgr.getGamePoint() >= 200)//有足够的原力才显示菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800221, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 110);  // 秒升30级
+
+	if (pPlayer->isGameMaster() || pPlayer->context.gamePointMgr.getGamePoint() >= 300)//有足够的原力才显示菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800222, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 111);  // 秒升55级
+	
+	if (pPlayer->isGameMaster() || pPlayer->context.gamePointMgr.getGamePoint() >= 400)//有足够的原力才显示菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800223, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 112);  // 秒升70级
+
+	if (pPlayer->isGameMaster() || pPlayer->context.gamePointMgr.getGamePoint() >= 500)//有足够的原力才显示菜单
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800224, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 113);  // 秒升80级
+
 	//pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800232, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 116);  // 秒升声望
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800233, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 117);  // 全开地图
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, -2800234, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 118);  // 全开飞行点
@@ -458,9 +472,9 @@ void hearthstone_prepare_gamedirect(Player* pPlayer, Item* pItem){
 void hearthstone_gamedirect(Player* pPlayer, Item* pItem, uint32 uiAction){
 	switch (uiAction)
 	{
-		case GOSSIP_ACTION_INFO_DEF + 110:levelup(pPlayer, 30,10); break;
-		case GOSSIP_ACTION_INFO_DEF + 111:levelup(pPlayer, 55,50); break;
-		case GOSSIP_ACTION_INFO_DEF + 112:levelup(pPlayer, 70,200); break;
+		case GOSSIP_ACTION_INFO_DEF + 110:levelup(pPlayer, 30,200); break;
+		case GOSSIP_ACTION_INFO_DEF + 111:levelup(pPlayer, 55,300); break;
+		case GOSSIP_ACTION_INFO_DEF + 112:levelup(pPlayer, 70,400); break;
 		case GOSSIP_ACTION_INFO_DEF + 113:levelup(pPlayer, 80,500); break;
 		//case GOSSIP_ACTION_INFO_DEF + 116:gamedirect(pPlayer, maMountSpell); break;
 		case GOSSIP_ACTION_INFO_DEF + 117:explorecheat(pPlayer); break;
