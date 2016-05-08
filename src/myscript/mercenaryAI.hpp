@@ -78,6 +78,24 @@ struct mercenary_bot_AI : public PetAI
 	void caseSpell(Unit* target, uint32 spell, const uint32 uiDiff){
 		if (spell == 0)
 			return;
+
+		if (Spell* _spell = m_creature->FindCurrentSpellBySpellId(spell))
+		{
+			if (_spell->IsAutoRepeat())
+			{
+				/*if (mercenary->isRangedAttack())
+				{
+					m_creature->setAttackTimer(RANGED_ATTACK,0);
+				}
+				else
+				{
+					m_creature->setAttackTimer(BASE_ATTACK,0);
+					if (m_creature->haveOffhandWeapon())
+						m_creature->setAttackTimer(OFF_ATTACK,0);
+				}*/
+				return;//自动重复技能无需处理
+			}
+		}
 		// Cast spell one on our current target.
 		if (!m_creature->HasSpellCooldown(spell))
 		{
@@ -134,18 +152,6 @@ struct mercenary_bot_AI : public PetAI
 		if (!mercenary)
 			return false;
 
-		if (defaultSpellTimer <= (int)diff)
-		{
-			for (auto it = defautSpells.begin(); it != defautSpells.end(); it++)
-			{
-				if (!m_creature->HasAura(*it))
-					m_creature->CastSpell(m_creature, *it, true);//没有光环就自动添加光环
-			}
-			defaultSpellTimer = 30000;//30秒检查1次
-		}
-		else
-			defaultSpellTimer -= diff;
-
 		Unit* target = player->getVictim();
 		if (!target)
 			target = m_creature->getVictim();
@@ -153,6 +159,18 @@ struct mercenary_bot_AI : public PetAI
 		//target = m_creature->SelectRandomUnfriendlyTarget();
 		if (!target)
 			return false;
+		
+		if (defaultSpellTimer <= (int)diff)
+		{
+			for (auto it = defautSpells.begin(); it != defautSpells.end(); it++)
+			{
+				if (!m_creature->HasAura(*it))
+					m_creature->CastSpell(m_creature, *it, true);//没有光环就自动添加光环
+			}
+			defaultSpellTimer = 5000;//5秒检查1次
+		}
+		else
+			defaultSpellTimer -= diff;
 
 		if (spellTimer < (int)diff)
 		{

@@ -352,6 +352,11 @@ void Unit::Update(uint32 update_diff, uint32 p_time)
         setAttackTimer(OFF_ATTACK, (update_diff >= base_att ? 0 : base_att - update_diff));
     }
 
+	if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))//为什么没有远程时间更新？？
+	{
+		setAttackTimer(RANGED_ATTACK, (update_diff >= ranged_att ? 0 : ranged_att - update_diff));
+	}
+
     if (IsVehicle())
     {
         // Initialize vehicle if not done
@@ -3709,6 +3714,11 @@ void Unit::_UpdateAutoRepeatSpell()
         // all went good, reset attack
         resetAttackTimer(RANGED_ATTACK);
     }
+	if (!isInCombat())
+	{
+		InterruptSpell(CURRENT_AUTOREPEAT_SPELL);//非战斗状态，结束自动重复技能
+		SetStandState(UNIT_STAND_STATE_STAND);
+	}
 }
 
 void Unit::SetCurrentCastedSpell(Spell* pSpell)
