@@ -43,6 +43,7 @@ bool showWorldMapContinentMenu(Player* pPlayer, Item* pItem){
 	
 	pPlayer->context.gossipActionType = CONTINENT_SEL_ACTION;
 
+	/*
 	uint32 nameid[4] = { 6000, 6001, 6002, 6003 };//卡里姆多,东部王国,外域,诺森德
 	uint32 zone[4] = { 1, 0, 530, 571 };//卡里姆多,东部王国,外域,诺森德
 	for (uint32 i = 0; i < 4; i++)
@@ -50,7 +51,13 @@ bool showWorldMapContinentMenu(Player* pPlayer, Item* pItem){
 		std::string * name = pPlayer->context.getGameMapsName(nameid[i]);
 		if (name != nullptr)
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, *name, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + zone[i]);
+	}*/
+	for (auto it = pPlayer->context.getGameTransportMaps().begin(); it != pPlayer->context.getGameTransportMaps().end(); it++)
+	{
+		if (it->second->maplist->size()>0)
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, it->first, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + it->second->maplist->at(0)->map);
 	}
+
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(16777210, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
@@ -59,6 +66,7 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	
 	pPlayer->context.gossipActionType = MAP_SEL_ACTION;
 	pPlayer->context.MAPSELPAGE=curPage;
+
 	tbb::concurrent_unordered_map<uint32,GameMap*>& maps = pPlayer->context.getGameMaps();
 
 	uint32 pageStart = (curPage - 1) * 17;
@@ -641,7 +649,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	/*任务推荐主菜单*/
 	void hearthstone_prepare_quest_area(Player* pPlayer, Item* pItem, int area){
 		if (pPlayer->isGameMaster())
-			ChatHandler(pPlayer).SendSysMessage("GM mode faction is ignored!");
+			ChatHandler(pPlayer).SendSysMessage("When GM ON, faction is ignored!");
 		if (area == -1)
 			area = pPlayer->GetAreaId();
 
@@ -660,7 +668,7 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 	//推荐zone下所有区域
 	void hearthstone_prepare_quest_zone(Player* pPlayer, Item* pItem, int zone){
 		if (pPlayer->isGameMaster())
-			ChatHandler(pPlayer).SendSysMessage("GM mode faction is ignored!");
+			ChatHandler(pPlayer).SendSysMessage("When GM ON,faction is ignored!");
 
 		if (zone == -1)
 			zone=pPlayer->GetZoneId();
