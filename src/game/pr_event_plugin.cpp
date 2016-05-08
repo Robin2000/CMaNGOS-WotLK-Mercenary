@@ -65,7 +65,12 @@ void updateMapDifficultyMultiplier(Player * player, uint32 mapid)
 				if (Group * group = player->GetGroup())
 				{
 					player->context.mapDifficultyHealthMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_HEALTH_RATE() * float(maxPlayers) / float(group->GetMembersCount());//0.5 * 5 /2 表示，5人本2人玩的情况，0.5为修正值。
+					if (player->context.mapDifficultyHealthMultiplier < 1.0f)
+						player->context.mapDifficultyHealthMultiplier = 1.0f;
+
 					player->context.mapDifficultyDamageMultiplier = sConfig.getPLAYER_MAP_DIFFICULTY_DAMAGE_RATE() * float(maxPlayers) / float(group->GetMembersCount());//0.5 * 5 /2 表示，5人本2人玩的情况，0.5为修正值。
+					if (player->context.mapDifficultyDamageMultiplier < 1.0f)
+						player->context.mapDifficultyDamageMultiplier = 1.0f;
 				}
 				else
 				{
