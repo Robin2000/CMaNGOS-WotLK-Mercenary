@@ -101,6 +101,7 @@ struct GameZone{
 };
 struct GameMap{
 	//uint32 id;
+	uint32 cid;
 	uint32 zone;//Ψһ
 	uint32 map;
 	uint16 level;
@@ -114,6 +115,7 @@ struct GameMap{
 struct GameInstance{
 	//uint32 id;
 	std::string name;
+	uint32 cid;
 	uint32 area;//Ψһ
 	uint32 map;
 	uint16 minlevel;

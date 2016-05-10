@@ -126,7 +126,7 @@ class MANGOS_DLL_SPEC PlayerContext{
 	tbb::concurrent_unordered_map<uint32,GameMap*> & getGameMaps();
 
 	//取得地图传送列表
-	tbb::concurrent_unordered_map<std::string,GameTransport*> & getGameTransportMaps();
+	tbb::concurrent_unordered_map<uint8,GameTransport*> & getGameTransportMaps();
 
 	//取得特定地图的信息，其中包含该地图的zone列表
 	//GameMap * getGameMap(uint32 map);
@@ -238,6 +238,8 @@ class MANGOS_DLL_SPEC PlayerContext{
 	PrEventPlugin & GetEventPlugin(){return eventPlugin;}
 
 	PrQuestPlugin & GetQuestPlugin(){ return prQuestPlugin; }
+
+	const char * GetContinent(uint8 cid, bool instance=false);
 
 	Player* mPlayer;
 	

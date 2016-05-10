@@ -260,7 +260,7 @@ void ObjectMgr::LoadGameMaps(){
 
 	mGameMaps.clear();                             // need for reload case
 	                                                // 0    1  2   3    4       5 6 7 8,9
-	QueryResult* result = WorldDatabase.Query("SELECT zone,cn,map,level,faction,x,y,z,o,continent FROM z_map order by level desc");
+	QueryResult* result = WorldDatabase.Query("SELECT zone,cn,map,level,faction,x,y,z,o,cid FROM z_map order by level desc");
 
 	if (!result)
 	{
@@ -293,14 +293,14 @@ void ObjectMgr::LoadGameMaps(){
 		mapIDName[zone] = fields[1].GetCppString();
 		mGameMaps.insert(std::make_pair(zone,gameMap));
 
-		std::string continent = fields[9].GetCppString();
-		auto it = mGameTransportMap.find(continent);
+		gameMap->cid = fields[9].GetUInt8();
+		auto it = mGameTransportMap.find(gameMap->cid);
 		if (it == mGameTransportMap.end())
 		{
 			GameTransport* gameTransport= new GameTransport();
 			gameTransport->maplist = new tbb::concurrent_vector<GameMap*>();
 			gameTransport->instancelist = new tbb::concurrent_vector<GameInstance*>();
-			mGameTransportMap.insert(std::make_pair(continent, gameTransport));
+			mGameTransportMap.insert(std::make_pair(gameMap->cid, gameTransport));
 
 			gameTransport->maplist->push_back(gameMap);
 		}
@@ -320,7 +320,7 @@ void ObjectMgr::LoadGameInstance(){
 
 	mGameInstanceMap.clear();                             // need for reload case
 	//												   0    1    2   3         4       5             6       7  8  9  10 11        12
-	QueryResult* result = WorldDatabase.Query("SELECT area,name,map,minlevel,maxlevel,instancetype,maxplayer,x, y, z, o,continent,faction FROM z_instance order by minlevel desc");
+	QueryResult* result = WorldDatabase.Query("SELECT area,name,map,minlevel,maxlevel,instancetype,maxplayer,x, y, z, o,cid,faction FROM z_instance order by minlevel desc");
 
 	if (!result)
 	{
@@ -337,10 +337,7 @@ void ObjectMgr::LoadGameInstance(){
 		Field* fields = result->Fetch();
 		bar.step();
 
-		
-
 		uint32 area = fields[0].GetUInt32();
-		
 
 		GameInstance* gameInstance = new GameInstance();
 		//gameMap->zonelist = new tbb::concurrent_vector<GameZone*>();
@@ -355,18 +352,18 @@ void ObjectMgr::LoadGameInstance(){
 		gameInstance->z = fields[9].GetFloat();
 		gameInstance->o = fields[10].GetFloat();
 		gameInstance->faction = fields[12].GetUInt32();
-
 		gameInstance->name = fields[1].GetCppString();
+		gameInstance->cid = fields[11].GetUInt8();
+
 		mGameInstanceMap.insert(std::make_pair(area,gameInstance));
 
-		std::string continent = fields[11].GetCppString();
-		auto it = mGameTransportMap.find(continent);
+		auto it = mGameTransportMap.find(gameInstance->cid);
 		if (it == mGameTransportMap.end())
 		{
 			GameTransport* gameTransport = new GameTransport();
 			gameTransport->maplist = new tbb::concurrent_vector<GameMap*>();
 			gameTransport->instancelist = new tbb::concurrent_vector<GameInstance*>();
-			mGameTransportMap.insert(std::make_pair(continent, gameTransport));
+			mGameTransportMap.insert(std::make_pair(gameInstance->cid, gameTransport));
 
 			gameTransport->instancelist->push_back(gameInstance);
 		}

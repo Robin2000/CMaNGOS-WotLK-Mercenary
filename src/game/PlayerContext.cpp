@@ -910,7 +910,7 @@ tbb::concurrent_unordered_map<uint32, GameInstance*> & PlayerContext::getGameIns
 	return  sObjectMgr.getGameInstanceMap();
 }
 
-tbb::concurrent_unordered_map<std::string, GameTransport*> & PlayerContext::getGameTransportMaps(){
+tbb::concurrent_unordered_map<uint8, GameTransport*> & PlayerContext::getGameTransportMaps(){
 	return  sObjectMgr.getGameTransportMap();
 }
 
@@ -1419,4 +1419,17 @@ bool PlayerContext::IsHostileTo(uint32 faction) const{
 
 	return mPlayer->getFactionTemplateEntry()->IsHostileTo(*entry);
 
+}
+const char * PlayerContext::GetContinent(uint8 cid,bool instance){
+	switch (cid){
+		case 0:
+			return instance ? mPlayer->GetMangosString(-2800716) : mPlayer->GetMangosString(-2800712);
+		case 1:
+			return instance ? mPlayer->GetMangosString(-2800717) : mPlayer->GetMangosString(-2800713);
+		case 2:
+			return instance ? mPlayer->GetMangosString(-2800718) : mPlayer->GetMangosString(-2800714);
+		case 3:
+			return instance ? mPlayer->GetMangosString(-2800719) : mPlayer->GetMangosString(-2800715);
+	}
+	return "";
 }

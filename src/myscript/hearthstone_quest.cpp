@@ -55,7 +55,7 @@ bool showWorldMapContinentMenu(Player* pPlayer, Item* pItem){
 	for (auto it = pPlayer->context.getGameTransportMaps().begin(); it != pPlayer->context.getGameTransportMaps().end(); it++)
 	{
 		if (it->second->maplist->size()>0)
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, it->first, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + it->second->maplist->at(0)->map);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, pPlayer->context.GetContinent(it->first), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + it->first);
 	}
 
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
@@ -67,17 +67,15 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 	pPlayer->context.gossipActionType = MAP_SEL_ACTION;
 	pPlayer->context.MAPSELPAGE=curPage;
 
-	tbb::concurrent_unordered_map<uint32,GameMap*>& maps = pPlayer->context.getGameMaps();
+	auto it = pPlayer->context.getGameTransportMaps().find(pPlayer->context.CONTINENTSEL);
+	tbb::concurrent_vector<GameMap*>* maps = it->second->maplist;
 
 	uint32 pageStart = (curPage - 1) * 17;
 	uint32 MAX_INDEX = pageStart + 17;
 	uint32 i = 0;
-	for (auto it = maps.begin(); it != maps.end(); it++)
+	for (auto it = maps->begin(); it != maps->end(); it++)
 	{
-		if (it->second->map != pPlayer->context.CONTINENTSEL)
-			continue;
-
-		if (pPlayer->getLevel() <it->second->level)
+		if (pPlayer->getLevel() <(*it)->level)
 			continue;
 
 		//TODO:添加阵营判断
@@ -88,12 +86,12 @@ bool showMapMenu(Player* pPlayer, Item* pItem, uint32 curPage){
 		if (i == MAX_INDEX)
 			break;
 
-		std::string * name = pPlayer->context.getGameMapsName(it->second->zone);
+		std::string * name = pPlayer->context.getGameMapsName((*it)->zone);
 		if (name != nullptr)
 		{
 			std::ostringstream os;
-			os << *name << "(Lvl:" << it->second->level << ")";
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + it->second->zone);//选择zone 100-299
+			os << *name << "(Lvl:" << (*it)->level << ")";
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, os.str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + (*it)->zone);//选择zone 100-299
 		}
 		i++;
 	}

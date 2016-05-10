@@ -17,26 +17,17 @@ bool hearthstone_prepare_transport(Player* pPlayer, Item* pItem){
 	//tbb::concurrent_unordered_map<uint32, GameMap*> & gameMap = pPlayer->context.getGameMaps();
 	//tbb::concurrent_unordered_map<uint32, GameMap*> & gameMap = pPlayer->context.getGameMaps();
 
-	uint32 idx = 0;
-	for (auto it = pPlayer->context.getGameTransportMaps().begin(); it != pPlayer->context.getGameTransportMaps().end(); it++, idx++)
+	for (auto it = pPlayer->context.getGameTransportMaps().begin(); it != pPlayer->context.getGameTransportMaps().end(); it++)
 	{
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, it->first, 0, GOSSIP_ACTION_INFO_DEF + idx);
-		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, it->first + pPlayer->GetMangosString(-2800701), 0, idx); // 副本
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, pPlayer->context.GetContinent(it->first,false), 0, GOSSIP_ACTION_INFO_DEF + it->first);
+		pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, pPlayer->context.GetContinent(it->first,true), 0, it->first); // 副本
 	}
 
 	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, -2800181, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 999);//返回主菜单
 	pPlayer->SEND_GOSSIP_MENU(65535, pItem->GetObjectGuid()); //利用原力直达游戏目标。
 	return true;
 }
-GameTransport* findByIdx(Player* pPlayer,uint32 idx){
-	uint32 i = 0;
-	for (auto it = pPlayer->context.getGameTransportMaps().begin(); it != pPlayer->context.getGameTransportMaps().end(); it++, i++)
-	{
-		if (i == idx)
-			return it->second;
-	}
-	return nullptr;
-}
+
 bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 	if (uiAction == GOSSIP_ACTION_INFO_DEF + 995)//下一页
@@ -64,11 +55,11 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 			{
 				pPlayer->context.gossipActionType = ACTION_SEL_MAP;//地图选择
 
-				GameTransport* gameTransport = findByIdx(pPlayer, uiAction - GOSSIP_ACTION_INFO_DEF);
+				tbb::concurrent_vector<GameMap*>* maps=pPlayer->context.getGameTransportMaps().find(uiAction - GOSSIP_ACTION_INFO_DEF)->second->maplist;
 				
 				uint32 start = pPlayer->context.MAPSELPAGE * NUM_PERPAGE;
 				uint32 i = 0;
-				for (auto it = gameTransport->maplist->begin(); it != gameTransport->maplist->end(); it++)
+				for (auto it = maps->begin(); it != maps->end(); it++)
 				{
 					if ((*it)->level > pPlayer->getLevel())
 						continue;
@@ -109,11 +100,11 @@ bool hearthstone_transport_case(Player* pPlayer, Item* pItem, uint32 uiAction){
 			else
 			{
 				pPlayer->context.gossipActionType = ACTION_SEL_INSTANCE;//副本选择
-				GameTransport* gameTransport = findByIdx(pPlayer, uiAction);
+				tbb::concurrent_vector<GameInstance*>* instances = pPlayer->context.getGameTransportMaps().find(uiAction - GOSSIP_ACTION_INFO_DEF)->second->instancelist;
 				
 				uint32 start = pPlayer->context.MAPSELPAGE * NUM_PERPAGE; 
 				uint32 i = 0;
-				for (auto it = gameTransport->instancelist->begin(); it != gameTransport->instancelist->end(); it++)
+				for (auto it = instances->begin(); it != instances->end(); it++)
 				{
 					if ((*it)->minlevel > pPlayer->getLevel())
 						continue;
