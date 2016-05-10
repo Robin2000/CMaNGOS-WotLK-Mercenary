@@ -248,9 +248,19 @@ public:
 	Player * player;
 };
 
-void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation){
+bool PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation){
 
-
+	MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+	if (!mapEntry)
+		return false;
+	if (mapEntry->IsDungeon() || mapEntry->IsBattleGroundOrArena())
+	{
+		if (!mPlayer->isGameMaster())
+		{
+			mPlayer->MonsterSay(mPlayer->GetMangosString(-2800709), LANG_UNIVERSAL, mPlayer);
+			return false;
+		}
+	}
 	//if (area == mPlayer->GetAreaId()){
 	//	addDelayedAction(new TransportAction(mPlayer, x, y, z, orientation,2000));
 	//}
@@ -258,10 +268,10 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 	if (!disableFindPath&&zone == mPlayer->GetZoneId()){
 
 
-		if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mPlayer->GetMapId()))
+		if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mapid))
 		{
 			teleport(mapid, x, y, z, orientation);
-			return;
+			return true;
 		}
 
 		float dx = x - mPlayer->GetPositionX();
@@ -272,7 +282,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 		if (dsqr<3.0 * 3.0)
 		{
 			ChatHandler(mPlayer).SendSysMessage(-2800685);
-			return;
+			return false;
 		}
 		else if (dsqr>50 * 50)//50码之外飞行
 		{
@@ -295,7 +305,7 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 			{
 				delete path;
 				teleport(mapid, x, y, z, orientation);
-				return;
+				return true;
 			}
 			
 			PointsArray& result=path->getPath();
@@ -327,10 +337,11 @@ void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, float x, fl
 		//mPlayer->GetVehicleInfo()->Board(mPlayer);
 		
 		//
-		
+		return true;
 	}
-else
+
 	teleport(mapid, x, y, z, orientation);
+	return true;
 }
 void PlayerContext::teleport(uint32 mapid, float x, float y, float z, float orientation){
 
@@ -1241,37 +1252,41 @@ void PlayerContext::addSelectedToPOI(uint32 questId, WorldObject * target)
 	sObjectMgr.LoadQuestPOI();
 	loadQuestAux(questId);//重新load
 }
-void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureData* data){
-	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ, data->orientation);
+bool PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureData* data){
+	return moveFast(mapid, zone, area, data->posX, data->posY, data->posZ, data->orientation);
 }
-void PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data){
-	moveFast(mapid, zone, area, data->posX, data->posY, data->posZ+2.0f, data->orientation);//游戏对象需太高避免掉下
+bool PlayerContext::moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data){
+	return moveFast(mapid, zone, area, data->posX, data->posY, data->posZ + 2.0f, data->orientation);//游戏对象需太高避免掉下
 }
 
-void PlayerContext::moveFast(QuestNpcGO const * questNpcGO){
+bool PlayerContext::moveFast(QuestNpcGO const * questNpcGO){
 	if (questNpcGO->npcgo > 0)
 	{
 		if (CreatureData* data = findCreatureDataByPOI(questNpcGO->mapxy))
-			moveFast(questNpcGO->map, questNpcGO->zone, questNpcGO->area,data);
+			return moveFast(questNpcGO->map, questNpcGO->zone, questNpcGO->area,data);
 	}
 	else if (questNpcGO->npcgo < 0)
 	{
 		if (GameObjectData* data = findGameObjectDataByPOI(questNpcGO->mapxy))
-			moveFast(questNpcGO->map, questNpcGO->zone, questNpcGO->area, data);
-	}else
+			return moveFast(questNpcGO->map, questNpcGO->zone, questNpcGO->area, data);
+	}
+	else
+	{
 		ChatHandler(mPlayer).SendSysMessage(-2800678);//该点没有地理信息。
+	}
+	return false;
 }
-void PlayerContext::moveFast(QuestPOIPoint * point){
+bool PlayerContext::moveFast(QuestPOIPoint * point){
 
 	if (point->npcgo > 0)
 	{
 		if (CreatureData* data = findCreatureDataByPOI(point->mapxy))
-			moveFast(point->map, point->zone, point->area,data);
+			return moveFast(point->map, point->zone, point->area, data);
 	}
 	else if (point->npcgo < 0)
 	{
 		if (GameObjectData* data =findGameObjectDataByPOI(point->mapxy))
-			moveFast(point->map, point->zone, point->area, data);
+			return moveFast(point->map, point->zone, point->area, data);
 	}
 	else
 	{
@@ -1283,8 +1298,9 @@ void PlayerContext::moveFast(QuestPOIPoint * point){
 				point->groundZ = 0;
 		}
 		//ChatHandler(mPlayer).HandleGoHelper(mPlayer, point->map, point->x, point->y);
-		moveFast(point->map, point->zone, point->area, point->x, point->y, point->groundZ, 0);
+		return moveFast(point->map, point->zone, point->area, point->x, point->y, point->groundZ, 0);
 	}
+	return false;
 }
 
 void PlayerContext::changeCamera(QuestNpcGO const * questNpcGO){

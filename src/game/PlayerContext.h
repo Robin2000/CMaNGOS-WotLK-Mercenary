@@ -199,12 +199,12 @@ class MANGOS_DLL_SPEC PlayerContext{
 	bool checkPositiveSpell(uint32 spellid);
 
 	void teleport(uint32 mapid, float x, float y, float z, float orientation);
-	void moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation);
+	bool moveFast(uint32 mapid, uint32 zone, uint32 area, float x, float y, float z, float orientation);
 
-	void moveFast(QuestNpcGO const * questNpcGO);
-	void moveFast(QuestPOIPoint * point);
-	void moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureData* data);
-	void moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data);
+	bool moveFast(QuestNpcGO const * questNpcGO);
+	bool moveFast(QuestPOIPoint * point);
+	bool moveFast(uint32 mapid, uint32 zone, uint32 area, CreatureData* data);
+	bool moveFast(uint32 mapid, uint32 zone, uint32 area, GameObjectData* data);
 
 	void changeCamera(QuestNpcGO const* questNpcGO);
 	void changeCamera(QuestPOIPoint * point);

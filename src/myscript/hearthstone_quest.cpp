@@ -270,8 +270,9 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 
 				if (!pPlayer->context.gamePointMgr.checkPoint(3))
 					return false;
-				pPlayer->context.moveFast(questNpcGO);
 				
+				if (!pPlayer->context.moveFast(questNpcGO))
+					return false;
 
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
@@ -280,7 +281,8 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				if (!pPlayer->context.gamePointMgr.checkPoint(1))
 					return false;
 
-				pPlayer->context.moveFast(questNpcGO);
+				if (!pPlayer->context.moveFast(questNpcGO))
+					return false;
 
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
@@ -317,8 +319,8 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				if (!pPlayer->context.gamePointMgr.checkPoint(3))
 					return false;
 
-					pPlayer->context.moveFast(point);//z高度增加10.0f避免掉地下
-
+				if (!pPlayer->context.moveFast(point))//z高度增加10.0f避免掉地下
+					return false;
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 3);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
@@ -326,8 +328,8 @@ bool hearthstone_quest_click(Player* pPlayer, Item* pItem, uint32 uiAction){
 				if (!pPlayer->context.gamePointMgr.checkPoint(1))
 					return false;
 
-					pPlayer->context.moveFast(point); //z高度增加10.0f避免掉地下
-
+				if (!pPlayer->context.moveFast(point)) //z高度增加10.0f避免掉地下
+					return false;
 				pPlayer->context.gamePointMgr.comsumeGamePoint(CHARACTERCONSUME_CONSUMETYPE_QUEST_AUX, 1);
 				pPlayer->CLOSE_GOSSIP_MENU();/*无条件关闭旧菜单*/
 				return true;
