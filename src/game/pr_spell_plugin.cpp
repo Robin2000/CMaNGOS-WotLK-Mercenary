@@ -145,6 +145,18 @@ bool PrSpellPlugin::spell_handler_deal(Spell * spell){
 		    }
 			return true;
 		}
+		case 38170://任务：
+		{
+			if (player->GetAreaId() == 3828)
+			{
+				player->StoreNewItemInBestSlots(31123, 1);//制造：旋转的虚空风向标（任务物品）
+				ChatHandler(player).SendSysMessage(-2800711);//获得旋转的虚空风向标。
+				return false;//让法术继续执行
+			}
+			ChatHandler(player).SendSysMessage(-2800710);//必须在卢安荒野才能执行此操作。
+			return true;//阻止法术执行
+			
+		}
 	}
 	return false;
 }

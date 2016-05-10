@@ -68,7 +68,7 @@ void findFlyPath(Player* player, float x, float y, float z, PointsArray* result)
 		if (groundz-oldz>0)
 			oldz = groundz;
 
-		result->push_back(Vector3(i, j, 50.0f + oldz)); //如果上一个z更大，就直接使用上一个z，避免颠簸
+		result->push_back(Vector3(i, j, 100.0f + oldz)); //如果上一个z更大，就直接使用上一个z，避免颠簸
 
 	}
 
